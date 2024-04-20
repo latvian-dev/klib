@@ -86,5 +86,15 @@ publishing {
 				}
 			}
 		}
+
+		if (ENV.KARL_TOKEN) {
+			maven {
+				url "https://mvn.krl.dev/releases"
+				credentials {
+					username = "lat"
+					password = "${ENV.KARL_TOKEN}"
+				}
+			}
+		}
 	}
 }

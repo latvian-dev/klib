@@ -27,5 +27,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         env:
           MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
+          KARL_TOKEN: ${{ secrets.KARL_TOKEN }}
         with:
           arguments: build publish --stacktrace --no-daemon
