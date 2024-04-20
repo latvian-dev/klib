@@ -1,7 +1,9 @@
 package dev.latvian.mods.kmath.util;
 
+import com.mojang.serialization.Codec;
 import dev.latvian.mods.kmath.KMath;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.LinkedHashMap;
@@ -12,6 +14,7 @@ import java.util.Map;
  */
 public final class Easing {
 	public static final Map<String, Easing> FUNCTIONS = new LinkedHashMap<>();
+	public static final Codec<Easing> CODEC = Codecs.idChecked(Easing::toString, FUNCTIONS::get);
 
 	public static Easing add(String id, Double2DoubleFunction function) {
 		var easing = add(id, function);
@@ -98,5 +101,10 @@ public final class Easing {
 	public Vec3d lerp(double t, Vec3d a, Vec3d b) {
 		var e = function.get(t);
 		return new Vec3d(KMath.lerp(e, a.x, b.x), KMath.lerp(e, a.y, b.y), KMath.lerp(e, a.z, b.z));
+	}
+
+	@Override
+	public String toString() {
+		return id;
 	}
 }

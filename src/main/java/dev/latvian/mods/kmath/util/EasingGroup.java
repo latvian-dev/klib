@@ -1,10 +1,14 @@
 package dev.latvian.mods.kmath.util;
 
+import com.mojang.serialization.Codec;
+import net.minecraft.util.dynamic.Codecs;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class EasingGroup {
 	public static final Map<String, EasingGroup> GROUPS = new LinkedHashMap<>();
+	public static final Codec<EasingGroup> CODEC = Codecs.idChecked(EasingGroup::toString, GROUPS::get);
 
 	public static EasingGroup add(String id, Easing in, Easing out, Easing inOut) {
 		var group = new EasingGroup(id, in, out, inOut);
@@ -41,5 +45,10 @@ public class EasingGroup {
 		this.in = in;
 		this.out = out;
 		this.inOut = inOut;
+	}
+
+	@Override
+	public String toString() {
+		return id;
 	}
 }
