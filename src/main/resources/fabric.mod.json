@@ -1,0 +1,18 @@
+{
+	"schemaVersion": 1,
+	"id": "kmath",
+	"version": "${version}",
+	"name": "KMath",
+	"description": "Math stuff",
+	"authors": [
+		"Lat"
+	],
+	"license": "MIT",
+	"environment": "*",
+	"accessWidener": "kmath.accessWidener",
+	"depends": {
+		"fabricloader": "*",
+		"fabric": "*",
+		"minecraft": ">=1.20.1"
+	}
+}
