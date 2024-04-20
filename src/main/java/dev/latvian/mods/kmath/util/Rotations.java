@@ -1,10 +1,11 @@
 package dev.latvian.mods.kmath.util;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-public class Rotations {
+public interface Rotations {
 	/**
 	 * Calculates the minecraft yaw angle in degrees for the given x and z delta values
 	 * Note: Default facing is south for vanilla entities(0)
@@ -13,16 +14,16 @@ public class Rotations {
 	 * @param z z delta
 	 * @return angle in degree
 	 */
-	public static float getYaw(double x, double z) {
+	static float getYaw(double x, double z) {
 		// Minecraft yaw is always offset by 90 degree
 		return MathHelper.wrapDegrees((float) (Math.toDegrees(Math.atan2(z, x)) - 90));
 	}
 
-	public static float getYaw(Vec3d direction) {
+	static float getYaw(Vec3d direction) {
 		return getYaw(direction.getX(), direction.getZ());
 	}
 
-	public static float getYaw(BlockPos direction) {
+	static float getYaw(BlockPos direction) {
 		return getYaw(direction.getX(), direction.getZ());
 	}
 
@@ -32,7 +33,7 @@ public class Rotations {
 	 * @param y delta 0-1
 	 * @return angle in degree
 	 */
-	public static float getPitch(double y) {
+	static float getPitch(double y) {
 		if (y > 1) {
 			return Float.NaN;
 		}
@@ -41,11 +42,22 @@ public class Rotations {
 		return MathHelper.wrapDegrees((float) -Math.toDegrees(Math.asin(y)));
 	}
 
-	public static float getPitch(Vec3d direction) {
+	static float getPitch(Vec3d direction) {
 		return getPitch(direction.normalize().y);
 	}
 
-	public static float getPitch(BlockPos direction) {
+	static float getPitch(BlockPos direction) {
 		return getPitch(Vec3d.of(direction));
+	}
+
+	static Vec3d getVectorFromBodyYaw(Entity entity) {
+		return getVector(entity.getPitch(), entity.getBodyYaw());
+	}
+
+	static Vec3d getVector(double pitch, double yaw) {
+		double p = Math.toRadians(pitch);
+		double y = Math.toRadians(-yaw);
+		double h = Math.cos(p);
+		return new Vec3d(Math.sin(y) * h, -Math.sin(p), Math.cos(y) * h);
 	}
 }

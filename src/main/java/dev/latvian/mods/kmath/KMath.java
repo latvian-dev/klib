@@ -132,4 +132,10 @@ public interface KMath {
 	static float smootherstep(float t) {
 		return t * t * t * (t * (t * 6F - 15F) + 10F);
 	}
+
+	static double curve(double t, double p1x, double p2x, double p3x) {
+		double t1 = 1D - t;
+		double v = -(p1x - 8D * p2x + p3x) / 6D;
+		return t1 * t1 * t1 * p1x + 3D * t * t1 * t1 * v + 3D * t * t * t1 * v + t * t * t * p3x;
+	}
 }
