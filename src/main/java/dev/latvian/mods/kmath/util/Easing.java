@@ -17,7 +17,7 @@ public final class Easing {
 	public static final Codec<Easing> CODEC = Codecs.idChecked(Easing::toString, FUNCTIONS::get);
 
 	public static Easing add(String id, Double2DoubleFunction function) {
-		var easing = add(id, function);
+		var easing = new Easing(id, function);
 		FUNCTIONS.put(id, easing);
 		return easing;
 	}
