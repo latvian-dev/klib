@@ -27,7 +27,7 @@ public final class Easing {
 	public static final Easing ISMOOTHSTEP = add("ismoothstep", KMath::ismoothstep);
 	public static final Easing SMOOTHERSTEP = add("smootherstep", KMath::smootherstep);
 
-	public static final Easing SINE_IN = add("sine_in", x -> 1 - Math.cos((x - Math.PI) / 2));
+	public static final Easing SINE_IN = add("sine_in", x -> 1 - Math.cos((x * Math.PI) / 2));
 	public static final Easing SINE_OUT = add("sine_out", x -> Math.sin((x * Math.PI) / 2));
 	public static final Easing SINE_IN_OUT = add("sine_in_out", x -> -(Math.cos(Math.PI * x) - 1) / 2);
 
