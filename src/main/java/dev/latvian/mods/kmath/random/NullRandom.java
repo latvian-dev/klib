@@ -1,19 +1,18 @@
 package dev.latvian.mods.kmath.random;
 
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.math.random.RandomSplitter;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 
-public class NullRandom implements Random, RandomSplitter {
-
-	public static final NullRandom INSTANCE = new NullRandom();
+public enum NullRandom implements RandomSource, PositionalRandomFactory {
+	INSTANCE;
 
 	@Override
-	public Random split() {
+	public RandomSource fork() {
 		return this;
 	}
 
 	@Override
-	public RandomSplitter nextSplitter() {
+	public PositionalRandomFactory forkPositional() {
 		return this;
 	}
 
@@ -57,16 +56,21 @@ public class NullRandom implements Random, RandomSplitter {
 	}
 
 	@Override
-	public Random split(String seed) {
+	public RandomSource fromHashOf(String seed) {
 		return this;
 	}
 
 	@Override
-	public Random split(int x, int y, int z) {
+	public RandomSource fromSeed(long seed) {
 		return this;
 	}
 
 	@Override
-	public void addDebugInfo(StringBuilder info) {
+	public RandomSource at(int x, int y, int z) {
+		return this;
+	}
+
+	@Override
+	public void parityConfigString(StringBuilder info) {
 	}
 }

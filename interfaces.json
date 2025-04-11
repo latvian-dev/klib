@@ -1,0 +1,5 @@
+{
+	"net/minecraft/util/RandomSource": [
+		"dev/latvian/mods/kmath/core/KMathRandomSource"
+	]
+}

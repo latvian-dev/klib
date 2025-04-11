@@ -1,0 +1,21 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+license = "MIT"
+
+[[mods]]
+modId = "kmath"
+version = "${version}"
+displayName = "KMath"
+authors = "latvian.dev"
+logoFile = "kmath_logo.png"
+logoBlur = true
+
+[[dependencies.kmath]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.122,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "kmath.mixins.json"
