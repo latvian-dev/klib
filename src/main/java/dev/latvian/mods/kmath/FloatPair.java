@@ -36,10 +36,10 @@ public record FloatPair(float a, float b) {
 
 	public static FloatPair ofTag(Tag nbt) {
 		return switch (nbt) {
-			case ListTag list -> of(list.getFloat(0), list.getFloat(1));
-			case NumericTag num -> of(num.getAsFloat());
-			case IntArrayTag arr -> of(arr.get(0).getAsFloat(), arr.get(1).getAsFloat());
-			case ByteArrayTag arr -> of(arr.get(0).getAsFloat(), arr.get(1).getAsFloat());
+			case ListTag list -> of(list.getFloatOr(0, 0F), list.getFloatOr(1, 0F));
+			case NumericTag num -> of(num.floatValue());
+			case IntArrayTag arr -> of(arr.get(0).floatValue(), arr.get(1).floatValue());
+			case ByteArrayTag arr -> of(arr.get(0).floatValue(), arr.get(1).floatValue());
 			case null, default -> null;
 		};
 	}
