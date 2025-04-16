@@ -195,4 +195,8 @@ public record Color(int argb) implements Gradient {
 	public Color get(float delta) {
 		return this;
 	}
+
+	public boolean isTransparent() {
+		return alpha() == 0;
+	}
 }

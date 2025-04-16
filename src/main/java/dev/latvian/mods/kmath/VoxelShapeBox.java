@@ -11,6 +11,7 @@ import java.util.List;
 public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 	public static final VoxelShapeBox EMPTY = new VoxelShapeBox(List.of(), List.of());
 	public static final VoxelShapeBox FULL = of(Shapes.block());
+	public static final VoxelShapeBox FULL_CENTERED = of(Shapes.block().move(-0.5D, -0.5D, -0.5D));
 
 	public static VoxelShapeBox of(VoxelShape shape) {
 		if (shape.isEmpty()) {
