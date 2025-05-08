@@ -16,6 +16,8 @@ import java.util.function.Function;
 
 public record Vec3f(float x, float y, float z) {
 	public static final Vec3f ZERO = new Vec3f(0F, 0F, 0F);
+	public static final Vec3f ONE = new Vec3f(1F, 1F, 1F);
+
 	public static final Vec3f DOWN = new Vec3f(0F, -1F, 0F);
 	public static final Vec3f UP = new Vec3f(0F, 1F, 0F);
 	public static final Vec3f NORTH = new Vec3f(0F, 0F, -1F);
@@ -26,7 +28,11 @@ public record Vec3f(float x, float y, float z) {
 	public static final Vec3f[] DIRECTIONS = {DOWN, UP, NORTH, SOUTH, WEST, EAST};
 
 	public static Vec3f of(float x, float y, float z) {
-		if (x == 0F && y == -1F && z == 0F) {
+		if (x == 0F && y == 0F && z == 0F) {
+			return ZERO;
+		} else if (x == 1F && y == 1F && z == 1F) {
+			return ONE;
+		} else if (x == 0F && y == -1F && z == 0F) {
 			return DOWN;
 		} else if (x == 0F && y == 1F && z == 0F) {
 			return UP;
@@ -59,9 +65,21 @@ public record Vec3f(float x, float y, float z) {
 		return of(v.x(), v.y(), v.z());
 	}
 
+	public static Vec3f of(float v) {
+		if (v == 0F) {
+			return ZERO;
+		} else if (v == 1F) {
+			return ONE;
+		} else {
+			return of(v, v, v);
+		}
+	}
+
 	public static final Codec<Vec3f> DIRECT_CODEC = Codec.FLOAT.listOf(3, 3).xmap(f -> of(f.get(0), f.get(1), f.get(2)), v -> List.of(v.x, v.y, v.z));
 
-	public static final Codec<Vec3f> CODEC = Codec.either(Direction.CODEC, DIRECT_CODEC).xmap(either -> either.map(dir -> DIRECTIONS[dir.get3DDataValue()], Function.identity()), v -> {
+	public static final Codec<Vec3f> CODEC = Codec.either(Codec.FLOAT, DIRECT_CODEC).xmap(either -> either.map(Vec3f::of, Function.identity()), v -> v.x == v.y && v.x == v.z ? Either.left(v.x) : Either.right(v));
+
+	public static final Codec<Vec3f> DIRECTION_CODEC = Codec.either(Direction.CODEC, CODEC).xmap(either -> either.map(dir -> DIRECTIONS[dir.get3DDataValue()], Function.identity()), v -> {
 		if (v.x == 0F && v.y == -1F && v.z == 0F) {
 			return Either.left(Direction.DOWN);
 		} else if (v.x == 0F && v.y == 1F && v.z == 0F) {
