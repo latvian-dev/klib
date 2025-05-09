@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3fc;
 import org.joml.Vector4f;
@@ -147,5 +148,15 @@ public record Vec3f(float x, float y, float z) {
 
 	public Vec3f withZ(float z) {
 		return of(x, y, z);
+	}
+
+	public Vec3f lerp(float delta, Vec3f other) {
+		if (delta == 0F) {
+			return this;
+		} else if (delta == 1F) {
+			return other;
+		} else {
+			return of(Mth.lerp(delta, x, other.x), Mth.lerp(delta, y, other.y), Mth.lerp(delta, z, other.z));
+		}
 	}
 }
