@@ -1,17 +1,15 @@
-package dev.latvian.mods.kmath;
+package dev.latvian.mods.kmath.vertexfunction;
 
 import org.joml.SimplexNoise;
 import org.joml.Vector3f;
 
-import java.util.function.Consumer;
-
-public class AdditiveSimplexNoiseVector3fFunction implements Consumer<Vector3f> {
+public class AdditiveSimplexNoiseVertexFunction implements VertexFunction {
 	private final float noise;
 	private final float range;
 	private final float noiseScale;
 	private float offset;
 
-	public AdditiveSimplexNoiseVector3fFunction(float noise, float range, float noiseScale) {
+	public AdditiveSimplexNoiseVertexFunction(float noise, float range, float noiseScale) {
 		this.noise = noise;
 		this.range = range;
 		this.noiseScale = noiseScale;

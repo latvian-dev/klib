@@ -61,10 +61,6 @@ public class Split {
 		}
 	}
 
-	public void reshape(long seed, float weirdness) {
-		reshape(new RandomVector3fFunction(seed, weirdness));
-	}
-
 	@Override
 	public String toString() {
 		return "Split_1/" + split;
