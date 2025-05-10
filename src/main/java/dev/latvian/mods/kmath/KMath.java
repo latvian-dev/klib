@@ -164,11 +164,11 @@ public interface KMath {
 	}
 
 	static double lerp(double delta, double range) {
-		return delta * range * 2D - delta;
+		return delta * range * 2D - range;
 	}
 
 	static float lerp(float delta, float range) {
-		return delta * range * 2F - delta;
+		return delta * range * 2F - range;
 	}
 
 	static double clerp(double value, double min, double max) {
