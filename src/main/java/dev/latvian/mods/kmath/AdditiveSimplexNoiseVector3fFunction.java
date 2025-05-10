@@ -5,13 +5,13 @@ import org.joml.Vector3f;
 
 import java.util.function.Consumer;
 
-public class SimplexNoiseVector3fFunction implements Consumer<Vector3f> {
+public class AdditiveSimplexNoiseVector3fFunction implements Consumer<Vector3f> {
 	private final float noise;
 	private final float range;
 	private final float noiseScale;
 	private float offset;
 
-	public SimplexNoiseVector3fFunction(float noise, float range, float noiseScale) {
+	public AdditiveSimplexNoiseVector3fFunction(float noise, float range, float noiseScale) {
 		this.noise = noise;
 		this.range = range;
 		this.noiseScale = noiseScale;
