@@ -10,14 +10,15 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 
 /**
  * @author Lat
  */
 public record WorldMouse(
-	Matrix4f worldMatrix,
-	Matrix4f invertedWorldMatrix,
+	Matrix4fc worldMatrix,
+	Matrix4fc invertedWorldMatrix,
 	Vec3 cameraPos,
 	float width,
 	float height,
@@ -27,7 +28,7 @@ public record WorldMouse(
 	@Nullable BlockPos pos,
 	@Nullable BlockPos altPos
 ) {
-	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4f worldMatrix, double maxDistance, @Nullable Vec2f screenPos) {
+	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4fc worldMatrix, double maxDistance, @Nullable Vec2f screenPos) {
 		var invertedWorldMatrix = new Matrix4f(worldMatrix).invert();
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
@@ -77,12 +78,12 @@ public record WorldMouse(
 		);
 	}
 
-	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4f worldMatrix) {
+	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4fc worldMatrix) {
 		return clip(mc, cameraPos, worldMatrix, 1000D, null);
 	}
 
 	@Nullable
-	public static Vec2f screen(Matrix4f worldMatrix, Vec3 camera, float width, float height, double worldX, double worldY, double worldZ, boolean allowOutside) {
+	public static Vec2f screen(Matrix4fc worldMatrix, Vec3 camera, float width, float height, double worldX, double worldY, double worldZ, boolean allowOutside) {
 		var v = new Vector4f((float) (worldX - camera.x), (float) (worldY - camera.y), (float) (worldZ - camera.z), 1F);
 		v.mul(worldMatrix);
 		v.div(v.w);
@@ -97,7 +98,7 @@ public record WorldMouse(
 		return null;
 	}
 
-	public static Vec3 world(Matrix4f invertedWorldMatrix, Vec3 camera, float width, float height, float x, float y) {
+	public static Vec3 world(Matrix4fc invertedWorldMatrix, Vec3 camera, float width, float height, float x, float y) {
 		var v = new Vector4f(x * 2F / width - 1F, -(y * 2F / height - 1F), 1F, 1F);
 		v.mul(invertedWorldMatrix);
 		v.div(v.w);
