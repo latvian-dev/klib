@@ -60,9 +60,13 @@ public class SphereRenderer {
 
 	// POSITION_COLOR
 	public static void renderDebugQuads(SpherePoints points, PoseStack ms, MultiBufferSource buffers, boolean cull, Color color) {
+		renderDebugQuads(points, ms, buffers.getBuffer(cull ? DebugRenderTypes.QUADS : DebugRenderTypes.QUADS_NO_CULL), color);
+	}
+
+	// POSITION_COLOR
+	public static void renderDebugQuads(SpherePoints points, PoseStack ms, VertexConsumer buffer, Color color) {
 		var e = ms.last();
 		var m = e.pose();
-		var buffer = buffers.getBuffer(cull ? DebugRenderTypes.QUADS : DebugRenderTypes.QUADS_NO_CULL);
 
 		float colR = color.redf();
 		float colG = color.greenf();

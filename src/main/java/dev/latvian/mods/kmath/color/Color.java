@@ -8,6 +8,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 
 import java.util.Map;
+import java.util.OptionalInt;
 
 public record Color(int argb) implements Gradient {
 	public static final Color TRANSPARENT = new Color(0x00000000);
@@ -198,5 +199,132 @@ public record Color(int argb) implements Gradient {
 
 	public boolean isTransparent() {
 		return alpha() == 0;
+	}
+
+	public OptionalInt toOptionalARGB() {
+		return isTransparent() ? OptionalInt.empty() : OptionalInt.of(argb);
+	}
+
+	public OptionalInt toOptionalRGB() {
+		return isTransparent() ? OptionalInt.empty() : OptionalInt.of(rgb());
+	}
+
+	public float getHue() {
+		int r = red();
+		int g = green();
+		int b = blue();
+
+		int cmax = Math.max(r, g);
+
+		if (b > cmax) {
+			cmax = b;
+		}
+
+		int cmin = Math.min(r, g);
+
+		if (b < cmin) {
+			cmin = b;
+		}
+
+		float saturation;
+
+		if (cmax != 0) {
+			saturation = (float) (cmax - cmin) / (float) cmax;
+		} else {
+			saturation = 0F;
+		}
+
+		float hue;
+
+		if (saturation == 0F) {
+			hue = 0F;
+		} else {
+			float redc = (float) (cmax - r) / (float) (cmax - cmin);
+			float greenc = (float) (cmax - g) / (float) (cmax - cmin);
+			float bluec = (float) (cmax - b) / (float) (cmax - cmin);
+
+			if (r == cmax) {
+				hue = bluec - greenc;
+			} else if (g == cmax) {
+				hue = 2F + redc - bluec;
+			} else {
+				hue = 4F + greenc - redc;
+			}
+
+			hue /= 6F;
+
+			if (hue < 0F) {
+				++hue;
+			}
+		}
+
+		return hue;
+	}
+
+	public float[] toHSB(float[] hsb) {
+		if (hsb == null || hsb.length == 0) {
+			hsb = new float[3];
+		}
+
+		int r = red();
+		int g = green();
+		int b = blue();
+
+		int cmax = Math.max(r, g);
+
+		if (b > cmax) {
+			cmax = b;
+		}
+
+		int cmin = Math.min(r, g);
+
+		if (b < cmin) {
+			cmin = b;
+		}
+
+		float brightness = (float) cmax / 255F;
+		float saturation;
+
+		if (cmax != 0) {
+			saturation = (float) (cmax - cmin) / (float) cmax;
+		} else {
+			saturation = 0F;
+		}
+
+		float hue;
+
+		if (saturation == 0F) {
+			hue = 0F;
+		} else {
+			float redc = (float) (cmax - r) / (float) (cmax - cmin);
+			float greenc = (float) (cmax - g) / (float) (cmax - cmin);
+			float bluec = (float) (cmax - b) / (float) (cmax - cmin);
+
+			if (r == cmax) {
+				hue = bluec - greenc;
+			} else if (g == cmax) {
+				hue = 2F + redc - bluec;
+			} else {
+				hue = 4F + greenc - redc;
+			}
+
+			hue /= 6F;
+
+			if (hue < 0F) {
+				++hue;
+			}
+		}
+
+		hsb[0] = hue;
+
+		if (hsb.length >= 2) {
+			hsb[1] = saturation;
+		}
+
+		if (hsb.length >= 3) {
+			hsb[2] = brightness;
+		}
+
+		return hsb;
 	}
 }
