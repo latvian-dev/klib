@@ -30,7 +30,7 @@ public interface BufferSupplier {
 	}
 
 	default VertexCallback lines(MultiBufferSource buffers) {
-		return buffers.getBuffer(DebugRenderTypes.LINES).onlyPosCol();
+		return buffers.getBuffer(DebugRenderTypes.LINES);
 	}
 
 	default BufferSupplier process(UnaryOperator<VertexCallback> process) {

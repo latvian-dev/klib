@@ -8,6 +8,10 @@ import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
+import org.joml.Matrix3fc;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -54,6 +58,8 @@ public interface KMath {
 
 	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
 	Vec3 CENTER = new Vec3(0.5D, 0.5D, 0.5D);
+	Matrix3fc IDENTITY_3x3 = new Matrix3f();
+	Matrix4fc IDENTITY_4x4 = new Matrix4f();
 
 	static String veryShortFormat(float value) {
 		return NumberFormat.VERY_SHORT.format(value);
@@ -239,5 +245,18 @@ public interface KMath {
 
 	static BlockPos max(BlockPos a, BlockPos b) {
 		return new BlockPos(Math.max(a.getX(), b.getX()), Math.max(a.getY(), b.getY()), Math.max(a.getZ(), b.getZ()));
+	}
+
+	static boolean isIdentity(Matrix3fc m) {
+		return m.m00() == 1F && m.m01() == 0F && m.m02() == 0F &&
+			m.m10() == 0F && m.m11() == 1F && m.m12() == 0F &&
+			m.m20() == 0F && m.m21() == 0F && m.m22() == 1F;
+	}
+
+	static boolean isIdentity(Matrix4fc m) {
+		return m.m00() == 1F && m.m01() == 0F && m.m02() == 0F && m.m03() == 0F &&
+			m.m10() == 0F && m.m11() == 1F && m.m12() == 0F && m.m13() == 0F &&
+			m.m20() == 0F && m.m21() == 0F && m.m22() == 1F && m.m23() == 0F &&
+			m.m30() == 0F && m.m31() == 0F && m.m32() == 0F && m.m33() == 1F;
 	}
 }

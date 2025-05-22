@@ -1,5 +1,6 @@
 package dev.latvian.mods.kmath.vertex;
 
+import dev.latvian.mods.kmath.KMath;
 import dev.latvian.mods.kmath.color.Color;
 import dev.latvian.mods.kmath.texture.PackedUV;
 import org.joml.Matrix3fc;
@@ -31,7 +32,7 @@ public interface VertexCallback {
 	}
 
 	default VertexCallback withColor(Color color) {
-		return new VertexCallbackWithColor(this, color.red(), color.green(), color.blue(), color.alpha());
+		return new VertexCallbackWithColor(this, color.redf(), color.greenf(), color.bluef(), color.alphaf());
 	}
 
 	default VertexCallback withLight(PackedUV light) {
@@ -43,15 +44,38 @@ public interface VertexCallback {
 	}
 
 	default VertexCallback withTransformedPositionsAndNormals(Matrix4fc posMatrix, Matrix3fc normalMatrix, boolean normalize) {
-		return new TransformedVertexCallback(this, posMatrix, normalMatrix, normalize, new Vector3f());
+		boolean n = !normalize && KMath.isIdentity(normalMatrix);
+		boolean p = KMath.isIdentity(posMatrix);
+
+		if (n && p) {
+			return this;
+		} else if (n) {
+			return new TransformedPositionsVertexCallback(this, posMatrix, new Vector3f());
+		} else if (p) {
+			return new TransformedNormalsVertexCallback(this, normalMatrix, normalize, new Vector3f());
+		} else {
+			return new TransformedVertexCallback(this, posMatrix, normalMatrix, normalize, new Vector3f());
+		}
 	}
 
 	default VertexCallback withTransformedPositions(Matrix4fc matrix) {
-		return new TransformedPositionsVertexCallback(this, matrix, new Vector3f());
+		boolean p = KMath.isIdentity(matrix);
+
+		if (p) {
+			return this;
+		} else {
+			return new TransformedPositionsVertexCallback(this, matrix, new Vector3f());
+		}
 	}
 
 	default VertexCallback withTransformedNormals(Matrix3fc matrix, boolean normalize) {
-		return new TransformedNormalsVertexCallback(this, matrix, normalize, new Vector3f());
+		boolean n = !normalize && KMath.isIdentity(matrix);
+
+		if (n) {
+			return this;
+		} else {
+			return new TransformedNormalsVertexCallback(this, matrix, normalize, new Vector3f());
+		}
 	}
 
 	default VertexCallback onlyPos() {

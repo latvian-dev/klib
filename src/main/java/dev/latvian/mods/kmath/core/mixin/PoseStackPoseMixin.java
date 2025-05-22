@@ -24,39 +24,16 @@ public class PoseStackPoseMixin implements KMathPoseStackPose {
 
 	@Override
 	public VertexCallback transform(VertexCallback callback) {
-		boolean n = trustedNormals && normal.equals(KMathPoseStackPose.IDENTITY_3x3);
-		boolean p = pose.equals(KMathPoseStackPose.IDENTITY_4x4);
-
-		if (n && p) {
-			return callback;
-		} else if (n) {
-			return callback.withTransformedPositions(pose);
-		} else if (p) {
-			return callback.withTransformedNormals(normal, !trustedNormals);
-		} else {
-			return callback.withTransformedPositionsAndNormals(pose, normal, !trustedNormals);
-		}
+		return callback.withTransformedPositionsAndNormals(pose, normal, !trustedNormals);
 	}
 
 	@Override
 	public VertexCallback transformPositions(VertexCallback callback) {
-		boolean p = pose.equals(KMathPoseStackPose.IDENTITY_4x4);
-
-		if (p) {
-			return callback;
-		} else {
-			return callback.withTransformedPositions(pose);
-		}
+		return callback.withTransformedPositions(pose);
 	}
 
 	@Override
 	public VertexCallback transformNormals(VertexCallback callback) {
-		boolean n = trustedNormals && normal.equals(KMathPoseStackPose.IDENTITY_3x3);
-
-		if (n) {
-			return callback;
-		} else {
-			return callback.withTransformedNormals(normal, !trustedNormals);
-		}
+		return callback.withTransformedNormals(normal, !trustedNormals);
 	}
 }
