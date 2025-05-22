@@ -2,8 +2,8 @@ package dev.latvian.mods.kmath.render;
 
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 
-public class BoxBuilder {
-	public static void quads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
+public interface BoxBuilder {
+	static void quads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
 		// East
 		callback.acceptPos(maxX, maxY, minZ); // N 1 0 0
 		callback.acceptPos(maxX, maxY, maxZ); // N 1 0 0
@@ -41,7 +41,7 @@ public class BoxBuilder {
 		callback.acceptPos(minX, minY, maxZ); // N 0 -1 0
 	}
 
-	public static void lines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
+	static void lines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
 		callback.acceptPos(minX, minY, minZ);
 		callback.acceptPos(maxX, minY, minZ);
 		callback.acceptPos(minX, minY, minZ);
@@ -68,7 +68,7 @@ public class BoxBuilder {
 		callback.acceptPos(maxX, maxY, maxZ);
 	}
 
-	public static void frameQuads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize, VertexCallback callback) {
+	static void frameQuads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize, VertexCallback callback) {
 		float c = cornerSize * 0.5F;
 		float e = edgeSize * 0.5F;
 		float o = c * 2F;
@@ -98,7 +98,7 @@ public class BoxBuilder {
 		quads(maxX - e, minY - c + o, maxZ - e, maxX + e, maxY + c - o, maxZ + e, callback);
 	}
 
-	public static void frameLines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize, VertexCallback callback) {
+	static void frameLines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize, VertexCallback callback) {
 		float c = cornerSize * 0.5F;
 		float e = edgeSize * 0.5F;
 		float o = c * 2F;

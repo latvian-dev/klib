@@ -9,24 +9,28 @@ import dev.latvian.mods.kmath.texture.UV;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-public class SphereRenderer {
-	public static void entity(SpherePoints points, PoseStack ms, Color color, UV uv, LightUV light, OverlayUV overlay, VertexCallback callback) {
+public interface SphereRenderer {
+	static void entity(PoseStack ms, SpherePoints points, Color color, UV uv, LightUV light, OverlayUV overlay, VertexCallback callback) {
 		points.buildQuads(uv, ms.last().transform(callback).withColor(color).withLight(light).withOverlay(overlay));
 	}
 
-	public static void entity(SpherePoints points, PoseStack ms, VertexCallback callback) {
-		entity(points, ms, Color.WHITE, UV.FULL, LightUV.NONE, OverlayUV.NORMAL, callback);
+	static void entity(PoseStack ms, SpherePoints points, VertexCallback callback) {
+		entity(ms, points, Color.WHITE, UV.FULL, LightUV.NONE, OverlayUV.NORMAL, callback);
 	}
 
-	public static void debugQuads(SpherePoints points, PoseStack ms, MultiBufferSource buffers, boolean cull, Color color) {
-		debugQuads(points, ms, color, buffers.getBuffer(cull ? DebugRenderTypes.QUADS : DebugRenderTypes.QUADS_NO_CULL));
+	static void quads(PoseStack ms, SpherePoints points, MultiBufferSource buffers, BufferSupplier type, boolean cull, Color color) {
+		quads(ms, points, color, type.quads(buffers, cull));
 	}
 
-	public static void debugQuads(SpherePoints points, PoseStack ms, Color color, VertexCallback callback) {
-		points.buildQuads(UV.FULL, ms.last().transform(callback).onlyPos().withColor(color));
+	static void quads(PoseStack ms, SpherePoints points, Color color, VertexCallback callback) {
+		points.buildQuads(UV.FULL, ms.last().transform(callback).withColor(color));
 	}
 
-	public static void debugLines(SpherePoints points, PoseStack ms, Color color, VertexCallback callback) {
+	static void lines(PoseStack ms, SpherePoints points, Color color, VertexCallback callback) {
 		points.buildLines(ms.last().transform(callback).withColor(color));
+	}
+
+	static void lines(PoseStack ms, SpherePoints points, MultiBufferSource buffers, BufferSupplier type, Color color) {
+		points.buildLines(ms.last().transform(type.lines(buffers)).withColor(color));
 	}
 }
