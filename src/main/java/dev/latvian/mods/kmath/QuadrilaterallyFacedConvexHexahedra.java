@@ -1,5 +1,6 @@
 package dev.latvian.mods.kmath;
 
+import dev.latvian.mods.kmath.vertex.VertexCallback;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -101,7 +102,7 @@ public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Ve
 		return edges[edge];
 	}
 
-	public void forEachVertex(VertexCallback.PosNormal callback) {
+	public void forEachVertex(VertexCallback callback) {
 		for (var face : faces) {
 			face.forEachVertex(callback);
 		}

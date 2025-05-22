@@ -1,4 +1,4 @@
-package dev.latvian.mods.kmath.vertexfunction;
+package dev.latvian.mods.kmath.vertex.function;
 
 import org.joml.SimplexNoise;
 import org.joml.Vector3f;

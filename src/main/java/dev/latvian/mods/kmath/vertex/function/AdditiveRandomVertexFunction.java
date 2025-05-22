@@ -1,4 +1,4 @@
-package dev.latvian.mods.kmath.vertexfunction;
+package dev.latvian.mods.kmath.vertex.function;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;

@@ -7,6 +7,8 @@
 		"RandomSourceMixin"
 	],
 	"client": [
+		"PoseStackPoseMixin",
+		"VertexConsumerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1,

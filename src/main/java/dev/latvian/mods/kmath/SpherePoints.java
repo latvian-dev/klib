@@ -1,5 +1,7 @@
 package dev.latvian.mods.kmath;
 
+import dev.latvian.mods.kmath.texture.UV;
+import dev.latvian.mods.kmath.vertex.VertexCallback;
 import org.joml.Vector3f;
 
 public class SpherePoints {
@@ -86,5 +88,49 @@ public class SpherePoints {
 			}
 		}
 		 */
+	}
+
+	public void buildQuads(UV uv, VertexCallback callback) {
+		var u0 = uv.u0();
+		var v0 = uv.v0();
+		var u1 = uv.u1();
+		var v1 = uv.v1();
+
+		for (int r = 0; r < rows.length - 1; r++) {
+			for (int c = 0; c < cols.length - 1; c++) {
+				var cr = rows[r];
+				var nr = rows[r + 1];
+				var cc = cols[c];
+				var nc = cols[c + 1];
+				var nv = normals[c][r];
+
+				var u0l = KMath.lerp(cc.u(), u0, u1);
+				var v0l = KMath.lerp(cr.v(), v0, v1);
+				var u1l = KMath.lerp(nc.u(), u0, u1);
+				var v1l = KMath.lerp(nr.v(), v0, v1);
+
+				callback.acceptPos(cc.x() * nr.m(), nr.y(), cc.z() * nr.m()).acceptTex(u0l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(cc.x() * cr.m(), cr.y(), cc.z() * cr.m()).acceptTex(u0l, v0l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(nc.x() * cr.m(), cr.y(), nc.z() * cr.m()).acceptTex(u1l, v0l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(nc.x() * nr.m(), nr.y(), nc.z() * nr.m()).acceptTex(u1l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+			}
+		}
+	}
+
+	public void buildLines(VertexCallback callback) {
+		for (int r = 0; r < rows.length - 1; r++) {
+			for (int c = 0; c < cols.length - 1; c++) {
+				var cr = rows[r];
+				var nr = rows[r + 1];
+				var cc = cols[c];
+				var nc = cols[c + 1];
+
+				callback.acceptPos(cc.x() * nr.m(), nr.y(), cc.z() * nr.m());
+				callback.acceptPos(cc.x() * cr.m(), cr.y(), cc.z() * cr.m());
+
+				callback.acceptPos(cc.x() * cr.m(), cr.y(), cc.z() * cr.m());
+				callback.acceptPos(nc.x() * cr.m(), cr.y(), nc.z() * cr.m());
+			}
+		}
 	}
 }

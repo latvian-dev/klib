@@ -1,5 +1,11 @@
 {
 	"net/minecraft/util/RandomSource": [
 		"dev/latvian/mods/kmath/core/KMathRandomSource"
+	],
+	"com/mojang/blaze3d/vertex/VertexConsumer": [
+		"dev/latvian/mods/kmath/core/KMathVertexConsumer"
+	],
+	"com/mojang/blaze3d/vertex/PoseStack$Pose": [
+		"dev/latvian/mods/kmath/core/KMathPoseStackPose"
 	]
 }
