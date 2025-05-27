@@ -8,9 +8,7 @@ import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix3f;
 import org.joml.Matrix3fc;
-import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import java.math.RoundingMode;
@@ -58,8 +56,6 @@ public interface KMath {
 
 	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
 	Vec3 CENTER = new Vec3(0.5D, 0.5D, 0.5D);
-	Matrix3fc IDENTITY_3x3 = new Matrix3f();
-	Matrix4fc IDENTITY_4x4 = new Matrix4f();
 
 	static String veryShortFormat(float value) {
 		return NumberFormat.VERY_SHORT.format(value);
