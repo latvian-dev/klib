@@ -3,6 +3,7 @@ package dev.latvian.mods.kmath.vertex;
 import dev.latvian.mods.kmath.KMath;
 import dev.latvian.mods.kmath.color.Color;
 import dev.latvian.mods.kmath.texture.PackedUV;
+import dev.latvian.mods.kmath.texture.UV;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
@@ -33,6 +34,10 @@ public interface VertexCallback {
 
 	default VertexCallback withColor(Color color) {
 		return new VertexCallbackWithColor(this, color.redf(), color.greenf(), color.bluef(), color.alphaf());
+	}
+
+	default VertexCallback withTex(UV tex) {
+		return new VertexCallbackWithTexture(this, tex);
 	}
 
 	default VertexCallback withLight(PackedUV light) {

@@ -4,41 +4,35 @@ import dev.latvian.mods.kmath.vertex.VertexCallback;
 
 public interface BoxBuilder {
 	static void quads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
-		// East
-		callback.acceptPos(maxX, maxY, minZ); // N 1 0 0
-		callback.acceptPos(maxX, maxY, maxZ); // N 1 0 0
-		callback.acceptPos(maxX, minY, maxZ); // N 1 0 0
-		callback.acceptPos(maxX, minY, minZ); // N 1 0 0
+		callback.acceptPos(minX, minY, minZ).acceptTex(0F, 0F).acceptNormal(0F, -1F, 0F);
+		callback.acceptPos(maxX, minY, minZ).acceptTex(1F, 0F).acceptNormal(0F, -1F, 0F);
+		callback.acceptPos(maxX, minY, maxZ).acceptTex(1F, 1F).acceptNormal(0F, -1F, 0F);
+		callback.acceptPos(minX, minY, maxZ).acceptTex(0F, 1F).acceptNormal(0F, -1F, 0F);
 
-		// South
-		callback.acceptPos(maxX, minY, maxZ); // N 0 0 1
-		callback.acceptPos(maxX, maxY, maxZ); // N 0 0 1
-		callback.acceptPos(minX, maxY, maxZ); // N 0 0 1
-		callback.acceptPos(minX, minY, maxZ); // N 0 0 1
+		callback.acceptPos(minX, maxY, minZ).acceptTex(0F, 0F).acceptNormal(0F, 1F, 0F);
+		callback.acceptPos(minX, maxY, maxZ).acceptTex(0F, 1F).acceptNormal(0F, 1F, 0F);
+		callback.acceptPos(maxX, maxY, maxZ).acceptTex(1F, 1F).acceptNormal(0F, 1F, 0F);
+		callback.acceptPos(maxX, maxY, minZ).acceptTex(1F, 0F).acceptNormal(0F, 1F, 0F);
 
-		// North
-		callback.acceptPos(minX, minY, minZ); // N 0 0 -1
-		callback.acceptPos(minX, maxY, minZ); // N 0 0 -1
-		callback.acceptPos(maxX, maxY, minZ); // N 0 0 -1
-		callback.acceptPos(maxX, minY, minZ); // N 0 0 -1
+		callback.acceptPos(minX, minY, minZ).acceptTex(1F, 1F).acceptNormal(0F, 0F, -1F);
+		callback.acceptPos(minX, maxY, minZ).acceptTex(1F, 0F).acceptNormal(0F, 0F, -1F);
+		callback.acceptPos(maxX, maxY, minZ).acceptTex(0F, 0F).acceptNormal(0F, 0F, -1F);
+		callback.acceptPos(maxX, minY, minZ).acceptTex(0F, 1F).acceptNormal(0F, 0F, -1F);
 
-		// West
-		callback.acceptPos(minX, minY, minZ); // N -1 0 0
-		callback.acceptPos(minX, minY, maxZ); // N -1 0 0
-		callback.acceptPos(minX, maxY, maxZ); // N -1 0 0
-		callback.acceptPos(minX, maxY, minZ); // N -1 0 0
+		callback.acceptPos(maxX, minY, maxZ).acceptTex(1F, 1F).acceptNormal(0F, 0F, 1F);
+		callback.acceptPos(maxX, maxY, maxZ).acceptTex(1F, 0F).acceptNormal(0F, 0F, 1F);
+		callback.acceptPos(minX, maxY, maxZ).acceptTex(0F, 0F).acceptNormal(0F, 0F, 1F);
+		callback.acceptPos(minX, minY, maxZ).acceptTex(0F, 1F).acceptNormal(0F, 0F, 1F);
 
-		// Up
-		callback.acceptPos(minX, maxY, minZ); // N 0 1 0
-		callback.acceptPos(minX, maxY, maxZ); // N 0 1 0
-		callback.acceptPos(maxX, maxY, maxZ); // N 0 1 0
-		callback.acceptPos(maxX, maxY, minZ); // N 0 1 0
+		callback.acceptPos(minX, minY, minZ).acceptTex(0F, 1F).acceptNormal(-1F, 0F, 0F);
+		callback.acceptPos(minX, minY, maxZ).acceptTex(1F, 1F).acceptNormal(-1F, 0F, 0F);
+		callback.acceptPos(minX, maxY, maxZ).acceptTex(1F, 0F).acceptNormal(-1F, 0F, 0F);
+		callback.acceptPos(minX, maxY, minZ).acceptTex(0F, 0F).acceptNormal(-1F, 0F, 0F);
 
-		// Down
-		callback.acceptPos(minX, minY, minZ); // N 0 -1 0
-		callback.acceptPos(maxX, minY, minZ); // N 0 -1 0
-		callback.acceptPos(maxX, minY, maxZ); // N 0 -1 0
-		callback.acceptPos(minX, minY, maxZ); // N 0 -1 0
+		callback.acceptPos(maxX, maxY, minZ).acceptTex(1F, 0F).acceptNormal(1F, 0F, 0F);
+		callback.acceptPos(maxX, maxY, maxZ).acceptTex(0F, 0F).acceptNormal(1F, 0F, 0F);
+		callback.acceptPos(maxX, minY, maxZ).acceptTex(0F, 1F).acceptNormal(1F, 0F, 0F);
+		callback.acceptPos(maxX, minY, minZ).acceptTex(1F, 1F).acceptNormal(1F, 0F, 0F);
 	}
 
 	static void lines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {

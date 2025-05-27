@@ -29,12 +29,23 @@ public interface DebugRenderPipelines {
 	RenderPipeline QUADS = RenderPipeline.builder(BASE_SNIPPET)
 		.withLocation(KMathMod.id("debug/quads"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-		.withDepthWrite(false)
 		.build();
 
 	RenderPipeline QUADS_NO_CULL = RenderPipeline.builder(BASE_SNIPPET)
 		.withLocation(KMathMod.id("debug/quads_no_cull"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+		.withCull(false)
+		.build();
+
+	RenderPipeline QUADS_NO_DEPTH = RenderPipeline.builder(BASE_SNIPPET)
+		.withLocation(KMathMod.id("debug/quads_no_depth"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+		.withDepthWrite(false)
+		.build();
+
+	RenderPipeline QUADS_NO_CULL_NO_DEPTH = RenderPipeline.builder(BASE_SNIPPET)
+		.withLocation(KMathMod.id("debug/quads_no_cull_no_depth"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withCull(false)
 		.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
@@ -46,5 +57,7 @@ public interface DebugRenderPipelines {
 		event.registerPipeline(LINES);
 		event.registerPipeline(QUADS);
 		event.registerPipeline(QUADS_NO_CULL);
+		event.registerPipeline(QUADS_NO_DEPTH);
+		event.registerPipeline(QUADS_NO_CULL_NO_DEPTH);
 	}
 }

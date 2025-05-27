@@ -28,7 +28,6 @@ public interface DebugRenderTypes {
 		1536,
 		DebugRenderPipelines.QUADS,
 		RenderType.CompositeState.builder()
-			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
 			.createCompositeState(false)
 	);
 
@@ -36,6 +35,23 @@ public interface DebugRenderTypes {
 		"kmath:debug_quads_no_cull",
 		1536,
 		DebugRenderPipelines.QUADS_NO_CULL,
+		RenderType.CompositeState.builder()
+			.createCompositeState(false)
+	);
+
+	RenderType QUADS_NO_DEPTH = RenderType.create(
+		"kmath:debug_quads_no_depth",
+		1536,
+		DebugRenderPipelines.QUADS_NO_DEPTH,
+		RenderType.CompositeState.builder()
+			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+			.createCompositeState(false)
+	);
+
+	RenderType QUADS_NO_CULL_NO_DEPTH = RenderType.create(
+		"kmath:debug_quads_no_cull_no_depth",
+		1536,
+		DebugRenderPipelines.QUADS_NO_CULL_NO_DEPTH,
 		RenderType.CompositeState.builder()
 			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
 			.createCompositeState(false)

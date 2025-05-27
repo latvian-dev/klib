@@ -43,6 +43,14 @@ public record UV(float u0, float v0, float u1, float v1) {
 		);
 	}
 
+	public float u(float delta) {
+		return KMath.lerp(delta, u0, u1);
+	}
+
+	public float v(float delta) {
+		return KMath.lerp(delta, v0, v1);
+	}
+
 	@Override
 	public String toString() {
 		return "[" + u0 + "," + v0 + "," + u1 + "," + v1 + "]";
