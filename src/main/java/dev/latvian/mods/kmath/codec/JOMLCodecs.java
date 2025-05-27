@@ -29,8 +29,8 @@ public interface JOMLCodecs {
 	Codec<Vector3f> VEC_3 = Codec.FLOAT.listOf(3, 3).xmap(l -> new Vector3f(l.get(0), l.get(1), l.get(2)), v -> List.of(v.x, v.y, v.z));
 	Codec<Vector4f> VEC_4 = Codec.FLOAT.listOf(3, 4).xmap(l -> new Vector4f(l.get(0), l.get(1), l.get(2), l.size() >= 4 ? l.get(3) : 1F), v -> v.w == 1F ? List.of(v.x, v.y, v.z) : List.of(v.x, v.y, v.z, v.w));
 
-	Codec<Vector2f> VEC_2S = Codec.either(Codec.FLOAT, VEC_2).xmap(either -> either.map(v -> new Vector2f(v, v), Function.identity()), v -> v.x == v.y ? Either.left(v.x) : Either.right(v));
-	Codec<Vector3f> VEC_3S = Codec.either(Codec.FLOAT, VEC_3).xmap(either -> either.map(v -> new Vector3f(v, v, v), Function.identity()), v -> v.x == v.y && v.x == v.z ? Either.left(v.x) : Either.right(v));
+	Codec<Vector2f> VEC_2S = Codec.either(Codec.FLOAT, VEC_2).xmap(either -> either.map(Vector2f::new, Function.identity()), v -> v.x == v.y ? Either.left(v.x) : Either.right(v));
+	Codec<Vector3f> VEC_3S = Codec.either(Codec.FLOAT, VEC_3).xmap(either -> either.map(Vector3f::new, Function.identity()), v -> v.x == v.y && v.x == v.z ? Either.left(v.x) : Either.right(v));
 	Codec<Vector4f> VEC_4S = Codec.either(Codec.FLOAT, VEC_4).xmap(either -> either.map(v -> new Vector4f(v, v, v, 1F), Function.identity()), v -> v.x == v.y && v.x == v.z && v.w == 1F ? Either.left(v.x) : Either.right(v));
 
 	Codec<Quaternionf> QUATERNION = Codec.FLOAT.listOf(4, 4).xmap(l -> new Quaternionf(l.get(0), l.get(1), l.get(2), l.get(3)), v -> List.of(v.x, v.y, v.z, v.w));

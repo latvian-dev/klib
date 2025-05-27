@@ -91,6 +91,79 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
+	StreamCodec<ByteBuf, Vector2f> VEC_2S = new StreamCodec<>() {
+		@Override
+		public Vector2f decode(ByteBuf buf) {
+			if (buf.readBoolean()) {
+				return new Vector2f(buf.readFloat());
+			} else {
+				return new Vector2f(buf.readFloat(), buf.readFloat());
+			}
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vector2f v) {
+			if (v.x == v.y) {
+				buf.writeBoolean(true);
+				buf.writeFloat(v.x);
+			} else {
+				buf.writeBoolean(false);
+				buf.writeFloat(v.x);
+				buf.writeFloat(v.y);
+			}
+		}
+	};
+
+	StreamCodec<ByteBuf, Vector3f> VEC_3S = new StreamCodec<>() {
+		@Override
+		public Vector3f decode(ByteBuf buf) {
+			if (buf.readBoolean()) {
+				return new Vector3f(buf.readFloat());
+			} else {
+				return new Vector3f(buf.readFloat(), buf.readFloat(), buf.readFloat());
+			}
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vector3f v) {
+			if (v.x == v.y && v.x == v.z) {
+				buf.writeBoolean(true);
+				buf.writeFloat(v.x);
+			} else {
+				buf.writeBoolean(false);
+				buf.writeFloat(v.x);
+				buf.writeFloat(v.y);
+				buf.writeFloat(v.z);
+			}
+		}
+	};
+
+	StreamCodec<ByteBuf, Vector4f> VEC_4S = new StreamCodec<>() {
+		@Override
+		public Vector4f decode(ByteBuf buf) {
+			if (buf.readBoolean()) {
+				var v = buf.readFloat();
+				return new Vector4f(v, v, v, 1F);
+			} else {
+				return new Vector4f(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat());
+			}
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vector4f v) {
+			if (v.x == v.y && v.x == v.z && v.w == 1F) {
+				buf.writeBoolean(true);
+				buf.writeFloat(v.x);
+			} else {
+				buf.writeBoolean(false);
+				buf.writeFloat(v.x);
+				buf.writeFloat(v.y);
+				buf.writeFloat(v.z);
+				buf.writeFloat(v.w);
+			}
+		}
+	};
+
 	StreamCodec<ByteBuf, Matrix2f> MAT_2 = new StreamCodec<>() {
 		@Override
 		public Matrix2f decode(ByteBuf buf) {
@@ -219,6 +292,79 @@ public interface JOMLStreamCodecs {
 			buf.writeDouble(v.y);
 			buf.writeDouble(v.z);
 			buf.writeDouble(v.w);
+		}
+	};
+
+	StreamCodec<ByteBuf, Vector2d> DVEC_2S = new StreamCodec<>() {
+		@Override
+		public Vector2d decode(ByteBuf buf) {
+			if (buf.readBoolean()) {
+				return new Vector2d(buf.readDouble());
+			} else {
+				return new Vector2d(buf.readDouble(), buf.readDouble());
+			}
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vector2d v) {
+			if (v.x == v.y) {
+				buf.writeBoolean(true);
+				buf.writeDouble(v.x);
+			} else {
+				buf.writeBoolean(false);
+				buf.writeDouble(v.x);
+				buf.writeDouble(v.y);
+			}
+		}
+	};
+
+	StreamCodec<ByteBuf, Vector3d> DVEC_3S = new StreamCodec<>() {
+		@Override
+		public Vector3d decode(ByteBuf buf) {
+			if (buf.readBoolean()) {
+				return new Vector3d(buf.readDouble());
+			} else {
+				return new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+			}
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vector3d v) {
+			if (v.x == v.y && v.x == v.z) {
+				buf.writeBoolean(true);
+				buf.writeDouble(v.x);
+			} else {
+				buf.writeBoolean(false);
+				buf.writeDouble(v.x);
+				buf.writeDouble(v.y);
+				buf.writeDouble(v.z);
+			}
+		}
+	};
+
+	StreamCodec<ByteBuf, Vector4d> DVEC_4S = new StreamCodec<>() {
+		@Override
+		public Vector4d decode(ByteBuf buf) {
+			if (buf.readBoolean()) {
+				var v = buf.readFloat();
+				return new Vector4d(v, v, v, 1D);
+			} else {
+				return new Vector4d(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
+			}
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vector4d v) {
+			if (v.x == v.y && v.x == v.z && v.w == 1D) {
+				buf.writeBoolean(true);
+				buf.writeDouble(v.x);
+			} else {
+				buf.writeBoolean(false);
+				buf.writeDouble(v.x);
+				buf.writeDouble(v.y);
+				buf.writeDouble(v.z);
+				buf.writeDouble(v.w);
+			}
 		}
 	};
 
