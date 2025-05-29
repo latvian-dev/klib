@@ -86,18 +86,41 @@ public interface BoxBuilder {
 	}
 
 	static void lines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
-		line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
-		line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
-		line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
-		line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F, callback);
-		line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F, callback);
-		line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F, callback);
-		line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F, callback);
-		line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F, callback);
-		line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F, callback);
-		line(minX, maxY, maxZ, maxX, maxY, maxZ, 1F, 0F, 0F, callback);
-		line(maxX, minY, maxZ, maxX, maxY, maxZ, 0F, 1F, 0F, callback);
-		line(maxX, maxY, minZ, maxX, maxY, maxZ, 0F, 0F, 1F, callback);
+		if (minY == maxY && minZ == maxZ) {
+			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
+		} else if (minX == maxX && minZ == maxZ) {
+			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
+		} else if (minX == maxX && minY == maxY) {
+			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
+		} else if (minX == maxX) {
+			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
+			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
+			line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F, callback);
+			line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F, callback);
+		} else if (minY == maxY) {
+			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
+			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
+			line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F, callback);
+			line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F, callback);
+		} else if (minZ == maxZ) {
+			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
+			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
+			line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F, callback);
+			line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F, callback);
+		} else if (minX != maxX || minY != maxY || minZ != maxZ) {
+			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
+			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
+			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
+			line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F, callback);
+			line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F, callback);
+			line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F, callback);
+			line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F, callback);
+			line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F, callback);
+			line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F, callback);
+			line(minX, maxY, maxZ, maxX, maxY, maxZ, 1F, 0F, 0F, callback);
+			line(maxX, minY, maxZ, maxX, maxY, maxZ, 0F, 1F, 0F, callback);
+			line(maxX, maxY, minZ, maxX, maxY, maxZ, 0F, 0F, 1F, callback);
+		}
 	}
 
 	static void frameQuads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize, VertexCallback callback) {
