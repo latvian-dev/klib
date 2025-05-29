@@ -13,11 +13,15 @@ import java.util.List;
 public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 	public static final VoxelShapeBox EMPTY = new VoxelShapeBox(List.of(), List.of());
 	public static final VoxelShapeBox FULL = of(AABBs.FULL);
+	public static final VoxelShapeBox FULL_16 = of(AABBs.FULL_16);
 	public static final VoxelShapeBox INFINITE = of(AABB.INFINITE);
 	public static final VoxelShapeBox CENTERED = of(AABBs.CENTERED);
 	public static final VoxelShapeBox CENTERED_X_PLANE = of(AABBs.CENTERED_X_PLANE);
 	public static final VoxelShapeBox CENTERED_Y_PLANE = of(AABBs.CENTERED_Y_PLANE);
 	public static final VoxelShapeBox CENTERED_Z_PLANE = of(AABBs.CENTERED_Z_PLANE);
+	public static final VoxelShapeBox CENTERED_X_AXIS = of(AABBs.CENTERED_X_AXIS);
+	public static final VoxelShapeBox CENTERED_Y_AXIS = of(AABBs.CENTERED_Y_AXIS);
+	public static final VoxelShapeBox CENTERED_Z_AXIS = of(AABBs.CENTERED_Z_AXIS);
 
 	public static VoxelShapeBox of(VoxelShape shape) {
 		if (shape.isEmpty()) {
