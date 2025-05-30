@@ -90,7 +90,7 @@ public class SpherePoints {
 		 */
 	}
 
-	public void buildQuads(UV uv, VertexCallback callback) {
+	public void buildQuads(float x, float y, float z, float s, UV uv, VertexCallback callback) {
 		var u0 = uv.u0();
 		var v0 = uv.v0();
 		var u1 = uv.u1();
@@ -109,15 +109,15 @@ public class SpherePoints {
 				var u1l = KMath.lerp(nc.u(), u0, u1);
 				var v1l = KMath.lerp(nr.v(), v0, v1);
 
-				callback.acceptPos(cc.x() * nr.m(), nr.y(), cc.z() * nr.m()).acceptTex(u0l, v1l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(cc.x() * cr.m(), cr.y(), cc.z() * cr.m()).acceptTex(u0l, v0l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(nc.x() * cr.m(), cr.y(), nc.z() * cr.m()).acceptTex(u1l, v0l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(nc.x() * nr.m(), nr.y(), nc.z() * nr.m()).acceptTex(u1l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + cc.x() * nr.m() * s, y + nr.y() * s, z + cc.z() * nr.m() * s).acceptTex(u0l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + cc.x() * cr.m() * s, y + cr.y() * s, z + cc.z() * cr.m() * s).acceptTex(u0l, v0l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + nc.x() * cr.m() * s, y + cr.y() * s, z + nc.z() * cr.m() * s).acceptTex(u1l, v0l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + nc.x() * nr.m() * s, y + nr.y() * s, z + nc.z() * nr.m() * s).acceptTex(u1l, v1l).acceptNormal(nv.x, nv.y, nv.z);
 			}
 		}
 	}
 
-	public void buildLines(VertexCallback callback) {
+	public void buildLines(float x, float y, float z, float s, VertexCallback callback) {
 		for (int r = 0; r < rows.length - 1; r++) {
 			for (int c = 0; c < cols.length - 1; c++) {
 				var cr = rows[r];
@@ -125,11 +125,11 @@ public class SpherePoints {
 				var cc = cols[c];
 				var nc = cols[c + 1];
 
-				callback.acceptPos(cc.x() * nr.m(), nr.y(), cc.z() * nr.m());
-				callback.acceptPos(cc.x() * cr.m(), cr.y(), cc.z() * cr.m());
+				callback.acceptPos(x + cc.x() * nr.m() * s, y + nr.y() * s, z + cc.z() * nr.m() * s);
+				callback.acceptPos(x + cc.x() * cr.m() * s, y + cr.y() * s, z + cc.z() * cr.m() * s);
 
-				callback.acceptPos(cc.x() * cr.m(), cr.y(), cc.z() * cr.m());
-				callback.acceptPos(nc.x() * cr.m(), cr.y(), nc.z() * cr.m());
+				callback.acceptPos(x + cc.x() * cr.m() * s, y + cr.y() * s, z + cc.z() * cr.m() * s);
+				callback.acceptPos(x + nc.x() * cr.m() * s, y + cr.y() * s, z + nc.z() * cr.m() * s);
 			}
 		}
 	}
