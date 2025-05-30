@@ -9,6 +9,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import java.util.List;
 
@@ -202,5 +204,51 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 		}
 
 		return "Rotation[" + yawDeg() + ", " + pitchDeg() + ", " + rollDeg() + "]";
+	}
+
+	public boolean isNone() {
+		return yaw == 0F && pitch == 0F && roll == 0F;
+	}
+
+	public boolean isYawOnly() {
+		return yaw != 0F && pitch == 0F && roll == 0F;
+	}
+
+	public Matrix4f rotateYXZ(Matrix4f mat) {
+		if (isYawOnly()) {
+			return mat.rotateY(yawRad());
+		} else {
+			return mat.rotateYXZ(yawRad(), pitchRad(), rollRad());
+		}
+	}
+
+	public Matrix3f rotateYXZ(Matrix3f mat) {
+		if (isYawOnly()) {
+			return mat.rotateY(yawRad());
+		} else {
+			return mat.rotateYXZ(yawRad(), pitchRad(), rollRad());
+		}
+	}
+
+	public Matrix4f rotateZXY(Matrix4f mat) {
+		if (isYawOnly()) {
+			return mat.rotateY(yawRad());
+		} else {
+			mat.rotateZ(rollRad());
+			mat.rotateX(pitchRad());
+			mat.rotateY(yawRad());
+			return mat;
+		}
+	}
+
+	public Matrix3f rotateZXY(Matrix3f mat) {
+		if (isYawOnly()) {
+			return mat.rotateY(yawRad());
+		} else {
+			mat.rotateZ(rollRad());
+			mat.rotateX(pitchRad());
+			mat.rotateY(yawRad());
+			return mat;
+		}
 	}
 }

@@ -11,13 +11,13 @@ public class SpherePoints {
 	public static final SpherePoints X = new SpherePoints(108, 27);
 
 	public static SpherePoints get(int hd, int vd) {
-		if (hd == 9 && vd == 7) {
+		if (hd == 9 && vd == 7) { // 1.29
 			return L;
-		} else if (hd == 24 && vd == 9) {
+		} else if (hd == 24 && vd == 9) { // 2.67
 			return M;
-		} else if (hd == 36 && vd == 16) {
+		} else if (hd == 36 && vd == 16) { // 2.25
 			return H;
-		} else if (hd == 108 && vd == 27) {
+		} else if (hd == 108 && vd == 27) { // 4.00
 			return X;
 		} else {
 			return new SpherePoints(hd, vd);
