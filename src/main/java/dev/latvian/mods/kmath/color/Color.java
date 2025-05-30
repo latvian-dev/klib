@@ -178,7 +178,7 @@ public record Color(int argb) implements Gradient {
 	}
 
 	public Color lerp(float delta, Color other) {
-		if (delta <= 0F) {
+		if (delta <= 0F || this == other) {
 			return this;
 		} else if (delta >= 1F) {
 			return other;
