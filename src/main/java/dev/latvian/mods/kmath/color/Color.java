@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 public record Color(int argb) implements Gradient {
+	public static final Color[] EMPTY_ARRAY = new Color[0];
+
 	public static final Color TRANSPARENT = new Color(0x00000000);
 	public static final Color WHITE = new Color(0xFFFFFFFF);
 	public static final Color BLACK = new Color(0xFF000000);
@@ -70,7 +72,7 @@ public record Color(int argb) implements Gradient {
 		} else {
 			return DataResult.error(() -> "Invalid color format, expected #RRGGBB or #AARRGGBB: " + s);
 		}
-	}, c -> c.alpha() == 255 ? c.toRGBString() : c.toARGBString());
+	}, Color::toString);
 
 	public static Codec<Color> codecWithAlpha(int alpha) {
 		return CODEC.xmap(color -> color.withAlpha(alpha), color -> color.withAlpha(255));
@@ -159,7 +161,7 @@ public record Color(int argb) implements Gradient {
 
 	@Override
 	public String toString() {
-		return toARGBString();
+		return alpha() == 255 ? toRGBString() : toARGBString();
 	}
 
 	public Color lerp(float delta, Color other, int alpha) {
@@ -207,6 +209,10 @@ public record Color(int argb) implements Gradient {
 
 	public OptionalInt toOptionalRGB() {
 		return isTransparent() ? OptionalInt.empty() : OptionalInt.of(rgb());
+	}
+
+	public int abgr() {
+		return argb & -16711936 | (argb & 16711680) >> 16 | (argb & 255) << 16;
 	}
 
 	public float getHue() {
@@ -326,5 +332,10 @@ public record Color(int argb) implements Gradient {
 		}
 
 		return hsb;
+	}
+
+	@Override
+	public Color resolve() {
+		return this;
 	}
 }

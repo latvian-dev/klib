@@ -1,5 +1,6 @@
 package dev.latvian.mods.kmath.codec;
 
+import com.google.common.base.Suppliers;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,6 +24,22 @@ public interface KMathStreamCodecs {
 				} else {
 					((ByteBuf) buf).writeBoolean(false);
 				}
+			}
+		};
+	}
+
+	static <B, V> StreamCodec<B, V> lazy(com.google.common.base.Supplier<StreamCodec<B, V>> supplier) {
+		return new StreamCodec<>() {
+			private final com.google.common.base.Supplier<StreamCodec<B, V>> cached = Suppliers.memoize(supplier);
+
+			@Override
+			public V decode(B buf) {
+				return cached.get().decode(buf);
+			}
+
+			@Override
+			public void encode(B buf, V value) {
+				cached.get().encode(buf, value);
 			}
 		};
 	}
