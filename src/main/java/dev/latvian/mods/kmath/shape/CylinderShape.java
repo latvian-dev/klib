@@ -10,6 +10,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 public record CylinderShape(float radius, float height) implements Shape {
+	public static final CylinderShape UNIT = new CylinderShape(0.5F, 1F);
+	public static final CylinderShape CIRCLE_UNIT = new CylinderShape(0.5F, 0F);
+
 	public static final MapCodec<CylinderShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.FLOAT.fieldOf("radius").forGetter(CylinderShape::radius),
 		Codec.FLOAT.optionalFieldOf("height", 0F).forGetter(CylinderShape::radius)
@@ -21,9 +24,11 @@ public record CylinderShape(float radius, float height) implements Shape {
 		CylinderShape::new
 	);
 
+	public static final ShapeType TYPE = new ShapeType("cylinder", CODEC, STREAM_CODEC);
+
 	@Override
 	public ShapeType type() {
-		return ShapeType.CYLINDER;
+		return TYPE;
 	}
 
 	@Override
@@ -47,29 +52,43 @@ public record CylinderShape(float radius, float height) implements Shape {
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
 			float nz = (float) (Math.sin((i + 1D) * rs) * r);
 
-			// FIXME (0F, -1F, 0F)
-
-			callback.acceptPos(x, y - h, z).acceptNormal(0F, -1F, 0F);
-			callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F);
-
-			callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F);
-			callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(0F, -1F, 0F);
+			callback.line(x, y + h, z, x + cx, y + h, z + cz);
+			callback.line(x + cx, y + h, z + cz, x + nx, y + h, z + nz);
 
 			if (h > 0F) {
-				callback.acceptPos(x, y + h, z).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, -1F, 0F);
+				callback.line(x, y - h, z, x + cx, y - h, z + cz);
+				callback.line(x + cx, y - h, z + cz, x + nx, y - h, z + nz);
 
-				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(0F, -1F, 0F);
-
-				callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, 1F, 0F);
-				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, 1F, 0F);
+				callback.line(x + cx, y - h, z + cz, x + cx, y + h, z + cz, 0F, 1F, 0F);
 			}
 		}
 	}
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		// FIXME
+		float r = Math.max(radius, 0F);
+		float h = Math.max(height, 0F) / 2F;
+		double rs = Math.PI * 2D / 24D;
+
+		for (int i = 0; i < 24; i += 2) {
+			float cx = (float) (Math.cos(i * rs) * r);
+			float cz = (float) (Math.sin(i * rs) * r);
+			float nx = (float) (Math.cos((i + 1D) * rs) * r);
+			float nz = (float) (Math.sin((i + 1D) * rs) * r);
+			float nnx = (float) (Math.cos((i + 2D) * rs) * r);
+			float nnz = (float) (Math.sin((i + 2D) * rs) * r);
+
+			callback.acceptPos(x, y + h, z).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(cx, y + h, cz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(nx, y + h, nz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(nnx, y + h, nnz).acceptNormal(0F, 1F, 0F);
+
+			if (h > 0F) {
+				callback.acceptPos(x, y - h, z).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(nnx, y - h, nnz).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(nx, y - h, nz).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(cx, y - h, cz).acceptNormal(0F, -1F, 0F);
+			}
+		}
 	}
 }

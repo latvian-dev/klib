@@ -10,10 +10,11 @@ public enum EmptyShape implements Shape {
 
 	public static final MapCodec<EmptyShape> CODEC = MapCodec.unit(INSTANCE);
 	public static final StreamCodec<ByteBuf, EmptyShape> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+	public static final ShapeType TYPE = new ShapeType("empty", CODEC, STREAM_CODEC);
 
 	@Override
 	public ShapeType type() {
-		return ShapeType.EMPTY;
+		return TYPE;
 	}
 
 	@Override

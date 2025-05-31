@@ -1,9 +1,9 @@
-package dev.latvian.mods.kmath.render;
+package dev.latvian.mods.kmath.shape;
 
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 
-public interface BoxBuilder {
-	static void downQuads(float y, float minX, float minZ, float maxX, float maxZ, VertexCallback callback) {
+public interface CuboidBuilder {
+	static void downQuad(float y, float minX, float minZ, float maxX, float maxZ, VertexCallback callback) {
 		if (minX == maxX || minZ == maxZ) {
 			return;
 		}
@@ -14,7 +14,7 @@ public interface BoxBuilder {
 		callback.acceptPos(minX, y, maxZ).acceptTex(0F, 1F).acceptNormal(0F, -1F, 0F);
 	}
 
-	static void upQuads(float y, float minX, float minZ, float maxX, float maxZ, VertexCallback callback) {
+	static void upQuad(float y, float minX, float minZ, float maxX, float maxZ, VertexCallback callback) {
 		if (minX == maxX || minZ == maxZ) {
 			return;
 		}
@@ -25,7 +25,7 @@ public interface BoxBuilder {
 		callback.acceptPos(maxX, y, minZ).acceptTex(1F, 0F).acceptNormal(0F, 1F, 0F);
 	}
 
-	static void northQuads(float z, float minX, float minY, float maxX, float maxY, VertexCallback callback) {
+	static void northQuad(float z, float minX, float minY, float maxX, float maxY, VertexCallback callback) {
 		if (minY == maxY || minX == maxX) {
 			return;
 		}
@@ -36,7 +36,7 @@ public interface BoxBuilder {
 		callback.acceptPos(maxX, minY, z).acceptTex(0F, 1F).acceptNormal(0F, 0F, -1F);
 	}
 
-	static void southQuads(float z, float minX, float minY, float maxX, float maxY, VertexCallback callback) {
+	static void southQuad(float z, float minX, float minY, float maxX, float maxY, VertexCallback callback) {
 		if (minY == maxY || minX == maxX) {
 			return;
 		}
@@ -47,7 +47,7 @@ public interface BoxBuilder {
 		callback.acceptPos(minX, minY, z).acceptTex(0F, 1F).acceptNormal(0F, 0F, 1F);
 	}
 
-	static void westQuads(float x, float minY, float minZ, float maxY, float maxZ, VertexCallback callback) {
+	static void westQuad(float x, float minY, float minZ, float maxY, float maxZ, VertexCallback callback) {
 		if (minY == maxY || minZ == maxZ) {
 			return;
 		}
@@ -58,7 +58,7 @@ public interface BoxBuilder {
 		callback.acceptPos(x, maxY, minZ).acceptTex(0F, 0F).acceptNormal(-1F, 0F, 0F);
 	}
 
-	static void eastQuads(float x, float minY, float minZ, float maxY, float maxZ, VertexCallback callback) {
+	static void eastQuad(float x, float minY, float minZ, float maxY, float maxZ, VertexCallback callback) {
 		if (minY == maxY || minZ == maxZ) {
 			return;
 		}
@@ -70,56 +70,49 @@ public interface BoxBuilder {
 	}
 
 	static void quads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
-		downQuads(minY, minX, minZ, maxX, maxZ, callback);
-		upQuads(maxY, minX, minZ, maxX, maxZ, callback);
-		northQuads(minZ, minX, minY, maxX, maxY, callback);
-		southQuads(maxZ, minX, minY, maxX, maxY, callback);
-		westQuads(minX, minY, minZ, maxY, maxZ, callback);
-		eastQuads(maxX, minY, minZ, maxY, maxZ, callback);
-	}
-
-	static void line(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float nx, float ny, float nz, VertexCallback callback) {
-		if (minX != maxX || minY != maxY || minZ != maxZ) {
-			callback.acceptPos(minX, minY, minZ).acceptNormal(nx, ny, nz);
-			callback.acceptPos(maxX, maxY, maxZ).acceptNormal(nx, ny, nz);
-		}
+		downQuad(minY, minX, minZ, maxX, maxZ, callback);
+		upQuad(maxY, minX, minZ, maxX, maxZ, callback);
+		northQuad(minZ, minX, minY, maxX, maxY, callback);
+		southQuad(maxZ, minX, minY, maxX, maxY, callback);
+		westQuad(minX, minY, minZ, maxY, maxZ, callback);
+		eastQuad(maxX, minY, minZ, maxY, maxZ, callback);
 	}
 
 	static void lines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {
 		if (minY == maxY && minZ == maxZ) {
-			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
+			callback.line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F);
 		} else if (minX == maxX && minZ == maxZ) {
-			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
+			callback.line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F);
 		} else if (minX == maxX && minY == maxY) {
-			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
+			callback.line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F);
 		} else if (minX == maxX) {
-			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
-			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
-			line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F, callback);
-			line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F, callback);
+			callback.line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F);
+			callback.line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F);
+			callback.line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F);
+			callback.line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F);
 		} else if (minY == maxY) {
-			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
-			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
-			line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F, callback);
-			line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F, callback);
+			callback.line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F);
+			callback.line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F);
+			callback.line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F);
+			callback.line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F);
 		} else if (minZ == maxZ) {
-			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
-			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
-			line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F, callback);
-			line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F, callback);
+			callback.line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F);
+			callback.line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F);
+			callback.line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F);
+			callback.line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F);
 		} else if (minX != maxX || minY != maxY || minZ != maxZ) {
-			line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F, callback);
-			line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F, callback);
-			line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F, callback);
-			line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F, callback);
-			line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F, callback);
-			line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F, callback);
-			line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F, callback);
-			line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F, callback);
-			line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F, callback);
-			line(minX, maxY, maxZ, maxX, maxY, maxZ, 1F, 0F, 0F, callback);
-			line(maxX, minY, maxZ, maxX, maxY, maxZ, 0F, 1F, 0F, callback);
-			line(maxX, maxY, minZ, maxX, maxY, maxZ, 0F, 0F, 1F, callback);
+			callback.line(minX, minY, minZ, maxX, minY, minZ, 1F, 0F, 0F);
+			callback.line(minX, minY, minZ, minX, maxY, minZ, 0F, 1F, 0F);
+			callback.line(minX, minY, minZ, minX, minY, maxZ, 0F, 0F, 1F);
+			callback.line(maxX, minY, minZ, maxX, maxY, minZ, 0F, 1F, 0F);
+			callback.line(maxX, maxY, minZ, minX, maxY, minZ, -1F, 0F, 0F);
+			callback.line(minX, maxY, minZ, minX, maxY, maxZ, 0F, 0F, 1F);
+			callback.line(minX, maxY, maxZ, minX, minY, maxZ, 0F, -1F, 0F);
+			callback.line(minX, minY, maxZ, maxX, minY, maxZ, 1F, 0F, 0F);
+			callback.line(maxX, minY, maxZ, maxX, minY, minZ, 0F, 0F, -1F);
+			callback.line(minX, maxY, maxZ, maxX, maxY, maxZ, 1F, 0F, 0F);
+			callback.line(maxX, minY, maxZ, maxX, maxY, maxZ, 0F, 1F, 0F);
+			callback.line(maxX, maxY, minZ, maxX, maxY, maxZ, 0F, 0F, 1F);
 		}
 	}
 

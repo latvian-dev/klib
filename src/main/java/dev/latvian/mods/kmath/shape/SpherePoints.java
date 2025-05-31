@@ -1,6 +1,5 @@
-package dev.latvian.mods.kmath;
+package dev.latvian.mods.kmath.shape;
 
-import dev.latvian.mods.kmath.texture.UV;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import org.joml.Vector3f;
 
@@ -90,12 +89,7 @@ public class SpherePoints {
 		 */
 	}
 
-	public void buildQuads(float x, float y, float z, float s, UV uv, VertexCallback callback) {
-		var u0 = uv.u0();
-		var v0 = uv.v0();
-		var u1 = uv.u1();
-		var v1 = uv.v1();
-
+	public void buildQuads(float x, float y, float z, float s, VertexCallback callback) {
 		for (int r = 0; r < rows.length - 1; r++) {
 			for (int c = 0; c < cols.length - 1; c++) {
 				var cr = rows[r];
@@ -104,15 +98,18 @@ public class SpherePoints {
 				var nc = cols[c + 1];
 				var nv = normals[c][r];
 
-				var u0l = KMath.lerp(cc.u(), u0, u1);
-				var v0l = KMath.lerp(cr.v(), v0, v1);
-				var u1l = KMath.lerp(nc.u(), u0, u1);
-				var v1l = KMath.lerp(nr.v(), v0, v1);
+				var u0l = cc.u();
+				var v0l = cr.v();
+				var u1l = nc.u();
+				var v1l = nr.v();
 
-				callback.acceptPos(x + cc.x() * nr.m() * s, y + nr.y() * s, z + cc.z() * nr.m() * s).acceptTex(u0l, v1l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(x + cc.x() * cr.m() * s, y + cr.y() * s, z + cc.z() * cr.m() * s).acceptTex(u0l, v0l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(x + nc.x() * cr.m() * s, y + cr.y() * s, z + nc.z() * cr.m() * s).acceptTex(u1l, v0l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(x + nc.x() * nr.m() * s, y + nr.y() * s, z + nc.z() * nr.m() * s).acceptTex(u1l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+				var ny = y + nr.y() * s;
+				var cy = y + cr.y() * s;
+
+				callback.acceptPos(x + cc.x() * nr.m() * s, ny, z + cc.z() * nr.m() * s).acceptTex(u0l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + cc.x() * cr.m() * s, cy, z + cc.z() * cr.m() * s).acceptTex(u0l, v0l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + nc.x() * cr.m() * s, cy, z + nc.z() * cr.m() * s).acceptTex(u1l, v0l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.acceptPos(x + nc.x() * nr.m() * s, ny, z + nc.z() * nr.m() * s).acceptTex(u1l, v1l).acceptNormal(nv.x, nv.y, nv.z);
 			}
 		}
 	}
@@ -125,11 +122,12 @@ public class SpherePoints {
 				var cc = cols[c];
 				var nc = cols[c + 1];
 
-				callback.acceptPos(x + cc.x() * nr.m() * s, y + nr.y() * s, z + cc.z() * nr.m() * s);
-				callback.acceptPos(x + cc.x() * cr.m() * s, y + cr.y() * s, z + cc.z() * cr.m() * s);
+				var cx = x + cc.x() * cr.m() * s;
+				var cy = y + cr.y() * s;
+				var cz = z + cc.z() * cr.m() * s;
 
-				callback.acceptPos(x + cc.x() * cr.m() * s, y + cr.y() * s, z + cc.z() * cr.m() * s);
-				callback.acceptPos(x + nc.x() * cr.m() * s, y + cr.y() * s, z + nc.z() * cr.m() * s);
+				callback.line(x + cc.x() * nr.m() * s, y + nr.y() * s, z + cc.z() * nr.m() * s, cx, cy, cz);
+				callback.line(cx, cy, cz, x + nc.x() * cr.m() * s, cy, z + nc.z() * cr.m() * s);
 			}
 		}
 	}

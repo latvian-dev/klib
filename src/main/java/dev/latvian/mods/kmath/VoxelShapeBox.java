@@ -1,6 +1,6 @@
 package dev.latvian.mods.kmath;
 
-import dev.latvian.mods.kmath.render.BoxBuilder;
+import dev.latvian.mods.kmath.shape.CuboidBuilder;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -115,7 +115,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 			float maxX = (float) (box.maxX + offset.x);
 			float maxY = (float) (box.maxY + offset.y);
 			float maxZ = (float) (box.maxZ + offset.z);
-			BoxBuilder.quads(minX, minY, minZ, maxX, maxY, maxZ, callback);
+			CuboidBuilder.quads(minX, minY, minZ, maxX, maxY, maxZ, callback);
 		}
 	}
 

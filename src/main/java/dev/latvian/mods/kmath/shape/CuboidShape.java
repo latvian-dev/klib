@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.kmath.Rotation;
 import dev.latvian.mods.kmath.Vec3f;
 import dev.latvian.mods.kmath.codec.KMathStreamCodecs;
-import dev.latvian.mods.kmath.render.BoxBuilder;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,6 +12,8 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
+	public static final CuboidShape SQUARE_UNIT = new CuboidShape(new Vec3f(1F, 0F, 1F), Rotation.NONE);
+
 	public static final MapCodec<CuboidShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Vec3f.CODEC.fieldOf("size").forGetter(CuboidShape::size),
 		Rotation.CODEC.optionalFieldOf("rotation", Rotation.NONE).forGetter(CuboidShape::rotation)
@@ -24,9 +25,11 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 		CuboidShape::new
 	);
 
+	public static final ShapeType TYPE = new ShapeType("cuboid", CODEC, STREAM_CODEC);
+
 	@Override
 	public ShapeType type() {
-		return ShapeType.CUBOID;
+		return TYPE;
 	}
 
 	@Override
@@ -50,7 +53,7 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 			callback = callback.withTransformedPositionsAndNormals(rotation.rotateYXZ(new Matrix4f()), rotation.rotateYXZ(new Matrix3f()), true);
 		}
 
-		BoxBuilder.lines(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
+		CuboidBuilder.lines(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
 	}
 
 	@Override
@@ -63,6 +66,6 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 			callback = callback.withTransformedPositionsAndNormals(rotation.rotateYXZ(new Matrix4f()), rotation.rotateYXZ(new Matrix3f()), true);
 		}
 
-		BoxBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
+		CuboidBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
 	}
 }

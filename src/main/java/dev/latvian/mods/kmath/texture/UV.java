@@ -51,6 +51,10 @@ public record UV(float u0, float v0, float u1, float v1) {
 		return KMath.lerp(delta, v0, v1);
 	}
 
+	public boolean isFull() {
+		return u0 == 0F && v0 == 0F && u1 == 1F && v1 == 1F;
+	}
+
 	@Override
 	public String toString() {
 		return "[" + u0 + "," + v0 + "," + u1 + "," + v1 + "]";
