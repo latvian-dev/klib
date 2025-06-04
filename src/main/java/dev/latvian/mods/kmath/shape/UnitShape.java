@@ -28,6 +28,12 @@ public class UnitShape implements Shape {
 		add("sphere", SphereShape.UNIT);
 		add("cylinder", CylinderShape.UNIT);
 		add("circle", CylinderShape.CIRCLE_UNIT);
+		add("line_down", LineShape.DOWN_UNIT);
+		add("line_up", LineShape.UP_UNIT);
+		add("line_north", LineShape.NORTH_UNIT);
+		add("line_south", LineShape.SOUTH_UNIT);
+		add("line_west", LineShape.WEST_UNIT);
+		add("line_east", LineShape.EAST_UNIT);
 	}
 
 	public static final Codec<UnitShape> CODEC = Codec.STRING.flatXmap(s -> {

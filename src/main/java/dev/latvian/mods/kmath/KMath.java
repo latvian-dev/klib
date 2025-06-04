@@ -55,7 +55,20 @@ public interface KMath {
 	}
 
 	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
-	Vec3 CENTER = new Vec3(0.5D, 0.5D, 0.5D);
+	Vec3 CENTER_VEC3 = new Vec3(0.5D, 0.5D, 0.5D);
+	Vec3 ONE_VEC3 = new Vec3(1D, 1D, 1D);
+
+	static Vec3 vec3(double x, double y, double z) {
+		if (x == 0D && y == 0D && z == 0D) {
+			return Vec3.ZERO;
+		} else if (x == 1D && y == 1D && z == 1D) {
+			return ONE_VEC3;
+		} else if (x == 0.5D && y == 0.5D && z == 0.5D) {
+			return CENTER_VEC3;
+		} else {
+			return new Vec3(x, y, z);
+		}
+	}
 
 	static String veryShortFormat(float value) {
 		return NumberFormat.VERY_SHORT.format(value);

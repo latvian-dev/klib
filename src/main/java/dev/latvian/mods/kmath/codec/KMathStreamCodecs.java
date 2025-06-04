@@ -1,9 +1,11 @@
 package dev.latvian.mods.kmath.codec;
 
 import com.google.common.base.Suppliers;
+import dev.latvian.mods.kmath.KMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -49,4 +51,18 @@ public interface KMathStreamCodecs {
 
 	StreamCodec<ByteBuf, Double> DOUBLE_OR_ZERO = optional(ByteBufCodecs.DOUBLE, 0D);
 	StreamCodec<ByteBuf, Double> DOUBLE_OR_ONE = optional(ByteBufCodecs.DOUBLE, 1D);
+
+	StreamCodec<ByteBuf, Vec3> VEC3 = new StreamCodec<>() {
+		@Override
+		public Vec3 decode(ByteBuf buf) {
+			return KMath.vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Vec3 value) {
+			buf.writeDouble(value.x);
+			buf.writeDouble(value.y);
+			buf.writeDouble(value.z);
+		}
+	};
 }

@@ -10,8 +10,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.ArrayList;
 import java.util.List;
 
-public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
-	public static final VoxelShapeBox EMPTY = new VoxelShapeBox(List.of(), List.of());
+public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBox) {
+	public static final VoxelShapeBox EMPTY = new VoxelShapeBox(List.of(), List.of(), false);
 	public static final VoxelShapeBox FULL = of(AABBs.FULL);
 	public static final VoxelShapeBox FULL_16 = of(AABBs.FULL_16);
 	public static final VoxelShapeBox INFINITE = of(AABB.INFINITE);
@@ -39,7 +39,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 
 		var edges = new ArrayList<Line>(12);
 		shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> edges.add(new Line(new Vec3(minX, minY, minZ), new Vec3(maxX, maxY, maxZ))));
-		return edges.isEmpty() && boxes.isEmpty() ? EMPTY : new VoxelShapeBox(List.copyOf(edges), List.copyOf(boxes));
+		return edges.isEmpty() && boxes.isEmpty() ? EMPTY : new VoxelShapeBox(List.copyOf(edges), List.copyOf(boxes), boxes.size() == 1);
 	}
 
 	private static void edge(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, List<Line> edges) {
@@ -59,36 +59,36 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 		} else if (minY == maxY && minZ == maxZ) {
 			var edges = new ArrayList<Line>(1);
 			edge(minX, minY, minZ, maxX, minY, minZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		} else if (minX == maxX && minZ == maxZ) {
 			var edges = new ArrayList<Line>(1);
 			edge(minX, minY, minZ, minX, maxY, minZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		} else if (minX == maxX && minY == maxY) {
 			var edges = new ArrayList<Line>(1);
 			edge(minX, minY, minZ, minX, minY, maxZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		} else if (minX == maxX) {
 			var edges = new ArrayList<Line>(4);
 			edge(minX, minY, minZ, minX, maxY, minZ, edges);
 			edge(minX, minY, minZ, minX, minY, maxZ, edges);
 			edge(minX, maxY, minZ, minX, maxY, maxZ, edges);
 			edge(minX, maxY, maxZ, minX, minY, maxZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		} else if (minY == maxY) {
 			var edges = new ArrayList<Line>(4);
 			edge(minX, minY, minZ, maxX, minY, minZ, edges);
 			edge(minX, minY, minZ, minX, minY, maxZ, edges);
 			edge(minX, minY, maxZ, maxX, minY, maxZ, edges);
 			edge(maxX, minY, maxZ, maxX, minY, minZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		} else if (minZ == maxZ) {
 			var edges = new ArrayList<Line>(4);
 			edge(minX, minY, minZ, maxX, minY, minZ, edges);
 			edge(minX, minY, minZ, minX, maxY, minZ, edges);
 			edge(maxX, minY, minZ, maxX, maxY, minZ, edges);
 			edge(maxX, maxY, minZ, minX, maxY, minZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		} else {
 			var edges = new ArrayList<Line>(12);
 			edge(minX, minY, minZ, maxX, minY, minZ, edges);
@@ -103,7 +103,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 			edge(minX, maxY, maxZ, maxX, maxY, maxZ, edges);
 			edge(maxX, minY, maxZ, maxX, maxY, maxZ, edges);
 			edge(maxX, maxY, minZ, maxX, maxY, maxZ, edges);
-			return new VoxelShapeBox(List.copyOf(edges), List.of(box));
+			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		}
 	}
 
@@ -131,5 +131,69 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes) {
 			callback.acceptPos(minX, minY, minZ);
 			callback.acceptPos(maxX, maxY, maxZ);
 		}
+	}
+
+	public VoxelShapeBox move(double x, double y, double z) {
+		if (x == 0D && y == 0D && z == 0D) {
+			return this;
+		} else if (singleBox) {
+			var b = boxes.getFirst();
+			return of(new AABB(b.minX + x, b.minY + y, b.minZ + z, b.maxX + x, b.maxY + y, b.maxZ + z));
+		} else {
+			var movedBoxes = new ArrayList<AABB>(boxes.size());
+			var movedEdges = new ArrayList<Line>(edges.size());
+
+			for (var b : boxes) {
+				movedBoxes.add(new AABB(
+					b.minX + x,
+					b.minY + y,
+					b.minZ + z,
+					b.maxX + x,
+					b.maxY + y,
+					b.maxZ + z
+				));
+			}
+
+			for (var e : edges) {
+				movedEdges.add(new Line(
+					new Vec3(e.start().x + x, e.start().y + y, e.start().z + z),
+					new Vec3(e.end().x + x, e.end().y + y, e.end().z + z)
+				));
+			}
+
+			return new VoxelShapeBox(List.copyOf(movedEdges), List.copyOf(movedBoxes), false);
+		}
+	}
+
+	public VoxelShapeBox scale(double sx, double sy, double sz) {
+		if (sx == 1D && sy == 1D && sz == 1D) {
+			return this;
+		} else if (singleBox) {
+			var b = boxes.getFirst();
+			return of(new AABB(b.minX * sx, b.minY * sy, b.minZ * sz, b.maxX * sx, b.maxY * sy, b.maxZ * sz));
+		}
+
+		var scaledBoxes = new ArrayList<AABB>(boxes.size());
+		var scaledEdges = new ArrayList<Line>(edges.size());
+
+		for (var b : boxes) {
+			scaledBoxes.add(new AABB(
+				b.minX * sx,
+				b.minY * sy,
+				b.minZ * sz,
+				b.maxX * sx,
+				b.maxY * sy,
+				b.maxZ * sz
+			));
+		}
+
+		for (var e : edges) {
+			scaledEdges.add(new Line(
+				new Vec3(e.start().x * sx, e.start().y * sy, e.start().z * sz),
+				new Vec3(e.end().x * sx, e.end().y * sy, e.end().z * sz)
+			));
+		}
+
+		return new VoxelShapeBox(List.copyOf(scaledEdges), List.copyOf(scaledBoxes), false);
 	}
 }
