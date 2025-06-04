@@ -11,7 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 
 public record CylinderShape(float radius, float height) implements Shape {
 	public static final CylinderShape UNIT = new CylinderShape(0.5F, 1F);
-	public static final CylinderShape CIRCLE_UNIT = new CylinderShape(0.5F, 0F);
 
 	public static final MapCodec<CylinderShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.FLOAT.fieldOf("radius").forGetter(CylinderShape::radius),
@@ -52,11 +51,11 @@ public record CylinderShape(float radius, float height) implements Shape {
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
 			float nz = (float) (Math.sin((i + 1D) * rs) * r);
 
-			callback.line(x, y + h, z, x + cx, y + h, z + cz);
+			// callback.line(x, y + h, z, x + cx, y + h, z + cz);
 			callback.line(x + cx, y + h, z + cz, x + nx, y + h, z + nz);
 
 			if (h > 0F) {
-				callback.line(x, y - h, z, x + cx, y - h, z + cz);
+				// callback.line(x, y - h, z, x + cx, y - h, z + cz);
 				callback.line(x + cx, y - h, z + cz, x + nx, y - h, z + nz);
 
 				callback.line(x + cx, y - h, z + cz, x + cx, y + h, z + cz, 0F, 1F, 0F);
@@ -79,15 +78,15 @@ public record CylinderShape(float radius, float height) implements Shape {
 			float nnz = (float) (Math.sin((i + 2D) * rs) * r);
 
 			callback.acceptPos(x, y + h, z).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(cx, y + h, cz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(nx, y + h, nz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(nnx, y + h, nnz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x + nnx, y + h, z + nnz).acceptNormal(0F, 1F, 0F);
 
 			if (h > 0F) {
 				callback.acceptPos(x, y - h, z).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(nnx, y - h, nnz).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(nx, y - h, nz).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(cx, y - h, cz).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(x + nnx, y - h, z + nnz).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F);
 			}
 		}
 	}

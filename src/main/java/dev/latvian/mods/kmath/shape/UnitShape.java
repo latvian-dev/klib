@@ -27,7 +27,7 @@ public class UnitShape implements Shape {
 		add("square", CuboidShape.SQUARE_UNIT);
 		add("sphere", SphereShape.UNIT);
 		add("cylinder", CylinderShape.UNIT);
-		add("circle", CylinderShape.CIRCLE_UNIT);
+		add("circle", CircleShape.UNIT);
 		add("line_down", LineShape.DOWN_UNIT);
 		add("line_up", LineShape.UP_UNIT);
 		add("line_north", LineShape.NORTH_UNIT);

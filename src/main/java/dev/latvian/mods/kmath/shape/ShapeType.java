@@ -18,6 +18,7 @@ public record ShapeType(String name, MapCodec<? extends Shape> codec, StreamCode
 		EmptyShape.TYPE,
 		CubeShape.TYPE,
 		CuboidShape.TYPE,
+		CircleShape.TYPE,
 		SphereShape.TYPE,
 		CylinderShape.TYPE,
 		LineShape.TYPE
