@@ -52,16 +52,20 @@ public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Ve
 		};
 
 		this.edges = new Line3f[]{
-			new Line3f(nnn, nnp),
 			new Line3f(nnn, pnn),
-			new Line3f(nnn, npn),
 			new Line3f(pnn, pnp),
-			new Line3f(pnn, ppn),
-			new Line3f(npn, pnp),
-			new Line3f(npn, npp),
-			new Line3f(pnp, ppp),
+			new Line3f(pnp, nnp),
+			new Line3f(nnp, nnn),
+
+			new Line3f(npn, ppn),
 			new Line3f(ppn, ppp),
-			new Line3f(npp, ppp),
+			new Line3f(ppp, npp),
+			new Line3f(npp, npn),
+
+			new Line3f(nnn, npn),
+			new Line3f(pnn, ppn),
+			new Line3f(pnp, ppp),
+			new Line3f(nnp, npp),
 		};
 	}
 
@@ -102,7 +106,18 @@ public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Ve
 		return edges[edge];
 	}
 
-	public void forEachVertex(VertexCallback callback) {
+	public void forEachVertex(Consumer<Vector3f> callback) {
+		callback.accept(nnn);
+		callback.accept(pnn);
+		callback.accept(pnp);
+		callback.accept(nnp);
+		callback.accept(npn);
+		callback.accept(ppn);
+		callback.accept(ppp);
+		callback.accept(npp);
+	}
+
+	public void forEachFace(VertexCallback callback) {
 		for (var face : faces) {
 			face.forEachVertex(callback);
 		}
