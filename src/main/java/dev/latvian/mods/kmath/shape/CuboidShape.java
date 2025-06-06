@@ -2,6 +2,7 @@ package dev.latvian.mods.kmath.shape;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.kmath.FrustumCheck;
 import dev.latvian.mods.kmath.Rotation;
 import dev.latvian.mods.kmath.Vec3f;
 import dev.latvian.mods.kmath.codec.KMathStreamCodecs;
@@ -10,6 +11,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 	public static final CuboidShape SQUARE_UNIT = new CuboidShape(new Vec3f(1F, 0F, 1F), Rotation.NONE);
@@ -67,5 +70,29 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 		}
 
 		CuboidBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		float sx = size.x() / 2F;
+		float sy = size.y() / 2F;
+		float sz = size.z() / 2F;
+
+		if (!rotation.isNone()) {
+			var mat = new Matrix3f();
+			rotation.rotateYXZ(mat);
+			var vec = new Vector3f(p.x() - sx, p.y() - sy, p.z() - sz).mul(mat);
+			return vec.x() >= -sx && vec.x() <= sx && vec.y() >= -sy && vec.y() <= sy && vec.z() >= -sz && vec.z() <= sz;
+		}
+
+		return p.x() >= -sx && p.x() <= sx && p.y() >= -sy && p.y() <= sy && p.z() >= -sz && p.z() <= sz;
+	}
+
+	@Override
+	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
+		double sx = size.x() / 2D;
+		double sy = size.y() / 2D;
+		double sz = size.z() / 2D;
+		return frustum.isVisible(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz);
 	}
 }

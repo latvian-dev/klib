@@ -7,6 +7,7 @@ import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 public record SphereShape(float radius) implements Shape {
 	public static final SphereShape UNIT = new SphereShape(0.5F);
@@ -31,5 +32,10 @@ public record SphereShape(float radius) implements Shape {
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
 		SpherePoints.M.buildQuads(x, y, z, radius, callback);
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		return p.lengthSquared() <= radius * radius;
 	}
 }

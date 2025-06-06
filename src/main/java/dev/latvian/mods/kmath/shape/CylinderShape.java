@@ -8,6 +8,7 @@ import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 public record CylinderShape(float radius, float height) implements Shape {
 	public static final CylinderShape UNIT = new CylinderShape(0.5F, 1F);
@@ -89,5 +90,22 @@ public record CylinderShape(float radius, float height) implements Shape {
 				callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F);
 			}
 		}
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		if (height <= 0F) {
+			return p.lengthSquared() <= radius * radius;
+		}
+
+		float h = height / 2F;
+
+		if (p.y() < -h || p.y() > h) {
+			return false;
+		}
+
+		float dx = p.x();
+		float dz = p.z();
+		return dx * dx + dz * dz <= radius * radius;
 	}
 }

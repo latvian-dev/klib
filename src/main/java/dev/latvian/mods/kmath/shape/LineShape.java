@@ -6,6 +6,7 @@ import dev.latvian.mods.kmath.Vec3f;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 public record LineShape(Vec3f vector) implements Shape {
 	public static final LineShape DOWN_UNIT = new LineShape(Vec3f.DOWN);
@@ -47,5 +48,21 @@ public record LineShape(Vec3f vector) implements Shape {
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		// check if point is inside vector
+		float len = vector.lengthSq();
+
+		if (len <= 0F) {
+			return p.lengthSquared() <= 0F;
+		}
+
+		var dx = p.x() - vector.x();
+		var dy = p.y() - vector.y();
+		var dz = p.z() - vector.z();
+		var d = dx * vector.x() + dy * vector.y() + dz * vector.z();
+		return d >= 0F && d <= len && dx * dx + dy * dy + dz * dz - d * d / len <= 0.0001F;
 	}
 }

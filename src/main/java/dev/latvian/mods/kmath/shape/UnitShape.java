@@ -3,10 +3,12 @@ package dev.latvian.mods.kmath.shape;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
+import dev.latvian.mods.kmath.FrustumCheck;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,5 +69,15 @@ public class UnitShape implements Shape {
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
 		shape.buildQuads(x, y, z, callback);
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		return shape.contains(p);
+	}
+
+	@Override
+	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
+		return shape.isVisible(x, y, z, frustum);
 	}
 }

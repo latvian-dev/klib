@@ -1,9 +1,11 @@
 package dev.latvian.mods.kmath.shape;
 
 import com.mojang.serialization.MapCodec;
+import dev.latvian.mods.kmath.FrustumCheck;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 public enum EmptyShape implements Shape {
 	INSTANCE;
@@ -23,5 +25,15 @@ public enum EmptyShape implements Shape {
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		return false;
+	}
+
+	@Override
+	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
+		return false;
 	}
 }

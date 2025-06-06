@@ -1,5 +1,6 @@
 package dev.latvian.mods.kmath;
 
+import dev.latvian.mods.kmath.shape.QuadrilaterallyFacedConvexHexahedra;
 import dev.latvian.mods.kmath.texture.UV;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;

@@ -2,10 +2,12 @@ package dev.latvian.mods.kmath.shape;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.kmath.FrustumCheck;
 import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 import java.util.function.Function;
 
@@ -25,4 +27,12 @@ public interface Shape {
 	void buildLines(float x, float y, float z, VertexCallback callback);
 
 	void buildQuads(float x, float y, float z, VertexCallback callback);
+
+	default boolean contains(Vector3fc p) {
+		return false;
+	}
+
+	default boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
+		return true;
+	}
 }

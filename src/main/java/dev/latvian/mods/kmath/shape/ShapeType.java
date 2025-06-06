@@ -21,7 +21,8 @@ public record ShapeType(String name, MapCodec<? extends Shape> codec, StreamCode
 		CircleShape.TYPE,
 		SphereShape.TYPE,
 		CylinderShape.TYPE,
-		LineShape.TYPE
+		LineShape.TYPE,
+		QuadrilaterallyFacedConvexHexahedra.TYPE
 	);
 
 	public static final Map<String, ShapeType> MAP = Map.copyOf(LIST.stream().collect(Collectors.toMap(ShapeType::name, Function.identity())));

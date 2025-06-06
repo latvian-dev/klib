@@ -7,6 +7,7 @@ import dev.latvian.mods.kmath.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 public record CircleShape(float radius) implements Shape {
 	public static final CircleShape UNIT = new CircleShape(0.5F);
@@ -69,5 +70,10 @@ public record CircleShape(float radius) implements Shape {
 			callback.acceptPos(x + nx, y, z + nz).acceptNormal(0F, 1F, 0F);
 			callback.acceptPos(x + nnx, y, z + nnz).acceptNormal(0F, 1F, 0F);
 		}
+	}
+
+	@Override
+	public boolean contains(Vector3fc p) {
+		return p.y() == 0F && p.lengthSquared() <= radius * radius;
 	}
 }
