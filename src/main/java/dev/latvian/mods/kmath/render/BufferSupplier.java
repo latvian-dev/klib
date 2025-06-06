@@ -9,6 +9,7 @@ import java.util.function.UnaryOperator;
 public interface BufferSupplier {
 	BufferSupplier DEBUG = fixed(DebugRenderTypes.QUADS, DebugRenderTypes.QUADS_NO_CULL).process(VertexCallback::onlyPosCol);
 	BufferSupplier DEBUG_NO_DEPTH = fixed(DebugRenderTypes.QUADS_NO_DEPTH, DebugRenderTypes.QUADS_NO_CULL_NO_DEPTH).process(VertexCallback::onlyPosCol);
+	BufferSupplier DEBUG_SEE_THROUGH = fixed(DebugRenderTypes.QUADS_SEE_THROUGH, DebugRenderTypes.QUADS_NO_CULL_SEE_THROUGH, DebugRenderTypes.LINES_SEE_THROUGH).process(VertexCallback::onlyPosCol);
 
 	static BufferSupplier fixed(RenderType quadsCull, RenderType quadsNoCull, RenderType lines) {
 		return new FixedBufferSupplier(quadsCull, quadsNoCull, lines);

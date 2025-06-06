@@ -14,7 +14,7 @@ public interface DebugRenderTypes {
 	}
 
 	RenderType LINES = RenderType.create(
-		"kmath:debug_lines",
+		"kmath:debug/lines",
 		1536,
 		DebugRenderPipelines.LINES,
 		RenderType.CompositeState.builder()
@@ -23,8 +23,18 @@ public interface DebugRenderTypes {
 			.createCompositeState(false)
 	);
 
+	RenderType LINES_SEE_THROUGH = RenderType.create(
+		"kmath:debug/lines_see_through",
+		1536,
+		DebugRenderPipelines.LINES_SEE_THROUGH,
+		RenderType.CompositeState.builder()
+			.setTextureState(new RenderStateShard.EmptyTextureStateShard(DebugRenderTypes::setupSmoothLines, DebugRenderTypes::clearSmoothLines))
+			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+			.createCompositeState(false)
+	);
+
 	RenderType QUADS = RenderType.create(
-		"kmath:debug_quads",
+		"kmath:debug/quads",
 		1536,
 		DebugRenderPipelines.QUADS,
 		RenderType.CompositeState.builder()
@@ -32,7 +42,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_CULL = RenderType.create(
-		"kmath:debug_quads_no_cull",
+		"kmath:debug/quads_no_cull",
 		1536,
 		DebugRenderPipelines.QUADS_NO_CULL,
 		RenderType.CompositeState.builder()
@@ -40,7 +50,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_DEPTH = RenderType.create(
-		"kmath:debug_quads_no_depth",
+		"kmath:debug/quads_no_depth",
 		1536,
 		DebugRenderPipelines.QUADS_NO_DEPTH,
 		RenderType.CompositeState.builder()
@@ -49,9 +59,27 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_CULL_NO_DEPTH = RenderType.create(
-		"kmath:debug_quads_no_cull_no_depth",
+		"kmath:debug/quads_no_cull_no_depth",
 		1536,
 		DebugRenderPipelines.QUADS_NO_CULL_NO_DEPTH,
+		RenderType.CompositeState.builder()
+			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+			.createCompositeState(false)
+	);
+
+	RenderType QUADS_SEE_THROUGH = RenderType.create(
+		"kmath:debug/quads_see_through",
+		1536,
+		DebugRenderPipelines.QUADS_SEE_THROUGH,
+		RenderType.CompositeState.builder()
+			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+			.createCompositeState(false)
+	);
+
+	RenderType QUADS_NO_CULL_SEE_THROUGH = RenderType.create(
+		"kmath:debug/quads_no_cull_see_through",
+		1536,
+		DebugRenderPipelines.QUADS_NO_CULL_SEE_THROUGH,
 		RenderType.CompositeState.builder()
 			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
 			.createCompositeState(false)

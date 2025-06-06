@@ -26,6 +26,13 @@ public interface DebugRenderPipelines {
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.DEBUG_LINES)
 		.build();
 
+	RenderPipeline LINES_SEE_THROUGH = RenderPipeline.builder(BASE_SNIPPET)
+		.withLocation(KMathMod.id("debug/lines_see_through"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.DEBUG_LINES)
+		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withDepthWrite(false)
+		.build();
+
 	RenderPipeline QUADS = RenderPipeline.builder(BASE_SNIPPET)
 		.withLocation(KMathMod.id("debug/quads"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
@@ -52,12 +59,30 @@ public interface DebugRenderPipelines {
 		.withDepthWrite(false)
 		.build();
 
+	RenderPipeline QUADS_SEE_THROUGH = RenderPipeline.builder(BASE_SNIPPET)
+		.withLocation(KMathMod.id("debug/quads_see_through"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withDepthWrite(false)
+		.build();
+
+	RenderPipeline QUADS_NO_CULL_SEE_THROUGH = RenderPipeline.builder(BASE_SNIPPET)
+		.withLocation(KMathMod.id("debug/quads_no_cull_see_through"))
+		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+		.withCull(false)
+		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+		.withDepthWrite(false)
+		.build();
+
 	@SubscribeEvent
 	static void registerRenderPipelines(RegisterRenderPipelinesEvent event) {
 		event.registerPipeline(LINES);
+		event.registerPipeline(LINES_SEE_THROUGH);
 		event.registerPipeline(QUADS);
 		event.registerPipeline(QUADS_NO_CULL);
 		event.registerPipeline(QUADS_NO_DEPTH);
 		event.registerPipeline(QUADS_NO_CULL_NO_DEPTH);
+		event.registerPipeline(QUADS_SEE_THROUGH);
+		event.registerPipeline(QUADS_NO_CULL_SEE_THROUGH);
 	}
 }
