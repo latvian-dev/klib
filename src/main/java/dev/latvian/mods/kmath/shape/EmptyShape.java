@@ -36,4 +36,9 @@ public enum EmptyShape implements Shape {
 	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "EmptyShape";
+	}
 }

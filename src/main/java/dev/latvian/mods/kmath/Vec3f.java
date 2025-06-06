@@ -8,6 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3fc;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
@@ -158,5 +159,10 @@ public record Vec3f(float x, float y, float z) {
 		} else {
 			return of(Mth.lerp(delta, x, other.x), Mth.lerp(delta, y, other.y), Mth.lerp(delta, z, other.z));
 		}
+	}
+
+	@Override
+	public @NotNull String toString() {
+		return KMath.NumberFormat.LONG.format(this);
 	}
 }

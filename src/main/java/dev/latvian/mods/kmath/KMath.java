@@ -1,6 +1,7 @@
 package dev.latvian.mods.kmath;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Position;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.IntTag;
@@ -10,6 +11,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
+import org.joml.Vector3fc;
+import org.joml.Vector4fc;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -45,12 +48,20 @@ public interface KMath {
 			return format.format(value);
 		}
 
-		public String format(Vec3 pos) {
-			return String.format("%s, %s, %s", format(pos.x), format(pos.y), format(pos.z));
+		public String format(Position pos) {
+			return String.format("%s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()));
 		}
 
 		public String format(Vec3f pos) {
 			return String.format("%s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()));
+		}
+
+		public String format(Vector3fc pos) {
+			return String.format("%s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()));
+		}
+
+		public String format(Vector4fc pos) {
+			return String.format("%s, %s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()), format(pos.w()));
 		}
 	}
 
@@ -94,11 +105,19 @@ public interface KMath {
 		return NumberFormat.LONG.format(value);
 	}
 
-	static String formatBlockPos(BlockPos pos) {
+	static String format(BlockPos pos) {
 		return String.format("%d, %d, %d", pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	static String formatVec3(Vec3 pos) {
+	static String format(Position pos) {
+		return NumberFormat.LONG.format(pos);
+	}
+
+	static String format(Vector3fc pos) {
+		return NumberFormat.LONG.format(pos);
+	}
+
+	static String format(Vector4fc pos) {
 		return NumberFormat.LONG.format(pos);
 	}
 

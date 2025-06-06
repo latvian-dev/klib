@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.kmath.Directions;
 import dev.latvian.mods.kmath.Face;
+import dev.latvian.mods.kmath.KMath;
 import dev.latvian.mods.kmath.Line3f;
 import dev.latvian.mods.kmath.codec.JOMLCodecs;
 import dev.latvian.mods.kmath.codec.JOMLStreamCodecs;
@@ -203,6 +204,14 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		}
 	}
 
+	public Vector3f getCenter() {
+		return new Vector3f(
+			(nnn.x + pnn.x + pnp.x + nnp.x + npn.x + ppn.x + ppp.x + npp.x) / 8F,
+			(nnn.y + pnn.y + pnp.y + nnp.y + npn.y + ppn.y + ppp.y + npp.y) / 8F,
+			(nnn.z + pnn.z + pnp.z + nnp.z + npn.z + ppn.z + ppp.z + npp.z) / 8F
+		);
+	}
+
 	@Override
 	public ShapeType type() {
 		return TYPE;
@@ -258,5 +267,19 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		ab.cross(ac, normal);
 		point.sub(a, ap);
 		return normal.dot(ap) <= 0;
+	}
+
+	@Override
+	public String toString() {
+		return "QFCH[" +
+			"nnn=" + KMath.format(nnn) +
+			", pnn=" + KMath.format(pnn) +
+			", pnp=" + KMath.format(pnp) +
+			", nnp=" + KMath.format(nnp) +
+			", npn=" + KMath.format(npn) +
+			", ppn=" + KMath.format(ppn) +
+			", ppp=" + KMath.format(ppp) +
+			", npp=" + KMath.format(npp) +
+			']';
 	}
 }

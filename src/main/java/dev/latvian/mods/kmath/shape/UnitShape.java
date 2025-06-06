@@ -80,4 +80,9 @@ public class UnitShape implements Shape {
 	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
 		return shape.isVisible(x, y, z, frustum);
 	}
+
+	@Override
+	public String toString() {
+		return type.name() + "[" + shape + "]";
+	}
 }
