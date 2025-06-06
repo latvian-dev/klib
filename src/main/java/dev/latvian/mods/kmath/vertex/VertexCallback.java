@@ -1,12 +1,14 @@
 package dev.latvian.mods.kmath.vertex;
 
 import dev.latvian.mods.kmath.KMath;
+import dev.latvian.mods.kmath.Line3f;
 import dev.latvian.mods.kmath.color.Color;
 import dev.latvian.mods.kmath.texture.PackedUV;
 import dev.latvian.mods.kmath.texture.UV;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 @FunctionalInterface
 public interface VertexCallback {
@@ -127,5 +129,15 @@ public interface VertexCallback {
 				line(x1, y1, z1, x2, y2, z2, nx / len, ny / len, nz / len);
 			}
 		}
+	}
+
+	default void line(Vector3fc start, Vector3fc end) {
+		if (start != end) {
+			line(start.x(), start.y(), start.z(), end.x(), end.y(), end.z());
+		}
+	}
+
+	default void line(Line3f line) {
+		line(line.start(), line.end());
 	}
 }

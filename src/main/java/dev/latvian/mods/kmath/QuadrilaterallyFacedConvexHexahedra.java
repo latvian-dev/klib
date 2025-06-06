@@ -10,14 +10,12 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Vector3f>>, Iterable<Face> {
-	public static final QuadrilaterallyFacedConvexHexahedra CUBE = new QuadrilaterallyFacedConvexHexahedra(0.5F) {
-		@Override
-		public void accept(@Nullable Consumer<Vector3f> function) {
-		}
-	};
-
-	public final float mxs;
-	public final float mns;
+	public final float minX;
+	public final float minY;
+	public final float minZ;
+	public final float maxX;
+	public final float maxY;
+	public final float maxZ;
 	public final Vector3f nnn;
 	public final Vector3f pnn;
 	public final Vector3f pnp;
@@ -30,17 +28,25 @@ public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Ve
 	private final Line3f[] edges;
 
 	public QuadrilaterallyFacedConvexHexahedra(float mxs) {
-		this.mxs = mxs;
-		this.mns = -mxs;
+		this(-mxs, -mxs, -mxs, mxs, mxs, mxs);
+	}
 
-		this.nnn = new Vector3f(mns, mns, mns);
-		this.pnn = new Vector3f(mxs, mns, mns);
-		this.pnp = new Vector3f(mxs, mns, mxs);
-		this.nnp = new Vector3f(mns, mns, mxs);
-		this.npn = new Vector3f(mns, mxs, mns);
-		this.ppn = new Vector3f(mxs, mxs, mns);
-		this.ppp = new Vector3f(mxs, mxs, mxs);
-		this.npp = new Vector3f(mns, mxs, mxs);
+	public QuadrilaterallyFacedConvexHexahedra(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+		this.minX = minX;
+		this.minY = minY;
+		this.minZ = minZ;
+		this.maxX = maxX;
+		this.maxY = maxY;
+		this.maxZ = maxZ;
+
+		this.nnn = new Vector3f(minX, minY, minZ);
+		this.pnn = new Vector3f(maxX, minY, minZ);
+		this.pnp = new Vector3f(maxX, minY, maxZ);
+		this.nnp = new Vector3f(minX, minY, maxZ);
+		this.npn = new Vector3f(minX, maxY, minZ);
+		this.ppn = new Vector3f(maxX, maxY, minZ);
+		this.ppp = new Vector3f(maxX, maxY, maxZ);
+		this.npp = new Vector3f(minX, maxY, maxZ);
 
 		this.faces = new Face[]{
 			new Face(nnp, nnn, pnn, pnp, Directions.ALL[0].getUnitVec3f()), // down
@@ -69,26 +75,23 @@ public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Ve
 		};
 	}
 
+	public void identity() {
+		nnn.set(minX, minY, minZ);
+		pnn.set(maxX, minY, minZ);
+		pnp.set(maxX, minY, maxZ);
+		nnp.set(minX, minY, maxZ);
+		npn.set(minX, maxY, minZ);
+		ppn.set(maxX, maxY, minZ);
+		ppp.set(maxX, maxY, maxZ);
+		npp.set(minX, maxY, maxZ);
+	}
+
 	@Override
 	public void accept(@Nullable Consumer<Vector3f> function) {
-		nnn.set(mns, mns, mns);
-		pnn.set(mxs, mns, mns);
-		pnp.set(mxs, mns, mxs);
-		nnp.set(mns, mns, mxs);
-		npn.set(mns, mxs, mns);
-		ppn.set(mxs, mxs, mns);
-		ppp.set(mxs, mxs, mxs);
-		npp.set(mns, mxs, mxs);
+		identity();
 
 		if (function != null) {
-			function.accept(nnn);
-			function.accept(pnn);
-			function.accept(pnp);
-			function.accept(nnp);
-			function.accept(npn);
-			function.accept(ppn);
-			function.accept(ppp);
-			function.accept(npp);
+			forEachVertex(function);
 		}
 	}
 
@@ -104,6 +107,20 @@ public class QuadrilaterallyFacedConvexHexahedra implements Consumer<Consumer<Ve
 
 	public Line3f edge(int edge) {
 		return edges[edge];
+	}
+
+	public Vector3f vertex(int vertex) {
+		return switch (vertex) {
+			case 0 -> nnn;
+			case 1 -> pnn;
+			case 2 -> pnp;
+			case 3 -> nnp;
+			case 4 -> npn;
+			case 5 -> ppn;
+			case 6 -> ppp;
+			case 7 -> npp;
+			default -> throw new IndexOutOfBoundsException("Vertex index must be between 0 and 7, got: " + vertex);
+		};
 	}
 
 	public void forEachVertex(Consumer<Vector3f> callback) {
