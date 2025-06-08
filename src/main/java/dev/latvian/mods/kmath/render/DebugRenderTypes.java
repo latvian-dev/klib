@@ -1,16 +1,17 @@
 package dev.latvian.mods.kmath.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import org.lwjgl.opengl.GL11;
 
 public interface DebugRenderTypes {
-	static void setupSmoothLines() {
-		GL11.glEnable(GL11.GL_LINE_SMOOTH);
+	static void setupThinLines() {
+		RenderSystem.lineWidth(Math.max(1F, Minecraft.getInstance().getWindow().getWidth() / 1920F));
 	}
 
-	static void clearSmoothLines() {
-		GL11.glDisable(GL11.GL_LINE_SMOOTH);
+	static void clearThinLines() {
+		RenderSystem.lineWidth(1F);
 	}
 
 	RenderType LINES = RenderType.create(
@@ -18,7 +19,7 @@ public interface DebugRenderTypes {
 		1536,
 		DebugRenderPipelines.LINES,
 		RenderType.CompositeState.builder()
-			.setTextureState(new RenderStateShard.EmptyTextureStateShard(DebugRenderTypes::setupSmoothLines, DebugRenderTypes::clearSmoothLines))
+			.setTextureState(new RenderStateShard.EmptyTextureStateShard(DebugRenderTypes::setupThinLines, DebugRenderTypes::clearThinLines))
 			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
 			.createCompositeState(false)
 	);
@@ -28,7 +29,7 @@ public interface DebugRenderTypes {
 		1536,
 		DebugRenderPipelines.LINES_SEE_THROUGH,
 		RenderType.CompositeState.builder()
-			.setTextureState(new RenderStateShard.EmptyTextureStateShard(DebugRenderTypes::setupSmoothLines, DebugRenderTypes::clearSmoothLines))
+			.setTextureState(new RenderStateShard.EmptyTextureStateShard(DebugRenderTypes::setupThinLines, DebugRenderTypes::clearThinLines))
 			.setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
 			.createCompositeState(false)
 	);

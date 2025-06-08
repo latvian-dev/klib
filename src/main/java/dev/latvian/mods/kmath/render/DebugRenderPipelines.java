@@ -21,14 +21,14 @@ public interface DebugRenderPipelines {
 		.withCull(true)
 		.buildSnippet();
 
-	RenderPipeline LINES = RenderPipeline.builder(BASE_SNIPPET)
+	RenderPipeline LINES = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
 		.withLocation(KMathMod.id("debug/lines"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.DEBUG_LINES)
+		.withCull(true)
 		.build();
 
-	RenderPipeline LINES_SEE_THROUGH = RenderPipeline.builder(BASE_SNIPPET)
+	RenderPipeline LINES_SEE_THROUGH = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
 		.withLocation(KMathMod.id("debug/lines_see_through"))
-		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.DEBUG_LINES)
+		.withCull(true)
 		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 		.withDepthWrite(false)
 		.build();
