@@ -23,12 +23,10 @@ public interface DebugRenderPipelines {
 
 	RenderPipeline LINES = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
 		.withLocation(KMathMod.id("debug/lines"))
-		.withCull(true)
 		.build();
 
 	RenderPipeline LINES_SEE_THROUGH = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
 		.withLocation(KMathMod.id("debug/lines_see_through"))
-		.withCull(true)
 		.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 		.withDepthWrite(false)
 		.build();

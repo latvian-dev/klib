@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 
 public interface DebugRenderTypes {
 	static void setupThinLines() {
-		RenderSystem.lineWidth(Math.max(1F, Minecraft.getInstance().getWindow().getWidth() / 1920F));
+		RenderSystem.lineWidth(Math.max(1.5F, Minecraft.getInstance().getWindow().getWidth() / 1920F * 1.5F));
 	}
 
 	static void clearThinLines() {
