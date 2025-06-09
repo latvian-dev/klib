@@ -69,6 +69,19 @@ public interface KMath {
 	Vec3 CENTER_VEC3 = new Vec3(0.5D, 0.5D, 0.5D);
 	Vec3 ONE_VEC3 = new Vec3(1D, 1D, 1D);
 
+	double SQRT_2 = Math.sqrt(2D);
+	double TWO_PI = Math.PI * 2D;
+	double HALF_PI = Math.PI / 2D;
+	double TO_DEG = 180D / Math.PI;
+	double TO_RAD = Math.PI / 180D;
+
+	float F_SQRT_2 = (float) SQRT_2;
+	float F_PI = (float) Math.PI;
+	float F_TWO_PI = (float) TWO_PI;
+	float F_HALF_PI = (float) HALF_PI;
+	float F_TO_DEG = (float) TO_DEG;
+	float F_TO_RAD = (float) TO_RAD;
+
 	static Vec3 vec3(double x, double y, double z) {
 		if (x == 0D && y == 0D && z == 0D) {
 			return Vec3.ZERO;
@@ -78,6 +91,18 @@ public interface KMath {
 			return CENTER_VEC3;
 		} else {
 			return new Vec3(x, y, z);
+		}
+	}
+
+	static Vec3 vec3(double v) {
+		if (v == 0D) {
+			return Vec3.ZERO;
+		} else if (v == 1D) {
+			return ONE_VEC3;
+		} else if (v == 0.5D) {
+			return CENTER_VEC3;
+		} else {
+			return new Vec3(v, v, v);
 		}
 	}
 
@@ -251,19 +276,19 @@ public interface KMath {
 		return t1 * t1 * t1 * p1x + 3D * t * t1 * t1 * v + 3D * t * t * t1 * v + t * t * t * p3x;
 	}
 
-	static double min8(double a, double b, double c, double d, double e, double f, double g, double h) {
+	static double min(double a, double b, double c, double d, double e, double f, double g, double h) {
 		return Math.min(Math.min(Math.min(Math.min(Math.min(Math.min(a, b), c), d), e), f), Math.min(g, h));
 	}
 
-	static double max8(double a, double b, double c, double d, double e, double f, double g, double h) {
+	static double max(double a, double b, double c, double d, double e, double f, double g, double h) {
 		return Math.max(Math.max(Math.max(Math.max(Math.max(Math.max(a, b), c), d), e), f), Math.max(g, h));
 	}
 
-	static float min8(float a, float b, float c, float d, float e, float f, float g, float h) {
+	static float min(float a, float b, float c, float d, float e, float f, float g, float h) {
 		return Math.min(Math.min(Math.min(Math.min(Math.min(Math.min(a, b), c), d), e), f), Math.min(g, h));
 	}
 
-	static float max8(float a, float b, float c, float d, float e, float f, float g, float h) {
+	static float max(float a, float b, float c, float d, float e, float f, float g, float h) {
 		return Math.max(Math.max(Math.max(Math.max(Math.max(Math.max(a, b), c), d), e), f), Math.max(g, h));
 	}
 
@@ -286,5 +311,31 @@ public interface KMath {
 			m.m10() == 0F && m.m11() == 1F && m.m12() == 0F && m.m13() == 0F &&
 			m.m20() == 0F && m.m21() == 0F && m.m22() == 1F && m.m23() == 0F &&
 			m.m30() == 0F && m.m31() == 0F && m.m32() == 0F && m.m33() == 1F;
+	}
+
+	static double dist(double x0, double y0, double z0, double x1, double y1, double z1) {
+		double dx = x1 - x0;
+		double dy = y1 - y0;
+		double dz = z1 - z0;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+
+	static double dist(double x0, double y0, double x1, double y1) {
+		double dx = x1 - x0;
+		double dy = y1 - y0;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	static float dist(float x0, float y0, float z0, float x1, float y1, float z1) {
+		double dx = x1 - x0;
+		double dy = y1 - y0;
+		double dz = z1 - z0;
+		return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+
+	static float dist(float x0, float y0, float x1, float y1) {
+		double dx = x1 - x0;
+		double dy = y1 - y0;
+		return (float) Math.sqrt(dx * dx + dy * dy);
 	}
 }

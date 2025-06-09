@@ -14,4 +14,8 @@ public record Line3f(Vector3fc start, Vector3fc end) {
 	public float dz() {
 		return end.z() - start.z();
 	}
+
+	public Vec3f delta() {
+		return Vec3f.of(dx(), dy(), dz());
+	}
 }

@@ -11,6 +11,16 @@ public interface KMathRandomSource {
 		return (RandomSource) this;
 	}
 
+	default boolean roll(float chance) {
+		if (chance <= 0F) {
+			return false;
+		} else if (chance >= 1F) {
+			return true;
+		} else {
+			return kmath$self().nextFloat() < chance;
+		}
+	}
+
 	default float nextRange(float min, float max) {
 		return KMath.lerp(kmath$self().nextFloat(), min, max);
 	}

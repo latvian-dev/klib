@@ -114,6 +114,10 @@ public record Vec3f(float x, float y, float z) {
 		return (float) Math.sqrt(lengthSq());
 	}
 
+	public boolean isZero() {
+		return x == 0F && y == 0F && z == 0F;
+	}
+
 	public Vec3f normalize() {
 		float ls = lengthSq();
 

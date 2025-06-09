@@ -16,8 +16,8 @@ import java.util.List;
 
 public record Rotation(float yaw, float pitch, float roll, Type type) {
 	public enum Type {
-		DEG(180D / Math.PI, 360D),
-		RAD(Math.PI / 180D, Math.PI * 2D);
+		DEG(KMath.TO_DEG, 360D),
+		RAD(KMath.TO_RAD, Math.PI * 2D);
 
 		public final double scaled;
 		public final float scalef;
@@ -45,9 +45,6 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 			return yaw == 0F ? none : new Rotation(yaw, 0F, 0F, this);
 		}
 	}
-
-	public static final float RAD = (float) (Math.PI / 180D);
-	public static final float DEG = (float) (180D / Math.PI);
 
 	public static final Codec<Rotation> CODEC = Codec.either(Codec.FLOAT, Codec.FLOAT.listOf()).xmap(
 		either -> either.map(Rotation::deg, list -> switch (list.size()) {
@@ -115,7 +112,7 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 		double dy = target.y() - source.y();
 		double dz = target.z() - source.z();
 
-		double yaw = Math.atan2(dz, dx) - Math.PI / 2D;
+		double yaw = Math.atan2(dz, dx) - KMath.HALF_PI;
 		double pitch = -Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
 
 		return rad((float) yaw, (float) pitch, roll);
@@ -126,35 +123,35 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 	}
 
 	public float yawDeg() {
-		return type == Type.DEG ? yaw : yaw * DEG;
+		return type == Type.DEG ? yaw : yaw * KMath.F_TO_DEG;
 	}
 
 	public float pitchDeg() {
-		return type == Type.DEG ? pitch : pitch * DEG;
+		return type == Type.DEG ? pitch : pitch * KMath.F_TO_DEG;
 	}
 
 	public float rollDeg() {
-		return type == Type.DEG ? roll : roll * DEG;
+		return type == Type.DEG ? roll : roll * KMath.F_TO_DEG;
 	}
 
 	public float yawRad() {
-		return type == Type.RAD ? yaw : yaw * RAD;
+		return type == Type.RAD ? yaw : yaw * KMath.F_TO_RAD;
 	}
 
 	public float pitchRad() {
-		return type == Type.RAD ? pitch : pitch * RAD;
+		return type == Type.RAD ? pitch : pitch * KMath.F_TO_RAD;
 	}
 
 	public float rollRad() {
-		return type == Type.RAD ? roll : roll * RAD;
+		return type == Type.RAD ? roll : roll * KMath.F_TO_RAD;
 	}
 
 	public Rotation toDeg() {
-		return this == NONE || type == Type.DEG ? this : new Rotation(yaw * DEG, pitch * DEG, roll * DEG, Type.DEG);
+		return this == NONE || type == Type.DEG ? this : new Rotation(yaw * KMath.F_TO_DEG, pitch * KMath.F_TO_DEG, roll * KMath.F_TO_DEG, Type.DEG);
 	}
 
 	public Rotation toRad() {
-		return this == NONE || type == Type.RAD ? this : new Rotation(yaw * RAD, pitch * RAD, roll * RAD, Type.RAD);
+		return this == NONE || type == Type.RAD ? this : new Rotation(yaw * KMath.F_TO_RAD, pitch * KMath.F_TO_RAD, roll * KMath.F_TO_RAD, Type.RAD);
 	}
 
 	public Rotation lerp(float delta, Rotation to) {
