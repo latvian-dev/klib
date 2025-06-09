@@ -101,6 +101,10 @@ public interface VertexCallback {
 		return new OnlyPosColTexVertexCallback(this);
 	}
 
+	default VertexCallback onlyPosColNormal() {
+		return new OnlyPosColNormalVertexCallback(this);
+	}
+
 	default VertexCallback onlyPosColTexNormal() {
 		return new OnlyPosColTexNormalVertexCallback(this);
 	}

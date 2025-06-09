@@ -127,9 +127,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 			float maxX = (float) (edge.end().x + offset.x);
 			float maxY = (float) (edge.end().y + offset.y);
 			float maxZ = (float) (edge.end().z + offset.z);
-
-			callback.acceptPos(minX, minY, minZ);
-			callback.acceptPos(maxX, maxY, maxZ);
+			callback.line(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 	}
 

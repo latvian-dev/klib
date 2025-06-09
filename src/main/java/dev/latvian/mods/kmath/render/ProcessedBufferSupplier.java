@@ -18,6 +18,6 @@ public record ProcessedBufferSupplier(BufferSupplier delegate, UnaryOperator<Ver
 
 	@Override
 	public VertexCallback lines(MultiBufferSource buffers) {
-		return process.apply(delegate.lines(buffers));
+		return delegate.lines(buffers);
 	}
 }
