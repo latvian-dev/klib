@@ -6,6 +6,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,10 +24,15 @@ import java.util.function.Supplier;
 public interface ID {
 	Codec<ResourceLocation> CODEC = Codec.STRING.xmap(ID::idFromString, ID::idToString);
 	StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ID::idFromString, ID::idToString);
+	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ResourceLocation.class, v -> v.toString().length());
 	StreamCodec<RegistryFriendlyByteBuf, ResourceLocation> REGISTRY_STREAM_CODEC = Cast.to(STREAM_CODEC);
 
 	static ResourceLocation mc(String path) {
 		return ResourceLocation.withDefaultNamespace(path);
+	}
+
+	static ResourceLocation java(String path) {
+		return ResourceLocation.fromNamespaceAndPath("java", path);
 	}
 
 	static ResourceLocation idFromString(String string) {

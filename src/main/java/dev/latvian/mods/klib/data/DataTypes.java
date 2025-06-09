@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.KLibMod;
+import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
@@ -16,6 +17,7 @@ import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.util.ID;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.UuidArgument;
@@ -47,9 +49,8 @@ public interface DataTypes {
 	DataType<Float> FLOAT = DataType.of(Codec.FLOAT, ByteBufCodecs.FLOAT, Float.class, v -> v);
 	DataType<Double> DOUBLE = DataType.of(Codec.DOUBLE, ByteBufCodecs.DOUBLE, Double.class, v -> v);
 	DataType<String> STRING = DataType.of(Codec.STRING, ByteBufCodecs.STRING_UTF8, String.class, String::length);
-	DataType<UUID> UUID = DataType.of(MCCodecs.UUID, KLibStreamCodecs.UUID, UUID.class);
+	DataType<UUID> UUID = DataType.of(KLibCodecs.UUID, KLibStreamCodecs.UUID, UUID.class);
 
-	DataType<ResourceLocation> ID = DataType.of(dev.latvian.mods.klib.util.ID.CODEC, dev.latvian.mods.klib.util.ID.STREAM_CODEC, ResourceLocation.class, v -> v.toString().length());
 	DataType<Component> TEXT_COMPONENT = DataType.of(ComponentSerialization.CODEC, ComponentSerialization.STREAM_CODEC, Component.class, v -> v.getString().length());
 	DataType<Mirror> MIRROR = DataType.of(Mirror.values());
 	DataType<Rotation> BLOCK_ROTATION = DataType.of(Rotation.values());
@@ -64,29 +65,29 @@ public interface DataTypes {
 	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class, v -> Vec3.atLowerCornerOf(v).length());
 
 	static void register() {
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "bool"), BOOL, (self, ctx) -> BoolArgumentType.bool(), BoolArgumentType::getBool);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "int"), INT, (self, ctx) -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "var_int"), VAR_INT, (self, ctx) -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "long"), LONG, (self, ctx) -> LongArgumentType.longArg(), LongArgumentType::getLong);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "var_long"), VAR_LONG, (self, ctx) -> LongArgumentType.longArg(), LongArgumentType::getLong);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "float"), FLOAT, (self, ctx) -> FloatArgumentType.floatArg(), FloatArgumentType::getFloat);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "double"), DOUBLE, (self, ctx) -> DoubleArgumentType.doubleArg(), DoubleArgumentType::getDouble);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "string"), STRING, (self, ctx) -> StringArgumentType.string(), StringArgumentType::getString);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("java", "uuid"), UUID, (self, ctx) -> UuidArgument.uuid(), (ctx, name) -> ctx.getArgument(name, UUID.class));
+		DataType.register(ID.java("bool"), BOOL, (self, ctx) -> BoolArgumentType.bool(), BoolArgumentType::getBool);
+		DataType.register(ID.java("int"), INT, (self, ctx) -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
+		DataType.register(ID.java("var_int"), VAR_INT, (self, ctx) -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
+		DataType.register(ID.java("long"), LONG, (self, ctx) -> LongArgumentType.longArg(), LongArgumentType::getLong);
+		DataType.register(ID.java("var_long"), VAR_LONG, (self, ctx) -> LongArgumentType.longArg(), LongArgumentType::getLong);
+		DataType.register(ID.java("float"), FLOAT, (self, ctx) -> FloatArgumentType.floatArg(), FloatArgumentType::getFloat);
+		DataType.register(ID.java("double"), DOUBLE, (self, ctx) -> DoubleArgumentType.doubleArg(), DoubleArgumentType::getDouble);
+		DataType.register(ID.java("string"), STRING, (self, ctx) -> StringArgumentType.string(), StringArgumentType::getString);
+		DataType.register(ID.java("uuid"), UUID, (self, ctx) -> UuidArgument.uuid(), (ctx, name) -> ctx.getArgument(name, UUID.class));
 
-		DataType.register(ResourceLocation.withDefaultNamespace("id"), ID, (self, ctx) -> ResourceLocationArgument.id(), (ctx, name) -> ctx.getArgument(name, ResourceLocation.class));
-		DataType.register(ResourceLocation.withDefaultNamespace("text_component"), TEXT_COMPONENT, (self, ctx) -> ComponentArgument.textComponent(ctx), (ctx, name) -> ctx.getArgument(name, Component.class));
-		DataType.register(ResourceLocation.withDefaultNamespace("mirror"), MIRROR);
-		DataType.register(ResourceLocation.withDefaultNamespace("rotation"), BLOCK_ROTATION);
-		DataType.register(ResourceLocation.withDefaultNamespace("liquid_settings"), LIQUID_SETTINGS);
-		DataType.register(ResourceLocation.withDefaultNamespace("hand"), HAND);
-		DataType.register(ResourceLocation.withDefaultNamespace("sound_source"), SOUND_SOURCE);
-		DataType.register(ResourceLocation.withDefaultNamespace("item_stack"), ITEM_STACK);
-		DataType.register(ResourceLocation.withDefaultNamespace("particle_options"), PARTICLE_OPTIONS);
-		DataType.register(ResourceLocation.withDefaultNamespace("block_state"), BLOCK_STATE);
-		DataType.register(ResourceLocation.withDefaultNamespace("fluid_state"), FLUID_STATE);
-		DataType.register(ResourceLocation.withDefaultNamespace("vec3"), VEC3);
-		DataType.register(ResourceLocation.withDefaultNamespace("block_pos"), BLOCK_POS);
+		DataType.register(ID.mc("id"), ID.DATA_TYPE, (self, ctx) -> ResourceLocationArgument.id(), (ctx, name) -> ctx.getArgument(name, ResourceLocation.class));
+		DataType.register(ID.mc("text_component"), TEXT_COMPONENT, (self, ctx) -> ComponentArgument.textComponent(ctx), (ctx, name) -> ctx.getArgument(name, Component.class));
+		DataType.register(ID.mc("mirror"), MIRROR);
+		DataType.register(ID.mc("rotation"), BLOCK_ROTATION);
+		DataType.register(ID.mc("liquid_settings"), LIQUID_SETTINGS);
+		DataType.register(ID.mc("hand"), HAND);
+		DataType.register(ID.mc("sound_source"), SOUND_SOURCE);
+		DataType.register(ID.mc("item_stack"), ITEM_STACK);
+		DataType.register(ID.mc("particle_options"), PARTICLE_OPTIONS);
+		DataType.register(ID.mc("block_state"), BLOCK_STATE);
+		DataType.register(ID.mc("fluid_state"), FLUID_STATE);
+		DataType.register(ID.mc("vec3"), VEC3);
+		DataType.register(ID.mc("block_pos"), BLOCK_POS);
 
 		DataType.register(KLibMod.id("color"), Color.DATA_TYPE);
 		DataType.register(KLibMod.id("gradient"), Gradient.DATA_TYPE);

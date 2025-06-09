@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.codec;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.util.UndashedUuid;
 import dev.latvian.mods.klib.math.KMath;
 import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
@@ -18,14 +17,12 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public interface MCCodecs {
 	Codec<Vec3> VEC3 = Codec.DOUBLE.listOf(3, 3).xmap(l -> KMath.vec3(l.get(0), l.get(1), l.get(2)), v -> List.of(v.x, v.y, v.z));
 	Codec<Vec3> VEC3S = Codec.either(Codec.DOUBLE, VEC3).xmap(either -> either.map(KMath::vec3, Function.identity()), v -> v.x == v.y && v.x == v.z ? Either.left(v.x) : Either.right(v));
-	Codec<UUID> UUID = Codec.STRING.xmap(UndashedUuid::fromStringLenient, UndashedUuid::toString);
 	Codec<SectionPos> SECTION_POS = Codec.INT_STREAM.comapFlatMap(intStream -> Util.fixedSize(intStream, 3).map(ints -> SectionPos.of(ints[0], ints[1], ints[2])), pos -> IntStream.of(pos.x(), pos.y(), pos.z()));
 	Codec<ResourceKey<Level>> DIMENSION = ResourceKey.codec(Registries.DIMENSION);
 	Codec<SoundSource> SOUND_SOURCE = KLibCodecs.anyEnumCodec(SoundSource.values(), SoundSource::getName);
