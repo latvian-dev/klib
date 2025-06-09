@@ -57,7 +57,7 @@ neoForge {
 	}
 
 	mods {
-		kmath {
+		klib {
 			sourceSet sourceSets.main
 		}
 	}

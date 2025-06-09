@@ -1,0 +1,80 @@
+package dev.latvian.mods.klib.math;
+
+import org.joml.Matrix2d;
+import org.joml.Matrix2dc;
+import org.joml.Matrix2f;
+import org.joml.Matrix2fc;
+import org.joml.Matrix3d;
+import org.joml.Matrix3dc;
+import org.joml.Matrix3f;
+import org.joml.Matrix3fc;
+import org.joml.Matrix3x2d;
+import org.joml.Matrix3x2dc;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fc;
+import org.joml.Matrix4d;
+import org.joml.Matrix4dc;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Matrix4x3d;
+import org.joml.Matrix4x3dc;
+import org.joml.Matrix4x3f;
+import org.joml.Matrix4x3fc;
+import org.joml.Quaterniond;
+import org.joml.Quaterniondc;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
+import org.joml.Vector2L;
+import org.joml.Vector2Lc;
+import org.joml.Vector2d;
+import org.joml.Vector2dc;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
+import org.joml.Vector2i;
+import org.joml.Vector2ic;
+import org.joml.Vector3L;
+import org.joml.Vector3Lc;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+import org.joml.Vector4L;
+import org.joml.Vector4Lc;
+import org.joml.Vector4d;
+import org.joml.Vector4dc;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
+import org.joml.Vector4i;
+import org.joml.Vector4ic;
+
+public interface Identity {
+	Vector2fc VEC_2 = new Vector2f();
+	Vector3fc VEC_3 = new Vector3f();
+	Vector4fc VEC_4 = new Vector4f();
+	Matrix2fc MAT_2 = new Matrix2f();
+	Matrix3fc MAT_3 = new Matrix3f();
+	Matrix3x2fc MAT_3x2 = new Matrix3x2f();
+	Matrix4fc MAT_4 = new Matrix4f();
+	Matrix4x3fc MAT_4x3 = new Matrix4x3f();
+	Quaternionfc QUATERNION = new Quaternionf();
+
+	Vector2dc DVEC_2 = new Vector2d();
+	Vector3dc DVEC_3 = new Vector3d();
+	Vector4dc DVEC_4 = new Vector4d();
+	Matrix2dc DMAT_2 = new Matrix2d();
+	Matrix3dc DMAT_3 = new Matrix3d();
+	Matrix3x2dc DMAT_3x2 = new Matrix3x2d();
+	Matrix4dc DMAT_4 = new Matrix4d();
+	Matrix4x3dc DMAT_4x3 = new Matrix4x3d();
+	Quaterniondc DQUATERNION = new Quaterniond();
+
+	Vector2ic IVEC_2 = new Vector2i();
+	Vector3ic IVEC_3 = new Vector3i();
+	Vector4ic IVEC_4 = new Vector4i();
+
+	Vector2Lc LVEC_2 = new Vector2L();
+	Vector3Lc LVEC_3 = new Vector3L();
+	Vector4Lc LVEC_4 = new Vector4L();
+}

@@ -3,19 +3,20 @@ loaderVersion = "[2,)"
 license = "MIT"
 
 [[mods]]
-modId = "kmath"
+modId = "klib"
 version = "${version}"
-displayName = "KMath"
+displayName = "KLib"
+description = "Lat's random utility and math stuff library"
 authors = "latvian.dev"
-logoFile = "kmath_logo.png"
+logoFile = "klib_logo.png"
 logoBlur = false
 
-[[dependencies.kmath]]
+[[dependencies.klib]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1.122,)"
+versionRange = "[21.5.75,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[mixins]]
-config = "kmath.mixins.json"
+config = "klib.mixins.json"

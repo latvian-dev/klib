@@ -1,11 +1,14 @@
 {
 	"net/minecraft/util/RandomSource": [
-		"dev/latvian/mods/kmath/core/KMathRandomSource"
+		"dev/latvian/mods/klib/core/KLibRandomSource"
 	],
 	"com/mojang/blaze3d/vertex/VertexConsumer": [
-		"dev/latvian/mods/kmath/core/KMathVertexConsumer"
+		"dev/latvian/mods/klib/core/KLibVertexConsumer"
 	],
 	"com/mojang/blaze3d/vertex/PoseStack$Pose": [
-		"dev/latvian/mods/kmath/core/KMathPoseStackPose"
+		"dev/latvian/mods/klib/core/KLibPoseStackPose"
+	],
+	"net/minecraft/network/codec/StreamCodec": [
+		"dev/latvian/mods/klib/core/KLibStreamCodec<B, V>"
 	]
 }
