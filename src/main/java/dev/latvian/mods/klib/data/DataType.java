@@ -1,7 +1,6 @@
 package dev.latvian.mods.klib.data;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
@@ -24,23 +23,15 @@ public final class DataType<T> {
 	public static <T> void register(
 		ResourceLocation id,
 		DataType<T> type,
-		@Nullable BiFunction<RegisteredDataType<T>, CommandBuildContext, ArgumentType<T>> argumentType,
-		@Nullable BiFunction<CommandContext<?>, String, T> argumentGetter
+		@Nullable BiFunction<RegisteredDataType<T>, CommandBuildContext, ArgumentType<T>> argumentType
 	) {
-		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
+		var reg = new RegisteredDataType<>(id, type, argumentType);
 		RegisteredDataType.BY_ID.put(id, reg);
 		RegisteredDataType.BY_TYPE.put(type, reg);
 	}
 
 	public static <T> void register(ResourceLocation id, DataType<T> type) {
-		register(id, type, null, null);
-	}
-
-	static {
-		DataTypes.register();
-	}
-
-	public static void bootstrap() {
+		register(id, type, null);
 	}
 
 	private static final Function<Collection<?>, Number> COLLECTION_SIZE_CONVERTER = Collection::size;

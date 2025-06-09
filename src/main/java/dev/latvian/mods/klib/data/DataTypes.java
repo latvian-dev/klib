@@ -27,7 +27,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -65,18 +64,18 @@ public interface DataTypes {
 	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class, v -> Vec3.atLowerCornerOf(v).length());
 
 	static void register() {
-		DataType.register(ID.java("bool"), BOOL, (self, ctx) -> BoolArgumentType.bool(), BoolArgumentType::getBool);
-		DataType.register(ID.java("int"), INT, (self, ctx) -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
-		DataType.register(ID.java("var_int"), VAR_INT, (self, ctx) -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
-		DataType.register(ID.java("long"), LONG, (self, ctx) -> LongArgumentType.longArg(), LongArgumentType::getLong);
-		DataType.register(ID.java("var_long"), VAR_LONG, (self, ctx) -> LongArgumentType.longArg(), LongArgumentType::getLong);
-		DataType.register(ID.java("float"), FLOAT, (self, ctx) -> FloatArgumentType.floatArg(), FloatArgumentType::getFloat);
-		DataType.register(ID.java("double"), DOUBLE, (self, ctx) -> DoubleArgumentType.doubleArg(), DoubleArgumentType::getDouble);
-		DataType.register(ID.java("string"), STRING, (self, ctx) -> StringArgumentType.string(), StringArgumentType::getString);
-		DataType.register(ID.java("uuid"), UUID, (self, ctx) -> UuidArgument.uuid(), (ctx, name) -> ctx.getArgument(name, UUID.class));
+		DataType.register(ID.java("bool"), BOOL, (self, ctx) -> BoolArgumentType.bool());
+		DataType.register(ID.java("int"), INT, (self, ctx) -> IntegerArgumentType.integer());
+		DataType.register(ID.java("var_int"), VAR_INT, (self, ctx) -> IntegerArgumentType.integer());
+		DataType.register(ID.java("long"), LONG, (self, ctx) -> LongArgumentType.longArg());
+		DataType.register(ID.java("var_long"), VAR_LONG, (self, ctx) -> LongArgumentType.longArg());
+		DataType.register(ID.java("float"), FLOAT, (self, ctx) -> FloatArgumentType.floatArg());
+		DataType.register(ID.java("double"), DOUBLE, (self, ctx) -> DoubleArgumentType.doubleArg());
+		DataType.register(ID.java("string"), STRING, (self, ctx) -> StringArgumentType.string());
+		DataType.register(ID.java("uuid"), UUID, (self, ctx) -> UuidArgument.uuid());
 
-		DataType.register(ID.mc("id"), ID.DATA_TYPE, (self, ctx) -> ResourceLocationArgument.id(), (ctx, name) -> ctx.getArgument(name, ResourceLocation.class));
-		DataType.register(ID.mc("text_component"), TEXT_COMPONENT, (self, ctx) -> ComponentArgument.textComponent(ctx), (ctx, name) -> ctx.getArgument(name, Component.class));
+		DataType.register(ID.mc("id"), ID.DATA_TYPE, (self, ctx) -> ResourceLocationArgument.id());
+		DataType.register(ID.mc("text_component"), TEXT_COMPONENT, (self, ctx) -> ComponentArgument.textComponent(ctx));
 		DataType.register(ID.mc("mirror"), MIRROR);
 		DataType.register(ID.mc("rotation"), BLOCK_ROTATION);
 		DataType.register(ID.mc("liquid_settings"), LIQUID_SETTINGS);
