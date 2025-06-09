@@ -1,43 +1,48 @@
 package dev.latvian.mods.klib.data;
 
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.util.Cast;
-import net.minecraft.core.BlockPos;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public record DataType<T>(
-	Codec<T> codec,
-	StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec,
-	Class<T> typeClass,
-	@Nullable Function<T, Number> numberConverter
-) {
+public final class DataType<T> {
+	public static <T> void register(
+		ResourceLocation id,
+		DataType<T> type,
+		@Nullable BiFunction<RegisteredDataType<T>, CommandBuildContext, ArgumentType<T>> argumentType,
+		@Nullable BiFunction<CommandContext<?>, String, T> argumentGetter
+	) {
+		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
+		RegisteredDataType.BY_ID.put(id, reg);
+		RegisteredDataType.BY_TYPE.put(type, reg);
+	}
+
+	public static <T> void register(ResourceLocation id, DataType<T> type) {
+		register(id, type, null, null);
+	}
+
+	static {
+		DataTypes.register();
+	}
+
+	public static void bootstrap() {
+	}
+
 	private static final Function<Collection<?>, Number> COLLECTION_SIZE_CONVERTER = Collection::size;
 
 	public static <T> DataType<T> of(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, Class<T> typeClass, @Nullable Function<T, Number> numberConverter) {
@@ -68,40 +73,50 @@ public record DataType<T>(
 		);
 	}
 
-	public static final DataType<Boolean> BOOL = of(Codec.BOOL, ByteBufCodecs.BOOL, Boolean.class, v -> v ? 1 : 0);
-	public static final DataType<Integer> INT = of(Codec.INT, ByteBufCodecs.INT, Integer.class, v -> v);
-	public static final DataType<Integer> VAR_INT = of(Codec.INT, ByteBufCodecs.VAR_INT, Integer.class, v -> v);
-	public static final DataType<Long> LONG = of(Codec.LONG, ByteBufCodecs.LONG, Long.class, v -> v);
-	public static final DataType<Long> VAR_LONG = of(Codec.LONG, ByteBufCodecs.VAR_LONG, Long.class, v -> v);
-	public static final DataType<Float> FLOAT = of(Codec.FLOAT, ByteBufCodecs.FLOAT, Float.class, v -> v);
-	public static final DataType<Double> DOUBLE = of(Codec.DOUBLE, ByteBufCodecs.DOUBLE, Double.class, v -> v);
-	public static final DataType<String> STRING = of(Codec.STRING, ByteBufCodecs.STRING_UTF8, String.class, String::length);
-	public static final DataType<UUID> UUID = of(KLibCodecs.UUID, KLibStreamCodecs.UUID, UUID.class);
+	private final Codec<T> codec;
+	private final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
+	private final Class<T> typeClass;
+	private final @Nullable Function<T, Number> numberConverter;
+	private DataType<List<T>> listType;
+	private DataType<Set<T>> setType;
 
-	public static final DataType<ResourceLocation> ID = of(dev.latvian.mods.klib.util.ID.CODEC, dev.latvian.mods.klib.util.ID.STREAM_CODEC, ResourceLocation.class, v -> v.toString().length());
-	public static final DataType<Component> TEXT_COMPONENT = of(ComponentSerialization.CODEC, ComponentSerialization.STREAM_CODEC, Component.class, v -> v.getString().length());
-	public static final DataType<Mirror> MIRROR = of(Mirror.values());
-	public static final DataType<Rotation> BLOCK_ROTATION = of(Rotation.values());
-	public static final DataType<LiquidSettings> LIQUID_SETTINGS = of(LiquidSettings.values());
-	public static final DataType<InteractionHand> HAND = of(InteractionHand.values());
-	public static final DataType<SoundSource> SOUND_SOURCE = of(SoundSource.values());
-	public static final DataType<ItemStack> ITEM_STACK = of(ItemStack.OPTIONAL_CODEC, ItemStack.OPTIONAL_STREAM_CODEC, ItemStack.class);
-	public static final DataType<ParticleOptions> PARTICLE_OPTIONS = of(ParticleTypes.CODEC, ParticleTypes.STREAM_CODEC, ParticleOptions.class);
-	public static final DataType<BlockState> BLOCK_STATE = of(KLibCodecs.BLOCK_STATE, KLibStreamCodecs.BLOCK_STATE, BlockState.class);
-	public static final DataType<FluidState> FLUID_STATE = of(KLibCodecs.FLUID_STATE, KLibStreamCodecs.FLUID_STATE, FluidState.class);
-	public static final DataType<Vec3> VEC3 = of(Vec3.CODEC, Vec3.STREAM_CODEC, Vec3.class, Vec3::length);
-	public static final DataType<BlockPos> BLOCK_POS = of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class, v -> Vec3.atLowerCornerOf(v).length());
+	private DataType(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, Class<T> typeClass, @Nullable Function<T, Number> numberConverter) {
+		this.codec = codec;
+		this.streamCodec = streamCodec;
+		this.typeClass = typeClass;
+		this.numberConverter = numberConverter;
+	}
+
+	public Codec<T> codec() {
+		return codec;
+	}
+
+	public StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
+		return streamCodec;
+	}
+
+	public Class<T> typeClass() {
+		return typeClass;
+	}
 
 	public DataType<T> withNumberConverter(Function<T, Number> numberConverter) {
 		return of(codec, streamCodec, typeClass, numberConverter);
 	}
 
 	public DataType<List<T>> listOf() {
-		return of(codec.listOf(), streamCodec.listOf(), Cast.to(List.class), (Function) COLLECTION_SIZE_CONVERTER);
+		if (listType == null) {
+			listType = of(codec.listOf(), streamCodec.listOf(), Cast.to(List.class), (Function) COLLECTION_SIZE_CONVERTER);
+		}
+
+		return listType;
 	}
 
 	public DataType<Set<T>> setOf() {
-		return of(KLibCodecs.setOf(codec), streamCodec.setOf(), Cast.to(Set.class), (Function) COLLECTION_SIZE_CONVERTER);
+		if (setType == null) {
+			setType = of(KLibCodecs.setOf(codec), streamCodec.setOf(), Cast.to(Set.class), (Function) COLLECTION_SIZE_CONVERTER);
+		}
+
+		return setType;
 	}
 
 	@Nullable

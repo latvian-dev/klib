@@ -41,7 +41,7 @@ import org.joml.Vector4ic;
 import java.util.function.Function;
 
 public interface JOMLStreamCodecs {
-	StreamCodec<ByteBuf, Vector2f> VEC_2 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector2f> VEC2 = new StreamCodec<>() {
 		@Override
 		public Vector2f decode(ByteBuf buf) {
 			return new Vector2f(buf.readFloat(), buf.readFloat());
@@ -54,7 +54,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector3f> VEC_3 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector3f> VEC3 = new StreamCodec<>() {
 		@Override
 		public Vector3f decode(ByteBuf buf) {
 			return new Vector3f(buf.readFloat(), buf.readFloat(), buf.readFloat());
@@ -68,7 +68,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector4f> VEC_4 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector4f> VEC4 = new StreamCodec<>() {
 		@Override
 		public Vector4f decode(ByteBuf buf) {
 			return new Vector4f(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat());
@@ -98,7 +98,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector2f> VEC_2S = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector2f> VEC2S = new StreamCodec<>() {
 		@Override
 		public Vector2f decode(ByteBuf buf) {
 			if (buf.readBoolean()) {
@@ -121,7 +121,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector3f> VEC_3S = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector3f> VEC3S = new StreamCodec<>() {
 		@Override
 		public Vector3f decode(ByteBuf buf) {
 			if (buf.readBoolean()) {
@@ -145,7 +145,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector4f> VEC_4S = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector4f> VEC4S = new StreamCodec<>() {
 		@Override
 		public Vector4f decode(ByteBuf buf) {
 			if (buf.readBoolean()) {
@@ -171,7 +171,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix2f> MAT_2 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Matrix2f> MAT2 = new StreamCodec<>() {
 		@Override
 		public Matrix2f decode(ByteBuf buf) {
 			return new Matrix2f(
@@ -189,7 +189,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix3f> MAT_3 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Matrix3f> MAT3 = new StreamCodec<>() {
 		@Override
 		public Matrix3f decode(ByteBuf buf) {
 			return new Matrix3f(
@@ -213,7 +213,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix4f> MAT_4 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Matrix4f> MAT4 = new StreamCodec<>() {
 		@Override
 		public Matrix4f decode(ByteBuf buf) {
 			return new Matrix4f(
@@ -245,7 +245,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector2d> DVEC_2 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector2d> DVEC2 = new StreamCodec<>() {
 		@Override
 		public Vector2d decode(ByteBuf buf) {
 			return new Vector2d(buf.readDouble(), buf.readDouble());
@@ -258,7 +258,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector3d> DVEC_3 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector3d> DVEC3 = new StreamCodec<>() {
 		@Override
 		public Vector3d decode(ByteBuf buf) {
 			return new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
@@ -272,7 +272,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector4d> DVEC_4 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector4d> DVEC4 = new StreamCodec<>() {
 		@Override
 		public Vector4d decode(ByteBuf buf) {
 			return new Vector4d(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
@@ -302,7 +302,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector2d> DVEC_2S = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector2d> DVEC2S = new StreamCodec<>() {
 		@Override
 		public Vector2d decode(ByteBuf buf) {
 			if (buf.readBoolean()) {
@@ -325,7 +325,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector3d> DVEC_3S = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector3d> DVEC3S = new StreamCodec<>() {
 		@Override
 		public Vector3d decode(ByteBuf buf) {
 			if (buf.readBoolean()) {
@@ -349,7 +349,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector4d> DVEC_4S = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector4d> DVEC4S = new StreamCodec<>() {
 		@Override
 		public Vector4d decode(ByteBuf buf) {
 			if (buf.readBoolean()) {
@@ -375,7 +375,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix2d> DMAT_2 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Matrix2d> DMAT2 = new StreamCodec<>() {
 		@Override
 		public Matrix2d decode(ByteBuf buf) {
 			return new Matrix2d(
@@ -393,12 +393,12 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix2d> FDMAT_2 = MAT_2.map(Matrix2d::new, m -> new Matrix2f(
+	StreamCodec<ByteBuf, Matrix2d> FDMAT2 = MAT2.map(Matrix2d::new, m -> new Matrix2f(
 		(float) m.m00(), (float) m.m01(),
 		(float) m.m10(), (float) m.m11()
 	));
 
-	StreamCodec<ByteBuf, Matrix3d> DMAT_3 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Matrix3d> DMAT3 = new StreamCodec<>() {
 		@Override
 		public Matrix3d decode(ByteBuf buf) {
 			return new Matrix3d(
@@ -422,13 +422,13 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix3d> FDMAT_3 = MAT_3.map(Matrix3d::new, m -> new Matrix3f(
+	StreamCodec<ByteBuf, Matrix3d> FDMAT3 = MAT3.map(Matrix3d::new, m -> new Matrix3f(
 		(float) m.m00(), (float) m.m01(), (float) m.m02(),
 		(float) m.m10(), (float) m.m11(), (float) m.m12(),
 		(float) m.m20(), (float) m.m21(), (float) m.m22()
 	));
 
-	StreamCodec<ByteBuf, Matrix4d> DMAT_4 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Matrix4d> DMAT4 = new StreamCodec<>() {
 		@Override
 		public Matrix4d decode(ByteBuf buf) {
 			return new Matrix4d(
@@ -460,14 +460,14 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Matrix4d> FDMAT_4 = MAT_4.map(Matrix4d::new, m -> new Matrix4f(
+	StreamCodec<ByteBuf, Matrix4d> FDMAT4 = MAT4.map(Matrix4d::new, m -> new Matrix4f(
 		(float) m.m00(), (float) m.m01(), (float) m.m02(), (float) m.m03(),
 		(float) m.m10(), (float) m.m11(), (float) m.m12(), (float) m.m13(),
 		(float) m.m20(), (float) m.m21(), (float) m.m22(), (float) m.m23(),
 		(float) m.m30(), (float) m.m31(), (float) m.m32(), (float) m.m33()
 	));
 
-	StreamCodec<ByteBuf, Vector2i> IVEC_2 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector2i> IVEC2 = new StreamCodec<>() {
 		@Override
 		public Vector2i decode(ByteBuf buf) {
 			return new Vector2i(buf.readInt(), buf.readInt());
@@ -480,7 +480,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector3i> IVEC_3 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector3i> IVEC3 = new StreamCodec<>() {
 		@Override
 		public Vector3i decode(ByteBuf buf) {
 			return new Vector3i(buf.readInt(), buf.readInt(), buf.readInt());
@@ -494,7 +494,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector4i> IVEC_4 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector4i> IVEC4 = new StreamCodec<>() {
 		@Override
 		public Vector4i decode(ByteBuf buf) {
 			return new Vector4i(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
@@ -508,7 +508,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector2i> VIVEC_2 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector2i> VIVEC2 = new StreamCodec<>() {
 		@Override
 		public Vector2i decode(ByteBuf buf) {
 			return new Vector2i(VarInt.read(buf), VarInt.read(buf));
@@ -521,7 +521,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector3i> VIVEC_3 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector3i> VIVEC3 = new StreamCodec<>() {
 		@Override
 		public Vector3i decode(ByteBuf buf) {
 			return new Vector3i(VarInt.read(buf), VarInt.read(buf), VarInt.read(buf));
@@ -535,7 +535,7 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector4i> VIVEC_4 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Vector4i> VIVEC4 = new StreamCodec<>() {
 		@Override
 		public Vector4i decode(ByteBuf buf) {
 			return new Vector4i(VarInt.read(buf), VarInt.read(buf), VarInt.read(buf), VarInt.read(buf));
@@ -550,27 +550,33 @@ public interface JOMLStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Vector2fc> VEC_2C = VEC_2.map(Function.identity(), v -> v instanceof Vector2f c ? c : new Vector2f(v));
-	StreamCodec<ByteBuf, Vector3fc> VEC_3C = VEC_3.map(Function.identity(), v -> v instanceof Vector3f c ? c : new Vector3f(v));
-	StreamCodec<ByteBuf, Vector4fc> VEC_4C = VEC_4.map(Function.identity(), v -> v instanceof Vector4f c ? c : new Vector4f(v));
+	StreamCodec<ByteBuf, Vector2fc> VEC2C = VEC2.map(Function.identity(), v -> v instanceof Vector2f c ? c : new Vector2f(v));
+	StreamCodec<ByteBuf, Vector3fc> VEC3C = VEC3.map(Function.identity(), v -> v instanceof Vector3f c ? c : new Vector3f(v));
+	StreamCodec<ByteBuf, Vector4fc> VEC4C = VEC4.map(Function.identity(), v -> v instanceof Vector4f c ? c : new Vector4f(v));
+	StreamCodec<ByteBuf, Vector2fc> VEC2SC = VEC2S.map(Function.identity(), v -> v instanceof Vector2f c ? c : new Vector2f(v));
+	StreamCodec<ByteBuf, Vector3fc> VEC3SC = VEC3S.map(Function.identity(), v -> v instanceof Vector3f c ? c : new Vector3f(v));
+	StreamCodec<ByteBuf, Vector4fc> VEC4SC = VEC4S.map(Function.identity(), v -> v instanceof Vector4f c ? c : new Vector4f(v));
 	StreamCodec<ByteBuf, Quaternionfc> QUATERNIONC = QUATERNION.map(Function.identity(), v -> v instanceof Quaternionf c ? c : new Quaternionf(v));
-	StreamCodec<ByteBuf, Matrix2fc> MAT_2C = MAT_2.map(Function.identity(), v -> v instanceof Matrix2f c ? c : new Matrix2f(v));
-	StreamCodec<ByteBuf, Matrix3fc> MAT_3C = MAT_3.map(Function.identity(), v -> v instanceof Matrix3f c ? c : new Matrix3f(v));
-	StreamCodec<ByteBuf, Matrix4fc> MAT_4C = MAT_4.map(Function.identity(), v -> v instanceof Matrix4f c ? c : new Matrix4f(v));
-	StreamCodec<ByteBuf, Vector2dc> DVEC_2C = DVEC_2.map(Function.identity(), v -> v instanceof Vector2d c ? c : new Vector2d(v));
-	StreamCodec<ByteBuf, Vector3dc> DVEC_3C = DVEC_3.map(Function.identity(), v -> v instanceof Vector3d c ? c : new Vector3d(v));
-	StreamCodec<ByteBuf, Vector4dc> DVEC_4C = DVEC_4.map(Function.identity(), v -> v instanceof Vector4d c ? c : new Vector4d(v));
+	StreamCodec<ByteBuf, Matrix2fc> MAT2C = MAT2.map(Function.identity(), v -> v instanceof Matrix2f c ? c : new Matrix2f(v));
+	StreamCodec<ByteBuf, Matrix3fc> MAT3C = MAT3.map(Function.identity(), v -> v instanceof Matrix3f c ? c : new Matrix3f(v));
+	StreamCodec<ByteBuf, Matrix4fc> MAT4C = MAT4.map(Function.identity(), v -> v instanceof Matrix4f c ? c : new Matrix4f(v));
+	StreamCodec<ByteBuf, Vector2dc> DVEC2C = DVEC2.map(Function.identity(), v -> v instanceof Vector2d c ? c : new Vector2d(v));
+	StreamCodec<ByteBuf, Vector3dc> DVEC3C = DVEC3.map(Function.identity(), v -> v instanceof Vector3d c ? c : new Vector3d(v));
+	StreamCodec<ByteBuf, Vector4dc> DVEC4C = DVEC4.map(Function.identity(), v -> v instanceof Vector4d c ? c : new Vector4d(v));
+	StreamCodec<ByteBuf, Vector2dc> DVEC2SC = DVEC2S.map(Function.identity(), v -> v instanceof Vector2d c ? c : new Vector2d(v));
+	StreamCodec<ByteBuf, Vector3dc> DVEC3SC = DVEC3S.map(Function.identity(), v -> v instanceof Vector3d c ? c : new Vector3d(v));
+	StreamCodec<ByteBuf, Vector4dc> DVEC4SC = DVEC4S.map(Function.identity(), v -> v instanceof Vector4d c ? c : new Vector4d(v));
 	StreamCodec<ByteBuf, Quaterniondc> DQUATERNIONC = DQUATERNION.map(Function.identity(), v -> v instanceof Quaterniond c ? c : new Quaterniond(v));
-	StreamCodec<ByteBuf, Matrix2dc> DMAT_2C = DMAT_2.map(Function.identity(), v -> v instanceof Matrix2d c ? c : new Matrix2d(v));
-	StreamCodec<ByteBuf, Matrix3dc> DMAT_3C = DMAT_3.map(Function.identity(), v -> v instanceof Matrix3d c ? c : new Matrix3d(v));
-	StreamCodec<ByteBuf, Matrix4dc> DMAT_4C = DMAT_4.map(Function.identity(), v -> v instanceof Matrix4d c ? c : new Matrix4d(v));
-	StreamCodec<ByteBuf, Matrix2dc> FDMAT_2C = FDMAT_2.map(Function.identity(), v -> v instanceof Matrix2d c ? c : new Matrix2d(v));
-	StreamCodec<ByteBuf, Matrix3dc> FDMAT_3C = FDMAT_3.map(Function.identity(), v -> v instanceof Matrix3d c ? c : new Matrix3d(v));
-	StreamCodec<ByteBuf, Matrix4dc> FDMAT_4C = FDMAT_4.map(Function.identity(), v -> v instanceof Matrix4d c ? c : new Matrix4d(v));
-	StreamCodec<ByteBuf, Vector2ic> IVEC_2C = IVEC_2.map(Function.identity(), v -> v instanceof Vector2i c ? c : new Vector2i(v));
-	StreamCodec<ByteBuf, Vector3ic> IVEC_3C = IVEC_3.map(Function.identity(), v -> v instanceof Vector3i c ? c : new Vector3i(v));
-	StreamCodec<ByteBuf, Vector4ic> IVEC_4C = IVEC_4.map(Function.identity(), v -> v instanceof Vector4i c ? c : new Vector4i(v));
-	StreamCodec<ByteBuf, Vector2ic> VIVEC_2C = VIVEC_2.map(Function.identity(), v -> v instanceof Vector2i c ? c : new Vector2i(v));
-	StreamCodec<ByteBuf, Vector3ic> VIVEC_3C = VIVEC_3.map(Function.identity(), v -> v instanceof Vector3i c ? c : new Vector3i(v));
-	StreamCodec<ByteBuf, Vector4ic> VIVEC_4C = VIVEC_4.map(Function.identity(), v -> v instanceof Vector4i c ? c : new Vector4i(v));
+	StreamCodec<ByteBuf, Matrix2dc> DMAT2C = DMAT2.map(Function.identity(), v -> v instanceof Matrix2d c ? c : new Matrix2d(v));
+	StreamCodec<ByteBuf, Matrix3dc> DMAT3C = DMAT3.map(Function.identity(), v -> v instanceof Matrix3d c ? c : new Matrix3d(v));
+	StreamCodec<ByteBuf, Matrix4dc> DMAT4C = DMAT4.map(Function.identity(), v -> v instanceof Matrix4d c ? c : new Matrix4d(v));
+	StreamCodec<ByteBuf, Matrix2dc> FDMAT2C = FDMAT2.map(Function.identity(), v -> v instanceof Matrix2d c ? c : new Matrix2d(v));
+	StreamCodec<ByteBuf, Matrix3dc> FDMAT3C = FDMAT3.map(Function.identity(), v -> v instanceof Matrix3d c ? c : new Matrix3d(v));
+	StreamCodec<ByteBuf, Matrix4dc> FDMAT4C = FDMAT4.map(Function.identity(), v -> v instanceof Matrix4d c ? c : new Matrix4d(v));
+	StreamCodec<ByteBuf, Vector2ic> IVEC2C = IVEC2.map(Function.identity(), v -> v instanceof Vector2i c ? c : new Vector2i(v));
+	StreamCodec<ByteBuf, Vector3ic> IVEC3C = IVEC3.map(Function.identity(), v -> v instanceof Vector3i c ? c : new Vector3i(v));
+	StreamCodec<ByteBuf, Vector4ic> IVEC4C = IVEC4.map(Function.identity(), v -> v instanceof Vector4i c ? c : new Vector4i(v));
+	StreamCodec<ByteBuf, Vector2ic> VIVEC2C = VIVEC2.map(Function.identity(), v -> v instanceof Vector2i c ? c : new Vector2i(v));
+	StreamCodec<ByteBuf, Vector3ic> VIVEC3C = VIVEC3.map(Function.identity(), v -> v instanceof Vector3i c ? c : new Vector3i(v));
+	StreamCodec<ByteBuf, Vector4ic> VIVEC4C = VIVEC4.map(Function.identity(), v -> v instanceof Vector4i c ? c : new Vector4i(v));
 }

@@ -23,14 +23,14 @@ import java.util.function.Consumer;
 
 public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Consumer<Vector3f>>, Iterable<Face> {
 	public static final MapCodec<QuadrilaterallyFacedConvexHexahedra> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		JOMLCodecs.VEC_3.fieldOf("nnn").forGetter(c -> c.nnn),
-		JOMLCodecs.VEC_3.fieldOf("pnn").forGetter(c -> c.pnn),
-		JOMLCodecs.VEC_3.fieldOf("pnp").forGetter(c -> c.pnp),
-		JOMLCodecs.VEC_3.fieldOf("nnp").forGetter(c -> c.nnp),
-		JOMLCodecs.VEC_3.fieldOf("npn").forGetter(c -> c.npn),
-		JOMLCodecs.VEC_3.fieldOf("ppn").forGetter(c -> c.ppn),
-		JOMLCodecs.VEC_3.fieldOf("ppp").forGetter(c -> c.ppp),
-		JOMLCodecs.VEC_3.fieldOf("npp").forGetter(c -> c.npp)
+		JOMLCodecs.VEC3.fieldOf("nnn").forGetter(c -> c.nnn),
+		JOMLCodecs.VEC3.fieldOf("pnn").forGetter(c -> c.pnn),
+		JOMLCodecs.VEC3.fieldOf("pnp").forGetter(c -> c.pnp),
+		JOMLCodecs.VEC3.fieldOf("nnp").forGetter(c -> c.nnp),
+		JOMLCodecs.VEC3.fieldOf("npn").forGetter(c -> c.npn),
+		JOMLCodecs.VEC3.fieldOf("ppn").forGetter(c -> c.ppn),
+		JOMLCodecs.VEC3.fieldOf("ppp").forGetter(c -> c.ppp),
+		JOMLCodecs.VEC3.fieldOf("npp").forGetter(c -> c.npp)
 	).apply(instance, (nnn, pnn, pnp, nnp, npn, ppn, ppp, npp) -> {
 		var shape = new QuadrilaterallyFacedConvexHexahedra(0.5F);
 		shape.nnn.set(nnn);
@@ -45,14 +45,14 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	}));
 
 	public static final StreamCodec<ByteBuf, QuadrilaterallyFacedConvexHexahedra> STREAM_CODEC = StreamCodec.composite(
-		JOMLStreamCodecs.VEC_3, c -> c.nnn,
-		JOMLStreamCodecs.VEC_3, c -> c.pnn,
-		JOMLStreamCodecs.VEC_3, c -> c.pnp,
-		JOMLStreamCodecs.VEC_3, c -> c.nnp,
-		JOMLStreamCodecs.VEC_3, c -> c.npn,
-		JOMLStreamCodecs.VEC_3, c -> c.ppn,
-		JOMLStreamCodecs.VEC_3, c -> c.ppp,
-		JOMLStreamCodecs.VEC_3, c -> c.npp
+		JOMLStreamCodecs.VEC3, c -> c.nnn,
+		JOMLStreamCodecs.VEC3, c -> c.pnn,
+		JOMLStreamCodecs.VEC3, c -> c.pnp,
+		JOMLStreamCodecs.VEC3, c -> c.nnp,
+		JOMLStreamCodecs.VEC3, c -> c.npn,
+		JOMLStreamCodecs.VEC3, c -> c.ppn,
+		JOMLStreamCodecs.VEC3, c -> c.ppp,
+		JOMLStreamCodecs.VEC3, c -> c.npp
 		, (nnn, pnn, pnp, nnp, npn, ppn, ppp, npp) -> {
 			var shape = new QuadrilaterallyFacedConvexHexahedra(0.5F);
 			shape.nnn.set(nnn);
@@ -281,5 +281,48 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 			", ppp=" + KMath.format(ppp) +
 			", npp=" + KMath.format(npp) +
 			']';
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 1;
+		result = 31 * result + Float.floatToIntBits(nnn.x);
+		result = 31 * result + Float.floatToIntBits(nnn.y);
+		result = 31 * result + Float.floatToIntBits(nnn.z);
+		result = 31 * result + Float.floatToIntBits(pnn.x);
+		result = 31 * result + Float.floatToIntBits(pnn.y);
+		result = 31 * result + Float.floatToIntBits(pnn.z);
+		result = 31 * result + Float.floatToIntBits(pnp.x);
+		result = 31 * result + Float.floatToIntBits(pnp.y);
+		result = 31 * result + Float.floatToIntBits(pnp.z);
+		result = 31 * result + Float.floatToIntBits(nnp.x);
+		result = 31 * result + Float.floatToIntBits(nnp.y);
+		result = 31 * result + Float.floatToIntBits(nnp.z);
+		result = 31 * result + Float.floatToIntBits(npn.x);
+		result = 31 * result + Float.floatToIntBits(npn.y);
+		result = 31 * result + Float.floatToIntBits(npn.z);
+		result = 31 * result + Float.floatToIntBits(ppn.x);
+		result = 31 * result + Float.floatToIntBits(ppn.y);
+		result = 31 * result + Float.floatToIntBits(ppn.z);
+		result = 31 * result + Float.floatToIntBits(ppp.x);
+		result = 31 * result + Float.floatToIntBits(ppp.y);
+		result = 31 * result + Float.floatToIntBits(ppp.z);
+		result = 31 * result + Float.floatToIntBits(npp.x);
+		result = 31 * result + Float.floatToIntBits(npp.y);
+		result = 31 * result + Float.floatToIntBits(npp.z);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof QuadrilaterallyFacedConvexHexahedra o
+			&& nnn.equals(o.nnn)
+			&& pnn.equals(o.pnn)
+			&& pnp.equals(o.pnp)
+			&& nnp.equals(o.nnp)
+			&& npn.equals(o.npn)
+			&& ppn.equals(o.ppn)
+			&& ppp.equals(o.ppp)
+			&& npp.equals(o.npp);
 	}
 }

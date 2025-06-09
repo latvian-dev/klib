@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
+import dev.latvian.mods.klib.math.KMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
@@ -40,6 +41,10 @@ public record ColoredShape(Shape shape, Gradient quads, Gradient lines) {
 	}
 
 	public PositionedColoredShape at(Vector3dc pos) {
-		return new PositionedColoredShape(new Vec3(pos.x(), pos.y(), pos.z()), this);
+		return new PositionedColoredShape(KMath.vec3(pos.x(), pos.y(), pos.z()), this);
+	}
+
+	public PositionedColoredShape at(double x, double y, double z) {
+		return new PositionedColoredShape(KMath.vec3(x, y, z), this);
 	}
 }
