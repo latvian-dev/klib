@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib;
 
 import dev.latvian.mods.klib.data.DataTypes;
+import dev.latvian.mods.klib.data.JOMLDataTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,6 +22,7 @@ public class KLibMod {
 	@SubscribeEvent
 	public static void setup(FMLLoadCompleteEvent event) {
 		DataTypes.register();
+		JOMLDataTypes.register();
 		event.enqueueWork(KLibMod::test);
 	}
 

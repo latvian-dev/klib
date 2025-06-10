@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.data;
 
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix2d;
 import org.joml.Matrix2dc;
 import org.joml.Matrix2f;
@@ -97,4 +98,41 @@ public interface JOMLDataTypes {
 	DataType<Vector2ic> VIVEC2C = DataType.of(JOMLCodecs.IVEC2C, JOMLStreamCodecs.VIVEC2C, Vector2ic.class);
 	DataType<Vector3ic> VIVEC3C = DataType.of(JOMLCodecs.IVEC3C, JOMLStreamCodecs.VIVEC3C, Vector3ic.class);
 	DataType<Vector4ic> VIVEC4C = DataType.of(JOMLCodecs.IVEC4C, JOMLStreamCodecs.VIVEC4C, Vector4ic.class);
+
+	static void register() {
+		register("vec2", VEC2, VEC2C);
+		register("vec3", VEC3, VEC3C);
+		register("vec4", VEC4, VEC4C);
+		register("vec2s", VEC2S, VEC2SC);
+		register("vec3s", VEC3S, VEC3SC);
+		register("vec4s", VEC4S, VEC4SC);
+		register("quaternion", QUATERNION, QUATERNIONC);
+		register("mat2", MAT2, MAT2C);
+		register("mat3", MAT3, MAT3C);
+		register("mat4", MAT4, MAT4C);
+		register("dvec2", DVEC2, DVEC2C);
+		register("dvec3", DVEC3, DVEC3C);
+		register("dvec4", DVEC4, DVEC4C);
+		register("dvec2s", DVEC2S, DVEC2SC);
+		register("dvec3s", DVEC3S, DVEC3SC);
+		register("dvec4s", DVEC4S, DVEC4SC);
+		register("dquaternion", DQUATERNION, DQUATERNIONC);
+		register("dmat2", DMAT2, DMAT2C);
+		register("dmat3", DMAT3, DMAT3C);
+		register("dmat4", DMAT4, DMAT4C);
+		register("fdmat2", FDMAT2, FDMAT2C);
+		register("fdmat3", FDMAT3, FDMAT3C);
+		register("fdmat4", FDMAT4, FDMAT4C);
+		register("ivec2", IVEC2, IVEC2C);
+		register("ivec3", IVEC3, IVEC3C);
+		register("ivec4", IVEC4, IVEC4C);
+		register("vivec2", VIVEC2, VIVEC2C);
+		register("vivec3", VIVEC3, VIVEC3C);
+		register("vivec4", VIVEC4, VIVEC4C);
+	}
+
+	private static void register(String name, DataType<?> type, DataType<?> ctype) {
+		DataType.register(ResourceLocation.fromNamespaceAndPath("joml", name), type);
+		DataType.register(ResourceLocation.fromNamespaceAndPath("joml", name + "c"), ctype);
+	}
 }
