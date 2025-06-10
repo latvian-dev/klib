@@ -21,12 +21,13 @@ public class KLibMod {
 
 	@SubscribeEvent
 	public static void setup(FMLLoadCompleteEvent event) {
-		DataTypes.register();
-		JOMLDataTypes.register();
-		event.enqueueWork(KLibMod::test);
+		event.enqueueWork(KLibMod::setupSync);
 	}
 
-	private static void test() {
+	private static void setupSync() {
+		DataTypes.register();
+		JOMLDataTypes.register();
+
 		/*
 		var gradient = new CompoundGradient(List.of(new PairGradient(Color.GREEN, Color.WHITE, Easing.QUINT_IN), new CompoundGradient(List.of(Color.BLUE, Color.RED), Easing.QUINT_IN)));
 
