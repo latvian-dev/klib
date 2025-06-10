@@ -15,7 +15,7 @@ public interface DebugRenderTypes {
 	}
 
 	RenderType LINES = RenderType.create(
-		"kmath:debug/lines",
+		"klib:debug/lines",
 		1536,
 		DebugRenderPipelines.LINES,
 		RenderType.CompositeState.builder()
@@ -25,7 +25,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType LINES_SEE_THROUGH = RenderType.create(
-		"kmath:debug/lines_see_through",
+		"klib:debug/lines_see_through",
 		1536,
 		DebugRenderPipelines.LINES_SEE_THROUGH,
 		RenderType.CompositeState.builder()
@@ -35,7 +35,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS = RenderType.create(
-		"kmath:debug/quads",
+		"klib:debug/quads",
 		1536,
 		DebugRenderPipelines.QUADS,
 		RenderType.CompositeState.builder()
@@ -43,7 +43,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_CULL = RenderType.create(
-		"kmath:debug/quads_no_cull",
+		"klib:debug/quads_no_cull",
 		1536,
 		DebugRenderPipelines.QUADS_NO_CULL,
 		RenderType.CompositeState.builder()
@@ -51,7 +51,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_DEPTH = RenderType.create(
-		"kmath:debug/quads_no_depth",
+		"klib:debug/quads_no_depth",
 		1536,
 		DebugRenderPipelines.QUADS_NO_DEPTH,
 		RenderType.CompositeState.builder()
@@ -60,7 +60,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_CULL_NO_DEPTH = RenderType.create(
-		"kmath:debug/quads_no_cull_no_depth",
+		"klib:debug/quads_no_cull_no_depth",
 		1536,
 		DebugRenderPipelines.QUADS_NO_CULL_NO_DEPTH,
 		RenderType.CompositeState.builder()
@@ -69,7 +69,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_SEE_THROUGH = RenderType.create(
-		"kmath:debug/quads_see_through",
+		"klib:debug/quads_see_through",
 		1536,
 		DebugRenderPipelines.QUADS_SEE_THROUGH,
 		RenderType.CompositeState.builder()
@@ -78,7 +78,7 @@ public interface DebugRenderTypes {
 	);
 
 	RenderType QUADS_NO_CULL_SEE_THROUGH = RenderType.create(
-		"kmath:debug/quads_no_cull_see_through",
+		"klib:debug/quads_no_cull_see_through",
 		1536,
 		DebugRenderPipelines.QUADS_NO_CULL_SEE_THROUGH,
 		RenderType.CompositeState.builder()
