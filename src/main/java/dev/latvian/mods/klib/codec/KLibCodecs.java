@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.codec;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
@@ -7,6 +8,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.util.UndashedUuid;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.ArrayList;
@@ -32,6 +34,30 @@ public interface KLibCodecs {
 
 	Codec<Unit> UNIT = Codec.unit(Unit.INSTANCE);
 	Codec<UUID> UUID = Codec.STRING.xmap(UndashedUuid::fromStringLenient, UndashedUuid::toString);
+
+	TimeArgument TIME_ARGUMENT = TimeArgument.time();
+
+	Codec<Integer> TICK_STRING = Codec.STRING.flatXmap(s -> {
+		try {
+			return DataResult.success(Objects.requireNonNull(TIME_ARGUMENT.parse(new StringReader(s))));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid time format: " + s);
+		}
+	}, integer -> {
+		int i = integer;
+
+		if (i == 0) {
+			return DataResult.success("0");
+		} else if (i % 24000 == 0) {
+			return DataResult.success(Integer.toUnsignedString(i / 24000) + "d");
+		} else if (i % 20 == 0) {
+			return DataResult.success(Integer.toUnsignedString(i / 20) + "s");
+		} else {
+			return DataResult.success(Integer.toUnsignedString(i));
+		}
+	});
+
+	Codec<Integer> TICKS = Codec.either(Codec.INT, TICK_STRING).xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
 
 	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
 		var map = new HashMap<String, E>(enumValues.length);

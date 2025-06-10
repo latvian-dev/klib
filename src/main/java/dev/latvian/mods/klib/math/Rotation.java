@@ -9,6 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
@@ -93,6 +94,10 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 
 	public static Rotation deg(float yaw) {
 		return yaw == 0F ? NONE : new Rotation(yaw, 0F, 0F, Type.DEG);
+	}
+
+	public static Rotation deg(Vec2 rotation) {
+		return deg(rotation.y, rotation.x);
 	}
 
 	public static Rotation rad(float yaw, float pitch, float roll) {

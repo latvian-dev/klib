@@ -1,37 +1,75 @@
 package dev.latvian.mods.klib.data;
 
-import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.util.Cast;
 import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.server.command.EnumArgument;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class DataType<T> {
 	public static <T> void register(
 		ResourceLocation id,
 		DataType<T> type,
-		@Nullable BiFunction<RegisteredDataType<T>, CommandBuildContext, ArgumentType<T>> argumentType
+		@Nullable ArgumentTypeProvider<T> argumentType,
+		@Nullable ArgumentGetter<T> argumentGetter
 	) {
-		var reg = new RegisteredDataType<>(id, type, argumentType);
+		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
 		RegisteredDataType.BY_ID.put(id, reg);
 		RegisteredDataType.BY_TYPE.put(type, reg);
 	}
 
+	public static <T> void register(
+		ResourceLocation id,
+		DataType<T> type,
+		@Nullable ArgumentTypeProvider.NS<T> argumentType,
+		@Nullable ArgumentGetter<T> argumentGetter
+	) {
+		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
+		RegisteredDataType.BY_ID.put(id, reg);
+		RegisteredDataType.BY_TYPE.put(type, reg);
+	}
+
+	public static <T> void register(
+		ResourceLocation id,
+		DataType<T> type,
+		@Nullable ArgumentTypeProvider.NSNCTX<T> argumentType,
+		@Nullable ArgumentGetter<T> argumentGetter
+	) {
+		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
+		RegisteredDataType.BY_ID.put(id, reg);
+		RegisteredDataType.BY_TYPE.put(type, reg);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static <T> EnumArgument enumArgument(RegisteredDataType<T> type, CommandBuildContext ctx) {
+		return EnumArgument.enumArgument(Cast.to(type.type().typeClass));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T getEnumArgument(CommandContext<CommandSourceStack> ctx, String name) {
+		return (T) ctx.getArgument(name, Enum.class);
+	}
+
 	public static <T> void register(ResourceLocation id, DataType<T> type) {
-		register(id, type, null);
+		if (type.typeClass.isEnum()) {
+			register(id, type, DataType::enumArgument, DataType::getEnumArgument);
+		} else {
+			register(id, type, (ArgumentTypeProvider<T>) null, null);
+		}
 	}
 
 	private static final Function<Collection<?>, Number> COLLECTION_SIZE_CONVERTER = Collection::size;
