@@ -44,9 +44,9 @@ public record CylinderShape(float radius, float height) implements Shape {
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
 		float r = Math.max(radius, 0F);
 		float h = Math.max(height, 0F) / 2F;
-		double rs = Math.PI * 2D / 24D;
+		double rs = Math.PI * 2D / 96D;
 
-		for (int i = 0; i < 24; i++) {
+		for (int i = 0; i < 96; i++) {
 			float cx = (float) (Math.cos(i * rs) * r);
 			float cz = (float) (Math.sin(i * rs) * r);
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
@@ -58,7 +58,15 @@ public record CylinderShape(float radius, float height) implements Shape {
 			if (h > 0F) {
 				// callback.line(x, y - h, z, x + cx, y - h, z + cz);
 				callback.line(x + cx, y - h, z + cz, x + nx, y - h, z + nz);
+			}
+		}
 
+		if (h > 0F) {
+			double rsv = Math.PI * 2D / 24D;
+
+			for (int i = 0; i < 24; i++) {
+				float cx = (float) (Math.cos(i * rsv) * r);
+				float cz = (float) (Math.sin(i * rsv) * r);
 				callback.line(x + cx, y - h, z + cz, x + cx, y + h, z + cz, 0F, 1F, 0F);
 			}
 		}

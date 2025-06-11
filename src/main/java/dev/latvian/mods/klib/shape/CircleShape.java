@@ -40,9 +40,9 @@ public record CircleShape(float radius) implements Shape {
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
 		float r = Math.max(radius, 0F);
-		double rs = Math.PI * 2D / 24D;
+		double rs = Math.PI * 2D / 96D;
 
-		for (int i = 0; i < 24; i++) {
+		for (int i = 0; i < 96; i++) {
 			float cx = (float) (Math.cos(i * rs) * r);
 			float cz = (float) (Math.sin(i * rs) * r);
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
