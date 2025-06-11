@@ -5,5 +5,5 @@ import net.minecraft.network.codec.StreamCodec;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(StreamCodec.class)
-public class StreamCodecMixin<B, V> implements KLibStreamCodec<B, V> {
+public interface StreamCodecMixin<B, V> extends KLibStreamCodec<B, V> {
 }
