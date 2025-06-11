@@ -11,16 +11,19 @@ import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class UnitShape implements Shape {
 	private static final Map<String, UnitShape> MAP = new HashMap<>();
+	static final Map<Shape, UnitShape> REF_MAP = new IdentityHashMap<>();
 
 	public static void add(String name, Shape shape) {
 		var unitShape = new UnitShape();
 		unitShape.type = new ShapeType(name, MapCodec.unit(unitShape), StreamCodec.unit(unitShape));
 		unitShape.shape = shape;
 		MAP.put(name, unitShape);
+		REF_MAP.put(shape, unitShape);
 	}
 
 	static {
@@ -38,10 +41,18 @@ public class UnitShape implements Shape {
 		add("line_east", LineShape.EAST_UNIT);
 	}
 
-	public static final Codec<UnitShape> CODEC = Codec.STRING.flatXmap(s -> {
+	public static final Codec<Shape> CODEC = Codec.STRING.flatXmap(s -> {
 		var shape = MAP.get(s);
 		return shape == null ? DataResult.error(() -> "Shape not found") : DataResult.success(shape);
-	}, s -> DataResult.success(s.type.name()));
+	}, s -> {
+		if (s instanceof UnitShape us) {
+			return DataResult.success(us.type.name());
+		} else if (REF_MAP.get(s) instanceof UnitShape us) {
+			return DataResult.success(us.type.name());
+		} else {
+			return DataResult.error(() -> "Shape not found");
+		}
+	});
 
 	public static final StreamCodec<ByteBuf, UnitShape> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(MAP::get, s -> s.type.name());
 

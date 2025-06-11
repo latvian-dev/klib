@@ -62,9 +62,9 @@ public record CylinderShape(float radius, float height) implements Shape {
 		}
 
 		if (h > 0F) {
-			double rsv = Math.PI * 2D / 24D;
+			double rsv = Math.PI * 2D / 8D;
 
-			for (int i = 0; i < 24; i++) {
+			for (int i = 0; i < 8; i++) {
 				float cx = (float) (Math.cos(i * rsv) * r);
 				float cz = (float) (Math.sin(i * rsv) * r);
 				callback.line(x + cx, y - h, z + cz, x + cx, y + h, z + cz, 0F, 1F, 0F);

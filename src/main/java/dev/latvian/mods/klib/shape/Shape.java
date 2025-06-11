@@ -14,7 +14,15 @@ import java.util.function.Function;
 
 public interface Shape {
 	Codec<Shape> DIRECT_CODEC = ShapeType.CODEC.dispatch("type", Shape::type, ShapeType::codec);
-	Codec<Shape> UNIT_OR_DIRECT_CODEC = Codec.either(UnitShape.CODEC, DIRECT_CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), s -> s instanceof UnitShape u ? Either.left(u) : Either.right(s));
+	Codec<Shape> UNIT_OR_DIRECT_CODEC = Codec.either(UnitShape.CODEC, DIRECT_CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), s -> {
+		if (s instanceof UnitShape us) {
+			return Either.left(us);
+		} else if (UnitShape.REF_MAP.get(s) instanceof UnitShape us) {
+			return Either.left(us);
+		} else {
+			return Either.right(s);
+		}
+	});
 	Codec<Shape> CODEC = UNIT_OR_DIRECT_CODEC.xmap(Shape::optimize, Function.identity());
 	StreamCodec<ByteBuf, Shape> DIRECT_STREAM_CODEC = ShapeType.STREAM_CODEC.dispatch(Shape::type, ShapeType::streamCodec);
 	StreamCodec<ByteBuf, Shape> STREAM_CODEC = ByteBufCodecs.either(UnitShape.STREAM_CODEC, DIRECT_STREAM_CODEC).map(e -> e.map(Function.identity(), Function.identity()), s -> s instanceof UnitShape u ? Either.left(u) : Either.right(s));
