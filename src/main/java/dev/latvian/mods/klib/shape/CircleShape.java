@@ -66,9 +66,9 @@ public record CircleShape(float radius) implements Shape {
 			float nnz = (float) (Math.sin((i + 2D) * rs) * r);
 
 			callback.acceptPos(x, y, z).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + cx, y, z + cz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + nx, y, z + nz).acceptNormal(0F, 1F, 0F);
 			callback.acceptPos(x + nnx, y, z + nnz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x + nx, y, z + nz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x + cx, y, z + cz).acceptNormal(0F, 1F, 0F);
 		}
 	}
 

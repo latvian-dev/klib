@@ -26,12 +26,12 @@ public record SphereShape(float radius) implements Shape {
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildLines(x, y, z, radius, callback);
+		SpherePoints.M.buildLines(x, y, z, radius * 2F, callback);
 	}
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildQuads(x, y, z, radius, callback);
+		SpherePoints.M.buildQuads(x, y, z, radius * 2F, callback);
 	}
 
 	@Override
