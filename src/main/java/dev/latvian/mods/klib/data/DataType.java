@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 public final class DataType<T> {
-	public static <T> void register(
+	public static synchronized <T> void register(
 		ResourceLocation id,
 		DataType<T> type,
 		@Nullable ArgumentTypeProvider<T> argumentType,
@@ -38,9 +38,7 @@ public final class DataType<T> {
 		@Nullable ArgumentTypeProvider.NS<T> argumentType,
 		@Nullable ArgumentGetter<T> argumentGetter
 	) {
-		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
-		RegisteredDataType.BY_ID.put(id, reg);
-		RegisteredDataType.BY_TYPE.put(type, reg);
+		register(id, type, (ArgumentTypeProvider<T>) argumentType, argumentGetter);
 	}
 
 	public static <T> void register(
@@ -49,9 +47,7 @@ public final class DataType<T> {
 		@Nullable ArgumentTypeProvider.NSNCTX<T> argumentType,
 		@Nullable ArgumentGetter<T> argumentGetter
 	) {
-		var reg = new RegisteredDataType<>(id, type, argumentType, argumentGetter);
-		RegisteredDataType.BY_ID.put(id, reg);
-		RegisteredDataType.BY_TYPE.put(type, reg);
+		register(id, type, (ArgumentTypeProvider<T>) argumentType, argumentGetter);
 	}
 
 	@SuppressWarnings("rawtypes")

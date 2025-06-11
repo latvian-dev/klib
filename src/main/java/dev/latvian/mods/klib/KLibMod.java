@@ -19,15 +19,17 @@ public class KLibMod {
 		return ResourceLocation.fromNamespaceAndPath(ID, path);
 	}
 
+	public KLibMod() {
+		DataTypes.register();
+		JOMLDataTypes.register();
+	}
+
 	@SubscribeEvent
 	public static void setup(FMLLoadCompleteEvent event) {
 		event.enqueueWork(KLibMod::setupSync);
 	}
 
 	private static void setupSync() {
-		DataTypes.register();
-		JOMLDataTypes.register();
-
 		/*
 		var gradient = new CompoundGradient(List.of(new PairGradient(Color.GREEN, Color.WHITE, Easing.QUINT_IN), new CompoundGradient(List.of(Color.BLUE, Color.RED), Easing.QUINT_IN)));
 
