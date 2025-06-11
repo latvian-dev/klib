@@ -4,7 +4,8 @@
 	"package": "dev.latvian.mods.klib.core.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"RandomSourceMixin"
+		"RandomSourceMixin",
+		"StreamCodecMixin"
 	],
 	"client": [
 		"PoseStackPoseMixin",
