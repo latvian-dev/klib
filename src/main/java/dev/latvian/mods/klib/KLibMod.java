@@ -20,12 +20,12 @@ public class KLibMod {
 	}
 
 	public KLibMod() {
+		DataTypes.register();
+		JOMLDataTypes.register();
 	}
 
 	@SubscribeEvent
 	public static void setup(FMLLoadCompleteEvent event) {
-		DataTypes.register();
-		JOMLDataTypes.register();
 		event.enqueueWork(KLibMod::setupSync);
 	}
 
