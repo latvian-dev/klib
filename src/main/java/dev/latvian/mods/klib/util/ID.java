@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 public interface ID {
 	Codec<ResourceLocation> CODEC = Codec.STRING.xmap(ID::idFromString, ID::idToString);
 	StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ID::idFromString, ID::idToString);
-	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ResourceLocation.class, v -> v.toString().length());
+	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ResourceLocation.class);
 	StreamCodec<RegistryFriendlyByteBuf, ResourceLocation> REGISTRY_STREAM_CODEC = Cast.to(STREAM_CODEC);
 
 	static ResourceLocation mc(String path) {

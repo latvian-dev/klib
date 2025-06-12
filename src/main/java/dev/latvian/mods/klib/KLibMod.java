@@ -4,10 +4,13 @@ import dev.latvian.mods.klib.data.DataTypes;
 import dev.latvian.mods.klib.data.JOMLDataTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+
+import java.io.IOException;
 
 @Mod(KLibMod.ID)
 @EventBusSubscriber(modid = KLibMod.ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
@@ -19,7 +22,7 @@ public class KLibMod {
 		return ResourceLocation.fromNamespaceAndPath(ID, path);
 	}
 
-	public KLibMod() {
+	public KLibMod(IEventBus bus) throws IOException {
 		DataTypes.register();
 		JOMLDataTypes.register();
 	}

@@ -17,7 +17,9 @@ import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
@@ -28,11 +30,13 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -46,29 +50,32 @@ import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
 public interface DataTypes {
-	DataType<Boolean> BOOL = DataType.of(Codec.BOOL, ByteBufCodecs.BOOL, Boolean.class, v -> v ? 1 : 0);
-	DataType<Integer> INT = DataType.of(Codec.INT, ByteBufCodecs.INT, Integer.class, v -> v);
-	DataType<Integer> VAR_INT = DataType.of(Codec.INT, ByteBufCodecs.VAR_INT, Integer.class, v -> v);
-	DataType<Long> LONG = DataType.of(Codec.LONG, ByteBufCodecs.LONG, Long.class, v -> v);
-	DataType<Long> VAR_LONG = DataType.of(Codec.LONG, ByteBufCodecs.VAR_LONG, Long.class, v -> v);
-	DataType<Float> FLOAT = DataType.of(Codec.FLOAT, ByteBufCodecs.FLOAT, Float.class, v -> v);
-	DataType<Double> DOUBLE = DataType.of(Codec.DOUBLE, ByteBufCodecs.DOUBLE, Double.class, v -> v);
-	DataType<String> STRING = DataType.of(Codec.STRING, ByteBufCodecs.STRING_UTF8, String.class, String::length);
+	DataType<Boolean> BOOL = DataType.of(Codec.BOOL, ByteBufCodecs.BOOL, Boolean.class);
+	DataType<Boolean> BOOL_TRUE = DataType.unit(Boolean.TRUE, Boolean.class);
+	DataType<Boolean> BOOL_FALSE = DataType.unit(Boolean.FALSE, Boolean.class);
+	DataType<Integer> INT = DataType.of(Codec.INT, ByteBufCodecs.INT, Integer.class);
+	DataType<Integer> VAR_INT = DataType.of(Codec.INT, ByteBufCodecs.VAR_INT, Integer.class);
+	DataType<Long> LONG = DataType.of(Codec.LONG, ByteBufCodecs.LONG, Long.class);
+	DataType<Long> VAR_LONG = DataType.of(Codec.LONG, ByteBufCodecs.VAR_LONG, Long.class);
+	DataType<Float> FLOAT = DataType.of(Codec.FLOAT, ByteBufCodecs.FLOAT, Float.class);
+	DataType<Double> DOUBLE = DataType.of(Codec.DOUBLE, ByteBufCodecs.DOUBLE, Double.class);
+	DataType<String> STRING = DataType.of(Codec.STRING, ByteBufCodecs.STRING_UTF8, String.class);
 	DataType<UUID> UUID = DataType.of(KLibCodecs.UUID, KLibStreamCodecs.UUID, UUID.class);
 
-	DataType<Component> TEXT_COMPONENT = DataType.of(ComponentSerialization.CODEC, ComponentSerialization.STREAM_CODEC, Component.class, v -> v.getString().length());
+	DataType<Component> TEXT_COMPONENT = DataType.of(ComponentSerialization.CODEC, ComponentSerialization.STREAM_CODEC, Component.class);
 	DataType<Mirror> MIRROR = DataType.of(Mirror.values());
 	DataType<Rotation> BLOCK_ROTATION = DataType.of(Rotation.values());
 	DataType<LiquidSettings> LIQUID_SETTINGS = DataType.of(LiquidSettings.values());
 	DataType<InteractionHand> HAND = DataType.of(InteractionHand.values());
+	DataType<Holder<SoundEvent>> SOUND_EVENT = DataType.of(SoundEvent.CODEC, SoundEvent.STREAM_CODEC, Cast.to(Holder.class));
 	DataType<SoundSource> SOUND_SOURCE = DataType.of(SoundSource.values());
 	DataType<ItemStack> ITEM_STACK = DataType.of(ItemStack.OPTIONAL_CODEC, ItemStack.OPTIONAL_STREAM_CODEC, ItemStack.class);
 	DataType<ParticleOptions> PARTICLE_OPTIONS = DataType.of(ParticleTypes.CODEC, ParticleTypes.STREAM_CODEC, ParticleOptions.class);
 	DataType<BlockState> BLOCK_STATE = DataType.of(MCCodecs.BLOCK_STATE, MCStreamCodecs.BLOCK_STATE, BlockState.class);
 	DataType<FluidState> FLUID_STATE = DataType.of(MCCodecs.FLUID_STATE, MCStreamCodecs.FLUID_STATE, FluidState.class);
-	DataType<Vec3> VEC3 = DataType.of(Vec3.CODEC, Vec3.STREAM_CODEC, Vec3.class, Vec3::length);
-	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class, v -> Vec3.atLowerCornerOf(v).length());
-	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class, v -> v);
+	DataType<Vec3> VEC3 = DataType.of(Vec3.CODEC, Vec3.STREAM_CODEC, Vec3.class);
+	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class);
+	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class);
 
 	static void register() {
 		DataType.register(ID.java("bool"), BOOL, BoolArgumentType::bool, BoolArgumentType::getBool);
@@ -87,6 +94,7 @@ public interface DataTypes {
 		DataType.register(ID.mc("rotation"), BLOCK_ROTATION);
 		DataType.register(ID.mc("liquid_settings"), LIQUID_SETTINGS);
 		DataType.register(ID.mc("hand"), HAND);
+		DataType.register(ID.mc("sound_event"), SOUND_EVENT);
 		DataType.register(ID.mc("sound_source"), SOUND_SOURCE);
 		DataType.register(ID.mc("item_stack"), ITEM_STACK, ItemArgument::item, (ctx, name) -> ItemArgument.getItem(ctx, name).createItemStack(1, false));
 		DataType.register(ID.mc("particle_options"), PARTICLE_OPTIONS, ParticleArgument::particle, ParticleArgument::getParticle);
@@ -102,5 +110,9 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("rotation"), dev.latvian.mods.klib.math.Rotation.DATA_TYPE, RotationArgument::rotation, (ctx, name) -> dev.latvian.mods.klib.math.Rotation.deg(RotationArgument.getRotation(ctx, name).getRotation(ctx.getSource())));
 		DataType.register(KLibMod.id("movement_type"), MovementType.DATA_TYPE);
 		DataType.register(KLibMod.id("range"), Range.DATA_TYPE);
+		DataType.register(KLibMod.id("entity_selector/entity"), ParsedEntitySelector.ENTITY_DATA_TYPE);
+		DataType.register(KLibMod.id("entity_selector/player"), ParsedEntitySelector.PLAYER_DATA_TYPE);
+		DataType.register(KLibMod.id("entity_selector/entities"), ParsedEntitySelector.ENTITIES_DATA_TYPE);
+		DataType.register(KLibMod.id("entity_selector/players"), ParsedEntitySelector.PLAYERS_DATA_TYPE);
 	}
 }
