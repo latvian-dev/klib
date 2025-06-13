@@ -15,6 +15,14 @@ import java.util.UUID;
 public sealed interface IntOrUUID permits IntOrUUID.IntImpl, IntOrUUID.UUIDImpl {
 	DataType<IntOrUUID> DATA_TYPE = DataType.either(DataTypes.VAR_INT, DataTypes.UUID, IntImpl::new, UUIDImpl::new, IntOrUUID::either, IntOrUUID.class);
 
+	static IntOrUUID of(int value) {
+		return new IntImpl(value);
+	}
+
+	static IntOrUUID of(UUID value) {
+		return new UUIDImpl(value);
+	}
+
 	Either<Integer, UUID> either();
 
 	OptionalInt optionalInt();
