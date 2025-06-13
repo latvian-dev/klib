@@ -21,6 +21,7 @@ import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
@@ -119,5 +120,6 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("entity_selector"), ParsedEntitySelector.DATA_TYPE);
 		DataType.register(KLibMod.id("easing"), Easing.DATA_TYPE);
 		DataType.register(KLibMod.id("easing_group"), EasingGroup.DATA_TYPE);
+		DataType.register(KLibMod.id("int_or_uuid"), IntOrUUID.DATA_TYPE);
 	}
 }
