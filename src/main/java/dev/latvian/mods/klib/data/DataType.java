@@ -135,7 +135,9 @@ public final class DataType<T> {
 		);
 	}
 
-	public static <T, L, R> DataType<T> either(DataType<L> left, DataType<R> right, Function<Either<L, R>, T> to, Function<T, Either<L, R>> from, Class<T> typeClass) {
+	public static <T, L, R> DataType<T> either(DataType<L> left, DataType<R> right, Function<L, T> leftTo, Function<R, T> rightTo, Function<T, Either<L, R>> from, Class<T> typeClass) {
+		Function<Either<L, R>, T> to = e -> e.map(leftTo, rightTo);
+
 		return of(
 			Codec.either(left.codec(), right.codec()).xmap(to, from),
 			ByteBufCodecs.either(left.streamCodec(), right.streamCodec()).map(to, from),
