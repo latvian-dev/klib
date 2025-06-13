@@ -138,11 +138,11 @@ public interface KLibCodecs {
 		return Codec.list(codec).xmap(LinkedHashSet::new, ArrayList::new);
 	}
 
-	static <V> Codec<V> or(List<Codec<V>> codecs) {
-		return new OrCodec<>(codecs);
+	static <V> Codec<V> or(List<Codec<? extends V>> codecs) {
+		return new OrCodec<>((List) codecs);
 	}
 
-	static <V> Codec<V> or(Codec<V> first, Codec<V> second) {
-		return new OrCodec<>(List.of(first, second));
+	static <V> Codec<V> or(Codec<? extends V> first, Codec<? extends V> second) {
+		return new OrCodec<>((List) List.of(first, second));
 	}
 }
