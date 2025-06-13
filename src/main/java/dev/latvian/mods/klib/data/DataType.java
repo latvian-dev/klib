@@ -143,7 +143,7 @@ public final class DataType<T> {
 		);
 	}
 
-	public <C> DataType<C> buildRaw(Class<C> typeClass, List<DataTypeField<C, ?>> fields, Function<Object[], C> constructor) {
+	public static <C> DataType<C> buildRaw(Class<C> typeClass, List<DataTypeField<C, ?>> fields, Function<Object[], C> constructor) {
 		var list = List.copyOf(fields);
 
 		return DataType.of(
@@ -153,7 +153,7 @@ public final class DataType<T> {
 		);
 	}
 
-	public <C> DataType<C> build(
+	public static <C> DataType<C> build(
 		Class<C> typeClass,
 		List<DataTypeField<C, ?>> fields
 	) {
@@ -169,7 +169,7 @@ public final class DataType<T> {
 		}
 	}
 
-	public <C, T1> DataType<C> build(
+	public static <C, T1> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		Function<T1, C> constructor
@@ -177,7 +177,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1), args -> constructor.apply((T1) args[0]));
 	}
 
-	public <C, T1, T2> DataType<C> build(
+	public static <C, T1, T2> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -186,7 +186,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2), args -> constructor.apply((T1) args[0], (T2) args[1]));
 	}
 
-	public <C, T1, T2, T3> DataType<C> build(
+	public static <C, T1, T2, T3> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -196,7 +196,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2]));
 	}
 
-	public <C, T1, T2, T3, T4> DataType<C> build(
+	public static <C, T1, T2, T3, T4> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -207,7 +207,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3]));
 	}
 
-	public <C, T1, T2, T3, T4, T5> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -219,7 +219,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -232,7 +232,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -246,7 +246,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -261,7 +261,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -277,7 +277,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -294,7 +294,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8], (T10) args[9]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -312,7 +312,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8], (T10) args[9], (T11) args[10]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -331,7 +331,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8], (T10) args[9], (T11) args[10], (T12) args[11]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -351,7 +351,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8], (T10) args[9], (T11) args[10], (T12) args[11], (T13) args[12]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -372,7 +372,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8], (T10) args[9], (T11) args[10], (T12) args[11], (T13) args[12], (T14) args[13]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
@@ -394,7 +394,7 @@ public final class DataType<T> {
 		return buildRaw(typeClass, List.of(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15), args -> constructor.apply((T1) args[0], (T2) args[1], (T3) args[2], (T4) args[3], (T5) args[4], (T6) args[5], (T7) args[6], (T8) args[7], (T9) args[8], (T10) args[9], (T11) args[10], (T12) args[11], (T13) args[12], (T14) args[13], (T15) args[14]));
 	}
 
-	public <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> DataType<C> build(
+	public static <C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> DataType<C> build(
 		Class<C> typeClass,
 		DataTypeField<C, T1> f1,
 		DataTypeField<C, T2> f2,
