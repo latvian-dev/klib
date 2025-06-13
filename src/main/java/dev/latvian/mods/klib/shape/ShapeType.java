@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
+import dev.latvian.mods.klib.math.VoxelShapeBox;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,7 +23,8 @@ public record ShapeType(String name, MapCodec<? extends Shape> codec, StreamCode
 		SphereShape.TYPE,
 		CylinderShape.TYPE,
 		LineShape.TYPE,
-		QuadrilaterallyFacedConvexHexahedra.TYPE
+		QuadrilaterallyFacedConvexHexahedra.TYPE,
+		VoxelShapeBox.TYPE
 	);
 
 	public static final Map<String, ShapeType> MAP = Map.copyOf(LIST.stream().collect(Collectors.toMap(ShapeType::name, Function.identity())));

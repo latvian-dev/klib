@@ -1,7 +1,16 @@
 package dev.latvian.mods.klib.math;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.codec.MCCodecs;
+import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.shape.CuboidBuilder;
+import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.shape.ShapeType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -10,7 +19,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.ArrayList;
 import java.util.List;
 
-public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBox) {
+public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBox) implements Shape {
 	public static final VoxelShapeBox EMPTY = new VoxelShapeBox(List.of(), List.of(), false);
 	public static final VoxelShapeBox FULL = of(AABBs.FULL);
 	public static final VoxelShapeBox FULL_16 = of(AABBs.FULL_16);
@@ -22,6 +31,19 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 	public static final VoxelShapeBox CENTERED_X_AXIS = of(AABBs.CENTERED_X_AXIS);
 	public static final VoxelShapeBox CENTERED_Y_AXIS = of(AABBs.CENTERED_Y_AXIS);
 	public static final VoxelShapeBox CENTERED_Z_AXIS = of(AABBs.CENTERED_Z_AXIS);
+
+	public static final MapCodec<VoxelShapeBox> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+		Line.CODEC.listOf().fieldOf("edges").forGetter(VoxelShapeBox::edges),
+		MCCodecs.AABB.listOf().fieldOf("boxes").forGetter(VoxelShapeBox::boxes)
+	).apply(instance, (edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)));
+
+	public static final StreamCodec<ByteBuf, VoxelShapeBox> STREAM_CODEC = CompositeStreamCodec.of(
+		Line.STREAM_CODEC.listOf(), VoxelShapeBox::edges,
+		MCStreamCodecs.AABB.listOf(), VoxelShapeBox::boxes,
+		(edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)
+	);
+
+	public static final ShapeType TYPE = new ShapeType("voxel_shape", CODEC, STREAM_CODEC);
 
 	public static VoxelShapeBox of(VoxelShape shape) {
 		if (shape.isEmpty()) {
@@ -193,5 +215,37 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 		}
 
 		return new VoxelShapeBox(List.copyOf(scaledEdges), List.copyOf(scaledBoxes), false);
+	}
+
+	@Override
+	public ShapeType type() {
+		return TYPE;
+	}
+
+	@Override
+	public void buildLines(float x, float y, float z, VertexCallback callback) {
+		for (var edge : edges) {
+			callback.line(
+				(float) (x + edge.start().x),
+				(float) (y + edge.start().y),
+				(float) (z + edge.start().z),
+				(float) (x + edge.end().x),
+				(float) (y + edge.end().y),
+				(float) (z + edge.end().z)
+			);
+		}
+	}
+
+	@Override
+	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+		for (var box : boxes) {
+			float minX = (float) (box.minX + x);
+			float minY = (float) (box.minY + y);
+			float minZ = (float) (box.minZ + z);
+			float maxX = (float) (box.maxX + x);
+			float maxY = (float) (box.maxY + y);
+			float maxZ = (float) (box.maxZ + z);
+			CuboidBuilder.quads(minX, minY, minZ, maxX, maxY, maxZ, callback);
+		}
 	}
 }

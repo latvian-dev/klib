@@ -16,6 +16,7 @@ import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.easing.Easing;
 import dev.latvian.mods.klib.easing.EasingGroup;
+import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.shape.Shape;
@@ -76,7 +77,8 @@ public interface DataTypes {
 	DataType<ParticleOptions> PARTICLE_OPTIONS = DataType.of(ParticleTypes.CODEC, ParticleTypes.STREAM_CODEC, ParticleOptions.class);
 	DataType<BlockState> BLOCK_STATE = DataType.of(MCCodecs.BLOCK_STATE, MCStreamCodecs.BLOCK_STATE, BlockState.class);
 	DataType<FluidState> FLUID_STATE = DataType.of(MCCodecs.FLUID_STATE, MCStreamCodecs.FLUID_STATE, FluidState.class);
-	DataType<Vec3> VEC3 = DataType.of(Vec3.CODEC, Vec3.STREAM_CODEC, Vec3.class);
+	DataType<Vec3> VEC3 = DataType.of(MCCodecs.VEC3, MCStreamCodecs.VEC3, Vec3.class);
+	DataType<Vec3> VEC3S = DataType.of(MCCodecs.VEC3S, MCStreamCodecs.VEC3S, Vec3.class);
 	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class);
 	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class);
 
@@ -104,6 +106,7 @@ public interface DataTypes {
 		DataType.register(ID.mc("block_state"), BLOCK_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState());
 		DataType.register(ID.mc("fluid_state"), FLUID_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState().getFluidState());
 		DataType.register(ID.mc("vec3"), VEC3, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
+		DataType.register(ID.mc("vec3s"), VEC3S, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
 		DataType.register(ID.mc("block_pos"), BLOCK_POS, BlockPosArgument::blockPos, BlockPosArgument::getBlockPos);
 		DataType.register(ID.mc("ticks"), TICKS, () -> KLibCodecs.TIME_ARGUMENT, IntegerArgumentType::getInteger);
 
@@ -121,5 +124,6 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("easing"), Easing.DATA_TYPE);
 		DataType.register(KLibMod.id("easing_group"), EasingGroup.DATA_TYPE);
 		DataType.register(KLibMod.id("int_or_uuid"), IntOrUUID.DATA_TYPE);
+		DataType.register(KLibMod.id("line"), Line.DATA_TYPE);
 	}
 }
