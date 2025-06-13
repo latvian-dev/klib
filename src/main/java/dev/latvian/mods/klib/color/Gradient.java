@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.color;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.easing.Easing;
 import dev.latvian.mods.klib.util.Lazy;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -44,5 +45,9 @@ public interface Gradient {
 
 	default Gradient resolve() {
 		return this;
+	}
+
+	default PairGradient gradient(Gradient other) {
+		return new PairGradient(this, other, Easing.LINEAR);
 	}
 }

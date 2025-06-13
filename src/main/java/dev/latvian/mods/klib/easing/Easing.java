@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.easing;
 
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.KMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -75,6 +76,7 @@ public enum Easing implements EasingFunction, StringRepresentable {
 	public static final Easing[] VALUES = values();
 	public static final Codec<Easing> CODEC = StringRepresentable.fromEnum(() -> VALUES);
 	public static final StreamCodec<ByteBuf, Easing> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> VALUES[i], Easing::ordinal);
+	public static final DataType<Easing> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Easing.class);
 
 	public final String name;
 	public final EasingFunction function;

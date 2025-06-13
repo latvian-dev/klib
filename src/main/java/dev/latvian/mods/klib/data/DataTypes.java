@@ -14,6 +14,8 @@ import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
+import dev.latvian.mods.klib.easing.Easing;
+import dev.latvian.mods.klib.easing.EasingGroup;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.shape.Shape;
@@ -114,5 +116,8 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("entity_selector/player"), ParsedEntitySelector.PLAYER_DATA_TYPE);
 		DataType.register(KLibMod.id("entity_selector/entities"), ParsedEntitySelector.ENTITIES_DATA_TYPE);
 		DataType.register(KLibMod.id("entity_selector/players"), ParsedEntitySelector.PLAYERS_DATA_TYPE);
+		DataType.register(KLibMod.id("entity_selector"), ParsedEntitySelector.DATA_TYPE);
+		DataType.register(KLibMod.id("easing"), Easing.DATA_TYPE);
+		DataType.register(KLibMod.id("easing_group"), EasingGroup.DATA_TYPE);
 	}
 }
