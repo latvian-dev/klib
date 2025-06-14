@@ -80,11 +80,11 @@ public record Color(int argb) implements Gradient {
 	}, Color::toString);
 
 	public static Codec<Color> codecWithAlpha(int alpha) {
-		return CODEC.xmap(color -> color.withAlpha(alpha), color -> color.withAlpha(255));
+		return CODEC.xmap(color -> color.withAlpha(alpha), Color::solid);
 	}
 
 	public static Codec<Color> codecWithAlpha(float alpha) {
-		return CODEC.xmap(color -> color.withAlpha(alpha), color -> color.withAlpha(255));
+		return CODEC.xmap(color -> color.withAlpha(alpha), Color::solid);
 	}
 
 	public static final Codec<Color> CODEC_RGB = codecWithAlpha(255);
@@ -94,7 +94,53 @@ public record Color(int argb) implements Gradient {
 	public static final DataType<Color> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Color.class);
 
 	public static Color hsb(float hue, float saturation, float brightness, int alpha) {
-		return of(Mth.hsvToArgb(hue, saturation, brightness, alpha));
+		if (saturation <= 0F) {
+			int c = (int) (brightness * 255F + 0.5F);
+			return of(alpha, c, c, c);
+		}
+
+		int r = 0;
+		int g = 0;
+		int b = 0;
+		float h = (hue - (float) Math.floor(hue)) * 6F;
+		float f = h - (float) Math.floor(h);
+		float p = brightness * (1F - saturation);
+		float q = brightness * (1F - saturation * f);
+		float t = brightness * (1F - saturation * (1F - f));
+
+		switch ((int) h) {
+			case 0:
+				r = (int) (brightness * 255F + 0.5F);
+				g = (int) (t * 255F + 0.5F);
+				b = (int) (p * 255F + 0.5F);
+				break;
+			case 1:
+				r = (int) (q * 255F + 0.5F);
+				g = (int) (brightness * 255F + 0.5F);
+				b = (int) (p * 255F + 0.5F);
+				break;
+			case 2:
+				r = (int) (p * 255F + 0.5F);
+				g = (int) (brightness * 255F + 0.5F);
+				b = (int) (t * 255F + 0.5F);
+				break;
+			case 3:
+				r = (int) (p * 255F + 0.5F);
+				g = (int) (q * 255F + 0.5F);
+				b = (int) (brightness * 255F + 0.5F);
+				break;
+			case 4:
+				r = (int) (t * 255F + 0.5F);
+				g = (int) (p * 255F + 0.5F);
+				b = (int) (brightness * 255F + 0.5F);
+				break;
+			case 5:
+				r = (int) (brightness * 255F + 0.5F);
+				g = (int) (p * 255F + 0.5F);
+				b = (int) (q * 255F + 0.5F);
+		}
+
+		return of(alpha, r, g, b);
 	}
 
 	public int rgb() {
@@ -145,7 +191,7 @@ public record Color(int argb) implements Gradient {
 		if (maxTime < fadeOut) {
 			return this;
 		} else if (time >= maxTime) {
-			return withAlpha(0);
+			return transparent();
 		} else if (time >= maxTime - fadeOut) {
 			return withAlpha(Mth.lerp((maxTime - time) / fadeOut, 0F, alphaf()));
 		} else {
@@ -208,6 +254,14 @@ public record Color(int argb) implements Gradient {
 
 	public boolean isTransparent() {
 		return alpha() == 0;
+	}
+
+	public Color solid() {
+		return withAlpha(255);
+	}
+
+	public Color transparent() {
+		return withAlpha(0);
 	}
 
 	public OptionalInt toOptionalARGB() {
