@@ -39,6 +39,10 @@ public record Color(int argb) implements Gradient {
 		};
 	}
 
+	public static Color ofRGB(int rgb) {
+		return of(0xFF000000 | rgb);
+	}
+
 	public static Color of(int a, int r, int g, int b) {
 		return of(((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF));
 	}

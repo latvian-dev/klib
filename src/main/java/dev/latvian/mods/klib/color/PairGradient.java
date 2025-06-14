@@ -24,6 +24,10 @@ public record PairGradient(Gradient start, Gradient end, Easing easing) implemen
 		this(start, end, Easing.LINEAR);
 	}
 
+	public PairGradient(int rgbStart, int rgbEnd) {
+		this(Color.ofRGB(rgbStart), Color.ofRGB(rgbEnd), Easing.LINEAR);
+	}
+
 	@Override
 	public Color get(float delta) {
 		float d = easing.ease(delta);
