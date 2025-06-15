@@ -12,13 +12,7 @@ import net.minecraft.util.StringRepresentable;
  * <a href="https://easings.net/">Source</a>
  */
 public enum Easing implements EasingFunction, StringRepresentable {
-	MIN("min", x -> 0D),
-	MAX("max", x -> 1D),
-	HALF("half", x -> 0.5D),
 	LINEAR("linear", x -> x),
-	SMOOTHSTEP("smoothstep", KMath::smoothstep),
-	ISMOOTHSTEP("ismoothstep", KMath::ismoothstep),
-	SMOOTHERSTEP("smootherstep", KMath::smootherstep),
 
 	SINE_IN("sine_in", x -> 1 - Math.cos((x * Math.PI) / 2)),
 	SINE_OUT("sine_out", x -> Math.sin((x * Math.PI) / 2)),
@@ -70,6 +64,16 @@ public enum Easing implements EasingFunction, StringRepresentable {
 
 	BOUNCE_IN("bounce_in", x -> 1 - BOUNCE_OUT.ease(1 - x)),
 	BOUNCE_IN_OUT("bounce_in_out", x -> x < 0.5 ? BOUNCE_IN.ease(x * 2) / 2 : BOUNCE_OUT.ease(x * 2 - 1) / 2 + 0.5),
+
+	SMOOTHSTEP("smoothstep", KMath::smoothstep),
+	ISMOOTHSTEP("ismoothstep", KMath::ismoothstep),
+	SMOOTHERSTEP("smootherstep", KMath::smootherstep),
+
+	MIN("min", x -> 0D),
+	MAX("max", x -> 1D),
+	MIDDLE("middle", x -> 0.5D),
+	HALF("half", x -> x / 2D),
+	DOUBLE("double", x -> Math.min(1D, x * 2D)),
 
 	;
 
