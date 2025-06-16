@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.gl;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.metrics.MetricCategory;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
@@ -41,7 +42,7 @@ public interface GLDebugLog {
 
 	int MAJOR_VERSION = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
 	int MINOR_VERSION = GL11.glGetInteger(GL30.GL_MINOR_VERSION);
-	boolean AVAILABLE = true; // MAJOR_VERSION >= 4 && (MAJOR_VERSION > 4 || MINOR_VERSION >= 3);
+	MutableBoolean AVAILABLE = new MutableBoolean(true); // MAJOR_VERSION >= 4 && (MAJOR_VERSION > 4 || MINOR_VERSION >= 3);
 
 	ProfilerFiller PROFILER = new ProfilerFiller() {
 		@Override
@@ -103,7 +104,7 @@ public interface GLDebugLog {
 	};
 
 	static void message(Object message, Type type, Severity severity) {
-		if (AVAILABLE) {
+		if (AVAILABLE.getValue()) {
 			GL43.glDebugMessageInsert(GL43.GL_DEBUG_SOURCE_APPLICATION, type.id, 0, severity.id, String.valueOf(message));
 		}
 	}
@@ -117,19 +118,19 @@ public interface GLDebugLog {
 	}
 
 	static void pushGroup(Object name) {
-		if (AVAILABLE) {
+		if (AVAILABLE.getValue()) {
 			GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, String.valueOf(name));
 		}
 	}
 
 	static void popGroup() {
-		if (AVAILABLE) {
+		if (AVAILABLE.getValue()) {
 			GL43.glPopDebugGroup();
 		}
 	}
 
 	static void label(int type, int id, String label) {
-		if (AVAILABLE) {
+		if (AVAILABLE.getValue()) {
 			GL43.glObjectLabel(type, id, label);
 		}
 	}
