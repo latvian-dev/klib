@@ -71,8 +71,14 @@ public record WorldMouse(
 		return new Cursor(hit);
 	}
 
-	public Cursor clip() {
-		return clip(1000D, ClipContext.Block.OUTLINE, ClipContext.Fluid.SOURCE_ONLY, null, null);
+	@Nullable
+	public Cursor clipOutline() {
+		return clip(1000D, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, null, null);
+	}
+
+	@Nullable
+	public Cursor clipCollision() {
+		return clip(1000D, ClipContext.Block.COLLIDER, ClipContext.Fluid.SOURCE_ONLY, null, null);
 	}
 
 	/**
