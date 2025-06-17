@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -28,7 +29,7 @@ public record WorldMouse(
 	@Nullable BlockPos pos,
 	@Nullable BlockPos altPos
 ) {
-	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4fc worldMatrix, double maxDistance, @Nullable Vec2f screenPos) {
+	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4fc worldMatrix, double maxDistance, ClipContext.Block blockClipContext, ClipContext.Fluid fluidClipContext, @Nullable Vec2f screenPos, @Nullable Entity clipEntity) {
 		var invertedWorldMatrix = new Matrix4f(worldMatrix).invert();
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
@@ -52,9 +53,9 @@ public record WorldMouse(
 		var hit = mc.level == null || mc.player == null ? null : mc.level.clip(new ClipContext(
 			cameraPos,
 			cameraPos.lerp(worldPos, lerp),
-			ClipContext.Block.OUTLINE,
-			ClipContext.Fluid.SOURCE_ONLY,
-			mc.player
+			blockClipContext,
+			fluidClipContext,
+			clipEntity == null ? mc.player : clipEntity
 		));
 
 		if (hit != null && hit.getType() == HitResult.Type.MISS) {
@@ -79,7 +80,7 @@ public record WorldMouse(
 	}
 
 	public static WorldMouse clip(Minecraft mc, Vec3 cameraPos, Matrix4fc worldMatrix) {
-		return clip(mc, cameraPos, worldMatrix, 1000D, null);
+		return clip(mc, cameraPos, worldMatrix, 1000D, ClipContext.Block.OUTLINE, ClipContext.Fluid.SOURCE_ONLY, null, null);
 	}
 
 	@Nullable

@@ -42,7 +42,8 @@ public interface GLDebugLog {
 
 	int MAJOR_VERSION = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
 	int MINOR_VERSION = GL11.glGetInteger(GL30.GL_MINOR_VERSION);
-	MutableBoolean AVAILABLE = new MutableBoolean(true); // MAJOR_VERSION >= 4 && (MAJOR_VERSION > 4 || MINOR_VERSION >= 3);
+	boolean AVAILABLE = true; // MAJOR_VERSION >= 4 && (MAJOR_VERSION > 4 || MINOR_VERSION >= 3);
+	MutableBoolean ENABLED = new MutableBoolean(true);
 
 	ProfilerFiller PROFILER = new ProfilerFiller() {
 		@Override
@@ -103,8 +104,12 @@ public interface GLDebugLog {
 		}
 	};
 
+	static boolean isEnabled() {
+		return AVAILABLE && ENABLED.getValue();
+	}
+
 	static void message(Object message, Type type, Severity severity) {
-		if (AVAILABLE.getValue()) {
+		if (isEnabled()) {
 			GL43.glDebugMessageInsert(GL43.GL_DEBUG_SOURCE_APPLICATION, type.id, 0, severity.id, String.valueOf(message));
 		}
 	}
@@ -118,19 +123,19 @@ public interface GLDebugLog {
 	}
 
 	static void pushGroup(Object name) {
-		if (AVAILABLE.getValue()) {
+		if (isEnabled()) {
 			GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, String.valueOf(name));
 		}
 	}
 
 	static void popGroup() {
-		if (AVAILABLE.getValue()) {
+		if (isEnabled()) {
 			GL43.glPopDebugGroup();
 		}
 	}
 
 	static void label(int type, int id, String label) {
-		if (AVAILABLE.getValue()) {
+		if (isEnabled()) {
 			GL43.glObjectLabel(type, id, label);
 		}
 	}
