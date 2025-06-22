@@ -14,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-public record CompoundGradient(PositionedColor[] sorted) implements Gradient {
+public final class CompoundGradient implements Gradient {
 	public static final Codec<CompoundGradient> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		PositionedColor.CODEC.listOf().fieldOf("colors").forGetter(CompoundGradient::getColorList)
+		PositionedColor.CODEC.listOf().fieldOf("colors").forGetter(c -> c.sortedList)
 	).apply(instance, CompoundGradient::new));
 
 	public static CompoundGradient ofColors(List<Color> colors) {
@@ -29,12 +29,20 @@ public record CompoundGradient(PositionedColor[] sorted) implements Gradient {
 		return new CompoundGradient(list);
 	}
 
-	public static final Codec<CompoundGradient> CODEC = Codec.either(DIRECT_CODEC, Color.CODEC.listOf()).xmap(e -> e.map(Function.identity(), CompoundGradient::ofColors), g -> g.isSimple() ? Either.right(g.rawColors()) : Either.left(g));
-	public static final StreamCodec<ByteBuf, CompoundGradient> STREAM_CODEC = PositionedColor.STREAM_CODEC.apply(ByteBufCodecs.list()).map(CompoundGradient::new, CompoundGradient::getColorList);
+	public static final Codec<CompoundGradient> CODEC = Codec.either(DIRECT_CODEC, Color.CODEC.listOf()).xmap(e -> e.map(Function.identity(), CompoundGradient::ofColors), g -> g.isSimple() ? Either.right(g.getRawColors()) : Either.left(g));
+	public static final StreamCodec<ByteBuf, CompoundGradient> STREAM_CODEC = PositionedColor.STREAM_CODEC.apply(ByteBufCodecs.list()).map(CompoundGradient::new, c -> c.sortedList);
+
+	private final PositionedColor[] sorted;
+	private final List<PositionedColor> sortedList;
+
+	private CompoundGradient(PositionedColor[] sorted) {
+		this.sorted = sorted;
+		Arrays.sort(this.sorted);
+		this.sortedList = Arrays.asList(this.sorted);
+	}
 
 	public CompoundGradient(List<PositionedColor> colors) {
-		this(colors.toArray(new PositionedColor[0]));
-		Arrays.sort(sorted);
+		this(colors.toArray(PositionedColor.EMPTY_ARRAY));
 	}
 
 	@Override
@@ -44,7 +52,7 @@ public record CompoundGradient(PositionedColor[] sorted) implements Gradient {
 		} else if (delta <= 0F || sorted.length == 1) {
 			return sorted[0].color();
 		} else if (delta >= 1F) {
-			return sorted[sorted.length - 1].color().get(1F);
+			return sorted[sorted.length - 1].color();
 		}
 
 		var left = sorted[0];
@@ -60,7 +68,7 @@ public record CompoundGradient(PositionedColor[] sorted) implements Gradient {
 			}
 		}
 
-		return left.color().lerp(left.easing().ease(KMath.map(delta, left.position(), right.position(), 0F, 1F)), right.color());
+		return left.interpolate(KMath.map(delta, left.position(), right.position(), 0F, 1F), right);
 	}
 
 	@Override
@@ -88,11 +96,11 @@ public record CompoundGradient(PositionedColor[] sorted) implements Gradient {
 		return true;
 	}
 
-	public List<PositionedColor> getColorList() {
-		return Arrays.asList(sorted);
+	public List<PositionedColor> getColors() {
+		return List.copyOf(sortedList);
 	}
 
-	public List<Color> rawColors() {
+	public List<Color> getRawColors() {
 		var list = new ArrayList<Color>(sorted.length);
 
 		for (var c : sorted) {
@@ -101,4 +109,20 @@ public record CompoundGradient(PositionedColor[] sorted) implements Gradient {
 
 		return list;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o == this || (o instanceof CompoundGradient c && sortedList.equals(c.sortedList));
+	}
+
+	@Override
+	public int hashCode() {
+		return sortedList.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "CompoundGradient" + sortedList;
+	}
+
 }
