@@ -3,7 +3,6 @@ package dev.latvian.mods.klib.color;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.easing.Easing;
 import dev.latvian.mods.klib.util.Lazy;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,23 +14,23 @@ import java.util.function.Function;
 public interface Gradient {
 	Codec<Gradient> CODEC = Codec.lazyInitialized(() -> Codec.either(
 		Codec.either(Color.CODEC, GradientReference.CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), g -> g instanceof GradientReference r ? Either.right(r) : Either.left((Color) g)),
-		Codec.either(CompoundGradient.CODEC, PairGradient.CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), g -> g instanceof PairGradient r ? Either.right(r) : Either.left((CompoundGradient) g))
+		Codec.either(CompoundGradient.CODEC, LinearPairGradient.CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), g -> g instanceof LinearPairGradient r ? Either.right(r) : Either.left((CompoundGradient) g))
 	).xmap(e -> e.map(Function.identity(), Function.identity()), g -> switch (g) {
 		case Color v -> Either.left(v);
 		case GradientReference v -> Either.left(v);
 		case CompoundGradient v -> Either.right(v);
-		case PairGradient v -> Either.right(v);
+		case LinearPairGradient v -> Either.right(v);
 		case null, default -> Either.left(Color.TRANSPARENT);
 	}));
 
 	StreamCodec<ByteBuf, Gradient> STREAM_CODEC = Lazy.streamCodec(() -> ByteBufCodecs.either(
 		ByteBufCodecs.either(Color.STREAM_CODEC, GradientReference.STREAM_CODEC).map(e -> e.map(Function.identity(), Function.identity()), g -> g instanceof GradientReference r ? Either.right(r) : Either.left((Color) g)),
-		ByteBufCodecs.either(CompoundGradient.STREAM_CODEC, PairGradient.STREAM_CODEC).map(e -> e.map(Function.identity(), Function.identity()), g -> g instanceof PairGradient r ? Either.right(r) : Either.left((CompoundGradient) g))
+		ByteBufCodecs.either(CompoundGradient.STREAM_CODEC, LinearPairGradient.STREAM_CODEC).map(e -> e.map(Function.identity(), Function.identity()), g -> g instanceof LinearPairGradient r ? Either.right(r) : Either.left((CompoundGradient) g))
 	).map(e -> e.map(Function.identity(), Function.identity()), g -> switch (g) {
 		case Color v -> Either.left(v);
 		case GradientReference v -> Either.left(v);
 		case CompoundGradient v -> Either.right(v);
-		case PairGradient v -> Either.right(v);
+		case LinearPairGradient v -> Either.right(v);
 		case null, default -> Either.left(Color.TRANSPARENT);
 	}));
 
@@ -47,7 +46,7 @@ public interface Gradient {
 		return this;
 	}
 
-	default PairGradient gradient(Gradient other) {
-		return new PairGradient(this, other, Easing.LINEAR);
+	default LinearPairGradient gradient(Gradient other) {
+		return new LinearPairGradient(this, other);
 	}
 }

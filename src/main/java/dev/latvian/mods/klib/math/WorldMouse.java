@@ -137,7 +137,7 @@ public record WorldMouse(
 	}
 
 	/**
-	 * Convert screen coordinates to world position. Use {@link WorldMouse#clip()} if you only care about current mouse position
+	 * Convert screen coordinates to world position. Use {@link WorldMouse#clip(double, ClipContext.Block, ClipContext.Fluid, Vec2f, Entity)} if you only care about current mouse position
 	 *
 	 * @param x screen coordinate x-position
 	 * @param y screen coordinate y-position
