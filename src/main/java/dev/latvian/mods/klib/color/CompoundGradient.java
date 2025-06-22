@@ -34,11 +34,29 @@ public final class CompoundGradient implements Gradient {
 
 	private final PositionedColor[] sorted;
 	private final List<PositionedColor> sortedList;
+	private final float leftMostPosition;
+	private final float rightMostPosition;
 
 	private CompoundGradient(PositionedColor[] sorted) {
 		this.sorted = sorted;
 		Arrays.sort(this.sorted);
 		this.sortedList = Arrays.asList(this.sorted);
+
+		float leftMostPosition = 1F;
+		float rightMostPosition = 0F;
+
+		for (var c : sorted) {
+			if (c.position() < leftMostPosition) {
+				leftMostPosition = c.position();
+			}
+
+			if (c.position() > rightMostPosition) {
+				rightMostPosition = c.position();
+			}
+		}
+
+		this.leftMostPosition = leftMostPosition;
+		this.rightMostPosition = rightMostPosition;
 	}
 
 	public CompoundGradient(List<PositionedColor> colors) {
@@ -49,9 +67,9 @@ public final class CompoundGradient implements Gradient {
 	public Color get(float delta) {
 		if (sorted.length == 0) {
 			return Color.TRANSPARENT;
-		} else if (delta <= 0F || sorted.length == 1) {
+		} else if (delta <= leftMostPosition || sorted.length == 1) {
 			return sorted[0].color();
-		} else if (delta >= 1F) {
+		} else if (delta >= rightMostPosition) {
 			return sorted[sorted.length - 1].color();
 		}
 
@@ -72,13 +90,13 @@ public final class CompoundGradient implements Gradient {
 	}
 
 	@Override
-	public Gradient resolve() {
+	public Gradient optimize() {
 		if (sorted.length == 0) {
 			return Color.TRANSPARENT;
 		} else if (sorted.length == 2 && sorted[0].easing() == Easing.LINEAR) {
-			return new LinearPairGradient(sorted[0].color(), sorted[sorted.length - 1].color()).resolve();
+			return new LinearPairGradient(sorted[0].color(), sorted[sorted.length - 1].color()).optimize();
 		} else if (sorted.length == 1) {
-			return sorted[0].color().resolve();
+			return sorted[0].color().optimize();
 		} else {
 			return this;
 		}
@@ -96,7 +114,8 @@ public final class CompoundGradient implements Gradient {
 		return true;
 	}
 
-	public List<PositionedColor> getColors() {
+	@Override
+	public List<PositionedColor> getPositionedColors() {
 		return List.copyOf(sortedList);
 	}
 

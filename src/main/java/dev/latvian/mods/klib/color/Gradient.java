@@ -9,6 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
 
+import java.util.List;
 import java.util.function.Function;
 
 public interface Gradient {
@@ -42,11 +43,11 @@ public interface Gradient {
 		return get(random.nextFloat());
 	}
 
-	default Gradient resolve() {
+	default Gradient optimize() {
 		return this;
 	}
 
-	default LinearPairGradient gradient(Gradient other) {
-		return new LinearPairGradient(this, other);
+	default List<PositionedColor> getPositionedColors() {
+		return List.of();
 	}
 }

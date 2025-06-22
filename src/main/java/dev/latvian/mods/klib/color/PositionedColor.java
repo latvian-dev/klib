@@ -25,6 +25,10 @@ public record PositionedColor(float position, Color color, Easing easing) implem
 		PositionedColor::new
 	);
 
+	public PositionedColor(float position, Color color) {
+		this(position, color, Easing.LINEAR);
+	}
+
 	@Override
 	public int compareTo(@NotNull PositionedColor other) {
 		return Float.compare(position, other.position);

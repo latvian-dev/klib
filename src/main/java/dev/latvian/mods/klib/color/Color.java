@@ -3,11 +3,13 @@ package dev.latvian.mods.klib.color;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.easing.Easing;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 
@@ -396,7 +398,20 @@ public record Color(int argb) implements Gradient {
 	}
 
 	@Override
-	public Color resolve() {
+	public Color optimize() {
 		return this;
+	}
+
+	@Override
+	public List<PositionedColor> getPositionedColors() {
+		return List.of(new PositionedColor(0F, this));
+	}
+
+	public Gradient gradient(Color other) {
+		return gradient(other, Easing.LINEAR);
+	}
+
+	public Gradient gradient(Color other, Easing easing) {
+		return easing == Easing.LINEAR ? new LinearPairGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, easing), new PositionedColor(1F, other)));
 	}
 }

@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Map;
 
 public record GradientReference(ResourceLocation id) implements Gradient {
@@ -15,11 +16,17 @@ public record GradientReference(ResourceLocation id) implements Gradient {
 
 	@Override
 	public Color get(float delta) {
-		return resolve().get(delta);
+		return optimize().get(delta);
 	}
 
 	@Override
-	public Gradient resolve() {
-		return MAP.getOrDefault(id, Color.TRANSPARENT).resolve();
+	public Gradient optimize() {
+		return MAP.getOrDefault(id, Color.TRANSPARENT).optimize();
+	}
+
+	@Override
+	public List<PositionedColor> getPositionedColors() {
+		var g = MAP.get(id);
+		return g == null ? List.of() : g.getPositionedColors();
 	}
 }
