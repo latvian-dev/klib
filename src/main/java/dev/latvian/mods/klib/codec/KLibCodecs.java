@@ -113,6 +113,15 @@ public interface KLibCodecs {
 		Objects.requireNonNull(map, "Map is null");
 		var reverseMap = identity ? new Reference2ObjectOpenHashMap<V, K>() : new Object2ObjectOpenHashMap<V, K>();
 
+		for (var entry : map.entrySet()) {
+			var key = entry.getKey();
+			var value = entry.getValue();
+
+			if (identity) {
+				reverseMap.put(value, key);
+			}
+		}
+
 		return keyCodec.flatXmap(k -> {
 			if (map.isEmpty()) {
 				return DataResult.error(() -> "Map is empty");
