@@ -116,10 +116,7 @@ public interface KLibCodecs {
 		for (var entry : map.entrySet()) {
 			var key = entry.getKey();
 			var value = entry.getValue();
-
-			if (identity) {
-				reverseMap.put(value, key);
-			}
+			reverseMap.put(value, key);
 		}
 
 		return keyCodec.flatXmap(k -> {
