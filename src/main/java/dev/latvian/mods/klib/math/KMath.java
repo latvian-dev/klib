@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.math;
 
+import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.nbt.ByteTag;
@@ -11,6 +12,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
+import org.joml.Vector2i;
+import org.joml.Vector2ic;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
 
@@ -81,6 +84,16 @@ public interface KMath {
 	float F_HALF_PI = (float) HALF_PI;
 	float F_TO_DEG = (float) TO_DEG;
 	float F_TO_RAD = (float) TO_RAD;
+
+	Lazy<Vector2ic[]> CACHED_SPIRAL = Lazy.of(() -> {
+		var spiral = new Vector2ic[961];
+
+		for (int i = 0; i < spiral.length; i++) {
+			spiral[i] = calculateSpiral(i, new Vector2i());
+		}
+
+		return spiral;
+	});
 
 	static Vec3 vec3(double x, double y, double z) {
 		if (x == 0D && y == 0D && z == 0D) {
@@ -337,5 +350,45 @@ public interface KMath {
 		double dx = x1 - x0;
 		double dy = y1 - y0;
 		return (float) Math.sqrt(dx * dx + dy * dy);
+	}
+
+	static Vector2ic getSpiral(int index) {
+		if (index <= 0) {
+			return Identity.IVEC_2;
+		} else if (index < 961) {
+			return CACHED_SPIRAL.get()[index];
+		} else {
+			return calculateSpiral(index, new Vector2i());
+		}
+	}
+
+	static Vector2i calculateSpiral(int index, Vector2i out) {
+		if (index <= 0) {
+			return out.set(0);
+		}
+
+		int x = 0, y = 0;
+		int dx = 0, dy = 1;
+		int segmentLength = 1, segmentPassed = 0;
+
+		for (var n = 0; n < index; n++) {
+			x += dx;
+			y += dy;
+			segmentPassed++;
+
+			if (segmentPassed == segmentLength) {
+				segmentPassed = 0;
+
+				var buffer = dy;
+				dy = -dx;
+				dx = buffer;
+
+				if (dx == 0) {
+					segmentLength++;
+				}
+			}
+		}
+
+		return out.set(x, y);
 	}
 }

@@ -6,7 +6,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 public record LightUV(int packed, int u, int v) implements PackedUV {
 	public static final LightUV NONE = new LightUV(0xF00000);
-	public static final LightUV BRIGHT = new LightUV(0xF000F0);
+	public static final LightUV FULLBRIGHT = new LightUV(0xF000F0);
 	public static final LightUV FULL_SKY = new LightUV(15728640);
 	public static final LightUV FULL_BLOCK = new LightUV(240);
 
@@ -17,7 +17,7 @@ public record LightUV(int packed, int u, int v) implements PackedUV {
 
 			return switch (type) {
 				case 1 -> NONE;
-				case 2 -> BRIGHT;
+				case 2 -> FULLBRIGHT;
 				case 3 -> FULL_SKY;
 				case 4 -> FULL_BLOCK;
 				case 0 -> new LightUV(VarInt.read(buf));
@@ -29,7 +29,7 @@ public record LightUV(int packed, int u, int v) implements PackedUV {
 		public void encode(ByteBuf buf, LightUV value) {
 			if (value.equals(NONE)) {
 				buf.writeByte(1);
-			} else if (value.equals(BRIGHT)) {
+			} else if (value.equals(FULLBRIGHT)) {
 				buf.writeByte(2);
 			} else if (value.equals(FULL_SKY)) {
 				buf.writeByte(3);

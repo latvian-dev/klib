@@ -5,23 +5,73 @@ import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
 
 public record UV(float u0, float v0, float u1, float v1) {
 	public static final UV FULL = new UV(0F, 0F, 1F, 1F);
+	public static final UV ZERO = new UV(0F, 0F, 0F, 0F);
+	public static final UV ONE = new UV(1F, 1F, 1F, 1F);
 
-	public static final Codec<UV> CODEC = Codec.FLOAT.listOf(4, 4).xmap(f -> f.get(0) == 0F && f.get(1) == 0F && f.get(2) == 2F && f.get(3) == 1F ? FULL : new UV(f.get(0), f.get(1), f.get(2), f.get(3)), uv -> List.of(uv.u0, uv.v0, uv.u1, uv.v1));
+	public static final Codec<UV> CODEC = Codec.FLOAT.listOf(4, 4).xmap(f -> {
+		float u0 = f.get(0);
+		float v0 = f.get(1);
+		float u1 = f.get(2);
+		float v1 = f.get(3);
 
-	public static final StreamCodec<ByteBuf, UV> STREAM_CODEC = StreamCodec.composite(
-		ByteBufCodecs.FLOAT, UV::u0,
-		ByteBufCodecs.FLOAT, UV::v0,
-		ByteBufCodecs.FLOAT, UV::u1,
-		ByteBufCodecs.FLOAT, UV::v1,
-		UV::new
-	);
+		if (u0 == 0F && v0 == 0F && u1 == 1F && v1 == 1F) {
+			return FULL;
+		} else if (u0 == 0F && v0 == 0F && u1 == 0F && v1 == 0F) {
+			return ZERO;
+		} else if (u0 == 1F && v0 == 1F && u1 == 1F && v1 == 1F) {
+			return ONE;
+		} else {
+			return new UV(u0, v0, u1, v1);
+		}
+	}, uv -> List.of(uv.u0, uv.v0, uv.u1, uv.v1));
+
+	public static final StreamCodec<ByteBuf, UV> STREAM_CODEC = new StreamCodec<>() {
+		@Override
+		public UV decode(ByteBuf buf) {
+			return switch (buf.readByte()) {
+				case 1 -> FULL;
+				case 2 -> ZERO;
+				case 3 -> ONE;
+				case 4 -> new UV(buf.readFloat());
+				case 5 -> new UV(0F, 0F, buf.readFloat(), buf.readFloat());
+				default -> new UV(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat());
+			};
+		}
+
+		@Override
+		public void encode(ByteBuf buf, UV uv) {
+			if (uv.isFull()) {
+				buf.writeByte(1);
+			} else if (uv.equals(ZERO)) {
+				buf.writeByte(2);
+			} else if (uv.equals(ONE)) {
+				buf.writeByte(3);
+			} else if (uv.u1 == uv.u0 && uv.v0 == uv.u0 && uv.v1 == uv.u0) {
+				buf.writeByte(4);
+				buf.writeFloat(uv.u0);
+			} else if (uv.u0 == 0F && uv.v0 == 0F) {
+				buf.writeByte(5);
+				buf.writeFloat(uv.u1);
+				buf.writeFloat(uv.v1);
+			} else {
+				buf.writeByte(0);
+				buf.writeFloat(uv.u0);
+				buf.writeFloat(uv.v0);
+				buf.writeFloat(uv.u1);
+				buf.writeFloat(uv.v1);
+			}
+		}
+	};
+
+	public UV(float all) {
+		this(all, all, all, all);
+	}
 
 	public UV uvsByFace(Vec3f from, Vec3f to, Direction face) {
 		return switch (face) {
