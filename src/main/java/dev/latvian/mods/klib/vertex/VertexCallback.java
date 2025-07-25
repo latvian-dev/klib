@@ -113,6 +113,10 @@ public interface VertexCallback {
 		return new OnlyPosColTexNormalVertexCallback(this);
 	}
 
+	default void quad(float x, float y, float z, float u, float v, float nx, float ny, float nz) {
+		acceptPos(x, y, z).acceptTex(u, v).acceptNormal(nx, ny, nz);
+	}
+
 	default void line(float x1, float y1, float z1, float x2, float y2, float z2, float nx, float ny, float nz) {
 		acceptPos(x1, y1, z1).acceptNormal(nx, ny, nz);
 		acceptPos(x2, y2, z2).acceptNormal(nx, ny, nz);

@@ -106,10 +106,10 @@ public class SpherePoints {
 				var ny = y + nr.y() * s;
 				var cy = y + cr.y() * s;
 
-				callback.acceptPos(x + cc.x() * nr.m() * s, ny, z + cc.z() * nr.m() * s).acceptTex(u0l, v1l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(x + cc.x() * cr.m() * s, cy, z + cc.z() * cr.m() * s).acceptTex(u0l, v0l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(x + nc.x() * cr.m() * s, cy, z + nc.z() * cr.m() * s).acceptTex(u1l, v0l).acceptNormal(nv.x, nv.y, nv.z);
-				callback.acceptPos(x + nc.x() * nr.m() * s, ny, z + nc.z() * nr.m() * s).acceptTex(u1l, v1l).acceptNormal(nv.x, nv.y, nv.z);
+				callback.quad(x + cc.x() * nr.m() * s, ny, z + cc.z() * nr.m() * s, u0l, v1l, nv.x, nv.y, nv.z);
+				callback.quad(x + cc.x() * cr.m() * s, cy, z + cc.z() * cr.m() * s, u0l, v0l, nv.x, nv.y, nv.z);
+				callback.quad(x + nc.x() * cr.m() * s, cy, z + nc.z() * cr.m() * s, u1l, v0l, nv.x, nv.y, nv.z);
+				callback.quad(x + nc.x() * nr.m() * s, ny, z + nc.z() * nr.m() * s, u1l, v1l, nv.x, nv.y, nv.z);
 			}
 		}
 	}

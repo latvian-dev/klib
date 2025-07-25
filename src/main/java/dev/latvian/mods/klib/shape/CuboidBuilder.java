@@ -8,10 +8,10 @@ public interface CuboidBuilder {
 			return;
 		}
 
-		callback.acceptPos(minX, y, minZ).acceptTex(0F, 0F).acceptNormal(0F, -1F, 0F);
-		callback.acceptPos(maxX, y, minZ).acceptTex(1F, 0F).acceptNormal(0F, -1F, 0F);
-		callback.acceptPos(maxX, y, maxZ).acceptTex(1F, 1F).acceptNormal(0F, -1F, 0F);
-		callback.acceptPos(minX, y, maxZ).acceptTex(0F, 1F).acceptNormal(0F, -1F, 0F);
+		callback.quad(minX, y, minZ, 0F, 0F, 0F, -1F, 0F);
+		callback.quad(maxX, y, minZ, 1F, 0F, 0F, -1F, 0F);
+		callback.quad(maxX, y, maxZ, 1F, 1F, 0F, -1F, 0F);
+		callback.quad(minX, y, maxZ, 0F, 1F, 0F, -1F, 0F);
 	}
 
 	static void upQuad(float y, float minX, float minZ, float maxX, float maxZ, VertexCallback callback) {
@@ -19,10 +19,10 @@ public interface CuboidBuilder {
 			return;
 		}
 
-		callback.acceptPos(minX, y, minZ).acceptTex(0F, 0F).acceptNormal(0F, 1F, 0F);
-		callback.acceptPos(minX, y, maxZ).acceptTex(0F, 1F).acceptNormal(0F, 1F, 0F);
-		callback.acceptPos(maxX, y, maxZ).acceptTex(1F, 1F).acceptNormal(0F, 1F, 0F);
-		callback.acceptPos(maxX, y, minZ).acceptTex(1F, 0F).acceptNormal(0F, 1F, 0F);
+		callback.quad(minX, y, minZ, 0F, 0F, 0F, 1F, 0F);
+		callback.quad(minX, y, maxZ, 0F, 1F, 0F, 1F, 0F);
+		callback.quad(maxX, y, maxZ, 1F, 1F, 0F, 1F, 0F);
+		callback.quad(maxX, y, minZ, 1F, 0F, 0F, 1F, 0F);
 	}
 
 	static void northQuad(float z, float minX, float minY, float maxX, float maxY, VertexCallback callback) {
@@ -30,10 +30,10 @@ public interface CuboidBuilder {
 			return;
 		}
 
-		callback.acceptPos(minX, minY, z).acceptTex(1F, 1F).acceptNormal(0F, 0F, -1F);
-		callback.acceptPos(minX, maxY, z).acceptTex(1F, 0F).acceptNormal(0F, 0F, -1F);
-		callback.acceptPos(maxX, maxY, z).acceptTex(0F, 0F).acceptNormal(0F, 0F, -1F);
-		callback.acceptPos(maxX, minY, z).acceptTex(0F, 1F).acceptNormal(0F, 0F, -1F);
+		callback.quad(minX, minY, z, 1F, 1F, 0F, 0F, -1F);
+		callback.quad(minX, maxY, z, 1F, 0F, 0F, 0F, -1F);
+		callback.quad(maxX, maxY, z, 0F, 0F, 0F, 0F, -1F);
+		callback.quad(maxX, minY, z, 0F, 1F, 0F, 0F, -1F);
 	}
 
 	static void southQuad(float z, float minX, float minY, float maxX, float maxY, VertexCallback callback) {
@@ -41,10 +41,10 @@ public interface CuboidBuilder {
 			return;
 		}
 
-		callback.acceptPos(maxX, minY, z).acceptTex(1F, 1F).acceptNormal(0F, 0F, 1F);
-		callback.acceptPos(maxX, maxY, z).acceptTex(1F, 0F).acceptNormal(0F, 0F, 1F);
-		callback.acceptPos(minX, maxY, z).acceptTex(0F, 0F).acceptNormal(0F, 0F, 1F);
-		callback.acceptPos(minX, minY, z).acceptTex(0F, 1F).acceptNormal(0F, 0F, 1F);
+		callback.quad(maxX, minY, z, 1F, 1F, 0F, 0F, 1F);
+		callback.quad(maxX, maxY, z, 1F, 0F, 0F, 0F, 1F);
+		callback.quad(minX, maxY, z, 0F, 0F, 0F, 0F, 1F);
+		callback.quad(minX, minY, z, 0F, 1F, 0F, 0F, 1F);
 	}
 
 	static void westQuad(float x, float minY, float minZ, float maxY, float maxZ, VertexCallback callback) {
@@ -52,10 +52,10 @@ public interface CuboidBuilder {
 			return;
 		}
 
-		callback.acceptPos(x, minY, minZ).acceptTex(0F, 1F).acceptNormal(-1F, 0F, 0F);
-		callback.acceptPos(x, minY, maxZ).acceptTex(1F, 1F).acceptNormal(-1F, 0F, 0F);
-		callback.acceptPos(x, maxY, maxZ).acceptTex(1F, 0F).acceptNormal(-1F, 0F, 0F);
-		callback.acceptPos(x, maxY, minZ).acceptTex(0F, 0F).acceptNormal(-1F, 0F, 0F);
+		callback.quad(x, minY, minZ, 0F, 1F, -1F, 0F, 0F);
+		callback.quad(x, minY, maxZ, 1F, 1F, -1F, 0F, 0F);
+		callback.quad(x, maxY, maxZ, 1F, 0F, -1F, 0F, 0F);
+		callback.quad(x, maxY, minZ, 0F, 0F, -1F, 0F, 0F);
 	}
 
 	static void eastQuad(float x, float minY, float minZ, float maxY, float maxZ, VertexCallback callback) {
@@ -63,10 +63,10 @@ public interface CuboidBuilder {
 			return;
 		}
 
-		callback.acceptPos(x, maxY, minZ).acceptTex(1F, 0F).acceptNormal(1F, 0F, 0F);
-		callback.acceptPos(x, maxY, maxZ).acceptTex(0F, 0F).acceptNormal(1F, 0F, 0F);
-		callback.acceptPos(x, minY, maxZ).acceptTex(0F, 1F).acceptNormal(1F, 0F, 0F);
-		callback.acceptPos(x, minY, minZ).acceptTex(1F, 1F).acceptNormal(1F, 0F, 0F);
+		callback.quad(x, maxY, minZ, 1F, 0F, 1F, 0F, 0F);
+		callback.quad(x, maxY, maxZ, 0F, 0F, 1F, 0F, 0F);
+		callback.quad(x, minY, maxZ, 0F, 1F, 1F, 0F, 0F);
+		callback.quad(x, minY, minZ, 1F, 1F, 1F, 0F, 0F);
 	}
 
 	static void quads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, VertexCallback callback) {

@@ -85,23 +85,23 @@ public record CylinderShape(float radius, float height) implements Shape {
 		double rs = Math.PI * 2D / (double) detail;
 
 		for (int i = 0; i < detail; i += 2) {
-			float cx = (float) (Math.cos(i * rs) * r);
-			float cz = (float) (Math.sin(i * rs) * r);
-			float nx = (float) (Math.cos((i + 1D) * rs) * r);
-			float nz = (float) (Math.sin((i + 1D) * rs) * r);
-			float nnx = (float) (Math.cos((i + 2D) * rs) * r);
-			float nnz = (float) (Math.sin((i + 2D) * rs) * r);
+			float cx = (float) Math.cos(i * rs);
+			float cz = (float) Math.sin(i * rs);
+			float nx = (float) Math.cos((i + 1D) * rs);
+			float nz = (float) Math.sin((i + 1D) * rs);
+			float nnx = (float) Math.cos((i + 2D) * rs);
+			float nnz = (float) Math.sin((i + 2D) * rs);
 
-			callback.acceptPos(x, y - h, z).acceptNormal(0F, -1F, 0F).acceptTex(0.5F, 0.5F);
-			callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F).acceptTex(0.5F + cx / r / 2F, 0.5F + cz / r / 2F);
-			callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(0F, -1F, 0F).acceptTex(0.5F + nx / r / 2F, 0.5F + nz / r / 2F);
-			callback.acceptPos(x + nnx, y - h, z + nnz).acceptNormal(0F, -1F, 0F).acceptTex(0.5F + nnx / r / 2F, 0.5F + nnz / r / 2F);
+			callback.quad(x, y + h, z, 0.5F, 0.5F, 0F, 1F, 0F);
+			callback.quad(x + nnx * r, y + h, z + nnz * r, 0.5F + nnx / r / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
+			callback.quad(x + nx * r, y + h, z + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
+			callback.quad(x + cx * r, y + h, z + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
 
 			if (h > 0F) {
-				callback.acceptPos(x, y + h, z).acceptNormal(0F, 1F, 0F).acceptTex(0.5F, 0.5F);
-				callback.acceptPos(x + nnx, y + h, z + nnz).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + nnx / r / 2F, 0.5F + nnz / r / 2F);
-				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + nx / r / 2F, 0.5F + nz / r / 2F);
-				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + cx / r / 2F, 0.5F + cz / r / 2F);
+				callback.quad(x, y - h, z, 0.5F, 0.5F, 0F, -1F, 0F);
+				callback.quad(x + cx * r, y - h, z + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, -1F, 0F);
+				callback.quad(x + nx * r, y - h, z + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, -1F, 0F);
+				callback.quad(x + nnx * r, y - h, z + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, -1F, 0F);
 
 				float nrmx = (float) Math.cos((i + 0.5D) * rs);
 				float nrmz = (float) Math.sin((i + 0.5D) * rs);
@@ -111,15 +111,15 @@ public record CylinderShape(float radius, float height) implements Shape {
 				float nu = (i + 1F) * 3F / (float) detail;
 				float nnu = (i + 2F) * 3F / (float) detail;
 
-				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(nrmx, 0F, nrmz).acceptTex(nu, 0F);
-				callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(nrmx, 0F, nrmz).acceptTex(nu, 1F);
-				callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(nrmx, 0F, nrmz).acceptTex(cu, 1F);
-				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(nrmx, 0F, nrmz).acceptTex(cu, 0F);
+				callback.quad(x + nx * r, y + h, z + nz * r, nu, 0F, nrmx, 0F, nrmz);
+				callback.quad(x + nx * r, y - h, z + nz * r, nu, 1F, nrmx, 0F, nrmz);
+				callback.quad(x + cx * r, y - h, z + cz * r, cu, 1F, nrmx, 0F, nrmz);
+				callback.quad(x + cx * r, y + h, z + cz * r, cu, 0F, nrmx, 0F, nrmz);
 
-				callback.acceptPos(x + nnx, y + h, z + nnz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nnu, 0F);
-				callback.acceptPos(x + nnx, y - h, z + nnz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nnu, 1F);
-				callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nu, 1F);
-				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nu, 0F);
+				callback.quad(x + nnx * r, y + h, z + nnz * r, nnu, 0F, nnrmx, 0F, nnrmz);
+				callback.quad(x + nnx * r, y - h, z + nnz * r, nnu, 1F, nnrmx, 0F, nnrmz);
+				callback.quad(x + nx * r, y - h, z + nz * r, nu, 1F, nnrmx, 0F, nnrmz);
+				callback.quad(x + nx * r, y + h, z + nz * r, nu, 0F, nnrmx, 0F, nnrmz);
 			}
 		}
 	}
