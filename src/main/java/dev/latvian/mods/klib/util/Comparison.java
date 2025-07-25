@@ -11,7 +11,8 @@ public enum Comparison implements StringRepresentable {
 	LESS_THAN("less_than", "<"),
 	LESS_THAN_OR_EQUALS("less_than_or_equals", "<=");
 
-	public static final DataType<Comparison> DATA_TYPE = DataType.of(values());
+	public static final Comparison[] VALUES = values();
+	public static final DataType<Comparison> DATA_TYPE = DataType.of(VALUES);
 
 	public final String name;
 	public final String symbol;

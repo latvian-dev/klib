@@ -4,6 +4,8 @@ public enum Side {
 	CLIENT,
 	SERVER;
 
+	public static final Side[] VALUES = values();
+
 	public boolean isClient() {
 		return this == CLIENT;
 	}

@@ -8,6 +8,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 
+import java.util.function.IntFunction;
+
 /**
  * <a href="https://easings.net/">Source</a>
  */
@@ -78,6 +80,7 @@ public enum Easing implements EasingFunction, StringRepresentable {
 	;
 
 	public static final Easing[] VALUES = values();
+	public static final IntFunction<Easing[]> ARRAY_FACTORY = Easing[]::new;
 	public static final Codec<Easing> CODEC = StringRepresentable.fromEnum(() -> VALUES);
 	public static final StreamCodec<ByteBuf, Easing> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> VALUES[i], Easing::ordinal);
 	public static final DataType<Easing> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Easing.class);

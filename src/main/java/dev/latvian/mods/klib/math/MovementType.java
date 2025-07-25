@@ -12,7 +12,8 @@ public enum MovementType implements StringRepresentable {
 	SQUARE("square"),
 	CUBIC("cubic");
 
-	public static final DataType<MovementType> DATA_TYPE = DataType.of(MovementType.values());
+	public static final MovementType[] VALUES = values();
+	public static final DataType<MovementType> DATA_TYPE = DataType.of(VALUES);
 
 	private final String name;
 
