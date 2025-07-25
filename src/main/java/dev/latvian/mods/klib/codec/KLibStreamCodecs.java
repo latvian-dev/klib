@@ -39,7 +39,7 @@ public interface KLibStreamCodecs {
 		return new SetStreamCodec<>(parent);
 	}
 
-	static <B extends ByteBuf, V> StreamCodec<B, Set<V>> linkedSet(StreamCodec<? super B, V> parent) {
+	static <B extends ByteBuf, V> StreamCodec<B, Set<V>> linkedSetOf(StreamCodec<? super B, V> parent) {
 		return new LinkedSetStreamCodec<>(parent);
 	}
 

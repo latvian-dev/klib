@@ -3,6 +3,8 @@ package dev.latvian.mods.klib.util;
 import dev.latvian.mods.klib.data.DataType;
 import net.minecraft.util.StringRepresentable;
 
+import java.util.function.IntFunction;
+
 public enum Comparison implements StringRepresentable {
 	EQUALS("equals", "=="),
 	NOT_EQUALS("not_equals", "!="),
@@ -12,6 +14,7 @@ public enum Comparison implements StringRepresentable {
 	LESS_THAN_OR_EQUALS("less_than_or_equals", "<=");
 
 	public static final Comparison[] VALUES = values();
+	public static final IntFunction<Comparison[]> ARRAY_FACTORY = Comparison[]::new;
 	public static final DataType<Comparison> DATA_TYPE = DataType.of(VALUES);
 
 	public final String name;

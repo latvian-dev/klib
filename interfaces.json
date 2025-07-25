@@ -7,5 +7,8 @@
 	],
 	"com/mojang/blaze3d/vertex/PoseStack$Pose": [
 		"dev/latvian/mods/klib/core/KLibPoseStackPose"
+	],
+	"net/minecraft/network/codec/StreamCodec": [
+		"dev/latvian/mods/klib/core/KLibStreamCodec<B, V>"
 	]
 }
