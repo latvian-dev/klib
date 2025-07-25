@@ -43,11 +43,11 @@ public interface KLibStreamCodecs {
 		return new LinkedSetStreamCodec<>(parent);
 	}
 
-	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> unboundedMap(StreamCodec<? super B, V> keyCodec, StreamCodec<? super B, V> valueCodec, boolean ordered, boolean identity) {
-		return new UnboundMapStreamCodec(keyCodec, valueCodec, ordered, identity);
+	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> unboundedMap(StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec, boolean ordered, boolean identity) {
+		return new UnboundMapStreamCodec<>(keyCodec, valueCodec, ordered, identity);
 	}
 
-	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> unboundedMap(StreamCodec<? super B, V> keyCodec, StreamCodec<? super B, V> valueCodec) {
+	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> unboundedMap(StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec) {
 		return unboundedMap(keyCodec, valueCodec, false, false);
 	}
 
