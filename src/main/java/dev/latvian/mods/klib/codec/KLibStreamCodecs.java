@@ -10,9 +10,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -20,11 +23,39 @@ import java.util.function.Supplier;
 public interface KLibStreamCodecs {
 	StreamCodec<ByteBuf, Unit> UNIT = StreamCodec.unit(Unit.INSTANCE);
 
-	StreamCodec<ByteBuf, Float> FLOAT_OR_ZERO = ByteBufCodecs.FLOAT.optional(0F);
-	StreamCodec<ByteBuf, Float> FLOAT_OR_ONE = ByteBufCodecs.FLOAT.optional(1F);
+	static <B extends ByteBuf, V> StreamCodec<B, V> optional(StreamCodec<B, V> parent, @Nullable V defaultValue) {
+		return new OptionalDefaultStreamCodec<>(parent, defaultValue);
+	}
 
-	StreamCodec<ByteBuf, Double> DOUBLE_OR_ZERO = ByteBufCodecs.DOUBLE.optional(0D);
-	StreamCodec<ByteBuf, Double> DOUBLE_OR_ONE = ByteBufCodecs.DOUBLE.optional(1D);
+	static <B extends ByteBuf, V> StreamCodec<B, V> nullable(StreamCodec<B, V> parent) {
+		return optional(parent, null);
+	}
+
+	static <B extends ByteBuf, V> StreamCodec<B, List<V>> listOf(StreamCodec<? super B, V> parent) {
+		return new ListStreamCodec<>(parent);
+	}
+
+	static <B extends ByteBuf, V> StreamCodec<B, Set<V>> setOf(StreamCodec<? super B, V> parent) {
+		return new SetStreamCodec<>(parent);
+	}
+
+	static <B extends ByteBuf, V> StreamCodec<B, Set<V>> linkedSet(StreamCodec<? super B, V> parent) {
+		return new LinkedSetStreamCodec<>(parent);
+	}
+
+	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> unboundedMap(StreamCodec<? super B, V> keyCodec, StreamCodec<? super B, V> valueCodec, boolean ordered, boolean identity) {
+		return new UnboundMapStreamCodec(keyCodec, valueCodec, ordered, identity);
+	}
+
+	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> unboundedMap(StreamCodec<? super B, V> keyCodec, StreamCodec<? super B, V> valueCodec) {
+		return unboundedMap(keyCodec, valueCodec, false, false);
+	}
+
+	StreamCodec<ByteBuf, Float> FLOAT_OR_ZERO = optional(ByteBufCodecs.FLOAT, 0F);
+	StreamCodec<ByteBuf, Float> FLOAT_OR_ONE = optional(ByteBufCodecs.FLOAT, 1F);
+
+	StreamCodec<ByteBuf, Double> DOUBLE_OR_ZERO = optional(ByteBufCodecs.DOUBLE, 0D);
+	StreamCodec<ByteBuf, Double> DOUBLE_OR_ONE = optional(ByteBufCodecs.DOUBLE, 1D);
 
 	StreamCodec<ByteBuf, Double> DOUBLE_AS_FLOAT = new StreamCodec<>() {
 		@Override

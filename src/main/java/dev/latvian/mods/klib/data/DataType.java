@@ -457,7 +457,7 @@ public final class DataType<T> {
 
 	public DataType<List<T>> listOf() {
 		if (listType == null) {
-			listType = of(codec.listOf(), streamCodec.listOf(), Cast.to(List.class));
+			listType = of(codec.listOf(), KLibStreamCodecs.listOf(streamCodec), Cast.to(List.class));
 		}
 
 		return listType;
@@ -465,7 +465,7 @@ public final class DataType<T> {
 
 	public DataType<Set<T>> setOf() {
 		if (setType == null) {
-			setType = of(KLibCodecs.setOf(codec), streamCodec.setOf(), Cast.to(Set.class));
+			setType = of(KLibCodecs.setOf(codec), KLibStreamCodecs.setOf(streamCodec), Cast.to(Set.class));
 		}
 
 		return setType;

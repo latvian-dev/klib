@@ -42,29 +42,31 @@ public record CylinderShape(float radius, float height) implements Shape {
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
+		buildLines(x, y, z, callback, radius, height, 96, 8);
+	}
+
+	public static void buildLines(float x, float y, float z, VertexCallback callback, float radius, float height, int detail, int hdetail) {
 		float r = Math.max(radius, 0F);
 		float h = Math.max(height, 0F) / 2F;
-		double rs = Math.PI * 2D / 96D;
+		double rs = Math.PI * 2D / (double) detail;
 
-		for (int i = 0; i < 96; i++) {
+		for (int i = 0; i < detail; i++) {
 			float cx = (float) (Math.cos(i * rs) * r);
 			float cz = (float) (Math.sin(i * rs) * r);
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
 			float nz = (float) (Math.sin((i + 1D) * rs) * r);
 
-			// callback.line(x, y + h, z, x + cx, y + h, z + cz);
 			callback.line(x + cx, y + h, z + cz, x + nx, y + h, z + nz);
 
 			if (h > 0F) {
-				// callback.line(x, y - h, z, x + cx, y - h, z + cz);
 				callback.line(x + cx, y - h, z + cz, x + nx, y - h, z + nz);
 			}
 		}
 
 		if (h > 0F) {
-			double rsv = Math.PI * 2D / 8D;
+			double rsv = Math.PI * 2D / (double) hdetail;
 
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < hdetail; i++) {
 				float cx = (float) (Math.cos(i * rsv) * r);
 				float cz = (float) (Math.sin(i * rsv) * r);
 				callback.line(x + cx, y - h, z + cz, x + cx, y + h, z + cz, 0F, 1F, 0F);
@@ -74,11 +76,15 @@ public record CylinderShape(float radius, float height) implements Shape {
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+		buildQuads(x, y, z, callback, radius, height, 96);
+	}
+
+	public static void buildQuads(float x, float y, float z, VertexCallback callback, float radius, float height, int detail) {
 		float r = Math.max(radius, 0F);
 		float h = Math.max(height, 0F) / 2F;
-		double rs = Math.PI * 2D / 96D;
+		double rs = Math.PI * 2D / (double) detail;
 
-		for (int i = 0; i < 96; i += 2) {
+		for (int i = 0; i < detail; i += 2) {
 			float cx = (float) (Math.cos(i * rs) * r);
 			float cz = (float) (Math.sin(i * rs) * r);
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
@@ -86,16 +92,34 @@ public record CylinderShape(float radius, float height) implements Shape {
 			float nnx = (float) (Math.cos((i + 2D) * rs) * r);
 			float nnz = (float) (Math.sin((i + 2D) * rs) * r);
 
-			callback.acceptPos(x, y + h, z).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + nnx, y + h, z + nnz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x, y - h, z).acceptNormal(0F, -1F, 0F).acceptTex(0.5F, 0.5F);
+			callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F).acceptTex(0.5F + cx / r / 2F, 0.5F + cz / r / 2F);
+			callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(0F, -1F, 0F).acceptTex(0.5F + nx / r / 2F, 0.5F + nz / r / 2F);
+			callback.acceptPos(x + nnx, y - h, z + nnz).acceptNormal(0F, -1F, 0F).acceptTex(0.5F + nnx / r / 2F, 0.5F + nnz / r / 2F);
 
 			if (h > 0F) {
-				callback.acceptPos(x, y - h, z).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(x + nnx, y - h, z + nnz).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(0F, -1F, 0F);
-				callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(0F, -1F, 0F);
+				callback.acceptPos(x, y + h, z).acceptNormal(0F, 1F, 0F).acceptTex(0.5F, 0.5F);
+				callback.acceptPos(x + nnx, y + h, z + nnz).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + nnx / r / 2F, 0.5F + nnz / r / 2F);
+				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + nx / r / 2F, 0.5F + nz / r / 2F);
+				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + cx / r / 2F, 0.5F + cz / r / 2F);
+
+				float nrmx = (float) Math.cos((i + 0.5D) * rs);
+				float nrmz = (float) Math.sin((i + 0.5D) * rs);
+				float nnrmx = (float) Math.cos((i + 1.5D) * rs);
+				float nnrmz = (float) Math.sin((i + 1.5D) * rs);
+				float cu = i * 3F / (float) detail;
+				float nu = (i + 1F) * 3F / (float) detail;
+				float nnu = (i + 2F) * 3F / (float) detail;
+
+				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(nrmx, 0F, nrmz).acceptTex(nu, 0F);
+				callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(nrmx, 0F, nrmz).acceptTex(nu, 1F);
+				callback.acceptPos(x + cx, y - h, z + cz).acceptNormal(nrmx, 0F, nrmz).acceptTex(cu, 1F);
+				callback.acceptPos(x + cx, y + h, z + cz).acceptNormal(nrmx, 0F, nrmz).acceptTex(cu, 0F);
+
+				callback.acceptPos(x + nnx, y + h, z + nnz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nnu, 0F);
+				callback.acceptPos(x + nnx, y - h, z + nnz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nnu, 1F);
+				callback.acceptPos(x + nx, y - h, z + nz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nu, 1F);
+				callback.acceptPos(x + nx, y + h, z + nz).acceptNormal(nnrmx, 0F, nnrmz).acceptTex(nu, 0F);
 			}
 		}
 	}

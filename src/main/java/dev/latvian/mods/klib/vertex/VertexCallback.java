@@ -50,6 +50,10 @@ public interface VertexCallback {
 		return new VertexCallbackWithOverlay(this, overlay.u(), overlay.v());
 	}
 
+	default VertexCallback withNormal(float nx, float ny, float nz) {
+		return new VertexCallbackWithNormal(this, nx, ny, nz);
+	}
+
 	default VertexCallback withTransformedPositionsAndNormals(Matrix4fc posMatrix, Matrix3fc normalMatrix, boolean normalize) {
 		boolean n = !normalize && KMath.isIdentity(normalMatrix);
 		boolean p = KMath.isIdentity(posMatrix);

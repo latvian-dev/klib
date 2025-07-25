@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.math.Vec3f;
@@ -23,7 +24,7 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 
 	public static final StreamCodec<ByteBuf, CuboidShape> STREAM_CODEC = StreamCodec.composite(
 		Vec3f.STREAM_CODEC, CuboidShape::size,
-		Rotation.STREAM_CODEC.optional(Rotation.NONE), CuboidShape::rotation,
+		KLibStreamCodecs.optional(Rotation.STREAM_CODEC, Rotation.NONE), CuboidShape::rotation,
 		CuboidShape::new
 	);
 

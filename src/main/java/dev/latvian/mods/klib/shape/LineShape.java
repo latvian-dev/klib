@@ -43,7 +43,7 @@ public record LineShape(Vec3f vector) implements Shape {
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		CuboidBuilder.lines(x, y, z, x + vector.x(), y + vector.y(), z + vector.z(), callback);
+		callback.line(x, y, z, x + vector.x(), y + vector.y(), z + vector.z());
 	}
 
 	@Override

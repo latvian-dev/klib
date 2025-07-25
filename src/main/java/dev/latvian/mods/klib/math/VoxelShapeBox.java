@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.math;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.shape.CuboidBuilder;
@@ -38,8 +39,8 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 	).apply(instance, (edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)));
 
 	public static final StreamCodec<ByteBuf, VoxelShapeBox> STREAM_CODEC = CompositeStreamCodec.of(
-		Line.STREAM_CODEC.listOf(), VoxelShapeBox::edges,
-		MCStreamCodecs.AABB.listOf(), VoxelShapeBox::boxes,
+		KLibStreamCodecs.listOf(Line.STREAM_CODEC), VoxelShapeBox::edges,
+		KLibStreamCodecs.listOf(MCStreamCodecs.AABB), VoxelShapeBox::boxes,
 		(edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)
 	);
 

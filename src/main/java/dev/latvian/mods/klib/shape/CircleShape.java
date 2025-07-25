@@ -39,10 +39,14 @@ public record CircleShape(float radius) implements Shape {
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		float r = Math.max(radius, 0F);
-		double rs = Math.PI * 2D / 96D;
+		buildLines(x, y, z, callback, radius, 96);
+	}
 
-		for (int i = 0; i < 96; i++) {
+	public static void buildLines(float x, float y, float z, VertexCallback callback, float radius, int detail) {
+		float r = Math.max(radius, 0F);
+		double rs = Math.PI * 2D / (double) detail;
+
+		for (int i = 0; i < detail; i++) {
 			float cx = (float) (Math.cos(i * rs) * r);
 			float cz = (float) (Math.sin(i * rs) * r);
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
@@ -54,10 +58,14 @@ public record CircleShape(float radius) implements Shape {
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		float r = Math.max(radius, 0F);
-		double rs = Math.PI * 2D / 96D;
+		buildQuads(x, y, z, callback, radius, 96);
+	}
 
-		for (int i = 0; i < 96; i += 2) {
+	public static void buildQuads(float x, float y, float z, VertexCallback callback, float radius, int detail) {
+		float r = Math.max(radius, 0F);
+		double rs = Math.PI * 2D / (double) detail;
+
+		for (int i = 0; i < detail; i += 2) {
 			float cx = (float) (Math.cos(i * rs) * r);
 			float cz = (float) (Math.sin(i * rs) * r);
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
@@ -65,10 +73,10 @@ public record CircleShape(float radius) implements Shape {
 			float nnx = (float) (Math.cos((i + 2D) * rs) * r);
 			float nnz = (float) (Math.sin((i + 2D) * rs) * r);
 
-			callback.acceptPos(x, y, z).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + nnx, y, z + nnz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + nx, y, z + nz).acceptNormal(0F, 1F, 0F);
-			callback.acceptPos(x + cx, y, z + cz).acceptNormal(0F, 1F, 0F);
+			callback.acceptPos(x, y, z).acceptNormal(0F, 1F, 0F).acceptTex(0.5F, 0.5F);
+			callback.acceptPos(x + nnx * r, y, z + nnz * r).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + nnx / 2F, 0.5F + nnz / 2F);
+			callback.acceptPos(x + nx * r, y, z + nz * r).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + nx / 2F, 0.5F + nz / 2F);
+			callback.acceptPos(x + cx * r, y, z + cz * r).acceptNormal(0F, 1F, 0F).acceptTex(0.5F + cx / 2F, 0.5F + cz / 2F);
 		}
 	}
 
