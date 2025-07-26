@@ -66,10 +66,16 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 		float sz = size.z() / 2F;
 
 		if (!rotation.isNone()) {
-			callback = callback.withTransformedPositionsAndNormals(rotation.rotateYXZ(new Matrix4f()), rotation.rotateYXZ(new Matrix3f()), true);
+			var mat4 = new Matrix4f();
+			var mat3 = new Matrix3f();
+			mat4.translate(x, y, z);
+			rotation.rotateYXZ(mat4);
+			rotation.rotateYXZ(mat3);
+			callback = callback.withTransformedPositionsAndNormals(mat4, mat3, true);
+			CuboidBuilder.quads(-sx, -sy, -sz, sx, sy, sz, callback);
+		} else {
+			CuboidBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
 		}
-
-		CuboidBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
 	}
 
 	@Override
