@@ -74,7 +74,7 @@ public record CircleShape(float radius) implements Shape {
 			float nnz = (float) Math.sin((i + 2D) * rs);
 
 			callback.quad(x, y, z, 0.5F, 0.5F, 0F, 1F, 0F);
-			callback.quad(x + nnx * r, y, z + nnz * r, 0.5F + nnx / r / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
+			callback.quad(x + nnx * r, y, z + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
 			callback.quad(x + nx * r, y, z + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
 			callback.quad(x + cx * r, y, z + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
 		}
