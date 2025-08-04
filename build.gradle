@@ -19,7 +19,7 @@ println("Building version: ${version}")
 
 neoForge {
 	version = project.neoforge_version
-	// validateAccessTransformers = true // See https://github.com/neoforged/ModDevGradle/issues/236
+	validateAccessTransformers = true
 
 	accessTransformers {
 		publish(project.file('src/main/resources/META-INF/accesstransformer.cfg'))
