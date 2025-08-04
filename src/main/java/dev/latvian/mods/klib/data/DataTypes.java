@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.data;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -16,6 +17,8 @@ import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.easing.Easing;
 import dev.latvian.mods.klib.easing.EasingGroup;
+import dev.latvian.mods.klib.math.InterpolatedDouble;
+import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
@@ -25,6 +28,8 @@ import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import net.minecraft.commands.arguments.ComponentArgument;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.UuidArgument;
@@ -37,13 +42,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -81,6 +90,8 @@ public interface DataTypes {
 	DataType<Vec3> VEC3S = DataType.of(MCCodecs.VEC3S, MCStreamCodecs.VEC3S, Vec3.class);
 	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class);
 	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class);
+	DataType<GameProfile> GAME_PROFILE = DataType.of(MCCodecs.GAME_PROFILE, MCStreamCodecs.GAME_PROFILE, GameProfile.class);
+	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION, (Class) ResourceKey.class);
 
 	static void register() {
 		DataType.register(ID.java("bool"), BOOL, BoolArgumentType::bool, BoolArgumentType::getBool);
@@ -109,6 +120,11 @@ public interface DataTypes {
 		DataType.register(ID.mc("vec3s"), VEC3S, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
 		DataType.register(ID.mc("block_pos"), BLOCK_POS, BlockPosArgument::blockPos, BlockPosArgument::getBlockPos);
 		DataType.register(ID.mc("ticks"), TICKS, () -> KLibCodecs.TIME_ARGUMENT, IntegerArgumentType::getInteger);
+		DataType.register(ID.mc("game_profile"), GAME_PROFILE, GameProfileArgument::gameProfile, (ctx, name) -> {
+			var profiles = GameProfileArgument.getGameProfiles(ctx, name);
+			return profiles.isEmpty() ? null : profiles.iterator().next();
+		});
+		DataType.register(ID.mc("dimension"), DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, ResourceLocation.class)));
 
 		DataType.register(KLibMod.id("color"), Color.DATA_TYPE);
 		DataType.register(KLibMod.id("gradient"), Gradient.DATA_TYPE);
@@ -125,5 +141,7 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("easing_group"), EasingGroup.DATA_TYPE);
 		DataType.register(KLibMod.id("int_or_uuid"), IntOrUUID.DATA_TYPE);
 		DataType.register(KLibMod.id("line"), Line.DATA_TYPE);
+		DataType.register(KLibMod.id("interpolated_float"), InterpolatedFloat.DATA_TYPE);
+		DataType.register(KLibMod.id("interpolated_double"), InterpolatedDouble.DATA_TYPE);
 	}
 }

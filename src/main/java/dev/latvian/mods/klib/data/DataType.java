@@ -424,6 +424,7 @@ public final class DataType<T> {
 	private final Class<T> typeClass;
 	private DataType<List<T>> listType;
 	private DataType<Set<T>> setType;
+	private DataType<?> componentType;
 
 	private DataType(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, Class<T> typeClass) {
 		this.codec = codec;
@@ -458,6 +459,7 @@ public final class DataType<T> {
 	public DataType<List<T>> listOf() {
 		if (listType == null) {
 			listType = of(codec.listOf(), KLibStreamCodecs.listOf(streamCodec), Cast.to(List.class));
+			listType.componentType = this;
 		}
 
 		return listType;
@@ -466,9 +468,15 @@ public final class DataType<T> {
 	public DataType<Set<T>> setOf() {
 		if (setType == null) {
 			setType = of(KLibCodecs.setOf(codec), KLibStreamCodecs.setOf(streamCodec), Cast.to(Set.class));
+			setType.componentType = this;
 		}
 
 		return setType;
+	}
+
+	@Nullable
+	public DataType<?> getComponentType() {
+		return componentType;
 	}
 
 	@Nullable
@@ -491,7 +499,9 @@ public final class DataType<T> {
 		};
 	}
 
-	public <R> DataType<R> map(Function<T, R> mapper, Function<R, T> reverseMapper, Class<R> typeClass) {
-		return of(codec.xmap(mapper, reverseMapper), streamCodec.map(mapper, reverseMapper), typeClass);
+	@Nullable
+	public ResourceLocation getId() {
+		var t = RegisteredDataType.BY_TYPE.get(this);
+		return t == null ? null : t.id();
 	}
 }

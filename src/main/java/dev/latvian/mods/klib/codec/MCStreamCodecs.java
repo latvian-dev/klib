@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.codec;
 
+import com.mojang.authlib.GameProfile;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
 import io.netty.buffer.ByteBuf;
@@ -104,4 +105,11 @@ public interface MCStreamCodecs {
 	StreamCodec<ByteBuf, FluidState> FLUID_STATE = ByteBufCodecs.VAR_INT.map(Fluid.FLUID_STATE_REGISTRY::byId, Fluid.FLUID_STATE_REGISTRY::getId);
 
 	StreamCodec<ByteBuf, ResourceKey<Level>> DIMENSION = KLibStreamCodecs.resourceKey(Registries.DIMENSION);
+
+	StreamCodec<ByteBuf, GameProfile> GAME_PROFILE = CompositeStreamCodec.of(
+		KLibStreamCodecs.UUID, GameProfile::getId,
+		ByteBufCodecs.STRING_UTF8, GameProfile::getName,
+		GameProfile::new
+	);
+
 }
