@@ -34,7 +34,7 @@ public interface MCCodecs {
 	Codec<FluidState> FLUID_STATE = Codec.either(FluidState.CODEC, BuiltInRegistries.FLUID.byNameCodec()).xmap(either -> either.map(Function.identity(), Fluid::defaultFluidState), state -> state == state.getType().defaultFluidState() ? Either.right(state.getType()) : Either.left(state));
 
 	Codec<GameProfile> GAME_PROFILE = RecordCodecBuilder.create(instance -> instance.group(
-		KLibCodecs.UUID.fieldOf("uuid").forGetter(GameProfile::getId),
+		KLibCodecs.UUID.fieldOf("id").forGetter(GameProfile::getId),
 		Codec.STRING.fieldOf("name").forGetter(GameProfile::getName)
 	).apply(instance, GameProfile::new));
 }
