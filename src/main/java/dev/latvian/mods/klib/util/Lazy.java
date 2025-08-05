@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Map;
@@ -87,6 +88,10 @@ public class Lazy<T> implements Supplier<T> {
 		this.expires = 0L;
 	}
 
+	public boolean isCached() {
+		return cached;
+	}
+
 	@Override
 	public T get() {
 		if (expires > 0L && System.currentTimeMillis() > expires) {
@@ -106,6 +111,14 @@ public class Lazy<T> implements Supplier<T> {
 	}
 
 	public void forget() {
+		forget(null);
+	}
+
+	public void forget(@Nullable Consumer<T> ifCached) {
+		if (cached && ifCached != null) {
+			ifCached.accept(value);
+		}
+
 		value = null;
 		cached = false;
 		expires = 0L;
