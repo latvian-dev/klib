@@ -50,6 +50,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -90,7 +91,7 @@ public interface DataTypes {
 	DataType<Vec3> VEC3S = DataType.of(MCCodecs.VEC3S, MCStreamCodecs.VEC3S, Vec3.class);
 	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class);
 	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class);
-	DataType<GameProfile> GAME_PROFILE = DataType.of(MCCodecs.GAME_PROFILE, MCStreamCodecs.GAME_PROFILE, GameProfile.class);
+	DataType<GameProfile> GAME_PROFILE = DataType.of(ExtraCodecs.GAME_PROFILE, ByteBufCodecs.GAME_PROFILE, GameProfile.class);
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION, (Class) ResourceKey.class);
 
 	static void register() {

@@ -7,42 +7,37 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
+import org.joml.Vector4d;
 import org.joml.Vector4f;
 
 public record WorldMouse(
 	Minecraft mc,
-	Matrix4fc worldMatrix,
-	Matrix4fc invertedWorldMatrix,
 	Vec3 cameraPos,
 	float width,
 	float height,
-	Vec2f defaultScreenPos
+	Vec2d defaultScreenPos
 ) {
-	public static WorldMouse of(Minecraft mc, Vec3 cameraPos, Matrix4fc worldMatrix) {
+	public static WorldMouse of(Minecraft mc, Vec3 cameraPos) {
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
 
 		return new WorldMouse(
 			mc,
-			new Matrix4f(worldMatrix),
-			new Matrix4f(worldMatrix).invert(),
 			cameraPos,
 			width,
 			height,
-			mc.screen == null ? new Vec2f(
-				width * 0.5F,
-				height * 0.5F
-			) : new Vec2f(
-				(float) (mc.mouseHandler.xpos() * width / (double) mc.getWindow().getWidth()),
-				(float) (mc.mouseHandler.ypos() * height / (double) mc.getWindow().getHeight())
+			mc.screen == null ? new Vec2d(
+				width * 0.5D,
+				height * 0.5D
+			) : new Vec2d(
+				mc.mouseHandler.xpos() * width / (double) mc.getWindow().getWidth(),
+				mc.mouseHandler.ypos() * height / (double) mc.getWindow().getHeight()
 			)
 		);
 	}
 
 	@Nullable
-	public Cursor clip(double maxDistance, ClipContext.Block blockClipContext, ClipContext.Fluid fluidClipContext, @Nullable Vec2f screenPos, @Nullable Entity clipEntity) {
+	public Cursor clip(double maxDistance, ClipContext.Block blockClipContext, ClipContext.Fluid fluidClipContext, @Nullable Vec2d screenPos, @Nullable Entity clipEntity) {
 		if (screenPos == null) {
 			screenPos = defaultScreenPos;
 		}
@@ -92,8 +87,13 @@ public record WorldMouse(
 	 */
 	@Nullable
 	public Vec2f screen(double worldX, double worldY, double worldZ, boolean allowOutside) {
-		var v = new Vector4f((float) (worldX - cameraPos.x), (float) (worldY - cameraPos.y), (float) (worldZ - cameraPos.z), 1F);
-		v.mul(worldMatrix);
+		double rx = worldX - cameraPos.x;
+		double ry = worldY - cameraPos.y;
+		double rz = worldZ - cameraPos.z;
+		double len = Math.sqrt(rx * rx + ry * ry + rz * rz);
+
+		var v = new Vector4f((float) (rx / len), (float) (ry / len), (float) (rz / len), 1F);
+		v.mul(ClientMatrices.WORLD);
 		v.div(v.w);
 
 		if (allowOutside || v.z > 0F && v.z < 1F) {
@@ -137,15 +137,15 @@ public record WorldMouse(
 	}
 
 	/**
-	 * Convert screen coordinates to world position. Use {@link WorldMouse#clip(double, ClipContext.Block, ClipContext.Fluid, Vec2f, Entity)} if you only care about current mouse position
+	 * Convert screen coordinates to world position. Use {@link WorldMouse#clip(double, ClipContext.Block, ClipContext.Fluid, Vec2d, Entity)} if you only care about current mouse position
 	 *
 	 * @param x screen coordinate x-position
 	 * @param y screen coordinate y-position
 	 * @return a {@link Vec3} containing the screen coordinates in world position
 	 */
-	public Vec3 world(float x, float y) {
-		var v = new Vector4f(x * 2F / width - 1F, -(y * 2F / height - 1F), 1F, 1F);
-		v.mul(invertedWorldMatrix);
+	public Vec3 world(double x, double y) {
+		var v = new Vector4d(x * 2D / width - 1D, -(y * 2D / height - 1F), 1D, 1D);
+		v.mul(ClientMatrices.INVERSE_WORLD);
 		v.div(v.w);
 		return new Vec3(v.x + cameraPos.x, v.y + cameraPos.y, v.z + cameraPos.z);
 	}
