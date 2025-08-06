@@ -11,9 +11,6 @@ import net.neoforged.neoforge.client.event.FrameGraphSetupEvent;
 public class KLibClientEventHandler {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void setup(FrameGraphSetupEvent event) {
-		ClientMatrices.MODEL_VIEW.set(event.getModelViewMatrix());
-		ClientMatrices.PROJECTION.set(event.getProjectionMatrix());
-		ClientMatrices.WORLD.set(event.getProjectionMatrix().mul(event.getModelViewMatrix()));
-		ClientMatrices.INVERSE_WORLD.set(ClientMatrices.WORLD).invert();
+		ClientMatrices.updateMain(event.getModelViewMatrix(), event.getProjectionMatrix());
 	}
 }
