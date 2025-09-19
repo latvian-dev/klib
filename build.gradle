@@ -5,17 +5,17 @@ plugins {
 	id 'java'
 	id 'idea'
 	id 'maven-publish'
-	id 'net.neoforged.moddev' version "2.0.106"
+	id 'net.neoforged.moddev' version "2.0.107"
 }
 
 ext.ENV = System.getenv()
 def isLocal = !ENV.containsKey("GITHUB_RUN_NUMBER")
 
-version = "${mod_version}-${isLocal ? "local.${Instant.now().epochSecond}" : "build.${ENV.GITHUB_RUN_NUMBER}"}"
+version = "$mod_version-${isLocal ? "local.${Instant.now().epochSecond}" : "build.${ENV.GITHUB_RUN_NUMBER}"}"
 group = project.maven_group
-base.archivesBaseName = project.archives_base_name
+base.archivesName = project.archives_base_name
 
-println("Building version: ${version}")
+println("Building version: $version")
 
 neoForge {
 	version = project.neoforge_version
@@ -57,7 +57,7 @@ neoForge {
 	}
 
 	mods {
-		klib {
+		mod {
 			sourceSet sourceSets.main
 		}
 	}
@@ -72,10 +72,15 @@ compileJava {
 java {
 	sourceCompatibility = targetCompatibility = '21'
 	withSourcesJar()
+	withJavadocJar()
 }
 
 configurations {
 	runtimeClasspath.extendsFrom localRuntime
+}
+
+tasks.withType(Javadoc) {
+	options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 repositories {
@@ -93,9 +98,6 @@ repositories {
 			includeGroup "org.parchmentmc.data"
 		}
 	}
-}
-
-dependencies {
 }
 
 processResources {

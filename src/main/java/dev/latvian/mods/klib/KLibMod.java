@@ -13,7 +13,7 @@ import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import java.io.IOException;
 
 @Mod(KLibMod.ID)
-@EventBusSubscriber(modid = KLibMod.ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = KLibMod.ID, value = Dist.CLIENT)
 public class KLibMod {
 	public static final String ID = "klib";
 	public static final String NAME = "KLib";
