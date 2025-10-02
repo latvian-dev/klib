@@ -1,11 +1,10 @@
 package dev.latvian.mods.klib.gl;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.metrics.MetricCategory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL43;
 
 import java.util.function.Supplier;
@@ -40,9 +39,7 @@ public interface GLDebugLog {
 		}
 	}
 
-	int MAJOR_VERSION = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
-	int MINOR_VERSION = GL11.glGetInteger(GL30.GL_MINOR_VERSION);
-	boolean AVAILABLE = true; // MAJOR_VERSION >= 4 && (MAJOR_VERSION > 4 || MINOR_VERSION >= 3);
+	// MAJOR_VERSION >= 4 || (GL11.glGetInteger(GL30.GL_MAJOR_VERSION) > 4 || GL11.glGetInteger(GL30.GL_MINOR_VERSION) >= 3);
 	MutableBoolean ENABLED = new MutableBoolean(true);
 
 	ProfilerFiller PROFILER = new ProfilerFiller() {
@@ -105,7 +102,7 @@ public interface GLDebugLog {
 	};
 
 	static boolean isEnabled() {
-		return AVAILABLE && ENABLED.getValue();
+		return !Minecraft.ON_OSX && ENABLED.getValue();
 	}
 
 	static void message(Object message, Type type, Severity severity) {
@@ -132,31 +129,5 @@ public interface GLDebugLog {
 		if (isEnabled()) {
 			GL43.glPopDebugGroup();
 		}
-	}
-
-	static void label(int type, int id, String label) {
-		if (isEnabled()) {
-			GL43.glObjectLabel(type, id, label);
-		}
-	}
-
-	static void textureLabel(int id, String label) {
-		label(GL43.GL_TEXTURE, id, label);
-	}
-
-	static void shaderLabel(int id, String label) {
-		label(GL43.GL_SHADER, id, label);
-	}
-
-	static void programLabel(int id, String label) {
-		label(GL43.GL_PROGRAM, id, label);
-	}
-
-	static void bufferLabel(int id, String label) {
-		label(GL43.GL_BUFFER, id, label);
-	}
-
-	static void vertexArrayLabel(int id, String label) {
-		label(GL43.GL_VERTEX_ARRAY, id, label);
 	}
 }
