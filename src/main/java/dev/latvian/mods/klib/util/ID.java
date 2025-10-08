@@ -35,6 +35,10 @@ public interface ID {
 		return ResourceLocation.fromNamespaceAndPath("java", path);
 	}
 
+	static ResourceLocation video(String path) {
+		return ResourceLocation.fromNamespaceAndPath("video", path);
+	}
+
 	static ResourceLocation idFromString(String string) {
 		return string.indexOf(':') == -1 ? ResourceLocation.withDefaultNamespace(string) : ResourceLocation.parse(string);
 	}
@@ -65,14 +69,14 @@ public interface ID {
 		boolean col = input.indexOf(':') > -1;
 
 		for (var id : allIds.get()) {
-			var ids = idToString(id);
-
 			if (col) {
+				var ids = idToString(id);
+
 				if (SharedSuggestionProvider.matchesSubStr(input, ids)) {
 					builder.suggest(ids);
 				}
-			} else if (SharedSuggestionProvider.matchesSubStr(input, id.getNamespace()) || id.getNamespace().equals("minecraft") && SharedSuggestionProvider.matchesSubStr(input, id.getPath())) {
-				builder.suggest(ids);
+			} else if (SharedSuggestionProvider.matchesSubStr(input, id.getNamespace()) || SharedSuggestionProvider.matchesSubStr(input, id.getPath())) {
+				builder.suggest(idToString(id));
 			}
 		}
 

@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.vertex.VertexCallback;
@@ -44,5 +45,17 @@ public interface Shape {
 
 	default boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
 		return true;
+	}
+
+	default ColoredShape colored(Gradient quads, Gradient lines) {
+		return ColoredShape.of(this, quads, lines);
+	}
+
+	default ColoredShape quads(Gradient color) {
+		return ColoredShape.quads(this, color);
+	}
+
+	default ColoredShape lines(Gradient color) {
+		return ColoredShape.lines(this, color);
 	}
 }
