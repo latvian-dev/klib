@@ -53,8 +53,12 @@ public interface Interpolation {
 		return Vec3f.of(KMath.lerp(e, a.x(), b.x()), KMath.lerp(e, a.y(), b.y()), KMath.lerp(e, a.z(), b.z()));
 	}
 
+	default double interpolateMirrored(double x, Interpolation end) {
+		return x < 0.5D ? interpolate(x * 2D) : 1D - end.interpolate((x - 0.5D) * 2D);
+	}
+
 	default double interpolateMirrored(double x) {
-		return x < 0.5D ? interpolate(x * 2D) : 1D - interpolate((x - 0.5D) * 2D);
+		return interpolateMirrored(x, this);
 	}
 
 	default Interpolation inverse() {
