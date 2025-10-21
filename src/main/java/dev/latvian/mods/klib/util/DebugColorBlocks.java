@@ -3,7 +3,6 @@ package dev.latvian.mods.klib.util;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.math.KMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
@@ -133,6 +132,6 @@ public enum DebugColorBlocks implements StringRepresentable {
 	}
 
 	public BlockState getState(double delta) {
-		return states[KMath.clamp((int) (delta * (states.length - 1)), 0, states.length - 1)];
+		return states[Math.clamp((int) (delta * (states.length - 1)), 0, states.length - 1)];
 	}
 }

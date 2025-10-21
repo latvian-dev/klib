@@ -12,6 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 import org.joml.Vector3fc;
@@ -215,18 +216,6 @@ public interface KMath {
 		return value > i ? i + 1 : i;
 	}
 
-	static double clamp(double value, double min, double max) {
-		return value < min ? min : value <= max ? value : max;
-	}
-
-	static float clamp(float value, float min, float max) {
-		return value < min ? min : value <= max ? value : max;
-	}
-
-	static int clamp(int value, int min, int max) {
-		return value < min ? min : value <= max ? value : max;
-	}
-
 	static double lerp(double delta, double min, double max) {
 		return min + delta * (max - min);
 	}
@@ -265,14 +254,6 @@ public interface KMath {
 
 	static float smoothstep(float t) {
 		return t * t * (3F - 2F * t);
-	}
-
-	static double ismoothstep(double t) {
-		return t + (t - (t * t * (3D - 2D * t)));
-	}
-
-	static float ismoothstep(float t) {
-		return t + (t - (t * t * (3F - 2F * t)));
 	}
 
 	static double smootherstep(double t) {
@@ -390,5 +371,83 @@ public interface KMath {
 		}
 
 		return out.set(x, y);
+	}
+
+	static void bezier(float t, float x1, float y1, float x2, float y2, Vector2f to) {
+		float it = 1F - t;
+		float a1 = 3F * it * it * t;
+		float a2 = 3F * it * t * t;
+		float a3 = t * t * t;
+		to.x = a1 * x1 + a2 * x2 + a3;
+		to.y = a1 * y1 + a2 * y2 + a3;
+	}
+
+	static float bezierAxis(float t, float p1, float p2) {
+		float it = 1F - t;
+		float a1 = 3F * it * it * t;
+		float a2 = 3F * it * t * t;
+		float a3 = t * t * t;
+		return a1 * p1 + a2 * p2 + a3;
+	}
+
+	static float linearizedBezierY(float t, float x1, float y1, float x2, float y2, int precision1, int precision2) {
+		float ax = 3F * x1 - 3F * x2 + 1F;
+		float bx = -6F * x1 + 3F * x2;
+		float cx = 3F * x1;
+
+		float ay = 3F * y1 - 3F * y2 + 1F;
+		float by = -6F * y1 + 3F * y2;
+		float cy = 3F * y1;
+
+		float tt = t;
+		boolean ok = true;
+
+		for (int i = 0; i < precision1; i++) {
+			float xt = ((ax * tt + bx) * tt + cx) * tt;
+			float dxt = (3F * ax * tt + 2F * bx) * tt + cx;
+			float diff = xt - t;
+
+			if (Math.abs(diff) < 0.000001F) {
+				break;
+			}
+
+			if (Math.abs(dxt) < 0.000001F) {
+				ok = false;
+				break;
+			}
+
+			float next = tt - diff / dxt;
+
+			if (next < 0F || next > 1F) {
+				ok = false;
+				break;
+			}
+
+			tt = next;
+		}
+
+		if (!ok) {
+			float lo = 0F;
+			float hi = 1F;
+
+			for (int i = 0; i < precision2; i++) {
+				float mid = (lo + hi) * 0.5F;
+				float xm = ((ax * mid + bx) * mid + cx) * mid;
+
+				if (xm < t) {
+					lo = mid;
+				} else {
+					hi = mid;
+				}
+			}
+
+			tt = (lo + hi) * 0.5F;
+		}
+
+		return ((ay * tt + by) * tt + cy) * tt;
+	}
+
+	static float linearizedBezierY(float t, float x1, float y1, float x2, float y2) {
+		return linearizedBezierY(t, x1, y1, x2, y2, 8, 16);
 	}
 }

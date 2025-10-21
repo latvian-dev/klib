@@ -3,7 +3,7 @@ package dev.latvian.mods.klib.color;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.easing.Easing;
+import dev.latvian.mods.klib.interpolation.LinearInterpolation;
 import dev.latvian.mods.klib.math.KMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -23,7 +23,7 @@ public final class CompoundGradient implements Gradient {
 		var list = new ArrayList<PositionedColor>(colors.size());
 
 		for (int i = 0; i < colors.size(); i++) {
-			list.add(new PositionedColor(i / (float) (colors.size() - 1), colors.get(i), Easing.LINEAR));
+			list.add(new PositionedColor(i / (float) (colors.size() - 1), colors.get(i), LinearInterpolation.INSTANCE));
 		}
 
 		return new CompoundGradient(list);
@@ -93,7 +93,7 @@ public final class CompoundGradient implements Gradient {
 	public Gradient optimize() {
 		if (sorted.length == 0) {
 			return Color.TRANSPARENT;
-		} else if (sorted.length == 2 && sorted[0].easing() == Easing.LINEAR) {
+		} else if (sorted.length == 2 && sorted[0].interpolation().isLinear()) {
 			return new LinearPairGradient(sorted[0].color(), sorted[sorted.length - 1].color()).optimize();
 		} else if (sorted.length == 1) {
 			return sorted[0].color().optimize();
@@ -106,7 +106,7 @@ public final class CompoundGradient implements Gradient {
 		for (int i = 0; i < sorted.length; i++) {
 			var c = sorted[i];
 
-			if (c.easing() != Easing.LINEAR || Math.abs(c.position() - (i / (float) (sorted.length - 1))) > 0.001F) {
+			if (!c.interpolation().isLinear() || Math.abs(c.position() - (i / (float) (sorted.length - 1))) > 0.001F) {
 				return false;
 			}
 		}
