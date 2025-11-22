@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -16,7 +17,7 @@ public record CircleShape(float radius) implements Shape {
 		Codec.FLOAT.fieldOf("radius").forGetter(CircleShape::radius)
 	).apply(instance, CircleShape::new));
 
-	public static final StreamCodec<ByteBuf, CircleShape> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, CircleShape> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, CircleShape::radius,
 		CircleShape::new
 	);

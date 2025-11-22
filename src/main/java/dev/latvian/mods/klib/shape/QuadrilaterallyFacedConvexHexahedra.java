@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
 import dev.latvian.mods.klib.math.Directions;
@@ -44,7 +45,7 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		return shape;
 	}));
 
-	public static final StreamCodec<ByteBuf, QuadrilaterallyFacedConvexHexahedra> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, QuadrilaterallyFacedConvexHexahedra> STREAM_CODEC = CompositeStreamCodec.of(
 		JOMLStreamCodecs.VEC3, c -> c.nnn,
 		JOMLStreamCodecs.VEC3, c -> c.pnn,
 		JOMLStreamCodecs.VEC3, c -> c.pnp,

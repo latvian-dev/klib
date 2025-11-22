@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.math;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.FloatTag;
@@ -21,7 +22,7 @@ public record FloatPair(float a, float b) {
 
 	public static final Codec<FloatPair> CODEC = Codec.either(Codec.FLOAT, Codec.FLOAT.listOf(2, 2)).xmap(either -> either.map(FloatPair::of, list -> of(list.getFirst(), list.getLast())), pair -> pair.a == pair.b ? Either.left(pair.a) : Either.right(List.of(pair.a, pair.b)));
 
-	public static final StreamCodec<ByteBuf, FloatPair> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, FloatPair> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, FloatPair::a,
 		ByteBufCodecs.FLOAT, FloatPair::b,
 		FloatPair::new

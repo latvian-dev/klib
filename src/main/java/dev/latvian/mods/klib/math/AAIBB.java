@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.math;
 
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -19,7 +20,7 @@ import java.util.stream.IntStream;
 public record AAIBB(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 	public static final Codec<AAIBB> CODEC = Codec.INT_STREAM.comapFlatMap(r -> Util.fixedSize(r, 6).map(AAIBB::new), AAIBB::toIntStream).stable();
 
-	public static final StreamCodec<ByteBuf, AAIBB> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, AAIBB> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.VAR_INT, AAIBB::minX,
 		ByteBufCodecs.VAR_INT, AAIBB::minY,
 		ByteBufCodecs.VAR_INT, AAIBB::minZ,

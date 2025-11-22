@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.math.KMath;
@@ -17,7 +18,7 @@ public record ColoredShape(Shape shape, Gradient quads, Gradient lines) {
 		Gradient.CODEC.optionalFieldOf("lines", Color.TRANSPARENT).forGetter(ColoredShape::lines)
 	).apply(instance, ColoredShape::new));
 
-	public static final StreamCodec<ByteBuf, ColoredShape> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, ColoredShape> STREAM_CODEC = CompositeStreamCodec.of(
 		Shape.STREAM_CODEC, ColoredShape::shape,
 		Gradient.STREAM_CODEC, ColoredShape::quads,
 		Gradient.STREAM_CODEC, ColoredShape::lines,

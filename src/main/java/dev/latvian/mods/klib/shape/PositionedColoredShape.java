@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import io.netty.buffer.ByteBuf;
@@ -14,7 +15,7 @@ public record PositionedColoredShape(Vec3 position, ColoredShape shape) {
 		ColoredShape.CODEC.fieldOf("shape").forGetter(PositionedColoredShape::shape)
 	).apply(instance, PositionedColoredShape::new));
 
-	public static final StreamCodec<ByteBuf, PositionedColoredShape> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, PositionedColoredShape> STREAM_CODEC = CompositeStreamCodec.of(
 		MCStreamCodecs.VEC3, PositionedColoredShape::position,
 		ColoredShape.STREAM_CODEC, PositionedColoredShape::shape,
 		PositionedColoredShape::new

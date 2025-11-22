@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.math;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -99,7 +100,7 @@ public record Vec3f(float x, float y, float z) {
 		}
 	});
 
-	public static final StreamCodec<ByteBuf, Vec3f> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, Vec3f> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, Vec3f::x,
 		ByteBufCodecs.FLOAT, Vec3f::y,
 		ByteBufCodecs.FLOAT, Vec3f::z,

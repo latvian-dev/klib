@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.math;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.Tag;
@@ -20,7 +21,7 @@ public record Range(float min, float max) implements SampledFloat {
 
 	public static final Codec<Range> CODEC = Codec.either(Codec.FLOAT, Codec.FLOAT.listOf(2, 2)).xmap(either -> either.map(Range::of, list -> of(list.getFirst(), list.getLast())), range -> range.isSame() ? Either.left(range.min) : Either.right(List.of(range.min, range.max)));
 
-	public static final StreamCodec<ByteBuf, Range> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, Range> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, Range::min,
 		ByteBufCodecs.FLOAT, Range::max,
 		Range::new

@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
@@ -18,7 +19,7 @@ public record CylinderShape(float radius, float height) implements Shape {
 		Codec.FLOAT.optionalFieldOf("height", 0F).forGetter(CylinderShape::radius)
 	).apply(instance, CylinderShape::new));
 
-	public static final StreamCodec<ByteBuf, CylinderShape> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, CylinderShape> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, CylinderShape::radius,
 		KLibStreamCodecs.FLOAT_OR_ZERO, CylinderShape::height,
 		CylinderShape::new

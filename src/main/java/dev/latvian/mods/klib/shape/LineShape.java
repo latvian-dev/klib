@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
@@ -20,7 +21,7 @@ public record LineShape(Vec3f vector) implements Shape {
 		Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
 	).apply(instance, LineShape::new));
 
-	public static final StreamCodec<ByteBuf, LineShape> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, LineShape> STREAM_CODEC = CompositeStreamCodec.of(
 		Vec3f.STREAM_CODEC, LineShape::vector,
 		LineShape::new
 	);

@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.math;
 
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
@@ -17,7 +18,7 @@ import java.util.List;
 public record Line(Vec3 start, Vec3 end) {
 	public static final Codec<Line> CODEC = Codec.DOUBLE.listOf(6, 6).xmap(l -> new Line(KMath.vec3(l.get(0), l.get(1), l.get(2)), KMath.vec3(l.get(3), l.get(4), l.get(5))), v -> List.of(v.start.x, v.start.y, v.start.z, v.end.x, v.end.y, v.end.z));
 
-	public static final StreamCodec<ByteBuf, Line> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, Line> STREAM_CODEC = CompositeStreamCodec.of(
 		MCStreamCodecs.VEC3, Line::start,
 		MCStreamCodecs.VEC3, Line::end,
 		Line::new

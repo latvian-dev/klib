@@ -58,7 +58,7 @@ public interface MCStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, AABB> AABB = StreamCodec.composite(
+	StreamCodec<ByteBuf, AABB> AABB = CompositeStreamCodec.of(
 		ByteBufCodecs.DOUBLE, b -> b.minX,
 		ByteBufCodecs.DOUBLE, b -> b.minY,
 		ByteBufCodecs.DOUBLE, b -> b.minZ,

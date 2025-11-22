@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.color;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.LinearInterpolation;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +20,7 @@ public record PositionedColor(float position, Color color, Interpolation interpo
 		Interpolation.CODEC.optionalFieldOf("interpolation", LinearInterpolation.INSTANCE).forGetter(PositionedColor::interpolation)
 	).apply(instance, PositionedColor::new));
 
-	public static final StreamCodec<ByteBuf, PositionedColor> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, PositionedColor> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, PositionedColor::position,
 		Color.STREAM_CODEC, PositionedColor::color,
 		Interpolation.STREAM_CODEC, PositionedColor::interpolation,

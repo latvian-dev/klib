@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.color;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -13,7 +14,7 @@ public record LinearPairGradient(Color start, Color end) implements Gradient {
 		Color.CODEC.fieldOf("end").forGetter(LinearPairGradient::end)
 	).apply(instance, LinearPairGradient::new));
 
-	public static final StreamCodec<ByteBuf, LinearPairGradient> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, LinearPairGradient> STREAM_CODEC = CompositeStreamCodec.of(
 		Color.STREAM_CODEC, LinearPairGradient::start,
 		Color.STREAM_CODEC, LinearPairGradient::end,
 		LinearPairGradient::new

@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.math;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.util.SimilarityCheck;
 import io.netty.buffer.ByteBuf;
@@ -67,14 +68,14 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 		}
 	);
 
-	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, Rotation::yawDeg,
 		ByteBufCodecs.FLOAT, Rotation::pitchDeg,
 		ByteBufCodecs.FLOAT, Rotation::rollDeg,
 		Rotation::deg
 	);
 
-	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC_NO_ROLL = StreamCodec.composite(
+	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC_NO_ROLL = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, Rotation::yawDeg,
 		ByteBufCodecs.FLOAT, Rotation::pitchDeg,
 		Rotation::deg

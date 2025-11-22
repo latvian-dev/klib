@@ -124,6 +124,6 @@ public interface KLibStreamCodecs {
 	}
 
 	static <B extends ByteBuf, L, R> StreamCodec<B, Pair<L, R>> pair(StreamCodec<? super B, L> left, StreamCodec<? super B, R> right) {
-		return StreamCodec.composite(left, Pair::getFirst, right, Pair::getSecond, Pair::of);
+		return CompositeStreamCodec.of(left, Pair::getFirst, right, Pair::getSecond, Pair::of);
 	}
 }
