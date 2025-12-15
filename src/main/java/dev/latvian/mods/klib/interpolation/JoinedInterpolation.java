@@ -84,12 +84,12 @@ public record JoinedInterpolation(Interpolation in, Interpolation out) implement
 
 	@Override
 	public double interpolate(double t) {
-		return t < 0.5D ? in.interpolate(t * 2D) : 1D - out.interpolate((t - 0.5D) * 2D);
+		return t < 0.5D ? in.interpolate(t * 2D) : ((1D + out.interpolate(t * 2D - 1D)) / 2D);
 	}
 
 	@Override
 	public float interpolate(float t) {
-		return t < 0.5F ? in.interpolate(t * 2F) : 1F - out.interpolate((t - 0.5F) * 2F);
+		return t < 0.5F ? in.interpolate(t * 2F) : ((1F + out.interpolate(t * 2F - 1F)) / 2F);
 	}
 
 	@Override

@@ -190,6 +190,14 @@ public record Color(int argb) implements Gradient {
 		return of((int) (alpha * 255F), red(), green(), blue());
 	}
 
+	public Color mixAlpha(int alpha) {
+		return mixAlpha(alpha / 255F);
+	}
+
+	public Color mixAlpha(float alpha) {
+		return withAlpha(alphaf() * alpha);
+	}
+
 	public Color fadeOut(float time, float maxTime, float fadeOut) {
 		if (maxTime < fadeOut) {
 			return this;

@@ -5,7 +5,7 @@ plugins {
 	id 'java'
 	id 'idea'
 	id 'maven-publish'
-	id 'net.neoforged.moddev' version "2.0.107"
+	id 'net.neoforged.moddev' version "2.0.124"
 }
 
 ext.ENV = System.getenv()
@@ -18,47 +18,50 @@ base.archivesName = project.archives_base_name
 println("Building version: $version")
 
 neoForge {
-	version = project.neoforge_version
-	validateAccessTransformers = true
+	enable {
+		version = project.neoforge_version
+		validateAccessTransformers = ENV.CI != "true"
+		disableRecompilation = ENV.CI == "true"
 
-	accessTransformers {
-		publish(project.file('src/main/resources/META-INF/accesstransformer.cfg'))
-	}
-
-	interfaceInjectionData {
-		from(file('interfaces.json'))
-		publish(file('interfaces.json'))
-	}
-
-	runs {
-		configureEach {
-			logLevel = org.slf4j.event.Level.INFO
+		accessTransformers {
+			publish(project.file('src/main/resources/META-INF/accesstransformer.cfg'))
 		}
 
-		client {
-			ideName = 'Client'
-			client()
-			systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+		interfaceInjectionData {
+			from(file('interfaces.json'))
+			publish(file('interfaces.json'))
+		}
 
-			if (ENV.MC_CLIENT_ARGS) {
-				programArguments.addAll(ENV.MC_CLIENT_ARGS.split(' '))
+		runs {
+			configureEach {
+				logLevel = org.slf4j.event.Level.INFO
 			}
 
-			jvmArguments.addAll("-XX:+IgnoreUnrecognizedVMOptions", "-XX:+AllowEnhancedClassRedefinition")
-			gameDirectory = file 'runs/client'
+			client {
+				ideName = 'Client'
+				client()
+				systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+
+				if (ENV.MC_CLIENT_ARGS) {
+					programArguments.addAll(ENV.MC_CLIENT_ARGS.split(' '))
+				}
+
+				jvmArguments.addAll("-XX:+IgnoreUnrecognizedVMOptions", "-XX:+AllowEnhancedClassRedefinition")
+				gameDirectory = file 'runs/client'
+			}
+
+			server {
+				ideName = 'Server'
+				server()
+				programArgument("--nogui")
+				gameDirectory = file 'runs/server'
+			}
 		}
 
-		server {
-			ideName = 'Server'
-			server()
-			programArgument("--nogui")
-			gameDirectory = file 'runs/server'
-		}
-	}
-
-	mods {
-		mod {
-			sourceSet sourceSets.main
+		mods {
+			mod {
+				sourceSet sourceSets.main
+			}
 		}
 	}
 }
@@ -150,29 +153,31 @@ publishing {
 
 idea {
 	module {
-		downloadSources = true
-		downloadJavadoc = true
+		if (ENV.CI != "true") {
+			downloadSources = true
+			downloadJavadoc = true
 
-		["client", "server"].each {
-			[
-					"config",
-					"crash-reports",
-					"debug",
-					"downloads",
-					"flashback",
-					"local",
-					"logs",
-					"mods",
-					"pack-sync",
-					"profilekeys",
-					"saves",
-					"voicechat_recordings",
-					"command_history.txt",
-					"options.txt",
-					"server.properties",
-					"world",
-			].each { ext ->
-				excludeDirs.add(file("runs/$it/$ext"))
+			["client", "server"].each {
+				[
+						"config",
+						"crash-reports",
+						"debug",
+						"downloads",
+						"flashback",
+						"local",
+						"logs",
+						"mods",
+						"pack-sync",
+						"profilekeys",
+						"saves",
+						"voicechat_recordings",
+						"command_history.txt",
+						"options.txt",
+						"server.properties",
+						"world",
+				].each { ext ->
+					excludeDirs.add(file("runs/$it/$ext"))
+				}
 			}
 		}
 	}
