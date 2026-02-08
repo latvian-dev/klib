@@ -34,6 +34,7 @@ public record InterpolationType<T extends Interpolation>(String name, MapCodec<T
 			all.add(LinearInterpolation.TYPE);
 			all.add(FixedInterpolation.TYPE);
 			all.add(ScaledInterpolation.TYPE);
+			all.add(CompositeInterpolation.TYPE);
 			all.add(JoinedInterpolation.TYPE);
 			all.add(InverseInterpolation.TYPE);
 			all.add(FlipXInterpolation.TYPE);
@@ -48,7 +49,7 @@ public record InterpolationType<T extends Interpolation>(String name, MapCodec<T
 				all.add(easing.type);
 			}
 
-			all.addAll(Arrays.asList(JoinedInterpolation.EASING));
+			all.addAll(Arrays.asList(CompositeInterpolation.EASING));
 
 			NeoForge.EVENT_BUS.post(new InterpolationTypeRegistryEvent(all));
 			MAP = Map.copyOf(all.stream().collect(Collectors.toMap(InterpolationType::name, Function.identity())));

@@ -77,7 +77,11 @@ public interface Interpolation {
 		return false;
 	}
 
+	default Interpolation composite(Interpolation other) {
+		return CompositeInterpolation.of(this, other);
+	}
+
 	default Interpolation join(Interpolation other) {
-		return JoinedInterpolation.of(this, other);
+		return new JoinedInterpolation(this, other);
 	}
 }

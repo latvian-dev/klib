@@ -62,11 +62,11 @@ public enum EaseIn implements Interpolation, StringRepresentable {
 	}
 
 	@Override
-	public Interpolation join(Interpolation other) {
+	public Interpolation composite(Interpolation other) {
 		if (other instanceof EaseOut o && ordinal() == o.ordinal()) {
-			return JoinedInterpolation.EASING[ordinal()].unit();
+			return CompositeInterpolation.EASING[ordinal()].unit();
 		}
 
-		return Interpolation.super.join(other);
+		return Interpolation.super.composite(other);
 	}
 }
