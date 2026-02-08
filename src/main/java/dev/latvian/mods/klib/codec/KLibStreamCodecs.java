@@ -57,7 +57,7 @@ public interface KLibStreamCodecs {
 	StreamCodec<ByteBuf, Double> DOUBLE_OR_ZERO = optional(ByteBufCodecs.DOUBLE, 0D);
 	StreamCodec<ByteBuf, Double> DOUBLE_OR_ONE = optional(ByteBufCodecs.DOUBLE, 1D);
 
-	StreamCodec<ByteBuf, Double> DOUBLE16 = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Double> DOUBLE32 = new StreamCodec<>() {
 		@Override
 		public Double decode(ByteBuf buf) {
 			return (double) buf.readFloat();
