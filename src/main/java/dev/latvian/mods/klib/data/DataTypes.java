@@ -17,6 +17,7 @@ import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.InterpolationType;
+import dev.latvian.mods.klib.math.ClipPosition;
 import dev.latvian.mods.klib.math.InterpolatedDouble;
 import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
@@ -144,5 +145,6 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("line"), Line.DATA_TYPE);
 		DataType.register(KLibMod.id("interpolated_float"), InterpolatedFloat.DATA_TYPE);
 		DataType.register(KLibMod.id("interpolated_double"), InterpolatedDouble.DATA_TYPE);
+		DataType.register(KLibMod.id("clip_position"), ClipPosition.DATA_TYPE);
 	}
 }

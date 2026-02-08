@@ -7,29 +7,32 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2d;
+import org.joml.Vector2dc;
+import org.joml.Vector2f;
 import org.joml.Vector4d;
 import org.joml.Vector4f;
 
-public record WorldMouse(
+public record ProjectedCoordinates(
 	Minecraft mc,
 	Vec3 cameraPos,
 	float width,
 	float height,
-	Vec2d defaultScreenPos
+	Vector2dc defaultScreenPos
 ) {
-	public static WorldMouse of(Minecraft mc, Vec3 cameraPos) {
+	public static ProjectedCoordinates of(Minecraft mc, Vec3 cameraPos) {
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
 
-		return new WorldMouse(
+		return new ProjectedCoordinates(
 			mc,
 			cameraPos,
 			width,
 			height,
-			mc.screen == null ? new Vec2d(
+			mc.screen == null ? new Vector2d(
 				width * 0.5D,
 				height * 0.5D
-			) : new Vec2d(
+			) : new Vector2d(
 				mc.mouseHandler.xpos() * width / (double) mc.getWindow().getWidth(),
 				mc.mouseHandler.ypos() * height / (double) mc.getWindow().getHeight()
 			)
@@ -37,7 +40,7 @@ public record WorldMouse(
 	}
 
 	@Nullable
-	public Cursor clip(double maxDistance, ClipContext.Block blockClipContext, ClipContext.Fluid fluidClipContext, @Nullable Vec2d screenPos, @Nullable Entity clipEntity) {
+	public ClipPosition clip(double maxDistance, ClipContext.Block blockClipContext, ClipContext.Fluid fluidClipContext, @Nullable Vector2dc screenPos, @Nullable Entity clipEntity) {
 		if (screenPos == null) {
 			screenPos = defaultScreenPos;
 		}
@@ -63,16 +66,16 @@ public record WorldMouse(
 			return null;
 		}
 
-		return new Cursor(hit);
+		return new ClipPosition(hit);
 	}
 
 	@Nullable
-	public Cursor clipOutline() {
+	public ClipPosition clipOutline() {
 		return clip(1000D, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, null, null);
 	}
 
 	@Nullable
-	public Cursor clipCollision() {
+	public ClipPosition clipCollision() {
 		return clip(1000D, ClipContext.Block.COLLIDER, ClipContext.Fluid.SOURCE_ONLY, null, null);
 	}
 
@@ -86,7 +89,7 @@ public record WorldMouse(
 	 * @return Screen coordinates, or null if outside the screen
 	 */
 	@Nullable
-	public Vec2f screen(double worldX, double worldY, double worldZ, boolean allowOutside) {
+	public Vector2f screen(double worldX, double worldY, double worldZ, boolean allowOutside) {
 		double rx = worldX - cameraPos.x;
 		double ry = worldY - cameraPos.y;
 		double rz = worldZ - cameraPos.z;
@@ -97,7 +100,7 @@ public record WorldMouse(
 		v.div(v.w);
 
 		if (allowOutside || v.z > 0F && v.z < 1F) {
-			return new Vec2f(
+			return new Vector2f(
 				(0.5F + v.x * 0.5F) * width,
 				(0.5F - v.y * 0.5F) * height
 			);
@@ -110,34 +113,34 @@ public record WorldMouse(
 	 * @param worldX X position
 	 * @param worldY Y position
 	 * @param worldZ Z position
-	 * @see WorldMouse#screen(double, double, double, boolean)
+	 * @see ProjectedCoordinates#screen(double, double, double, boolean)
 	 */
 	@Nullable
-	public Vec2f screen(double worldX, double worldY, double worldZ) {
+	public Vector2f screen(double worldX, double worldY, double worldZ) {
 		return screen(worldX, worldY, worldZ, false);
 	}
 
 	/**
 	 * @param worldPos     XYZ position
 	 * @param allowOutside Allow outside the screen
-	 * @see WorldMouse#screen(double, double, double, boolean)
+	 * @see ProjectedCoordinates#screen(double, double, double, boolean)
 	 */
 	@Nullable
-	public Vec2f screen(Position worldPos, boolean allowOutside) {
+	public Vector2f screen(Position worldPos, boolean allowOutside) {
 		return screen(worldPos.x(), worldPos.y(), worldPos.z(), allowOutside);
 	}
 
 	/**
 	 * @param worldPos XYZ position
-	 * @see WorldMouse#screen(double, double, double, boolean)
+	 * @see ProjectedCoordinates#screen(double, double, double, boolean)
 	 */
 	@Nullable
-	public Vec2f screen(Position worldPos) {
+	public Vector2f screen(Position worldPos) {
 		return screen(worldPos.x(), worldPos.y(), worldPos.z(), false);
 	}
 
 	/**
-	 * Convert screen coordinates to world position. Use {@link WorldMouse#clip(double, ClipContext.Block, ClipContext.Fluid, Vec2d, Entity)} if you only care about current mouse position
+	 * Convert screen coordinates to world position. Use {@link ProjectedCoordinates#clip(double, ClipContext.Block, ClipContext.Fluid, Vector2dc, Entity)} if you only care about current mouse position
 	 *
 	 * @param x screen coordinate x-position
 	 * @param y screen coordinate y-position
