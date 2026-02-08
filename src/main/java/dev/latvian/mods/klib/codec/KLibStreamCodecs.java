@@ -57,7 +57,7 @@ public interface KLibStreamCodecs {
 	StreamCodec<ByteBuf, Double> DOUBLE_OR_ZERO = optional(ByteBufCodecs.DOUBLE, 0D);
 	StreamCodec<ByteBuf, Double> DOUBLE_OR_ONE = optional(ByteBufCodecs.DOUBLE, 1D);
 
-	StreamCodec<ByteBuf, Double> DOUBLE_AS_FLOAT = new StreamCodec<>() {
+	StreamCodec<ByteBuf, Double> DOUBLE16 = new StreamCodec<>() {
 		@Override
 		public Double decode(ByteBuf buf) {
 			return (double) buf.readFloat();
@@ -66,6 +66,54 @@ public interface KLibStreamCodecs {
 		@Override
 		public void encode(ByteBuf buf, Double value) {
 			buf.writeFloat(value.floatValue());
+		}
+	};
+
+	StreamCodec<ByteBuf, Integer> INT8 = new StreamCodec<>() {
+		@Override
+		public Integer decode(ByteBuf buf) {
+			return (int) buf.readByte();
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Integer value) {
+			buf.writeByte(value);
+		}
+	};
+
+	StreamCodec<ByteBuf, Integer> UINT8 = new StreamCodec<>() {
+		@Override
+		public Integer decode(ByteBuf buf) {
+			return ((int) buf.readByte()) & 0xFF;
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Integer value) {
+			buf.writeByte(value);
+		}
+	};
+
+	StreamCodec<ByteBuf, Integer> INT16 = new StreamCodec<>() {
+		@Override
+		public Integer decode(ByteBuf buf) {
+			return (int) buf.readShort();
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Integer value) {
+			buf.writeShort(value);
+		}
+	};
+
+	StreamCodec<ByteBuf, Integer> UINT16 = new StreamCodec<>() {
+		@Override
+		public Integer decode(ByteBuf buf) {
+			return ((int) buf.readShort()) & 0xFFFF;
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Integer value) {
+			buf.writeShort(value);
 		}
 	};
 

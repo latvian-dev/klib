@@ -59,6 +59,11 @@ public interface KLibCodecs {
 
 	Codec<Integer> TICKS = Codec.either(Codec.INT, TICK_STRING).xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
 
+	Codec<Integer> INT8 = Codec.intRange(Byte.MIN_VALUE, Byte.MAX_VALUE);
+	Codec<Integer> UINT8 = Codec.intRange(0, -Byte.MIN_VALUE + Byte.MAX_VALUE);
+	Codec<Integer> INT16 = Codec.intRange(Short.MIN_VALUE, Short.MAX_VALUE);
+	Codec<Integer> UINT16 = Codec.intRange(0, -Short.MIN_VALUE + Short.MAX_VALUE);
+
 	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
 		var map = new HashMap<String, E>(enumValues.length);
 

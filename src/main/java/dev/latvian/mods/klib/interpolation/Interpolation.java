@@ -65,6 +65,14 @@ public interface Interpolation {
 		return new InverseInterpolation(this);
 	}
 
+	default Interpolation flipX() {
+		return new FlipXInterpolation(this);
+	}
+
+	default Interpolation flipY() {
+		return new FlipYInterpolation(this);
+	}
+
 	default boolean isLinear() {
 		return false;
 	}
