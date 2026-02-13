@@ -1,8 +1,14 @@
 package dev.latvian.mods.klib.util;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.KLibCodecs;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.data.DataTypes;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +19,9 @@ import java.util.OptionalInt;
 import java.util.UUID;
 
 public sealed interface IntOrUUID permits IntOrUUID.IntImpl, IntOrUUID.UUIDImpl {
-	DataType<IntOrUUID> DATA_TYPE = DataType.either(DataTypes.VAR_INT, DataTypes.UUID, IntImpl::new, UUIDImpl::new, IntOrUUID::either, IntOrUUID.class);
+	Codec<IntOrUUID> CODEC = Codec.either(ExtraCodecs.NON_NEGATIVE_INT, KLibCodecs.UUID).xmap(e -> e.map(IntImpl::new, UUIDImpl::new), IntOrUUID::either);
+	StreamCodec<ByteBuf, IntOrUUID> STREAM_CODEC = ByteBufCodecs.either(ByteBufCodecs.VAR_INT, KLibStreamCodecs.UUID).map(e -> e.map(IntImpl::new, UUIDImpl::new), IntOrUUID::either);
+	DataType<IntOrUUID> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, IntOrUUID.class);
 
 	static IntOrUUID of(int value) {
 		return new IntImpl(value);
@@ -24,6 +32,8 @@ public sealed interface IntOrUUID permits IntOrUUID.IntImpl, IntOrUUID.UUIDImpl 
 	}
 
 	Either<Integer, UUID> either();
+
+	Optional<Integer> optionalInteger();
 
 	OptionalInt optionalInt();
 
@@ -42,6 +52,11 @@ public sealed interface IntOrUUID permits IntOrUUID.IntImpl, IntOrUUID.UUIDImpl 
 		@Override
 		public Either<Integer, UUID> either() {
 			return Either.left(value);
+		}
+
+		@Override
+		public Optional<Integer> optionalInteger() {
+			return Optional.of(value);
 		}
 
 		@Override
@@ -79,6 +94,11 @@ public sealed interface IntOrUUID permits IntOrUUID.IntImpl, IntOrUUID.UUIDImpl 
 		@Override
 		public Either<Integer, UUID> either() {
 			return Either.right(value);
+		}
+
+		@Override
+		public Optional<Integer> optionalInteger() {
+			return Optional.empty();
 		}
 
 		@Override
