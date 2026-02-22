@@ -112,6 +112,7 @@ public record Color(int argb) implements Gradient {
 	};
 
 	public static final DataType<Color> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Color.class);
+	public static final DataType<Color> SOLID_DATA_TYPE = DataType.of(SOLID_CODEC, SOLID_STREAM_CODEC, Color.class);
 
 	public static Color hsb(float hue, float saturation, float brightness, int alpha) {
 		if (saturation <= 0F) {

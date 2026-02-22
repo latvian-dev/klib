@@ -129,6 +129,7 @@ public interface DataTypes {
 		DataType.register(ID.mc("dimension"), DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, ResourceLocation.class)));
 
 		DataType.register(KLibMod.id("color"), Color.DATA_TYPE);
+		DataType.register(KLibMod.id("solid_color"), Color.SOLID_DATA_TYPE);
 		DataType.register(KLibMod.id("gradient"), Gradient.DATA_TYPE);
 		DataType.register(KLibMod.id("shape"), Shape.DATA_TYPE);
 		DataType.register(KLibMod.id("rotation"), dev.latvian.mods.klib.math.Rotation.DATA_TYPE, RotationArgument::rotation, (ctx, name) -> dev.latvian.mods.klib.math.Rotation.deg(RotationArgument.getRotation(ctx, name).getRotation(ctx.getSource())));
