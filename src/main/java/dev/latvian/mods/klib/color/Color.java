@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.color;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.LinearInterpolation;
@@ -70,7 +71,7 @@ public record Color(int argb) implements Gradient {
 		"cyan", CYAN
 	);
 
-	public static final Codec<Color> CODEC = Codec.STRING.comapFlatMap(s -> {
+	public static final Codec<Color> STRING_CODEC = Codec.STRING.comapFlatMap(s -> {
 		var col = NAMED_COLORS.get(s);
 
 		if (col != null) {
@@ -82,17 +83,33 @@ public record Color(int argb) implements Gradient {
 		}
 	}, Color::toString);
 
-	public static Codec<Color> codecWithAlpha(int alpha) {
-		return CODEC.xmap(color -> color.withAlpha(alpha), Color::solid);
-	}
+	public static final Codec<Color> INT_CODEC = Codec.INT.xmap(Color::of, Color::argb);
+	public static final Codec<Color> SOLID_INT_CODEC = Codec.INT.xmap(Color::ofRGB, Color::rgb);
 
-	public static Codec<Color> codecWithAlpha(float alpha) {
-		return CODEC.xmap(color -> color.withAlpha(alpha), Color::solid);
-	}
+	public static final Codec<Color> CODEC = KLibCodecs.or(STRING_CODEC, INT_CODEC);
+	public static final Codec<Color> SOLID_CODEC = KLibCodecs.or(STRING_CODEC, SOLID_INT_CODEC);
 
-	public static final Codec<Color> CODEC_RGB = codecWithAlpha(255);
+	public static final Codec<Color> TO_INT_CODEC = KLibCodecs.or(INT_CODEC, STRING_CODEC);
+	public static final Codec<Color> SOLID_TO_INT_CODEC = KLibCodecs.or(SOLID_INT_CODEC, STRING_CODEC);
 
 	public static final StreamCodec<ByteBuf, Color> STREAM_CODEC = ByteBufCodecs.INT.map(Color::of, Color::argb);
+
+	public static final StreamCodec<ByteBuf, Color> SOLID_STREAM_CODEC = new StreamCodec<>() {
+		@Override
+		public Color decode(ByteBuf buf) {
+			int r = buf.readByte() & 0xFF;
+			int g = buf.readByte() & 0xFF;
+			int b = buf.readByte() & 0xFF;
+			return of(r, g, b);
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Color value) {
+			buf.writeByte(value.red());
+			buf.writeByte(value.green());
+			buf.writeByte(value.blue());
+		}
+	};
 
 	public static final DataType<Color> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Color.class);
 
@@ -183,11 +200,11 @@ public record Color(int argb) implements Gradient {
 	}
 
 	public Color withAlpha(int alpha) {
-		return of(alpha, red(), green(), blue());
+		return alpha == alpha() ? this : of(alpha, red(), green(), blue());
 	}
 
 	public Color withAlpha(float alpha) {
-		return of((int) (alpha * 255F), red(), green(), blue());
+		return withAlpha((int) (alpha * 255F));
 	}
 
 	public Color mixAlpha(int alpha) {
