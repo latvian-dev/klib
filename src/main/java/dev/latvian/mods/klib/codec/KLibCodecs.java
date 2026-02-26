@@ -33,7 +33,13 @@ public interface KLibCodecs {
 	Function<?, String> DEFAULT_NAME_GETTER = o -> o instanceof StringRepresentable s ? s.getSerializedName() : o instanceof Enum<?> e ? e.name().toLowerCase(Locale.ROOT) : o.toString().toLowerCase(Locale.ROOT);
 
 	Codec<Unit> UNIT = Codec.unit(Unit.INSTANCE);
-	Codec<UUID> UUID = Codec.STRING.xmap(UndashedUuid::fromStringLenient, UndashedUuid::toString);
+	Codec<UUID> UUID = Codec.STRING.comapFlatMap(s -> {
+		try {
+			return DataResult.success(UndashedUuid.fromStringLenient(s));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid UUID syntax: " + s);
+		}
+	}, UndashedUuid::toString);
 
 	TimeArgument TIME_ARGUMENT = TimeArgument.time();
 
