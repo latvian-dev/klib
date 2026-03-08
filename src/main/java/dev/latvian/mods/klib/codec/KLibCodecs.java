@@ -41,6 +41,14 @@ public interface KLibCodecs {
 		}
 	}, UndashedUuid::toString);
 
+	Codec<UUID> DASHED_UUID = Codec.STRING.comapFlatMap(s -> {
+		try {
+			return DataResult.success(UndashedUuid.fromStringLenient(s));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid UUID syntax: " + s);
+		}
+	}, java.util.UUID::toString);
+
 	TimeArgument TIME_ARGUMENT = TimeArgument.time();
 
 	Codec<Integer> TICK_STRING = Codec.STRING.flatXmap(s -> {

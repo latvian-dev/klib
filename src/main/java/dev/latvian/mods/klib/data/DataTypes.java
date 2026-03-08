@@ -28,6 +28,8 @@ import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.ParsedEntitySelector;
+import dev.latvian.mods.klib.util.ScreenCorner;
+import dev.latvian.mods.klib.util.Timestamp;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -147,5 +149,7 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("interpolated_float"), InterpolatedFloat.DATA_TYPE);
 		DataType.register(KLibMod.id("interpolated_double"), InterpolatedDouble.DATA_TYPE);
 		DataType.register(KLibMod.id("clip_position"), ClipPosition.DATA_TYPE);
+		DataType.register(KLibMod.id("screen_corner"), ScreenCorner.DATA_TYPE);
+		DataType.register(KLibMod.id("timestamp"), Timestamp.DATA_TYPE);
 	}
 }
