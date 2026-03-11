@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +21,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public interface MCStreamCodecs {
+	StreamCodec<ByteBuf, Util.OS> PLATFORM = KLibStreamCodecs.enumValue(Util.OS.values());
+
 	StreamCodec<ByteBuf, Vec3> VEC3 = new StreamCodec<>() {
 		@Override
 		public Vec3 decode(ByteBuf buf) {

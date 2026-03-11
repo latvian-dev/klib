@@ -30,6 +30,7 @@ import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import dev.latvian.mods.klib.util.ScreenCorner;
 import dev.latvian.mods.klib.util.Timestamp;
+import net.minecraft.Util;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -96,6 +97,7 @@ public interface DataTypes {
 	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class);
 	DataType<GameProfile> GAME_PROFILE = DataType.of(ExtraCodecs.GAME_PROFILE, ByteBufCodecs.GAME_PROFILE, GameProfile.class);
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION, (Class) ResourceKey.class);
+	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM, Util.OS.class);
 
 	static void register() {
 		DataType.register(ID.java("bool"), BOOL, BoolArgumentType::bool, BoolArgumentType::getBool);
@@ -129,6 +131,7 @@ public interface DataTypes {
 			return profiles.isEmpty() ? null : profiles.iterator().next();
 		});
 		DataType.register(ID.mc("dimension"), DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, ResourceLocation.class)));
+		DataType.register(ID.mc("platform"), PLATFORM);
 
 		DataType.register(KLibMod.id("color"), Color.DATA_TYPE);
 		DataType.register(KLibMod.id("solid_color"), Color.SOLID_DATA_TYPE);

@@ -22,6 +22,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public interface MCCodecs {
+	Codec<Util.OS> PLATFORM = KLibCodecs.anyEnumCodec(Util.OS.values(), Util.OS::telemetryName);
 	Codec<Vec3> VEC3 = Codec.DOUBLE.listOf(3, 3).xmap(l -> KMath.vec3(l.get(0), l.get(1), l.get(2)), v -> List.of(v.x, v.y, v.z));
 	Codec<Vec3> VEC3S = Codec.either(Codec.DOUBLE, VEC3).xmap(either -> either.map(KMath::vec3, Function.identity()), v -> v.x == v.y && v.x == v.z ? Either.left(v.x) : Either.right(v));
 	Codec<AABB> AABB = Codec.DOUBLE.listOf(6, 6).xmap(l -> new AABB(l.get(0), l.get(1), l.get(2), l.get(3), l.get(4), l.get(5)), v -> List.of(v.minX, v.minY, v.minZ, v.maxX, v.maxY, v.maxZ));
