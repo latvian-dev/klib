@@ -4,22 +4,36 @@ import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
+import java.util.UUID;
 
 public interface StringUtils {
 	Set<String> ALWAYS_LOWER_CASE = new HashSet<>(Arrays.asList("a", "an", "the", "of", "on", "in", "and", "or", "but", "for"));
+	byte[] HEX_ARRAY = "0123456789abcdef".getBytes(StandardCharsets.US_ASCII);
+	Base64.Encoder B64_ENCODER = Base64.getUrlEncoder().withoutPadding();
+	Base64.Decoder B64_DECODER = Base64.getUrlDecoder();
 
-	SimpleDateFormat TIMESTAMP_FORMAT = Util.make(() -> {
+	SimpleDateFormat SHORT_EST_TIMESTAMP_FORMAT = Util.make(() -> {
 		var format = new SimpleDateFormat("HH:mm:ss");
-		format.setTimeZone(TimeZone.getTimeZone("EST"));
+		format.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 		return format;
 	});
+
+	SimpleDateFormat LONG_EST_TIMESTAMP_FORMAT = Util.make(() -> {
+		var format = new SimpleDateFormat("EEEE, d MMM yyyy, HH:mm:ss.SSS");
+		format.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+		return format;
+	});
+
+	SimpleDateFormat LONG_LOCAL_TIMESTAMP_FORMAT = new SimpleDateFormat("EEEE, d MMM yyyy, HH:mm:ss.SSS");
 
 	static String snakeCaseToTitleCase(String string) {
 		StringJoiner joiner = new StringJoiner(" ");
@@ -112,5 +126,38 @@ public interface StringUtils {
 		}
 
 		return name.isBlank() ? "" : name;
+	}
+
+	static UUID uuidFromString(String value) {
+		return UUID.fromString(value.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+	}
+
+	static String uuidToString(UUID value) {
+		return value.toString().replace("-", "");
+	}
+
+	static String toHex(byte[] array) {
+		var chars = new byte[array.length * 2];
+
+		for (int i = 0; i < array.length; i++) {
+			int v = array[i] & 0xFF;
+			chars[i * 2] = HEX_ARRAY[v >>> 4];
+			chars[i * 2 + 1] = HEX_ARRAY[v & 0x0F];
+		}
+
+		return new String(chars, StandardCharsets.UTF_8);
+	}
+
+	static byte[] fromHex(String string) {
+		int len = string.length();
+		byte[] bytes = new byte[len / 2];
+
+		for (int i = 0; i < len; i += 2) {
+			int m = Character.digit(string.charAt(i), 16) << 4;
+			int l = Character.digit(string.charAt(i + 1), 16);
+			bytes[i / 2] = (byte) (m + l);
+		}
+
+		return bytes;
 	}
 }

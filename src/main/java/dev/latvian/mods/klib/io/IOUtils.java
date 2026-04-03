@@ -1,15 +1,19 @@
 package dev.latvian.mods.klib.io;
 
+import dev.latvian.mods.klib.util.StringUtils;
 import io.netty.buffer.ByteBuf;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
@@ -115,6 +119,62 @@ public interface IOUtils {
 		}
 
 		return bytes;
+	}
+
+	static void writeBytes(Path path, ByteBuffer buf, long remainingBytes) throws IOException {
+		if (remainingBytes <= 0L) {
+			return;
+		}
+
+		try (var channel = Files.newByteChannel(path, WRITE_OPEN_OPTIONS)) {
+			long writtenBytes;
+
+			while ((writtenBytes = channel.write(buf)) < remainingBytes) {
+				remainingBytes -= writtenBytes;
+
+				if (remainingBytes <= 0) {
+					break;
+				}
+			}
+		}
+	}
+
+	static void appendBytes(Path path, ByteBuffer buf, long remainingBytes) throws IOException {
+		if (remainingBytes <= 0L) {
+			return;
+		}
+
+		try (var channel = Files.newByteChannel(path, APPEND_OPEN_OPTIONS)) {
+			long writtenBytes;
+
+			while ((writtenBytes = channel.write(buf)) < remainingBytes) {
+				remainingBytes -= writtenBytes;
+
+				if (remainingBytes <= 0) {
+					break;
+				}
+			}
+		}
+	}
+
+	static byte[] digest(String algorithm, Path file) throws NoSuchAlgorithmException, IOException {
+		var md5 = MessageDigest.getInstance(algorithm);
+
+		try (var channel = Files.newByteChannel(file)) {
+			var buf = ByteBuffer.allocate(2048);
+
+			while (channel.read(buf) != -1) {
+				buf.flip();
+				md5.update(buf);
+				buf.clear();
+			}
+
+			return md5.digest();
+		}
+	}
+
+	static String md5(Path file) throws NoSuchAlgorithmException, IOException {
+		return StringUtils.toHex(digest("MD5", file));
 	}
 }
 

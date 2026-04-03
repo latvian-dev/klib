@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -15,6 +16,8 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public interface JsonUtils {
 	Gson GSON = new GsonBuilder().setLenient().disableHtmlEscaping().serializeNulls().create();
@@ -25,6 +28,12 @@ public interface JsonUtils {
 
 	static JsonElement read(InputStream stream) {
 		return GSON.fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), JsonElement.class);
+	}
+
+	static JsonElement read(Path path) throws IOException {
+		try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+			return read(reader);
+		}
 	}
 
 	static void write(Writer writer, JsonElement json, boolean pretty) {
@@ -39,6 +48,12 @@ public interface JsonUtils {
 
 	static void write(OutputStream stream, JsonElement json, boolean pretty) {
 		write(new OutputStreamWriter(stream, StandardCharsets.UTF_8), json, pretty);
+	}
+
+	static void write(Path path, JsonElement json, boolean pretty) throws IOException {
+		try (var writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+			write(writer, json, pretty);
+		}
 	}
 
 	static String string(JsonElement json) {
