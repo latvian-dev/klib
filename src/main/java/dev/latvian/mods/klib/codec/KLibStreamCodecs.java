@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -141,6 +142,8 @@ public interface KLibStreamCodecs {
 			buf.writeUtf(value);
 		}
 	};
+
+	StreamCodec<ByteBuf, Instant> INSTANT = ByteBufCodecs.LONG.map(Instant::ofEpochMilli, Instant::toEpochMilli);
 
 	static <T> StreamCodec<ByteBuf, ResourceKey<T>> resourceKey(ResourceKey<? extends Registry<T>> registry) {
 		return ResourceLocation.STREAM_CODEC.map(id -> ResourceKey.create(registry, id), ResourceKey::location);

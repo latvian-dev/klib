@@ -158,18 +158,18 @@ public interface IOUtils {
 	}
 
 	static byte[] digest(String algorithm, Path file) throws NoSuchAlgorithmException, IOException {
-		var md5 = MessageDigest.getInstance(algorithm);
+		var md = MessageDigest.getInstance(algorithm);
 
 		try (var channel = Files.newByteChannel(file)) {
 			var buf = ByteBuffer.allocate(2048);
 
 			while (channel.read(buf) != -1) {
 				buf.flip();
-				md5.update(buf);
+				md.update(buf);
 				buf.clear();
 			}
 
-			return md5.digest();
+			return md.digest();
 		}
 	}
 
@@ -177,4 +177,3 @@ public interface IOUtils {
 		return StringUtils.toHex(digest("MD5", file));
 	}
 }
-

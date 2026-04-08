@@ -6,12 +6,16 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.util.UndashedUuid;
+import dev.latvian.mods.klib.util.StringUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.util.StringRepresentable;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -77,6 +81,48 @@ public interface KLibCodecs {
 	Codec<Integer> UINT8 = Codec.intRange(0, -Byte.MIN_VALUE + Byte.MAX_VALUE);
 	Codec<Integer> INT16 = Codec.intRange(Short.MIN_VALUE, Short.MAX_VALUE);
 	Codec<Integer> UINT16 = Codec.intRange(0, -Short.MIN_VALUE + Short.MAX_VALUE);
+
+	Codec<byte[]> B64_BYTE_ARRAY = Codec.STRING.flatXmap(string -> {
+		try {
+			return DataResult.success(StringUtils.B64_DECODER.decode(string));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid Base64 string: " + string);
+		}
+	}, array -> {
+		try {
+			return DataResult.success(StringUtils.B64_ENCODER.encodeToString(array));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid Base64 array: " + Arrays.toString(array));
+		}
+	});
+
+	Codec<Instant> INSTANT = Codec.STRING.flatXmap(string -> {
+		try {
+			return DataResult.success(Instant.parse(string));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid date: " + string);
+		}
+	}, instant -> {
+		try {
+			return DataResult.success(instant.toString());
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid date: " + instant);
+		}
+	});
+
+	Codec<Instant> ISO_INSTANT = Codec.STRING.flatXmap(string -> {
+		try {
+			return DataResult.success(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(string)));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid ISO date: " + string);
+		}
+	}, instant -> {
+		try {
+			return DataResult.success(DateTimeFormatter.ISO_INSTANT.format(instant));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid ISO date: " + instant);
+		}
+	});
 
 	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
 		var map = new HashMap<String, E>(enumValues.length);
