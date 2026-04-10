@@ -78,6 +78,8 @@ public interface KMath {
 	double HALF_PI = Math.PI / 2D;
 	double TO_DEG = 180D / Math.PI;
 	double TO_RAD = Math.PI / 180D;
+	double LOG_10_OF_1000 = Math.log10(1000D);
+	double LOG_10_OF_1024 = Math.log10(1024D);
 
 	float F_SQRT_2 = (float) SQRT_2;
 	float F_PI = (float) Math.PI;

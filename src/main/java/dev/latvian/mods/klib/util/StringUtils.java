@@ -1,10 +1,12 @@
 package dev.latvian.mods.klib.util;
 
+import dev.latvian.mods.klib.math.KMath;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
@@ -34,6 +36,10 @@ public interface StringUtils {
 	});
 
 	SimpleDateFormat LONG_LOCAL_TIMESTAMP_FORMAT = new SimpleDateFormat("EEEE, d MMM yyyy, HH:mm:ss.SSS");
+
+	DecimalFormat BYTE_SIZE_FORMAT = new DecimalFormat("#,##0.#");
+	String[] BINARY_BYTE_SIZE_UNITS = new String[]{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
+	String[] SI_BYTE_SIZE_UNITS = new String[]{"B", "KB", "MB", "GB", "TB", "PB", "EB"};
 
 	static String snakeCaseToTitleCase(String string) {
 		StringJoiner joiner = new StringJoiner(" ");
@@ -159,5 +165,27 @@ public interface StringUtils {
 		}
 
 		return bytes;
+	}
+
+	static String binaryByteSize(long size) {
+		if (size <= 0L) {
+			return "0 B";
+		} else if (size < 1024L) {
+			return size + " B";
+		}
+
+		int digitGroups = (int) (Math.log10(size) / KMath.LOG_10_OF_1024);
+		return BYTE_SIZE_FORMAT.format(size / Math.pow(1024D, digitGroups)) + " " + BINARY_BYTE_SIZE_UNITS[digitGroups];
+	}
+
+	static String siByteSize(long size) {
+		if (size <= 0L) {
+			return "0 B";
+		} else if (size < 1000L) {
+			return size + " B";
+		}
+
+		int digitGroups = (int) (Math.log10(size) / KMath.LOG_10_OF_1000);
+		return BYTE_SIZE_FORMAT.format(size / Math.pow(1000D, digitGroups)) + " " + SI_BYTE_SIZE_UNITS[digitGroups];
 	}
 }
