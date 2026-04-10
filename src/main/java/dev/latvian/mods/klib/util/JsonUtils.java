@@ -22,12 +22,16 @@ import java.nio.file.Path;
 public interface JsonUtils {
 	Gson GSON = new GsonBuilder().setLenient().disableHtmlEscaping().serializeNulls().create();
 
+	static JsonElement parse(String string) {
+		return GSON.fromJson(string, JsonElement.class);
+	}
+
 	static JsonElement read(Reader reader) {
 		return GSON.fromJson(reader, JsonElement.class);
 	}
 
 	static JsonElement read(InputStream stream) {
-		return GSON.fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), JsonElement.class);
+		return read(new InputStreamReader(stream, StandardCharsets.UTF_8));
 	}
 
 	static JsonElement read(Path path) throws IOException {

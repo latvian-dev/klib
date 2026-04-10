@@ -8,10 +8,12 @@ import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
@@ -173,7 +175,34 @@ public interface IOUtils {
 		}
 	}
 
+	static String md5bytes(Path file) throws NoSuchAlgorithmException, IOException {
+		return StringUtils.toHex(digest("MD5", file));
+	}
+
 	static String md5(Path file) throws NoSuchAlgorithmException, IOException {
 		return StringUtils.toHex(digest("MD5", file));
+	}
+
+	static String getAttribute(Path file, String attribute) throws IOException {
+		var attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
+
+		if (attributes != null && attributes.list().contains(attribute)) {
+			var attributeBuffer = ByteBuffer.allocate(attributes.size(attribute));
+			attributes.read(attribute, attributeBuffer);
+			attributeBuffer.flip();
+			return Charset.defaultCharset().decode(attributeBuffer).toString();
+		}
+
+		return "";
+	}
+
+	static boolean setAttribute(Path file, String attribute, String value) throws IOException {
+		var attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
+
+		if (attributes != null) {
+			return attributes.write(attribute, Charset.defaultCharset().encode(value)) > 0;
+		}
+
+		return false;
 	}
 }

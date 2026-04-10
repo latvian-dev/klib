@@ -124,6 +124,20 @@ public interface KLibCodecs {
 		}
 	});
 
+	Codec<Instant> UINT64_INSTANT = Codec.LONG.flatXmap(number -> {
+		try {
+			return DataResult.success(Instant.ofEpochMilli(number));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid date: " + number);
+		}
+	}, instant -> {
+		try {
+			return DataResult.success(instant.toEpochMilli());
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid date: " + instant);
+		}
+	});
+
 	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
 		var map = new HashMap<String, E>(enumValues.length);
 
