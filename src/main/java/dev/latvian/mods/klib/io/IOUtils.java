@@ -19,6 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public interface IOUtils {
 	Set<StandardOpenOption> WRITE_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -204,5 +205,9 @@ public interface IOUtils {
 		}
 
 		return false;
+	}
+
+	static Predicate<Path> pathEndsWith(String suffix) {
+		return path -> path.toString().endsWith(suffix);
 	}
 }
