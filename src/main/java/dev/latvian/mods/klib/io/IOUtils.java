@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.io;
 
 import dev.latvian.mods.klib.util.StringUtils;
 import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -13,9 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
@@ -24,6 +27,47 @@ import java.util.function.Predicate;
 public interface IOUtils {
 	Set<StandardOpenOption> WRITE_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	Set<StandardOpenOption> APPEND_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+	static long getSize(Path path) {
+		try {
+			return Files.size(path);
+		} catch (Exception ex) {
+			return -1L;
+		}
+	}
+
+	@Nullable
+	static Instant getCreatedTime(Path path) {
+		try {
+			var view = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+			var instant = view.readAttributes().creationTime().toInstant();
+			return instant.toEpochMilli() == 0L ? null : instant;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	@Nullable
+	static Instant getLastModifiedTime(Path path) {
+		try {
+			var view = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+			var instant = view.readAttributes().lastModifiedTime().toInstant();
+			return instant.toEpochMilli() == 0L ? null : instant;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	@Nullable
+	static Instant getLastAccessedTime(Path path) {
+		try {
+			var view = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+			var instant = view.readAttributes().lastAccessTime().toInstant();
+			return instant.toEpochMilli() == 0L ? null : instant;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
 
 	static void deleteRecursively(Path dir) throws IOException {
 		try (var stream = Files.walk(dir)) {
