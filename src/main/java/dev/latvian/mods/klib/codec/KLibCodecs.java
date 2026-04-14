@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.util.StringRepresentable;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,6 +125,20 @@ public interface KLibCodecs {
 	});
 
 	Codec<Instant> INSTANT = KLibCodecs.or(ISO_INSTANT, UINT64_INSTANT);
+
+	Codec<URI> URI = Codec.STRING.flatXmap(string -> {
+		try {
+			return DataResult.success(new java.net.URI(string));
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid URI: " + string);
+		}
+	}, uri -> {
+		try {
+			return DataResult.success(uri.toString());
+		} catch (Exception ex) {
+			return DataResult.error(() -> "Invalid URI: " + uri);
+		}
+	});
 
 	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
 		var map = new HashMap<String, E>(enumValues.length);
