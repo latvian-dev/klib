@@ -13,7 +13,6 @@ import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.util.StringRepresentable;
 
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -96,7 +95,7 @@ public interface KLibCodecs {
 		}
 	});
 
-	Codec<Instant> INSTANT = Codec.STRING.flatXmap(string -> {
+	Codec<Instant> ISO_INSTANT = Codec.STRING.flatXmap(string -> {
 		try {
 			return DataResult.success(Instant.parse(string));
 		} catch (Exception ex) {
@@ -107,20 +106,6 @@ public interface KLibCodecs {
 			return DataResult.success(instant.toString());
 		} catch (Exception ex) {
 			return DataResult.error(() -> "Invalid date: " + instant);
-		}
-	});
-
-	Codec<Instant> ISO_INSTANT = Codec.STRING.flatXmap(string -> {
-		try {
-			return DataResult.success(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(string)));
-		} catch (Exception ex) {
-			return DataResult.error(() -> "Invalid ISO date: " + string);
-		}
-	}, instant -> {
-		try {
-			return DataResult.success(DateTimeFormatter.ISO_INSTANT.format(instant));
-		} catch (Exception ex) {
-			return DataResult.error(() -> "Invalid ISO date: " + instant);
 		}
 	});
 
@@ -137,6 +122,8 @@ public interface KLibCodecs {
 			return DataResult.error(() -> "Invalid date: " + instant);
 		}
 	});
+
+	Codec<Instant> INSTANT = KLibCodecs.or(ISO_INSTANT, UINT64_INSTANT);
 
 	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
 		var map = new HashMap<String, E>(enumValues.length);

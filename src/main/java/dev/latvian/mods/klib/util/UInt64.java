@@ -40,7 +40,7 @@ public record UInt64(long raw) {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof UInt64 o && raw == o.raw;
+		return obj == this || obj instanceof UInt64 o && raw == o.raw;
 	}
 
 	@Override

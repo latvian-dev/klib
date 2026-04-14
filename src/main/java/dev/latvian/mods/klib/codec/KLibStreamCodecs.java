@@ -5,6 +5,8 @@ import com.mojang.datafixers.util.Unit;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.VarInt;
+import net.minecraft.network.VarLong;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
@@ -143,7 +145,20 @@ public interface KLibStreamCodecs {
 		}
 	};
 
-	StreamCodec<ByteBuf, Instant> INSTANT = ByteBufCodecs.LONG.map(Instant::ofEpochMilli, Instant::toEpochMilli);
+	StreamCodec<ByteBuf, Instant> INSTANT = new StreamCodec<>() {
+		@Override
+		public Instant decode(ByteBuf buf) {
+			var second = VarLong.read(buf);
+			var nano = VarInt.read(buf);
+			return Instant.ofEpochSecond(second, nano);
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Instant value) {
+			VarLong.write(buf, value.getEpochSecond());
+			VarInt.write(buf, value.getNano());
+		}
+	};
 
 	static <T> StreamCodec<ByteBuf, ResourceKey<T>> resourceKey(ResourceKey<? extends Registry<T>> registry) {
 		return ResourceLocation.STREAM_CODEC.map(id -> ResourceKey.create(registry, id), ResourceKey::location);

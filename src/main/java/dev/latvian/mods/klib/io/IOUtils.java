@@ -1,6 +1,5 @@
 package dev.latvian.mods.klib.io;
 
-import dev.latvian.mods.klib.util.StringUtils;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +21,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.function.LongConsumer;
 import java.util.function.Predicate;
 
 public interface IOUtils {
@@ -130,6 +130,12 @@ public interface IOUtils {
 		return new String(readBytes(in), StandardCharsets.UTF_8);
 	}
 
+	static Instant readExactTime(DataInput in) throws IOException {
+		var second = readVarLong(in);
+		var nano = readVarInt(in);
+		return Instant.ofEpochSecond(second, nano);
+	}
+
 	static void writeVarInt(DataOutput out, int value) throws IOException {
 		while ((value & -128) != 0) {
 			out.writeByte(value & 127 | 128);
@@ -155,6 +161,11 @@ public interface IOUtils {
 
 	static void writeUTF(DataOutput out, String value) throws IOException {
 		writeBytes(out, value.getBytes(StandardCharsets.UTF_8));
+	}
+
+	static void writeExactTime(DataOutput out, Instant value) throws IOException {
+		writeVarLong(out, value.getEpochSecond());
+		writeVarInt(out, value.getNano());
 	}
 
 	static byte[] toByteArray(ByteBuf buf, boolean release) {
@@ -204,51 +215,88 @@ public interface IOUtils {
 		}
 	}
 
-	static byte[] digest(String algorithm, Path file) throws NoSuchAlgorithmException, IOException {
-		var md = MessageDigest.getInstance(algorithm);
+	static ByteBuffer allocateTempBuffer(int maxBufferSize, long fileSize) {
+		return ByteBuffer.allocate(Math.min(maxBufferSize, (int) Math.min(Integer.MAX_VALUE, fileSize)));
+	}
+
+	static ByteBuffer allocateTempBuffer(Path file) throws IOException {
+		return allocateTempBuffer(4096, Files.size(file));
+	}
+
+	static MessageDigest md(String algorithm) {
+		try {
+			return MessageDigest.getInstance(algorithm);
+		} catch (NoSuchAlgorithmException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	static MessageDigest md5() {
+		return md("MD5");
+	}
+
+	static byte[] digest(String algorithm, Path file, long size, @Nullable LongConsumer callback) throws IOException {
+		var md = md(algorithm);
 
 		try (var channel = Files.newByteChannel(file)) {
-			var buf = ByteBuffer.allocate(2048);
+			var buf = allocateTempBuffer(4096, size);
+			int len;
 
-			while (channel.read(buf) != -1) {
+			while ((len = channel.read(buf)) != -1) {
 				buf.flip();
 				md.update(buf);
 				buf.clear();
+
+				if (callback != null) {
+					callback.accept(len);
+				}
 			}
 
 			return md.digest();
 		}
 	}
 
-	static String md5bytes(Path file) throws NoSuchAlgorithmException, IOException {
-		return StringUtils.toHex(digest("MD5", file));
-	}
-
-	static String md5(Path file) throws NoSuchAlgorithmException, IOException {
-		return StringUtils.toHex(digest("MD5", file));
-	}
-
-	static String getAttribute(Path file, String attribute) throws IOException {
+	@Nullable
+	static ByteBuffer getAttributeBuffer(Path file, String attribute) throws IOException {
 		var attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
 
 		if (attributes != null && attributes.list().contains(attribute)) {
 			var attributeBuffer = ByteBuffer.allocate(attributes.size(attribute));
 			attributes.read(attribute, attributeBuffer);
 			attributeBuffer.flip();
-			return Charset.defaultCharset().decode(attributeBuffer).toString();
+			return attributeBuffer;
 		}
 
-		return "";
+		return null;
 	}
 
-	static boolean setAttribute(Path file, String attribute, String value) throws IOException {
+	static String getAttribute(Path file, String attribute) throws IOException {
+		var buffer = getAttributeBuffer(file, attribute);
+		return buffer == null ? "" : Charset.defaultCharset().decode(buffer).toString();
+	}
+
+	@Nullable
+	static byte[] getAttributeBytes(Path file, String attribute) throws IOException {
+		var buffer = getAttributeBuffer(file, attribute);
+		return buffer == null ? null : buffer.array();
+	}
+
+	static boolean setAttributeBuffer(Path file, String attribute, ByteBuffer value) throws IOException {
 		var attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
 
 		if (attributes != null) {
-			return attributes.write(attribute, Charset.defaultCharset().encode(value)) > 0;
+			return attributes.write(attribute, value) > 0;
 		}
 
 		return false;
+	}
+
+	static boolean setAttribute(Path file, String attribute, String value) throws IOException {
+		return setAttributeBuffer(file, attribute, Charset.defaultCharset().encode(value));
+	}
+
+	static boolean setAttributeBytes(Path file, String attribute, byte[] value) throws IOException {
+		return setAttributeBuffer(file, attribute, ByteBuffer.wrap(value));
 	}
 
 	static Predicate<Path> pathEndsWith(String suffix) {

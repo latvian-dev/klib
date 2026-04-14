@@ -26,6 +26,7 @@ import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Hex32;
+import dev.latvian.mods.klib.util.Hex64;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.MD5;
@@ -84,9 +85,9 @@ public interface DataTypes {
 	DataType<String> STRING = DataType.of(Codec.STRING, ByteBufCodecs.STRING_UTF8, String.class);
 	DataType<UUID> UUID = DataType.of(KLibCodecs.UUID, KLibStreamCodecs.UUID, UUID.class);
 	DataType<byte[]> B64_BYTE_ARRAY = DataType.of(KLibCodecs.B64_BYTE_ARRAY, ByteBufCodecs.BYTE_ARRAY, byte[].class);
-	DataType<Instant> INSTANT = DataType.of(KLibCodecs.INSTANT, KLibStreamCodecs.INSTANT, Instant.class);
 	DataType<Instant> ISO_INSTANT = DataType.of(KLibCodecs.ISO_INSTANT, KLibStreamCodecs.INSTANT, Instant.class);
 	DataType<Instant> UINT64_INSTANT = DataType.of(KLibCodecs.UINT64_INSTANT, KLibStreamCodecs.INSTANT, Instant.class);
+	DataType<Instant> INSTANT = DataType.of(KLibCodecs.INSTANT, KLibStreamCodecs.INSTANT, Instant.class);
 
 	DataType<Component> TEXT_COMPONENT = DataType.of(ComponentSerialization.CODEC, ComponentSerialization.STREAM_CODEC, Component.class);
 	DataType<Mirror> MIRROR = DataType.of(Mirror.values());
@@ -118,9 +119,9 @@ public interface DataTypes {
 		DataType.register(ID.java("string"), STRING, StringArgumentType::string, StringArgumentType::getString);
 		DataType.register(ID.java("uuid"), UUID, UuidArgument::uuid, UuidArgument::getUuid);
 		DataType.register(ID.java("b64_byte_array"), B64_BYTE_ARRAY);
-		DataType.register(ID.java("instant"), INSTANT);
 		DataType.register(ID.java("iso_instant"), ISO_INSTANT);
 		DataType.register(ID.java("uint64_instant"), UINT64_INSTANT);
+		DataType.register(ID.java("instant"), INSTANT);
 
 		DataType.register(ID.mc("id"), ID.DATA_TYPE, ResourceLocationArgument::id, ResourceLocationArgument::getId);
 		DataType.register(ID.mc("text_component"), TEXT_COMPONENT, ComponentArgument::textComponent, ComponentArgument::getResolvedComponent);
@@ -168,6 +169,7 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("timestamp"), Timestamp.DATA_TYPE);
 		DataType.register(KLibMod.id("md5"), MD5.DATA_TYPE);
 		DataType.register(KLibMod.id("hex32"), Hex32.DATA_TYPE);
+		DataType.register(KLibMod.id("hex64"), Hex64.DATA_TYPE);
 		DataType.register(KLibMod.id("uint64"), UInt64.DATA_TYPE);
 	}
 }
