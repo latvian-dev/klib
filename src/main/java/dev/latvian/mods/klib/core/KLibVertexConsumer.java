@@ -39,4 +39,10 @@ public interface KLibVertexConsumer extends VertexCallback {
 		((VertexConsumer) this).setUv1(u, v);
 		return this;
 	}
+
+	@Override
+	default VertexCallback acceptLineWidth(float lineWidth) {
+		((VertexConsumer) this).setLineWidth(lineWidth);
+		return this;
+	}
 }

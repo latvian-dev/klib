@@ -32,4 +32,9 @@ public interface DelegatingVertexCallback extends VertexCallback {
 	default VertexCallback acceptOverlay(int u, int v) {
 		return delegate().acceptOverlay(u, v);
 	}
+
+	@Override
+	default VertexCallback acceptLineWidth(float lineWidth) {
+		return delegate().acceptLineWidth(lineWidth);
+	}
 }

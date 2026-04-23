@@ -5,12 +5,12 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 
@@ -75,7 +75,7 @@ public record AAIBB(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) 
 
 		for (int x = cminX; x <= cmaxX; x++) {
 			for (int z = cminZ; z <= cmaxZ; z++) {
-				chunks.add(ChunkPos.asLong(x, z));
+				chunks.add(ChunkPos.pack(x, z));
 			}
 		}
 	}
@@ -99,7 +99,7 @@ public record AAIBB(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) 
 	}
 
 	public boolean containsChunk(ChunkPos pos) {
-		return containsChunk(pos.x, pos.z);
+		return containsChunk(pos.x(), pos.z());
 	}
 
 	public boolean containsSection(int x, int y, int z) {

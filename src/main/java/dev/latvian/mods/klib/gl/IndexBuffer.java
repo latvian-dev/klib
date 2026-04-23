@@ -1,7 +1,5 @@
 package dev.latvian.mods.klib.gl;
 
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
@@ -24,7 +22,8 @@ public interface IndexBuffer extends AutoCloseable {
 			return of(mode, vertices);
 		} else {
 			int count = meshData.drawState().indexCount();
-			var buffer = RenderSystem.getDevice().createBuffer(null, BufferType.INDICES, BufferUsage.STATIC_WRITE, indexBuffer);
+			// BufferType.INDICES, BufferUsage.STATIC_WRITE
+			var buffer = RenderSystem.getDevice().createBuffer(null, GpuBuffer.USAGE_INDEX | GpuBuffer.USAGE_MAP_WRITE, indexBuffer);
 			var type = meshData.drawState().indexType();
 			return new StaticIndexBuffer(buffer, type, vertices, count);
 		}

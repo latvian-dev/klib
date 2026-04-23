@@ -17,6 +17,11 @@ public interface DelegateVertexConsumer extends VertexConsumer {
 	}
 
 	@Override
+	default VertexConsumer setColor(int color) {
+		return this;
+	}
+
+	@Override
 	default VertexConsumer setUv(float u, float v) {
 		return this;
 	}
@@ -33,6 +38,11 @@ public interface DelegateVertexConsumer extends VertexConsumer {
 
 	@Override
 	default VertexConsumer setNormal(float nx, float ny, float nz) {
+		return this;
+	}
+
+	@Override
+	default VertexConsumer setLineWidth(float width) {
 		return this;
 	}
 }

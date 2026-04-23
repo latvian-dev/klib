@@ -34,12 +34,11 @@ import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import dev.latvian.mods.klib.util.ScreenCorner;
 import dev.latvian.mods.klib.util.Timestamp;
 import dev.latvian.mods.klib.util.UInt64;
-import net.minecraft.Util;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -54,11 +53,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -104,7 +105,8 @@ public interface DataTypes {
 	DataType<Vec3> VEC3S = DataType.of(MCCodecs.VEC3S, MCStreamCodecs.VEC3S, Vec3.class);
 	DataType<BlockPos> BLOCK_POS = DataType.of(BlockPos.CODEC, BlockPos.STREAM_CODEC, BlockPos.class);
 	DataType<Integer> TICKS = DataType.of(KLibCodecs.TICKS, ByteBufCodecs.VAR_INT, Integer.class);
-	DataType<GameProfile> GAME_PROFILE = DataType.of(ExtraCodecs.GAME_PROFILE, ByteBufCodecs.GAME_PROFILE, GameProfile.class);
+	DataType<NameAndId> NAME_AND_ID = DataType.of(NameAndId.CODEC, MCStreamCodecs.NAME_AND_ID, NameAndId.class);
+	DataType<GameProfile> GAME_PROFILE = DataType.of(ExtraCodecs.AUTHLIB_GAME_PROFILE, ByteBufCodecs.GAME_PROFILE, GameProfile.class);
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION, (Class) ResourceKey.class);
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM, Util.OS.class);
 
@@ -123,7 +125,7 @@ public interface DataTypes {
 		DataType.register(ID.java("uint64_instant"), UINT64_INSTANT);
 		DataType.register(ID.java("instant"), INSTANT);
 
-		DataType.register(ID.mc("id"), ID.DATA_TYPE, ResourceLocationArgument::id, ResourceLocationArgument::getId);
+		DataType.register(ID.mc("id"), ID.DATA_TYPE, IdentifierArgument::id, IdentifierArgument::getId);
 		DataType.register(ID.mc("text_component"), TEXT_COMPONENT, ComponentArgument::textComponent, ComponentArgument::getResolvedComponent);
 		DataType.register(ID.mc("mirror"), MIRROR);
 		DataType.register(ID.mc("rotation"), BLOCK_ROTATION);
@@ -131,7 +133,7 @@ public interface DataTypes {
 		DataType.register(ID.mc("hand"), HAND);
 		DataType.register(ID.mc("sound_event"), SOUND_EVENT);
 		DataType.register(ID.mc("sound_source"), SOUND_SOURCE);
-		DataType.register(ID.mc("item_stack"), ITEM_STACK, ItemArgument::item, (ctx, name) -> ItemArgument.getItem(ctx, name).createItemStack(1, false));
+		DataType.register(ID.mc("item_stack"), ITEM_STACK, ItemArgument::item, (ctx, name) -> ItemArgument.getItem(ctx, name).createItemStack(1));
 		DataType.register(ID.mc("particle_options"), PARTICLE_OPTIONS, ParticleArgument::particle, ParticleArgument::getParticle);
 		DataType.register(ID.mc("block_state"), BLOCK_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState());
 		DataType.register(ID.mc("fluid_state"), FLUID_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState().getFluidState());
@@ -141,9 +143,14 @@ public interface DataTypes {
 		DataType.register(ID.mc("ticks"), TICKS, () -> KLibCodecs.TIME_ARGUMENT, IntegerArgumentType::getInteger);
 		DataType.register(ID.mc("game_profile"), GAME_PROFILE, GameProfileArgument::gameProfile, (ctx, name) -> {
 			var profiles = GameProfileArgument.getGameProfiles(ctx, name);
+			var profile = profiles.isEmpty() ? null : profiles.iterator().next();
+			return profile == null ? null : new GameProfile(profile.id(), profile.name());
+		});
+		DataType.register(ID.mc("name_and_id"), NAME_AND_ID, GameProfileArgument::gameProfile, (ctx, name) -> {
+			var profiles = GameProfileArgument.getGameProfiles(ctx, name);
 			return profiles.isEmpty() ? null : profiles.iterator().next();
 		});
-		DataType.register(ID.mc("dimension"), DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, ResourceLocation.class)));
+		DataType.register(ID.mc("dimension"), DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, Identifier.class)));
 		DataType.register(ID.mc("platform"), PLATFORM);
 
 		DataType.register(KLibMod.id("color"), Color.DATA_TYPE);

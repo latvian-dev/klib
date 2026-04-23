@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +11,8 @@ import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -110,9 +111,14 @@ public interface MCStreamCodecs {
 	StreamCodec<ByteBuf, ResourceKey<Level>> DIMENSION = KLibStreamCodecs.resourceKey(Registries.DIMENSION);
 
 	StreamCodec<ByteBuf, GameProfile> GAME_PROFILE = CompositeStreamCodec.of(
-		KLibStreamCodecs.UUID, GameProfile::getId,
-		ByteBufCodecs.STRING_UTF8, GameProfile::getName,
+		KLibStreamCodecs.UUID, GameProfile::id,
+		ByteBufCodecs.STRING_UTF8, GameProfile::name,
 		GameProfile::new
 	);
 
+	StreamCodec<ByteBuf, NameAndId> NAME_AND_ID = CompositeStreamCodec.of(
+		KLibStreamCodecs.UUID, NameAndId::id,
+		ByteBufCodecs.STRING_UTF8, NameAndId::name,
+		NameAndId::new
+	);
 }

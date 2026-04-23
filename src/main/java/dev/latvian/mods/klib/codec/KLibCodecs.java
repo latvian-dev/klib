@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.util.UndashedUuid;
 import dev.latvian.mods.klib.util.StringUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -36,7 +37,7 @@ public interface KLibCodecs {
 
 	Function<?, String> DEFAULT_NAME_GETTER = o -> o instanceof StringRepresentable s ? s.getSerializedName() : o instanceof Enum<?> e ? e.name().toLowerCase(Locale.ROOT) : o.toString().toLowerCase(Locale.ROOT);
 
-	Codec<Unit> UNIT = Codec.unit(Unit.INSTANCE);
+	Codec<Unit> UNIT = MapCodec.unitCodec(Unit.INSTANCE);
 	Codec<UUID> UUID = Codec.STRING.comapFlatMap(s -> {
 		try {
 			return DataResult.success(UndashedUuid.fromStringLenient(s));

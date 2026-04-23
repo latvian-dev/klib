@@ -3,16 +3,16 @@ package dev.latvian.mods.klib.color;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Map;
 
-public record GradientReference(ResourceLocation id) implements Gradient {
-	public static Map<ResourceLocation, Gradient> MAP = Map.of();
+public record GradientReference(Identifier id) implements Gradient {
+	public static Map<Identifier, Gradient> MAP = Map.of();
 
-	public static final Codec<GradientReference> CODEC = ResourceLocation.CODEC.xmap(GradientReference::new, GradientReference::id);
-	public static final StreamCodec<ByteBuf, GradientReference> STREAM_CODEC = ResourceLocation.STREAM_CODEC.map(GradientReference::new, GradientReference::id);
+	public static final Codec<GradientReference> CODEC = Identifier.CODEC.xmap(GradientReference::new, GradientReference::id);
+	public static final StreamCodec<ByteBuf, GradientReference> STREAM_CODEC = Identifier.STREAM_CODEC.map(GradientReference::new, GradientReference::id);
 
 	@Override
 	public Color get(float delta) {

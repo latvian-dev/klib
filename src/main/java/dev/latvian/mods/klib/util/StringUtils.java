@@ -1,8 +1,8 @@
 package dev.latvian.mods.klib.util;
 
 import dev.latvian.mods.klib.math.KMath;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;

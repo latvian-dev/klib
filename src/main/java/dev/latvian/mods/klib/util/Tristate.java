@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.util;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,7 +18,7 @@ public enum Tristate implements StringRepresentable {
 
 	public static final Tristate[] VALUES = values();
 
-	public static final Codec<Tristate> CODEC = Codec.either(Codec.BOOL, Codec.unit("default")).xmap(
+	public static final Codec<Tristate> CODEC = Codec.either(Codec.BOOL, MapCodec.unitCodec("default")).xmap(
 		either -> either.map(b -> b ? TRUE : FALSE, s -> s.equalsIgnoreCase("true") ? TRUE : s.equalsIgnoreCase("false") ? FALSE : DEFAULT),
 		t -> t == DEFAULT ? Either.right("default") : Either.left(t == TRUE)
 	);

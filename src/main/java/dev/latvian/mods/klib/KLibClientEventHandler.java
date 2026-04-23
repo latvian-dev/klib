@@ -11,6 +11,6 @@ import net.neoforged.neoforge.client.event.FrameGraphSetupEvent;
 public class KLibClientEventHandler {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void setup(FrameGraphSetupEvent event) {
-		ClientMatrices.updateMain(event.getModelViewMatrix(), event.getProjectionMatrix());
+		ClientMatrices.updateMain(event.getModelViewMatrix(), event.getCameraState().projectionMatrix);
 	}
 }

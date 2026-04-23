@@ -14,6 +14,6 @@ record StaticIndexBuffer(GpuBuffer buffer, VertexFormat.IndexType type, int vert
 
 	@Override
 	public @NotNull String toString() {
-		return "StaticIndexBuffer[size=%,d bytes, vertices=%,d, indices=%,d, type=%s]".formatted(buffer.size, vertices, indices, type.toString().toLowerCase(Locale.ROOT));
+		return "StaticIndexBuffer[size=%,d bytes, vertices=%,d, indices=%,d, type=%s]".formatted(buffer.size(), vertices, indices, type.toString().toLowerCase(Locale.ROOT));
 	}
 }

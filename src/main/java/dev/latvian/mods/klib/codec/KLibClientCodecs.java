@@ -14,9 +14,10 @@ public interface KLibClientCodecs {
 		"glint", BlendFunction.GLINT,
 		"overlay", BlendFunction.OVERLAY,
 		"translucent", BlendFunction.TRANSLUCENT,
+		"translucent_premultiplied_alpha", BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA,
 		"additive", BlendFunction.ADDITIVE,
-		"panorama", BlendFunction.PANORAMA,
-		"entity_outline_blit", BlendFunction.ENTITY_OUTLINE_BLIT
+		"entity_outline_blit", BlendFunction.ENTITY_OUTLINE_BLIT,
+		"invert", BlendFunction.INVERT
 	), Codec.STRING, false);
 
 	Codec<BlendFunction> DIRECT_BLEND_FUNCTION = RecordCodecBuilder.create(instance -> instance.group(

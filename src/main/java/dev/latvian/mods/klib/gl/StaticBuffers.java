@@ -1,7 +1,5 @@
 package dev.latvian.mods.klib.gl;
 
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -35,7 +33,8 @@ public record StaticBuffers(VertexFormat format, int vertexCount, int indexCount
 
 	public static StaticBuffers of(MeshData meshData, @Nullable Supplier<String> name, @Nullable Optional<IndexBuffer> indexBuffer) {
 		var format = meshData.drawState().format();
-		var vertexBuf = RenderSystem.getDevice().createBuffer(name, BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.vertexBuffer());
+		// BufferType.VERTICES, BufferUsage.STATIC_WRITE
+		var vertexBuf = RenderSystem.getDevice().createBuffer(name, GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE, meshData.vertexBuffer());
 		var indexBuf = indexBuffer == null ? IndexBuffer.of(meshData) : indexBuffer.orElse(null);
 		return new StaticBuffers(format, meshData.drawState().vertexCount(), meshData.drawState().indexCount(), vertexBuf, indexBuf == null ? null : indexBuf.staticBuffer());
 	}

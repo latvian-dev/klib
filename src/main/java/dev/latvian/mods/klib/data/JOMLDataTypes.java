@@ -2,7 +2,7 @@ package dev.latvian.mods.klib.data;
 
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix2d;
 import org.joml.Matrix2dc;
 import org.joml.Matrix2f;
@@ -132,7 +132,7 @@ public interface JOMLDataTypes {
 	}
 
 	private static void register(String name, DataType<?> type, DataType<?> ctype) {
-		DataType.register(ResourceLocation.fromNamespaceAndPath("joml", name), type);
-		DataType.register(ResourceLocation.fromNamespaceAndPath("joml", name + "c"), ctype);
+		DataType.register(Identifier.fromNamespaceAndPath("joml", name), type);
+		DataType.register(Identifier.fromNamespaceAndPath("joml", name + "c"), ctype);
 	}
 }

@@ -34,6 +34,10 @@ public interface VertexCallback {
 		return this;
 	}
 
+	default VertexCallback acceptLineWidth(float lineWidth) {
+		return this;
+	}
+
 	default VertexCallback withColor(Color color) {
 		return new VertexCallbackWithColor(this, color.redf(), color.greenf(), color.bluef(), color.alphaf());
 	}
@@ -52,6 +56,10 @@ public interface VertexCallback {
 
 	default VertexCallback withNormal(float nx, float ny, float nz) {
 		return new VertexCallbackWithNormal(this, nx, ny, nz);
+	}
+
+	default VertexCallback withLineWidth(float lineWidth) {
+		return new VertexCallbackWithLineWidth(this, lineWidth);
 	}
 
 	default VertexCallback withTransformedPositionsAndNormals(Matrix4fc posMatrix, Matrix3fc normalMatrix, boolean normalize) {

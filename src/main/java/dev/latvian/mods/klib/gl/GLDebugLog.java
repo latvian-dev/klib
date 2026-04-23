@@ -1,7 +1,7 @@
 package dev.latvian.mods.klib.gl;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.InputQuirks;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.metrics.MetricCategory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -102,7 +102,7 @@ public interface GLDebugLog {
 	};
 
 	static boolean isEnabled() {
-		return !Minecraft.ON_OSX && ENABLED.getValue();
+		return !InputQuirks.ON_OSX && ENABLED.getValue();
 	}
 
 	static void message(Object message, Type type, Severity severity) {

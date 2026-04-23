@@ -8,49 +8,49 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public interface ID {
-	Codec<ResourceLocation> CODEC = Codec.STRING.xmap(ID::idFromString, ID::idToString);
-	StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ID::idFromString, ID::idToString);
-	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ResourceLocation.class);
-	StreamCodec<RegistryFriendlyByteBuf, ResourceLocation> REGISTRY_STREAM_CODEC = Cast.to(STREAM_CODEC);
+	Codec<Identifier> CODEC = Codec.STRING.xmap(ID::idFromString, ID::idToString);
+	StreamCodec<ByteBuf, Identifier> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ID::idFromString, ID::idToString);
+	DataType<Identifier> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Identifier.class);
+	StreamCodec<RegistryFriendlyByteBuf, Identifier> REGISTRY_STREAM_CODEC = Cast.to(STREAM_CODEC);
 
-	static ResourceLocation mc(String path) {
-		return ResourceLocation.withDefaultNamespace(path);
+	static Identifier mc(String path) {
+		return Identifier.withDefaultNamespace(path);
 	}
 
-	static ResourceLocation java(String path) {
-		return ResourceLocation.fromNamespaceAndPath("java", path);
+	static Identifier java(String path) {
+		return Identifier.fromNamespaceAndPath("java", path);
 	}
 
-	static ResourceLocation video(String path) {
-		return ResourceLocation.fromNamespaceAndPath("video", path);
+	static Identifier video(String path) {
+		return Identifier.fromNamespaceAndPath("video", path);
 	}
 
-	static ResourceLocation idFromString(String string) {
-		return string.indexOf(':') == -1 ? ResourceLocation.withDefaultNamespace(string) : ResourceLocation.parse(string);
+	static Identifier idFromString(String string) {
+		return string.indexOf(':') == -1 ? Identifier.withDefaultNamespace(string) : Identifier.parse(string);
 	}
 
-	static String idToString(ResourceLocation id) {
+	static String idToString(Identifier id) {
 		return id.getNamespace().equals("minecraft") ? id.getPath() : id.toString();
 	}
 
-	static ResourceLocation parse(StringReader reader) throws CommandSyntaxException {
+	static Identifier parse(StringReader reader) throws CommandSyntaxException {
 		int i = reader.getCursor();
 
-		while (reader.canRead() && ResourceLocation.isAllowedInResourceLocation(reader.peek())) {
+		while (reader.canRead() && Identifier.isAllowedInIdentifier(reader.peek())) {
 			reader.skip();
 		}
 
@@ -58,13 +58,13 @@ public interface ID {
 
 		try {
 			return idFromString(s);
-		} catch (ResourceLocationException resourcelocationexception) {
+		} catch (IdentifierException resourcelocationexception) {
 			reader.setCursor(i);
-			throw ResourceLocation.ERROR_INVALID.createWithContext(reader);
+			throw Identifier.ERROR_INVALID.createWithContext(reader);
 		}
 	}
 
-	static CompletableFuture<Suggestions> suggest(SuggestionsBuilder builder, Supplier<Iterable<ResourceLocation>> allIds) {
+	static CompletableFuture<Suggestions> suggest(SuggestionsBuilder builder, Supplier<Iterable<Identifier>> allIds) {
 		var input = builder.getRemaining().toLowerCase(Locale.ROOT);
 		boolean col = input.indexOf(':') > -1;
 
@@ -83,7 +83,7 @@ public interface ID {
 		return builder.buildFuture();
 	}
 
-	static SuggestionProvider<CommandSourceStack> registerSuggestionProvider(ResourceLocation id, Supplier<Iterable<ResourceLocation>> allIds) {
+	static SuggestionProvider<CommandSourceStack> registerSuggestionProvider(Identifier id, Supplier<Iterable<Identifier>> allIds) {
 		return SuggestionProviders.register(id, (ctx, builder) -> suggest(builder, allIds));
 	}
 }

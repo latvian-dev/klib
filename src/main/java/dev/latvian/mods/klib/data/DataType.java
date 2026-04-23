@@ -17,6 +17,7 @@ import com.mojang.datafixers.util.Function7;
 import com.mojang.datafixers.util.Function8;
 import com.mojang.datafixers.util.Function9;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.util.Cast;
@@ -30,8 +31,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.server.command.EnumArgument;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +50,7 @@ import java.util.function.Function;
 
 public final class DataType<T> {
 	public static synchronized <T> void register(
-		ResourceLocation id,
+		Identifier id,
 		DataType<T> type,
 		@Nullable ArgumentTypeProvider<T> argumentType,
 		@Nullable ArgumentGetter<T> argumentGetter
@@ -60,7 +61,7 @@ public final class DataType<T> {
 	}
 
 	public static <T> void register(
-		ResourceLocation id,
+		Identifier id,
 		DataType<T> type,
 		@Nullable ArgumentTypeProvider.NS<T> argumentType,
 		@Nullable ArgumentGetter<T> argumentGetter
@@ -69,7 +70,7 @@ public final class DataType<T> {
 	}
 
 	public static <T> void register(
-		ResourceLocation id,
+		Identifier id,
 		DataType<T> type,
 		@Nullable ArgumentTypeProvider.NSNCTX<T> argumentType,
 		@Nullable ArgumentGetter<T> argumentGetter
@@ -87,7 +88,7 @@ public final class DataType<T> {
 		return (T) ctx.getArgument(name, Enum.class);
 	}
 
-	public static <T> void register(ResourceLocation id, DataType<T> type) {
+	public static <T> void register(Identifier id, DataType<T> type) {
 		if (type.typeClass.isEnum()) {
 			register(id, type, DataType::enumArgument, DataType::getEnumArgument);
 		} else {
@@ -120,7 +121,7 @@ public final class DataType<T> {
 	}
 
 	public static <C, T extends C> DataType<C> unit(T value, Class<C> typeClass) {
-		return of(Codec.unit(value), StreamCodec.unit(value), typeClass);
+		return of(MapCodec.unitCodec(value), StreamCodec.unit(value), typeClass);
 	}
 
 	public static <T> DataTypeBuilder<T> builder(Class<T> typeClass) {
@@ -493,14 +494,14 @@ public final class DataType<T> {
 			case Component c -> c.getString().length();
 			case Position p -> Mth.length(p.x(), p.y(), p.z());
 			case Vec3i v -> Mth.length(v.getX(), v.getY(), v.getZ());
-			case ResourceLocation r -> r.toString().length();
-			case ResourceKey<?> k -> k.location().toString().length();
+			case Identifier r -> r.toString().length();
+			case ResourceKey<?> k -> k.identifier().toString().length();
 			case null, default -> null;
 		};
 	}
 
 	@Nullable
-	public ResourceLocation getId() {
+	public Identifier getId() {
 		var t = RegisteredDataType.BY_TYPE.get(this);
 		return t == null ? null : t.id();
 	}
