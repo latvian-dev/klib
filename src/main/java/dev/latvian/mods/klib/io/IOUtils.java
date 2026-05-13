@@ -7,9 +7,12 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -20,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.LongConsumer;
 import java.util.function.Predicate;
@@ -66,6 +70,16 @@ public interface IOUtils {
 			return instant.toEpochMilli() == 0L ? null : instant;
 		} catch (Exception ex) {
 			return null;
+		}
+	}
+
+	static void runUnmodified(Path path, PathOperation operation) throws IOException {
+		var time = Files.getLastModifiedTime(path);
+
+		try {
+			operation.run(path);
+		} finally {
+			Files.setLastModifiedTime(path, time);
 		}
 	}
 
@@ -301,5 +315,13 @@ public interface IOUtils {
 
 	static Predicate<Path> pathEndsWith(String suffix) {
 		return path -> path.toString().endsWith(suffix);
+	}
+
+	static FileSystem openAsZip(Path path, Map<String, ?> env) throws IOException {
+		return FileSystems.newFileSystem(URI.create("jar:" + path.toUri()), env);
+	}
+
+	static FileSystem openAsZip(Path path) throws IOException {
+		return openAsZip(path, Map.of());
 	}
 }

@@ -2,19 +2,18 @@ package dev.latvian.mods.klib.util;
 
 import dev.latvian.mods.klib.math.KMath;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.TimeZone;
 import java.util.UUID;
 
 public interface StringUtils {
@@ -23,19 +22,9 @@ public interface StringUtils {
 	Base64.Encoder B64_ENCODER = Base64.getUrlEncoder().withoutPadding();
 	Base64.Decoder B64_DECODER = Base64.getUrlDecoder();
 
-	SimpleDateFormat SHORT_EST_TIMESTAMP_FORMAT = Util.make(() -> {
-		var format = new SimpleDateFormat("HH:mm:ss");
-		format.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-		return format;
-	});
-
-	SimpleDateFormat LONG_EST_TIMESTAMP_FORMAT = Util.make(() -> {
-		var format = new SimpleDateFormat("EEEE, d MMM yyyy, HH:mm:ss.SSS");
-		format.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-		return format;
-	});
-
-	SimpleDateFormat LONG_LOCAL_TIMESTAMP_FORMAT = new SimpleDateFormat("EEEE, d MMM yyyy, HH:mm:ss.SSS");
+	DateTimeFormatter SHORT_EST_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.of("America/New_York"));
+	DateTimeFormatter LONG_EST_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("EEEE, d MMM yyyy, HH:mm:ss.SSS").withZone(ZoneId.of("America/New_York"));
+	DateTimeFormatter LONG_LOCAL_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("EEEE, d MMM yyyy, HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
 
 	DecimalFormat BYTE_SIZE_FORMAT = new DecimalFormat("#,##0.#");
 	String[] BINARY_BYTE_SIZE_UNITS = new String[]{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};

@@ -1,6 +1,8 @@
 package dev.latvian.mods.klib.codec;
 
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.Function;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntLists;
@@ -12,6 +14,11 @@ import it.unimi.dsi.fastutil.shorts.ShortList;
 import it.unimi.dsi.fastutil.shorts.ShortLists;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.ToIntFunction;
 
 public interface CollectionStreamCodecs {
 	StreamCodec<ByteBuf, IntList> VAR_INT_LIST = new StreamCodec<>() {
@@ -103,4 +110,12 @@ public interface CollectionStreamCodecs {
 			}
 		}
 	};
+
+	static <B extends ByteBuf, K, V> StreamCodec<B, Map<K, V>> listToMap(StreamCodec<B, V> codec, Function<V, K> keyMapper) {
+		return KLibStreamCodecs.listOf(codec).map(list -> CollectionCodecs.listToMap(list, keyMapper), map -> map.isEmpty() ? List.of() : new ArrayList<>(map.values()));
+	}
+
+	static <B extends ByteBuf, V> StreamCodec<B, Int2ObjectMap<V>> listToInt2ObjectMap(StreamCodec<B, V> codec, ToIntFunction<V> keyMapper) {
+		return KLibStreamCodecs.listOf(codec).map(list -> CollectionCodecs.listToInt2ObjectMap(list, keyMapper), map -> map.isEmpty() ? List.of() : new ArrayList<>(map.values()));
+	}
 }
