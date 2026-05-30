@@ -441,4 +441,35 @@ public record Color(int argb) implements Gradient {
 	public Gradient gradient(Color other, Interpolation interpolation) {
 		return interpolation.isLinear() ? new LinearPairGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, interpolation), new PositionedColor(1F, other)));
 	}
+
+	public Color mix(Color color, int mixAlpha) {
+		if (mixAlpha <= 0) {
+			return this;
+		}
+
+		int alpha = alpha();
+		int a = alpha + (mixAlpha * (255 - alpha) / 255);
+		int r = (red() * alpha + color.red() * mixAlpha * (255 - alpha) / 255) / a;
+		int g = (green() * alpha + color.green() * mixAlpha * (255 - alpha) / 255) / a;
+		int b = (blue() * alpha + color.blue() * mixAlpha * (255 - alpha) / 255) / a;
+		return of(a, r, g, b);
+	}
+
+	public Color mix(Color color, float mixAlpha) {
+		if (mixAlpha <= 0F) {
+			return this;
+		}
+
+		float alpha = alphaf();
+		float dstAlpha = mixAlpha * (1F - alpha);
+		float a = alpha + dstAlpha;
+		float r = (redf() * alpha + color.redf() * dstAlpha) / a;
+		float g = (greenf() * alpha + color.greenf() * dstAlpha) / a;
+		float b = (bluef() * alpha + color.bluef() * dstAlpha) / a;
+		return of(a, r, g, b);
+	}
+
+	public Color mix(Color color) {
+		return mix(color, color.alpha());
+	}
 }
