@@ -47,6 +47,7 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -107,6 +108,7 @@ public interface DataTypes {
 	DataType<GameProfile> GAME_PROFILE = DataType.of(ExtraCodecs.GAME_PROFILE, ByteBufCodecs.GAME_PROFILE, GameProfile.class);
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION, (Class) ResourceKey.class);
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM, Util.OS.class);
+	DataType<ClientAsset> RESOURCE_TEXTURE = DataType.of(ClientAsset.CODEC, ClientAsset.STREAM_CODEC, ClientAsset.class);
 
 	static void register() {
 		DataType.register(ID.java("bool"), BOOL, BoolArgumentType::bool, BoolArgumentType::getBool);
@@ -145,6 +147,7 @@ public interface DataTypes {
 		});
 		DataType.register(ID.mc("dimension"), DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, ResourceLocation.class)));
 		DataType.register(ID.mc("platform"), PLATFORM);
+		DataType.register(ID.mc("resource_texture"), RESOURCE_TEXTURE);
 
 		DataType.register(KLibMod.id("color"), Color.DATA_TYPE);
 		DataType.register(KLibMod.id("solid_color"), Color.SOLID_DATA_TYPE);
