@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public record AnyEnumArgument<T>(DataType<T> dataType) implements ArgumentType<T> {
+public record EnumDataTypeArgument<T>(DataType<T> dataType) implements ArgumentType<T> {
 	private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> Component.translatable("commands.neoforge.arguments.enum.invalid", constants, found));
 
 	@Override
@@ -48,41 +48,41 @@ public record AnyEnumArgument<T>(DataType<T> dataType) implements ArgumentType<T
 		return dataType.enumValues().stream().map(Map.Entry::getKey).toList();
 	}
 
-	public static class AnyEnumInfo<T> implements ArgumentTypeInfo<AnyEnumArgument<T>, AnyEnumInfo.AnyEnumTemplate<T>> {
+	public static class EnumDataTypeArgumentInfo<T> implements ArgumentTypeInfo<EnumDataTypeArgument<T>, EnumDataTypeArgumentInfo.EnumDataTypeArgumentTemplate<T>> {
 		@Override
-		public void serializeToNetwork(AnyEnumTemplate<T> template, FriendlyByteBuf buffer) {
+		public void serializeToNetwork(EnumDataTypeArgumentTemplate<T> template, FriendlyByteBuf buffer) {
 			DataType.REGISTRY_KEYS.streamCodec().encode(buffer, template.dataType.requireKey());
 		}
 
 		@Override
-		public AnyEnumTemplate<T> deserializeFromNetwork(FriendlyByteBuf buffer) {
+		public EnumDataTypeArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buffer) {
 			var key = DataType.REGISTRY_KEYS.streamCodec().decode(buffer);
 
 			try {
-				return new AnyEnumTemplate<>(this, Cast.to(DataTypeRegistry.require(key)));
+				return new EnumDataTypeArgumentTemplate<>(this, Cast.to(DataTypeRegistry.require(key)));
 			} catch (NullPointerException _) {
 				return null;
 			}
 		}
 
 		@Override
-		public void serializeToJson(AnyEnumTemplate<T> template, JsonObject json) {
+		public void serializeToJson(EnumDataTypeArgumentTemplate<T> template, JsonObject json) {
 			json.addProperty("data_type", template.dataType.requireKey().identifier().toString());
 		}
 
 		@Override
-		public AnyEnumTemplate<T> unpack(AnyEnumArgument<T> argument) {
-			return new AnyEnumTemplate<>(this, argument.dataType);
+		public EnumDataTypeArgumentTemplate<T> unpack(EnumDataTypeArgument<T> argument) {
+			return new EnumDataTypeArgumentTemplate<>(this, argument.dataType);
 		}
 
-		public record AnyEnumTemplate<T>(AnyEnumInfo<T> info, DataType<T> dataType) implements Template<AnyEnumArgument<T>> {
+		public record EnumDataTypeArgumentTemplate<T>(EnumDataTypeArgumentInfo<T> info, DataType<T> dataType) implements Template<EnumDataTypeArgument<T>> {
 			@Override
-			public AnyEnumArgument<T> instantiate(CommandBuildContext ctx) {
-				return new AnyEnumArgument<>(dataType);
+			public EnumDataTypeArgument<T> instantiate(CommandBuildContext ctx) {
+				return new EnumDataTypeArgument<>(dataType);
 			}
 
 			@Override
-			public ArgumentTypeInfo<AnyEnumArgument<T>, ?> type() {
+			public ArgumentTypeInfo<EnumDataTypeArgument<T>, ?> type() {
 				return info;
 			}
 		}

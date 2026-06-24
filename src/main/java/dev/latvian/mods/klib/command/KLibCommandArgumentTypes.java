@@ -10,5 +10,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public interface KLibCommandArgumentTypes {
 	DeferredRegister<ArgumentTypeInfo<?, ?>> REGISTRY = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, KLib.ID);
 
-	Holder<ArgumentTypeInfo<?, ?>> ANY_ENUM = REGISTRY.register("any_enum", () -> ArgumentTypeInfos.registerByClass(AnyEnumArgument.class, new AnyEnumArgument.AnyEnumInfo()));
+	Holder<ArgumentTypeInfo<?, ?>> ENUM_DATA_TYPE = REGISTRY.register("enum_data_type", () -> ArgumentTypeInfos.registerByClass(EnumDataTypeArgument.class, new EnumDataTypeArgument.EnumDataTypeArgumentInfo()));
+	Holder<ArgumentTypeInfo<?, ?>> PARSED_DATA_TYPE = REGISTRY.register("parsed_data_type", () -> ArgumentTypeInfos.registerByClass(ParsedDataTypeArgument.class, new ParsedDataTypeArgument.ParsedDataTypeArgumentInfo()));
 }

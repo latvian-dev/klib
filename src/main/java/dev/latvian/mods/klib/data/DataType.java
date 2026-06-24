@@ -8,7 +8,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
-import dev.latvian.mods.klib.command.AnyEnumArgument;
+import dev.latvian.mods.klib.command.EnumDataTypeArgument;
+import dev.latvian.mods.klib.command.ParsedDataTypeArgument;
 import dev.latvian.mods.klib.registry.RegistryKeys;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
@@ -18,6 +19,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Position;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -33,7 +36,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-public record DataType<T>(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, List<Map.Entry<String, T>> enumValues, @Nullable DataType<?> componentType) {
+public record DataType<T>(
+	Codec<T> codec,
+	StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec,
+	List<Map.Entry<String, T>> enumValues,
+	@Nullable DataType<?> componentType
+) implements ArgumentGetter<T> {
 	public static final RegistryKeys<DataType<?>> REGISTRY_KEYS = RegistryKeys.createKeys(ID.klib("data_type"));
 
 	public static <T> DataType<T> of(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, List<Map.Entry<String, T>> enumValues) {
@@ -76,11 +84,42 @@ public record DataType<T>(Codec<T> codec, StreamCodec<? super RegistryFriendlyBy
 		);
 	}
 
-	public DataType(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, List<Map.Entry<String, T>> enumValues, DataType<?> componentType) {
+	public DataType(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, List<Map.Entry<String, T>> enumValues, @Nullable DataType<?> componentType) {
 		this.codec = codec;
 		this.streamCodec = streamCodec;
 		this.enumValues = List.copyOf(enumValues);
 		this.componentType = componentType;
+	}
+
+	@Override
+	public int hashCode() {
+		return System.identityHashCode(this);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj;
+	}
+
+	@Override
+	public String toString() {
+		var key = key();
+		return key != null ? key.identifier().toString() : ("Unregistered type " + codec);
+	}
+
+	@Nullable
+	public ResourceKey<DataType<?>> key() {
+		return DataTypeRegistry.DATA.get().byType().get(this);
+	}
+
+	public ResourceKey<DataType<?>> requireKey() {
+		var key = key();
+
+		if (key == null) {
+			throw new NullPointerException("DataType not registered");
+		}
+
+		return key;
 	}
 
 	public DataType<List<T>> listOf() {
@@ -89,6 +128,32 @@ public record DataType<T>(Codec<T> codec, StreamCodec<? super RegistryFriendlyBy
 
 	public DataType<Set<T>> setOf() {
 		return new DataType<>(KLibCodecs.setOf(codec), KLibStreamCodecs.setOf(streamCodec), List.of(), this);
+	}
+
+	public ArgumentType<?> argument(CommandBuildContext ctx) {
+		var commandInfo = DataTypeRegistry.DATA.get().commandInfo().get(this);
+
+		if (commandInfo != null) {
+			return commandInfo.argumentType().create(Cast.to(commandInfo), ctx);
+		}
+
+		if (!enumValues.isEmpty()) {
+			return new EnumDataTypeArgument<>(this);
+		} else {
+			var ops = ctx.createSerializationContext(NbtOps.INSTANCE);
+			return new ParsedDataTypeArgument<>(ops, TagParser.create(ops), this);
+		}
+	}
+
+	@Override
+	public T get(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
+		var commandInfo = DataTypeRegistry.DATA.get().commandInfo().get(this);
+
+		if (commandInfo != null) {
+			return ((ArgumentGetter<T>) commandInfo.argumentGetter()).get(ctx, name);
+		}
+
+		return (T) ctx.getArgument(name, Object.class);
 	}
 
 	@Nullable
@@ -109,66 +174,5 @@ public record DataType<T>(Codec<T> codec, StreamCodec<? super RegistryFriendlyBy
 			case ResourceKey<?> k -> k.identifier().toString().length();
 			case null, default -> null;
 		};
-	}
-
-	@Nullable
-	public ResourceKey<DataType<?>> key() {
-		return DataTypeRegistry.DATA.get().byType().get(this);
-	}
-
-	public ResourceKey<DataType<?>> requireKey() {
-		var key = key();
-
-		if (key == null) {
-			throw new NullPointerException("DataType not registered");
-		}
-
-		return key;
-	}
-
-	@Override
-	public int hashCode() {
-		return System.identityHashCode(this);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return this == obj;
-	}
-
-	@Override
-	public String toString() {
-		var key = key();
-		return key != null ? key.identifier().toString() : ("Unregistered type " + codec);
-	}
-
-	public ArgumentType<?> argument(CommandBuildContext ctx) {
-		var commandInfo = DataTypeRegistry.DATA.get().commandInfo().get(this);
-
-		if (commandInfo != null) {
-			return commandInfo.argumentType().create(Cast.to(commandInfo), ctx);
-		}
-
-		if (!enumValues.isEmpty()) {
-			return new AnyEnumArgument<>(this);
-		}
-
-		// TODO: Attempt Json
-		throw new IllegalStateException("Unable to resolve argument type for " + this);
-	}
-
-	public T get(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
-		var commandInfo = DataTypeRegistry.DATA.get().commandInfo().get(this);
-
-		if (commandInfo != null) {
-			return ((ArgumentGetter<T>) commandInfo.argumentGetter()).get(ctx, name);
-		}
-
-		if (!enumValues.isEmpty()) {
-			return (T) ctx.getArgument(name, Object.class);
-		}
-
-		// TODO: Attempt Json
-		throw new IllegalStateException("Unable to resolve argument type for " + this);
 	}
 }
