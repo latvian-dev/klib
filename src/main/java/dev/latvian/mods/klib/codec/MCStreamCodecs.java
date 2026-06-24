@@ -22,7 +22,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public interface MCStreamCodecs {
-	StreamCodec<ByteBuf, Util.OS> PLATFORM = KLibStreamCodecs.enumValue(Util.OS.values());
+	StreamCodec<ByteBuf, Util.OS> PLATFORM = KLibStreamCodecs.anyEnum(Util.OS.values());
 
 	StreamCodec<ByteBuf, Vec3> VEC3 = new StreamCodec<>() {
 		@Override

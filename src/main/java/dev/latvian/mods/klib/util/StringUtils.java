@@ -25,6 +25,7 @@ public interface StringUtils {
 	DateTimeFormatter SHORT_EST_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.of("America/New_York"));
 	DateTimeFormatter LONG_EST_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("EEEE, d MMM yyyy, HH:mm:ss.SSS").withZone(ZoneId.of("America/New_York"));
 	DateTimeFormatter LONG_LOCAL_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("EEEE, d MMM yyyy, HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
+	DateTimeFormatter FILE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").withZone(ZoneId.of("America/New_York"));
 
 	DecimalFormat BYTE_SIZE_FORMAT = new DecimalFormat("#,##0.#");
 	String[] BINARY_BYTE_SIZE_UNITS = new String[]{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};

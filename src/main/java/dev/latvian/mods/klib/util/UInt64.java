@@ -31,7 +31,7 @@ public record UInt64(long raw) {
 	}, UInt64::toString);
 
 	public static final StreamCodec<ByteBuf, UInt64> STREAM_CODEC = ByteBufCodecs.LONG.map(UInt64::of, UInt64::raw);
-	public static final DataType<UInt64> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, UInt64.class);
+	public static final DataType<UInt64> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public int hashCode() {

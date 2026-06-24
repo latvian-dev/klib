@@ -7,7 +7,8 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.latvian.mods.klib.KLibMod;
+import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.util.ID;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,7 +17,7 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
 import java.util.Optional;
 
-@EventBusSubscriber(modid = KLibMod.ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = KLib.ID, value = Dist.CLIENT)
 public interface DebugRenderPipelines {
 	RenderPipeline.Snippet BASE_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
 		.withVertexShader("core/position_color")
@@ -26,46 +27,46 @@ public interface DebugRenderPipelines {
 		.buildSnippet();
 
 	RenderPipeline LINES = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
-		.withLocation(KLibMod.id("debug/lines"))
+		.withLocation(ID.klib("debug/lines"))
 		.build();
 
 	RenderPipeline LINES_SEE_THROUGH = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
-		.withLocation(KLibMod.id("debug/lines_see_through"))
+		.withLocation(ID.klib("debug/lines_see_through"))
 		.withDepthStencilState(Optional.empty())
 		.build();
 
 	RenderPipeline QUADS = RenderPipeline.builder(BASE_SNIPPET)
-		.withLocation(KLibMod.id("debug/quads"))
+		.withLocation(ID.klib("debug/quads"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.build();
 
 	RenderPipeline QUADS_NO_CULL = RenderPipeline.builder(BASE_SNIPPET)
-		.withLocation(KLibMod.id("debug/quads_no_cull"))
+		.withLocation(ID.klib("debug/quads_no_cull"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withCull(false)
 		.build();
 
 	RenderPipeline QUADS_NO_DEPTH = RenderPipeline.builder(BASE_SNIPPET)
-		.withLocation(KLibMod.id("debug/quads_no_depth"))
+		.withLocation(ID.klib("debug/quads_no_depth"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
 		.build();
 
 	RenderPipeline QUADS_NO_CULL_NO_DEPTH = RenderPipeline.builder(BASE_SNIPPET)
-		.withLocation(KLibMod.id("debug/quads_no_cull_no_depth"))
+		.withLocation(ID.klib("debug/quads_no_cull_no_depth"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withCull(false)
 		.withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
 		.build();
 
 	RenderPipeline QUADS_SEE_THROUGH = RenderPipeline.builder(BASE_SNIPPET)
-		.withLocation(KLibMod.id("debug/quads_see_through"))
+		.withLocation(ID.klib("debug/quads_see_through"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withDepthStencilState(Optional.empty())
 		.build();
 
 	RenderPipeline QUADS_NO_CULL_SEE_THROUGH = RenderPipeline.builder(BASE_SNIPPET)
-		.withLocation(KLibMod.id("debug/quads_no_cull_see_through"))
+		.withLocation(ID.klib("debug/quads_no_cull_see_through"))
 		.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
 		.withCull(false)
 		.withDepthStencilState(Optional.empty())

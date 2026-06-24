@@ -23,7 +23,7 @@ public enum Tristate implements StringRepresentable {
 		t -> t == DEFAULT ? Either.right("default") : Either.left(t == TRUE)
 	);
 
-	public static final StreamCodec<ByteBuf, Tristate> STREAM_CODEC = KLibStreamCodecs.enumValue(VALUES);
+	public static final StreamCodec<ByteBuf, Tristate> STREAM_CODEC = KLibStreamCodecs.anyEnum(VALUES);
 
 	public static Tristate wrap(Object from) {
 		return switch (from) {

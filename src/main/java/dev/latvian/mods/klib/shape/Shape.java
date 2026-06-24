@@ -27,7 +27,7 @@ public interface Shape {
 	Codec<Shape> CODEC = UNIT_OR_DIRECT_CODEC.xmap(Shape::optimize, Function.identity());
 	StreamCodec<ByteBuf, Shape> DIRECT_STREAM_CODEC = ShapeType.STREAM_CODEC.dispatch(Shape::type, ShapeType::streamCodec);
 	StreamCodec<ByteBuf, Shape> STREAM_CODEC = ByteBufCodecs.either(UnitShape.STREAM_CODEC, DIRECT_STREAM_CODEC).map(e -> e.map(Function.identity(), Function.identity()), s -> s instanceof UnitShape u ? Either.left(u) : Either.right(s));
-	DataType<Shape> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Shape.class);
+	DataType<Shape> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	ShapeType type();
 

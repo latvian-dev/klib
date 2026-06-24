@@ -74,7 +74,7 @@ public record MD5(byte[] bytes, String string, int hash) {
 		}
 	};
 
-	public static final DataType<MD5> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, MD5.class);
+	public static final DataType<MD5> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public static MD5 of(Path file, @Nullable LongConsumer callback) throws IOException {
 		if (Files.exists(file)) {

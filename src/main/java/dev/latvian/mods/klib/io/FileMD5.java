@@ -74,7 +74,7 @@ public record FileMD5(MD5 checksum, long size, Instant lastModified, boolean cha
 
 	public static void save(Path file, FileMD5 metadata) throws IOException {
 		try (var bytes = new ByteArrayOutputStream();
-			 var data = new DataOutputStream(bytes)
+		     var data = new DataOutputStream(bytes)
 		) {
 			data.writeByte(0);
 			metadata.write(data);

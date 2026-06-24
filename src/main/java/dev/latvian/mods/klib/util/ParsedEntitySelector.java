@@ -48,12 +48,12 @@ public final class ParsedEntitySelector {
 		}
 	};
 
-	public static final DataType<ParsedEntitySelector> ENTITY_DATA_TYPE = DataType.of(CODEC_ENTITY, STREAM_CODEC, ParsedEntitySelector.class);
-	public static final DataType<ParsedEntitySelector> PLAYER_DATA_TYPE = DataType.of(CODEC_PLAYER, STREAM_CODEC, ParsedEntitySelector.class);
-	public static final DataType<ParsedEntitySelector> ENTITIES_DATA_TYPE = DataType.of(CODEC_ENTITIES, STREAM_CODEC, ParsedEntitySelector.class);
-	public static final DataType<ParsedEntitySelector> PLAYERS_DATA_TYPE = DataType.of(CODEC_PLAYERS, STREAM_CODEC, ParsedEntitySelector.class);
+	public static final DataType<ParsedEntitySelector> ENTITY_DATA_TYPE = DataType.of(CODEC_ENTITY, STREAM_CODEC);
+	public static final DataType<ParsedEntitySelector> PLAYER_DATA_TYPE = DataType.of(CODEC_PLAYER, STREAM_CODEC);
+	public static final DataType<ParsedEntitySelector> ENTITIES_DATA_TYPE = DataType.of(CODEC_ENTITIES, STREAM_CODEC);
+	public static final DataType<ParsedEntitySelector> PLAYERS_DATA_TYPE = DataType.of(CODEC_PLAYERS, STREAM_CODEC);
 
-	public static final DataType<ParsedEntitySelector> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ParsedEntitySelector.class);
+	public static final DataType<ParsedEntitySelector> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	private final String input;
 	private final boolean single;

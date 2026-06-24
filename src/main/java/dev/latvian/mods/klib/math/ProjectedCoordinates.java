@@ -7,6 +7,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector2d;
 import org.joml.Vector2dc;
 import org.joml.Vector2f;
@@ -18,11 +20,16 @@ public record ProjectedCoordinates(
 	Vec3 cameraPos,
 	float width,
 	float height,
-	Vector2dc defaultScreenPos
+	Vector2dc defaultScreenPos,
+	Matrix4fc worldMatrix,
+	Matrix4fc inverseWorldMatrix
 ) {
 	public static ProjectedCoordinates of(Minecraft mc, Vec3 cameraPos) {
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
+		var state = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+		var worldMatrix = new Matrix4f(state.projectionMatrix);
+		worldMatrix.mul(state.viewRotationMatrix);
 
 		return new ProjectedCoordinates(
 			mc,
@@ -35,7 +42,9 @@ public record ProjectedCoordinates(
 			) : new Vector2d(
 				mc.mouseHandler.xpos() * width / (double) mc.getWindow().getWidth(),
 				mc.mouseHandler.ypos() * height / (double) mc.getWindow().getHeight()
-			)
+			),
+			worldMatrix,
+			new Matrix4f(worldMatrix).invert()
 		);
 	}
 
@@ -96,7 +105,7 @@ public record ProjectedCoordinates(
 		double len = Math.sqrt(rx * rx + ry * ry + rz * rz);
 
 		var v = new Vector4f((float) (rx / len), (float) (ry / len), (float) (rz / len), 1F);
-		v.mul(ClientMatrices.WORLD);
+		v.mul(worldMatrix);
 		v.div(v.w);
 
 		if (allowOutside || v.z > 0F && v.z < 1F) {
@@ -148,7 +157,7 @@ public record ProjectedCoordinates(
 	 */
 	public Vec3 world(double x, double y) {
 		var v = new Vector4d(x * 2D / width - 1D, -(y * 2D / height - 1F), 1D, 1D);
-		v.mul(ClientMatrices.INVERSE_WORLD);
+		v.mul(inverseWorldMatrix);
 		v.div(v.w);
 		return new Vec3(v.x + cameraPos.x, v.y + cameraPos.y, v.z + cameraPos.z);
 	}

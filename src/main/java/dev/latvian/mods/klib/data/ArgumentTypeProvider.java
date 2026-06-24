@@ -4,25 +4,25 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import net.minecraft.commands.CommandBuildContext;
 
 @FunctionalInterface
-public interface ArgumentTypeProvider<T> {
-	ArgumentType<?> create(RegisteredDataType<T> self, CommandBuildContext ctx);
+public interface ArgumentTypeProvider {
+	ArgumentType<?> create(DataTypeCommandInfo self, CommandBuildContext ctx);
 
 	@FunctionalInterface
-	interface NS<T> extends ArgumentTypeProvider<T> {
+	interface NS extends ArgumentTypeProvider {
 		ArgumentType<?> create(CommandBuildContext ctx);
 
 		@Override
-		default ArgumentType<?> create(RegisteredDataType<T> self, CommandBuildContext ctx) {
+		default ArgumentType<?> create(DataTypeCommandInfo self, CommandBuildContext ctx) {
 			return create(ctx);
 		}
 	}
 
 	@FunctionalInterface
-	interface NSNCTX<T> extends ArgumentTypeProvider<T> {
+	interface NSNCTX extends ArgumentTypeProvider {
 		ArgumentType<?> create();
 
 		@Override
-		default ArgumentType<?> create(RegisteredDataType<T> self, CommandBuildContext ctx) {
+		default ArgumentType<?> create(DataTypeCommandInfo self, CommandBuildContext ctx) {
 			return create();
 		}
 	}

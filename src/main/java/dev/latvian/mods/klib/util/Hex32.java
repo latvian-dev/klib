@@ -41,7 +41,7 @@ public record Hex32(int raw) {
 	public static final Codec<Hex32> INT_CODEC = Codec.INT.xmap(Hex32::of, Hex32::raw);
 	public static final Codec<Hex32> CODEC = KLibCodecs.or(STRING_CODEC, INT_CODEC);
 	public static final StreamCodec<ByteBuf, Hex32> STREAM_CODEC = ByteBufCodecs.INT.map(Hex32::of, Hex32::raw);
-	public static final DataType<Hex32> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Hex32.class);
+	public static final DataType<Hex32> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public static Hex32 crc32(Path file, @Nullable LongConsumer callback) throws IOException {
 		var crc32 = new CRC32();

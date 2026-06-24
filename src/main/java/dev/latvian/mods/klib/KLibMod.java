@@ -1,68 +1,34 @@
 package dev.latvian.mods.klib;
 
-import dev.latvian.mods.klib.data.DataTypes;
-import dev.latvian.mods.klib.data.JOMLDataTypes;
-import net.minecraft.resources.Identifier;
-import net.neoforged.api.distmarker.Dist;
+import dev.latvian.mods.klib.command.KLibCommandArgumentTypes;
+import dev.latvian.mods.klib.data.DataTypeRegistry;
+import dev.latvian.mods.klib.data.DataTypeRegistryEvent;
+import dev.latvian.mods.klib.platform.NeoPlatformHelper;
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import java.io.IOException;
-
-@Mod(KLibMod.ID)
-@EventBusSubscriber(modid = KLibMod.ID, value = Dist.CLIENT)
+@Mod(KLib.ID)
+@EventBusSubscriber(modid = KLib.ID)
 public class KLibMod {
-	public static final String ID = "klib";
-	public static final String NAME = "KLib";
-
-	public static Identifier id(String path) {
-		return Identifier.fromNamespaceAndPath(ID, path);
-	}
-
-	public KLibMod(IEventBus bus) throws IOException {
-		DataTypes.register();
-		JOMLDataTypes.register();
+	public KLibMod(ModContainer mod, IEventBus bus) {
+		PlatformHelper.CURRENT = new NeoPlatformHelper(mod);
+		KLib.VERSION = mod.getModInfo().getVersion().toString();
+		KLibCommandArgumentTypes.REGISTRY.register(bus);
 	}
 
 	@SubscribeEvent
-	public static void setup(FMLLoadCompleteEvent event) {
-		event.enqueueWork(KLibMod::setupSync);
+	public static void setup(FMLCommonSetupEvent event) {
+		DataTypeRegistry.registerAll(registry -> ModLoader.postEvent(new DataTypeRegistryEvent(registry)));
 	}
 
-	private static void setupSync() {
-		/*
-		var gradient = new CompoundGradient(List.of(new PairGradient(Color.GREEN, Color.WHITE, Easing.QUINT_IN), new CompoundGradient(List.of(Color.BLUE, Color.RED), Easing.QUINT_IN)));
-
-		try (var img = new NativeImage(NativeImage.Format.RGBA, 60, 20, false)) {
-			for (int x = 0; x < img.getWidth(); x++) {
-				int col = gradient.get(x / (img.getWidth() - 1F)).abgr();
-
-				for (int y = 0; y < img.getHeight(); y++) {
-					img.setPixelABGR(x, y, col);
-				}
-			}
-
-			img.writeToFile(FMLPaths.CONFIGDIR.get().resolve("test.png"));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		 */
-
-		/*
-		try (var reader = Files.newBufferedReader(FMLPaths.CONFIGDIR.get().resolve("test.json"))) {
-			var json = new GsonBuilder().create().fromJson(reader, JsonObject.class);
-
-			var gradients = Gradient.CODEC.listOf().parse(JsonOps.INSTANCE, json.get("gradients")).getOrThrow();
-
-			for (var gradient : gradients) {
-				System.out.println(gradient + " -> " + gradient.resolve());
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		 */
+	@SubscribeEvent
+	public static void dataTypeRegistry(DataTypeRegistryEvent event) {
+		KLib.registerDataTypes(event.getRegistry());
 	}
 }

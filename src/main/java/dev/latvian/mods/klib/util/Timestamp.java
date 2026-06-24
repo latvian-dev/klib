@@ -54,7 +54,7 @@ public record Timestamp(long utc, long tick) {
 		(utc, tick) -> of(inflateUTC(utc), tick)
 	);
 
-	public static final DataType<Timestamp> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Timestamp.class);
+	public static final DataType<Timestamp> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public void write(DataOutput out) throws IOException {
 		IOUtils.writeVarLong(out, deflateUTC(utc));

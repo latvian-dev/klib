@@ -35,7 +35,7 @@ public interface Gradient {
 		case null, default -> Either.left(Color.TRANSPARENT);
 	}));
 
-	DataType<Gradient> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Gradient.class);
+	DataType<Gradient> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	Color get(float delta);
 

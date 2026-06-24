@@ -17,7 +17,7 @@ public interface Interpolation {
 
 	StreamCodec<ByteBuf, Interpolation> STREAM_CODEC = InterpolationType.STREAM_CODEC.dispatch(Interpolation::type, InterpolationType::streamCodec);
 
-	DataType<Interpolation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Interpolation.class);
+	DataType<Interpolation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	InterpolationType<?> type();
 

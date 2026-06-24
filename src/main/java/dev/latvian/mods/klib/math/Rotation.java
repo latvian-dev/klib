@@ -81,7 +81,7 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 		Rotation::deg
 	);
 
-	public static final DataType<Rotation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Rotation.class);
+	public static final DataType<Rotation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public static final Rotation NONE = new Rotation(0F, 0F, 0F, Type.RAD);
 

@@ -6,6 +6,9 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.codec.KLibCodecs;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.IdentifierException;
@@ -13,7 +16,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
@@ -22,21 +24,38 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public interface ID {
-	Codec<Identifier> CODEC = Codec.STRING.xmap(ID::idFromString, ID::idToString);
-	StreamCodec<ByteBuf, Identifier> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ID::idFromString, ID::idToString);
-	DataType<Identifier> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Identifier.class);
-	StreamCodec<RegistryFriendlyByteBuf, Identifier> REGISTRY_STREAM_CODEC = Cast.to(STREAM_CODEC);
+	Codec<Identifier> CODEC = KLibCodecs.commonIdentifier("minecraft");
+	StreamCodec<ByteBuf, Identifier> STREAM_CODEC = KLibStreamCodecs.commonIdentifier("minecraft");
+	DataType<Identifier> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	StreamCodec<RegistryFriendlyByteBuf, Identifier> REGISTRY_STREAM_CODEC = KLibStreamCodecs.toRegistry(STREAM_CODEC);
+	Identifier EMPTY_JAVA_ID = Identifier.fromNamespaceAndPath("java", "empty");
+	Identifier EMPTY_KLIB_ID = Identifier.fromNamespaceAndPath(KLib.ID, "empty");
+	Identifier EMPTY_VIDLIB_ID = Identifier.fromNamespaceAndPath("vidlib", "empty");
+	Identifier EMPTY_VIDEO_ID = Identifier.fromNamespaceAndPath("video", "empty");
+	Identifier EMPTY_JOML_ID = Identifier.fromNamespaceAndPath("joml", "empty");
 
 	static Identifier mc(String path) {
 		return Identifier.withDefaultNamespace(path);
 	}
 
 	static Identifier java(String path) {
-		return Identifier.fromNamespaceAndPath("java", path);
+		return EMPTY_JAVA_ID.withPath(path);
+	}
+
+	static Identifier klib(String path) {
+		return EMPTY_KLIB_ID.withPath(path);
+	}
+
+	static Identifier vidlib(String path) {
+		return EMPTY_VIDLIB_ID.withPath(path);
 	}
 
 	static Identifier video(String path) {
-		return Identifier.fromNamespaceAndPath("video", path);
+		return EMPTY_VIDEO_ID.withPath(path);
+	}
+
+	static Identifier joml(String path) {
+		return EMPTY_JOML_ID.withPath(path);
 	}
 
 	static Identifier idFromString(String string) {

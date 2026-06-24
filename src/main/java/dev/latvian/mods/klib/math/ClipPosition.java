@@ -27,7 +27,7 @@ public record ClipPosition(Vec3 position, BlockPos blockPosition, Direction side
 		ClipPosition::new
 	);
 
-	public static final DataType<ClipPosition> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ClipPosition.class);
+	public static final DataType<ClipPosition> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public ClipPosition(BlockHitResult hit) {
 		this(hit.getLocation(), hit.getBlockPos(), hit.getDirection());

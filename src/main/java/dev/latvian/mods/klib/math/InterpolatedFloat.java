@@ -20,7 +20,7 @@ public record InterpolatedFloat(long start, long end, float from, float to) {
 		ByteBufCodecs.FLOAT, InterpolatedFloat::from,
 		ByteBufCodecs.FLOAT, InterpolatedFloat::to,
 		InterpolatedFloat::new
-	), InterpolatedFloat.class);
+	));
 
 	public float get(long now, float delta) {
 		if (now > end) {

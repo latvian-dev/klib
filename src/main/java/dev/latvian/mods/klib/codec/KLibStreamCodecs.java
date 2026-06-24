@@ -2,8 +2,11 @@ package dev.latvian.mods.klib.codec;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
+import dev.latvian.mods.klib.util.Cast;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.VarLong;
@@ -15,6 +18,7 @@ import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,9 +26,52 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 
 public interface KLibStreamCodecs {
 	StreamCodec<ByteBuf, Unit> UNIT = StreamCodec.unit(Unit.INSTANCE);
+
+	static <V> StreamCodec<ByteBuf, V> toBasic(StreamCodec<? super RegistryFriendlyByteBuf, V> parent) {
+		return new StreamCodec<>() {
+			@Override
+			public V decode(ByteBuf buf) {
+				return parent.decode(Cast.to(buf));
+			}
+
+			@Override
+			public void encode(ByteBuf buf, V value) {
+				parent.encode(Cast.to(buf), value);
+			}
+		};
+	}
+
+	static <V> StreamCodec<FriendlyByteBuf, V> toFriendly(StreamCodec<? super RegistryFriendlyByteBuf, V> parent) {
+		return new StreamCodec<>() {
+			@Override
+			public V decode(FriendlyByteBuf buf) {
+				return parent.decode(Cast.to(buf));
+			}
+
+			@Override
+			public void encode(FriendlyByteBuf buf, V value) {
+				parent.encode(Cast.to(buf), value);
+			}
+		};
+	}
+
+	static <V> StreamCodec<RegistryFriendlyByteBuf, V> toRegistry(StreamCodec<? super RegistryFriendlyByteBuf, V> parent) {
+		return new StreamCodec<>() {
+			@Override
+			public V decode(RegistryFriendlyByteBuf buf) {
+				return parent.decode(buf);
+			}
+
+			@Override
+			public void encode(RegistryFriendlyByteBuf buf, V value) {
+				parent.encode(buf, value);
+			}
+		};
+	}
 
 	static <B extends ByteBuf, V> StreamCodec<B, V> optional(StreamCodec<B, V> parent, @Nullable V defaultValue) {
 		return new OptionalDefaultStreamCodec<>(parent, defaultValue);
@@ -177,12 +224,30 @@ public interface KLibStreamCodecs {
 		return keyCodec.map(map::get, keyGetter);
 	}
 
-	static <E extends Enum<E>> StreamCodec<ByteBuf, E> enumValue(Class<E> enumClass) {
-		return enumValue(enumClass.getEnumConstants());
+	static <E> StreamCodec<ByteBuf, E> anyEnum(E[] values, ToIntFunction<E> ordinalFunction) {
+		return ByteBufCodecs.idMapper(i -> values[i], ordinalFunction);
 	}
 
-	static <E extends Enum<E>> StreamCodec<ByteBuf, E> enumValue(E[] values) {
-		return ByteBufCodecs.idMapper(i -> values[i], Enum::ordinal);
+	static <E extends Enum<E>> StreamCodec<ByteBuf, E> enumClass(Class<E> enumClass) {
+		return anyEnum(enumClass.getEnumConstants(), Enum::ordinal);
+	}
+
+	static <E> StreamCodec<ByteBuf, E> anyEnum(E[] values) {
+		if (values.length == 0) {
+			throw new IllegalArgumentException("Values is empty");
+		}
+
+		if (values.getClass().getComponentType().isEnum() && Arrays.equals(values, values.getClass().getComponentType().getEnumConstants())) {
+			return Cast.to(enumClass(Cast.to(values.getClass().getComponentType())));
+		}
+
+		var map = new Reference2IntArrayMap<E>(values.length);
+
+		for (int i = 0; i < values.length; i++) {
+			map.put(values[i], i);
+		}
+
+		return anyEnum(values, map);
 	}
 
 	static <T> StreamCodec<ByteBuf, T> registry(Registry<T> registry) {
@@ -191,5 +256,48 @@ public interface KLibStreamCodecs {
 
 	static <B extends ByteBuf, L, R> StreamCodec<B, Pair<L, R>> pair(StreamCodec<? super B, L> left, StreamCodec<? super B, R> right) {
 		return CompositeStreamCodec.of(left, Pair::getFirst, right, Pair::getSecond, Pair::of);
+	}
+
+	static StreamCodec<ByteBuf, Identifier> commonIdentifier(String namespace) {
+		if (namespace.isEmpty()) {
+			return Identifier.STREAM_CODEC;
+		}
+
+		return new StreamCodec<>() {
+			private final Identifier commonIdentifier = Identifier.fromNamespaceAndPath(namespace, "x");
+
+			@Override
+			public Identifier decode(ByteBuf buf) {
+				var string = ByteBufCodecs.STRING_UTF8.decode(buf);
+				return string.indexOf(':') == -1 ? commonIdentifier.withPath(string) : Identifier.parse(string);
+			}
+
+			@Override
+			public void encode(ByteBuf buf, Identifier id) {
+				ByteBufCodecs.STRING_UTF8.encode(buf, id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString());
+			}
+		};
+	}
+
+	static <T> StreamCodec<ByteBuf, ResourceKey<T>> commonResourceKey(ResourceKey<? extends Registry<T>> root, String namespace) {
+		if (namespace.isEmpty()) {
+			return ResourceKey.streamCodec(root);
+		}
+
+		return new StreamCodec<>() {
+			private final Identifier commonIdentifier = Identifier.fromNamespaceAndPath(namespace, "x");
+
+			@Override
+			public ResourceKey<T> decode(ByteBuf buf) {
+				var string = ByteBufCodecs.STRING_UTF8.decode(buf);
+				return ResourceKey.create(root, string.indexOf(':') == -1 ? commonIdentifier.withPath(string) : Identifier.parse(string));
+			}
+
+			@Override
+			public void encode(ByteBuf buf, ResourceKey<T> value) {
+				var id = value.identifier();
+				ByteBufCodecs.STRING_UTF8.encode(buf, id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString());
+			}
+		};
 	}
 }
