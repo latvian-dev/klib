@@ -1,7 +1,8 @@
 package dev.latvian.mods.klib.data;
 
-public record DataTypeCommandInfo(
-	ArgumentTypeProvider argumentType,
-	ArgumentGetter<?> argumentGetter
+public record DataTypeCommandInfo<T>(
+	DataType<T> dataType,
+	ArgumentTypeProvider<T> argumentType,
+	ArgumentGetter<T> argumentGetter
 ) {
 }

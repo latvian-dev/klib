@@ -16,7 +16,7 @@ public interface DataTypeRegistry {
 	record Data(
 		Map<ResourceKey<DataType<?>>, DataType<?>> byKey,
 		Map<DataType<?>, ResourceKey<DataType<?>>> byType,
-		Map<DataType<?>, DataTypeCommandInfo> commandInfo
+		Map<DataType<?>, DataTypeCommandInfo<?>> commandInfo
 	) {
 	}
 
@@ -25,7 +25,7 @@ public interface DataTypeRegistry {
 	static void registerAll(Consumer<DataTypeRegistry> consumer) {
 		var byKey = new Object2ObjectOpenHashMap<ResourceKey<DataType<?>>, DataType<?>>();
 		var byType = new Reference2ObjectOpenHashMap<DataType<?>, ResourceKey<DataType<?>>>();
-		var commandInfo = new Reference2ObjectOpenHashMap<DataType<?>, DataTypeCommandInfo>();
+		var commandInfo = new Reference2ObjectOpenHashMap<DataType<?>, DataTypeCommandInfo<?>>();
 
 		consumer.accept(new DataTypeRegistry() {
 			@Override
@@ -36,8 +36,8 @@ public interface DataTypeRegistry {
 			}
 
 			@Override
-			public void registerCommandInfo(DataType<?> type, DataTypeCommandInfo info) {
-				commandInfo.put(type, info);
+			public void registerCommandInfo(DataTypeCommandInfo<?> info) {
+				commandInfo.put(info.dataType(), info);
 			}
 		});
 
@@ -65,17 +65,17 @@ public interface DataTypeRegistry {
 
 	void register(Identifier id, DataType<?> type);
 
-	void registerCommandInfo(DataType<?> type, DataTypeCommandInfo info);
+	void registerCommandInfo(DataTypeCommandInfo<?> info);
 
-	default <T> void registerCommandInfo(DataType<T> type, ArgumentTypeProvider argumentType, ArgumentGetter<T> argumentGetter) {
-		registerCommandInfo(type, new DataTypeCommandInfo(argumentType, argumentGetter));
+	default <T> void registerCommandInfo(DataType<T> type, ArgumentTypeProvider<T> argumentType, ArgumentGetter<T> argumentGetter) {
+		registerCommandInfo(new DataTypeCommandInfo<>(type, argumentType, argumentGetter));
 	}
 
-	default <T> void registerCommandInfo(DataType<T> type, ArgumentTypeProvider.NS argumentType, ArgumentGetter<T> argumentGetter) {
-		registerCommandInfo(type, (ArgumentTypeProvider) argumentType, argumentGetter);
+	default <T> void registerCommandInfo(DataType<T> type, ArgumentTypeProvider.NS<T> argumentType, ArgumentGetter<T> argumentGetter) {
+		registerCommandInfo(type, (ArgumentTypeProvider<T>) argumentType, argumentGetter);
 	}
 
-	default <T> void registerCommandInfo(DataType<T> type, ArgumentTypeProvider.NSNCTX argumentType, ArgumentGetter<T> argumentGetter) {
-		registerCommandInfo(type, (ArgumentTypeProvider) argumentType, argumentGetter);
+	default <T> void registerCommandInfo(DataType<T> type, ArgumentTypeProvider.NSNCTX<T> argumentType, ArgumentGetter<T> argumentGetter) {
+		registerCommandInfo(type, (ArgumentTypeProvider<T>) argumentType, argumentGetter);
 	}
 }
