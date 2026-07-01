@@ -1,11 +1,23 @@
 package dev.latvian.mods.klib.platform;
 
+import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
+import dev.latvian.mods.klib.data.DataTypes;
+import dev.latvian.mods.klib.data.JOMLDataTypes;
+import dev.latvian.mods.klib.interpolation.Interpolation;
+import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.CustomRegistryCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -15,8 +27,8 @@ import java.util.function.Function;
 public class PlatformHelper {
 	public static PlatformHelper CURRENT = new PlatformHelper();
 
-	public String getPlatform() {
-		return "bukkit";
+	public PlatformType getPlatform() {
+		return PlatformType.BUKKIT;
 	}
 
 	public Side getSide() {
@@ -43,12 +55,20 @@ public class PlatformHelper {
 		return getGameDirectory().resolve("local");
 	}
 
-	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access) {
+	public PlatformType getPlatformOf(Player player) {
+		return PlatformType.VANILLA; // FIXME
+	}
+
+	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access, PlatformType platformType) {
 		return new RegistryFriendlyByteBuf(source, access);
 	}
 
+	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access) {
+		return createBuffer(source, access, getPlatform());
+	}
+
 	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryFriendlyByteBuf parent) {
-		return new RegistryFriendlyByteBuf(source, parent.registryAccess());
+		return createBuffer(source, parent.registryAccess());
 	}
 
 	public Function<ByteBuf, RegistryFriendlyByteBuf> createDecorator(RegistryAccess access) {
@@ -76,5 +96,34 @@ public class PlatformHelper {
 
 	public boolean isModLoaded(String modId) {
 		return false;
+	}
+
+	public void collectCustomRegistries(CustomRegistryCollector registry) {
+		KLib.builtInRegistries(registry);
+	}
+
+	public void collectDataTypes(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
+		DataTypes.register(registry);
+		JOMLDataTypes.register(registry);
+	}
+
+	private static <T> void register(DataTypeCommandInfoRegistry registry, CustomRegistry<?, T> customRegistry) {
+		registry.register(customRegistry.dataType(), customRegistry::createArgument, null);
+	}
+
+	public void collectDataTypeCommandInfos(DataTypeCommandInfoRegistry registry) {
+		for (var customRegistry : CustomRegistry.ALL.values()) {
+			register(registry, Cast.to(customRegistry));
+		}
+
+		DataTypes.registerCommandInfos(registry);
+	}
+
+	public void collectInterpolationTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
+		Interpolation.builtInTypes(registry);
+	}
+
+	public void collectShapeTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
+		Shape.builtInTypes(registry);
 	}
 }

@@ -1,85 +1,81 @@
 package dev.latvian.mods.klib.interpolation;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public record CompositeInterpolation(Interpolation in, Interpolation out) implements Interpolation {
-	public static final CompositeInterpolation SINE = new CompositeInterpolation(EaseIn.SINE, EaseOut.SINE);
-	public static final CompositeInterpolation QUAD = new CompositeInterpolation(EaseIn.QUAD, EaseOut.QUAD);
-	public static final CompositeInterpolation CUBIC = new CompositeInterpolation(EaseIn.CUBIC, EaseOut.CUBIC);
-	public static final CompositeInterpolation QUART = new CompositeInterpolation(EaseIn.QUART, EaseOut.QUART);
-	public static final CompositeInterpolation QUINT = new CompositeInterpolation(EaseIn.QUINT, EaseOut.QUINT);
-	public static final CompositeInterpolation EXPO = new CompositeInterpolation(EaseIn.EXPO, EaseOut.EXPO);
-	public static final CompositeInterpolation CIRC = new CompositeInterpolation(EaseIn.CIRC, EaseOut.CIRC);
-	public static final CompositeInterpolation BACK = new CompositeInterpolation(EaseIn.BACK, EaseOut.BACK);
-	public static final CompositeInterpolation ELASTIC = new CompositeInterpolation(EaseIn.ELASTIC, EaseOut.ELASTIC);
-	public static final CompositeInterpolation BOUNCE = new CompositeInterpolation(EaseIn.BOUNCE, EaseOut.BOUNCE);
+import java.util.List;
+
+public record CompositeInterpolation(Interpolation in, Interpolation out, @Nullable CustomRegistryType<ByteBuf, Interpolation> type) implements Interpolation {
+	public static final CustomRegistryType<ByteBuf, Interpolation> SINE = Interpolation.REGISTRY.unitWithType(ID.klib("sine_in_out"), type -> new CompositeInterpolation(EaseIn.SINE, EaseOut.SINE, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> QUAD = Interpolation.REGISTRY.unitWithType(ID.klib("quad_in_out"), type -> new CompositeInterpolation(EaseIn.QUAD, EaseOut.QUAD, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> CUBIC = Interpolation.REGISTRY.unitWithType(ID.klib("cubic_in_out"), type -> new CompositeInterpolation(EaseIn.CUBIC, EaseOut.CUBIC, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> QUART = Interpolation.REGISTRY.unitWithType(ID.klib("quart_in_out"), type -> new CompositeInterpolation(EaseIn.QUART, EaseOut.QUART, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> QUINT = Interpolation.REGISTRY.unitWithType(ID.klib("quint_in_out"), type -> new CompositeInterpolation(EaseIn.QUINT, EaseOut.QUINT, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> EXPO = Interpolation.REGISTRY.unitWithType(ID.klib("expo_in_out"), type -> new CompositeInterpolation(EaseIn.EXPO, EaseOut.EXPO, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> CIRC = Interpolation.REGISTRY.unitWithType(ID.klib("circ_in_out"), type -> new CompositeInterpolation(EaseIn.CIRC, EaseOut.CIRC, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> BACK = Interpolation.REGISTRY.unitWithType(ID.klib("back_in_out"), type -> new CompositeInterpolation(EaseIn.BACK, EaseOut.BACK, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> ELASTIC = Interpolation.REGISTRY.unitWithType(ID.klib("elastic_in_out"), type -> new CompositeInterpolation(EaseIn.ELASTIC, EaseOut.ELASTIC, type));
+	public static final CustomRegistryType<ByteBuf, Interpolation> BOUNCE = Interpolation.REGISTRY.unitWithType(ID.klib("bounce_in_out"), type -> new CompositeInterpolation(EaseIn.BOUNCE, EaseOut.BOUNCE, type));
 
 	public static CompositeInterpolation of(Interpolation in, Interpolation out) {
 		if (in == EaseIn.SINE && out == EaseOut.SINE) {
-			return SINE;
+			return (CompositeInterpolation) SINE.instance();
 		} else if (in == EaseIn.QUAD && out == EaseOut.QUAD) {
-			return QUAD;
+			return (CompositeInterpolation) QUAD.instance();
 		} else if (in == EaseIn.CUBIC && out == EaseOut.CUBIC) {
-			return CUBIC;
+			return (CompositeInterpolation) CUBIC.instance();
 		} else if (in == EaseIn.QUART && out == EaseOut.QUART) {
-			return QUART;
+			return (CompositeInterpolation) QUART.instance();
 		} else if (in == EaseIn.QUINT && out == EaseOut.QUINT) {
-			return QUINT;
+			return (CompositeInterpolation) QUINT.instance();
 		} else if (in == EaseIn.EXPO && out == EaseOut.EXPO) {
-			return EXPO;
+			return (CompositeInterpolation) EXPO.instance();
 		} else if (in == EaseIn.CIRC && out == EaseOut.CIRC) {
-			return CIRC;
+			return (CompositeInterpolation) CIRC.instance();
 		} else if (in == EaseIn.BACK && out == EaseOut.BACK) {
-			return BACK;
+			return (CompositeInterpolation) BACK.instance();
 		} else if (in == EaseIn.ELASTIC && out == EaseOut.ELASTIC) {
-			return ELASTIC;
+			return (CompositeInterpolation) ELASTIC.instance();
 		} else if (in == EaseIn.BOUNCE && out == EaseOut.BOUNCE) {
-			return BOUNCE;
+			return (CompositeInterpolation) BOUNCE.instance();
 		}
 
-		return new CompositeInterpolation(in, out);
+		return new CompositeInterpolation(in, out, null);
 	}
 
-	public static final MapCodec<CompositeInterpolation> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Interpolation.CODEC.fieldOf("in").forGetter(CompositeInterpolation::in),
-		Interpolation.CODEC.fieldOf("out").forGetter(CompositeInterpolation::out)
-	).apply(instance, CompositeInterpolation::of));
-
-	public static final StreamCodec<ByteBuf, CompositeInterpolation> STREAM_CODEC = CompositeStreamCodec.of(
-		Interpolation.STREAM_CODEC, CompositeInterpolation::in,
-		Interpolation.STREAM_CODEC, CompositeInterpolation::out,
-		CompositeInterpolation::of
+	public static final List<CustomRegistryType<ByteBuf, Interpolation>> EASING = List.of(
+		SINE,
+		QUAD,
+		CUBIC,
+		QUART,
+		QUINT,
+		EXPO,
+		CIRC,
+		BACK,
+		ELASTIC,
+		BOUNCE
 	);
 
-	public static final InterpolationType<?>[] EASING = {
-		InterpolationType.unit("sine_in_out", SINE),
-		InterpolationType.unit("quad_in_out", QUAD),
-		InterpolationType.unit("cubic_in_out", CUBIC),
-		InterpolationType.unit("quart_in_out", QUART),
-		InterpolationType.unit("quint_in_out", QUINT),
-		InterpolationType.unit("expo_in_out", EXPO),
-		InterpolationType.unit("circ_in_out", CIRC),
-		InterpolationType.unit("back_in_out", BACK),
-		InterpolationType.unit("elastic_in_out", ELASTIC),
-		InterpolationType.unit("bounce_in_out", BOUNCE)
-	};
-
-	public static final InterpolationType<CompositeInterpolation> TYPE = InterpolationType.of("composite", MAP_CODEC, STREAM_CODEC);
+	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("composite"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Interpolation.CODEC.fieldOf("in").forGetter(CompositeInterpolation::in),
+			Interpolation.CODEC.fieldOf("out").forGetter(CompositeInterpolation::out)
+		).apply(instance, CompositeInterpolation::of)),
+		CompositeStreamCodec.of(
+			Interpolation.STREAM_CODEC, CompositeInterpolation::in,
+			Interpolation.STREAM_CODEC, CompositeInterpolation::out,
+			CompositeInterpolation::of
+		)
+	);
 
 	@Override
-	public InterpolationType<?> type() {
-		for (var type : EASING) {
-			if (type.unit() == this) {
-				return type;
-			}
-		}
-
-		return TYPE;
+	public CustomRegistryType<ByteBuf, Interpolation> type() {
+		return type == null ? TYPE : type;
 	}
 
 	@Override

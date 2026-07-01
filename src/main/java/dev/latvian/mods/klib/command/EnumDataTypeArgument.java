@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.data.DataTypeRegistry;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.util.Cast;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -48,34 +48,34 @@ public record EnumDataTypeArgument<T>(DataType<T> dataType) implements ArgumentT
 		return dataType.enumValues().stream().map(Map.Entry::getKey).toList();
 	}
 
-	public static class EnumDataTypeArgumentInfo<T> implements ArgumentTypeInfo<EnumDataTypeArgument<T>, EnumDataTypeArgumentInfo.EnumDataTypeArgumentTemplate<T>> {
+	public static class Info<T> implements ArgumentTypeInfo<EnumDataTypeArgument<T>, Info.ArgumentTemplate<T>> {
 		@Override
-		public void serializeToNetwork(EnumDataTypeArgumentTemplate<T> template, FriendlyByteBuf buffer) {
-			DataType.REGISTRY_KEYS.streamCodec().encode(buffer, template.dataType.requireKey());
+		public void serializeToNetwork(ArgumentTemplate<T> template, FriendlyByteBuf buf) {
+			DataType.REGISTRY.streamCodec().encode(buf, template.dataType);
 		}
 
 		@Override
-		public EnumDataTypeArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buffer) {
-			var key = DataType.REGISTRY_KEYS.streamCodec().decode(buffer);
+		public ArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buf) {
+			var key = DataType.REGISTRY.streamCodec().decode(buf);
 
 			try {
-				return new EnumDataTypeArgumentTemplate<>(this, Cast.to(DataTypeRegistry.require(key)));
+				return new ArgumentTemplate<>(this, Cast.to(DataTypeCommandInfoRegistry.require(key).dataType()));
 			} catch (NullPointerException _) {
 				return null;
 			}
 		}
 
 		@Override
-		public void serializeToJson(EnumDataTypeArgumentTemplate<T> template, JsonObject json) {
+		public void serializeToJson(ArgumentTemplate<T> template, JsonObject json) {
 			json.addProperty("data_type", template.dataType.requireKey().identifier().toString());
 		}
 
 		@Override
-		public EnumDataTypeArgumentTemplate<T> unpack(EnumDataTypeArgument<T> argument) {
-			return new EnumDataTypeArgumentTemplate<>(this, argument.dataType);
+		public ArgumentTemplate<T> unpack(EnumDataTypeArgument<T> argument) {
+			return new ArgumentTemplate<>(this, argument.dataType);
 		}
 
-		public record EnumDataTypeArgumentTemplate<T>(EnumDataTypeArgumentInfo<T> info, DataType<T> dataType) implements Template<EnumDataTypeArgument<T>> {
+		public record ArgumentTemplate<T>(Info<T> info, DataType<T> dataType) implements Template<EnumDataTypeArgument<T>> {
 			@Override
 			public EnumDataTypeArgument<T> instantiate(CommandBuildContext ctx) {
 				return new EnumDataTypeArgument<>(dataType);

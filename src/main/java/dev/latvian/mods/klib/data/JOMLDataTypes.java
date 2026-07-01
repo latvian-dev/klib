@@ -2,7 +2,9 @@ package dev.latvian.mods.klib.data;
 
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.util.ID;
+import io.netty.buffer.ByteBuf;
 import org.joml.Matrix2d;
 import org.joml.Matrix2dc;
 import org.joml.Matrix2f;
@@ -99,7 +101,7 @@ public interface JOMLDataTypes {
 	DataType<Vector3ic> VIVEC3C = DataType.of(JOMLCodecs.IVEC3C, JOMLStreamCodecs.VIVEC3C);
 	DataType<Vector4ic> VIVEC4C = DataType.of(JOMLCodecs.IVEC4C, JOMLStreamCodecs.VIVEC4C);
 
-	static void register(DataTypeRegistry registry) {
+	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
 		register(registry, "vec2", VEC2, VEC2C);
 		register(registry, "vec3", VEC3, VEC3C);
 		register(registry, "vec4", VEC4, VEC4C);
@@ -131,7 +133,7 @@ public interface JOMLDataTypes {
 		register(registry, "vivec4", VIVEC4, VIVEC4C);
 	}
 
-	private static void register(DataTypeRegistry registry, String name, DataType<?> type, DataType<?> ctype) {
+	private static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry, String name, DataType<?> type, DataType<?> ctype) {
 		registry.register(ID.joml(name), type);
 		registry.register(ID.joml(name + "c"), ctype);
 	}

@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.serialization.DynamicOps;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.data.DataTypeRegistry;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.util.Cast;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -32,34 +32,34 @@ public record ParsedDataTypeArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 		}
 	}
 
-	public static class ParsedDataTypeArgumentInfo<T> implements ArgumentTypeInfo<ParsedDataTypeArgument<T>, ParsedDataTypeArgumentInfo.ParsedDataTypeArgumentTemplate<T>> {
+	public static class Info<T> implements ArgumentTypeInfo<ParsedDataTypeArgument<T>, Info.ArgumentTemplate<T>> {
 		@Override
-		public void serializeToNetwork(ParsedDataTypeArgumentTemplate<T> template, FriendlyByteBuf buffer) {
-			DataType.REGISTRY_KEYS.streamCodec().encode(buffer, template.dataType.requireKey());
+		public void serializeToNetwork(ArgumentTemplate<T> template, FriendlyByteBuf buf) {
+			DataType.REGISTRY.streamCodec().encode(buf, template.dataType);
 		}
 
 		@Override
-		public ParsedDataTypeArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buffer) {
-			var key = DataType.REGISTRY_KEYS.streamCodec().decode(buffer);
+		public ArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buf) {
+			var key = DataType.REGISTRY.streamCodec().decode(buf);
 
 			try {
-				return new ParsedDataTypeArgumentTemplate<>(this, Cast.to(DataTypeRegistry.require(key)));
+				return new ArgumentTemplate<>(this, Cast.to(DataTypeCommandInfoRegistry.require(key)));
 			} catch (NullPointerException _) {
 				return null;
 			}
 		}
 
 		@Override
-		public void serializeToJson(ParsedDataTypeArgumentTemplate<T> template, JsonObject json) {
+		public void serializeToJson(ArgumentTemplate<T> template, JsonObject json) {
 			json.addProperty("data_type", template.dataType.requireKey().identifier().toString());
 		}
 
 		@Override
-		public ParsedDataTypeArgumentTemplate<T> unpack(ParsedDataTypeArgument<T> argument) {
-			return new ParsedDataTypeArgumentTemplate<>(this, argument.dataType);
+		public ArgumentTemplate<T> unpack(ParsedDataTypeArgument<T> argument) {
+			return new ArgumentTemplate<>(this, argument.dataType);
 		}
 
-		public record ParsedDataTypeArgumentTemplate<T>(ParsedDataTypeArgumentInfo<T> info, DataType<T> dataType) implements Template<ParsedDataTypeArgument<T>> {
+		public record ArgumentTemplate<T>(Info<T> info, DataType<T> dataType) implements Template<ParsedDataTypeArgument<T>> {
 			@Override
 			public ParsedDataTypeArgument<T> instantiate(CommandBuildContext ctx) {
 				var ops = ctx.createSerializationContext(NbtOps.INSTANCE);

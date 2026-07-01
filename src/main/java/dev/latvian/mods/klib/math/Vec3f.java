@@ -104,7 +104,7 @@ public record Vec3f(float x, float y, float z) {
 		ByteBufCodecs.FLOAT, Vec3f::x,
 		ByteBufCodecs.FLOAT, Vec3f::y,
 		ByteBufCodecs.FLOAT, Vec3f::z,
-		Vec3f::new
+		Vec3f::of
 	);
 
 	public float lengthSq() {

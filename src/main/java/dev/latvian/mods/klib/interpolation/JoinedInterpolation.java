@@ -1,28 +1,27 @@
 package dev.latvian.mods.klib.interpolation;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public record JoinedInterpolation(Interpolation left, Interpolation right) implements Interpolation {
-	public static final MapCodec<JoinedInterpolation> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Interpolation.CODEC.fieldOf("left").forGetter(JoinedInterpolation::left),
-		Interpolation.CODEC.fieldOf("right").forGetter(JoinedInterpolation::right)
-	).apply(instance, JoinedInterpolation::new));
-
-	public static final StreamCodec<ByteBuf, JoinedInterpolation> STREAM_CODEC = CompositeStreamCodec.of(
-		Interpolation.STREAM_CODEC, JoinedInterpolation::left,
-		Interpolation.STREAM_CODEC, JoinedInterpolation::right,
-		JoinedInterpolation::new
+	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("joined"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Interpolation.CODEC.fieldOf("left").forGetter(JoinedInterpolation::left),
+			Interpolation.CODEC.fieldOf("right").forGetter(JoinedInterpolation::right)
+		).apply(instance, JoinedInterpolation::new)),
+		CompositeStreamCodec.of(
+			Interpolation.STREAM_CODEC, JoinedInterpolation::left,
+			Interpolation.STREAM_CODEC, JoinedInterpolation::right,
+			JoinedInterpolation::new
+		)
 	);
 
-	public static final InterpolationType<JoinedInterpolation> TYPE = InterpolationType.of("joined", MAP_CODEC, STREAM_CODEC);
-
 	@Override
-	public InterpolationType<?> type() {
+	public CustomRegistryType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

@@ -1,12 +1,12 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public record ScaledInterpolation(float scale) implements Interpolation {
@@ -26,19 +26,18 @@ public record ScaledInterpolation(float scale) implements Interpolation {
 		}
 	}
 
-	public static final MapCodec<ScaledInterpolation> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("scale").forGetter(ScaledInterpolation::scale)
-	).apply(instance, ScaledInterpolation::of));
-
-	public static final StreamCodec<ByteBuf, ScaledInterpolation> STREAM_CODEC = CompositeStreamCodec.of(
-		ByteBufCodecs.FLOAT, ScaledInterpolation::scale,
-		ScaledInterpolation::of
+	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("scaled"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Codec.FLOAT.fieldOf("scale").forGetter(ScaledInterpolation::scale)
+		).apply(instance, ScaledInterpolation::of)),
+		CompositeStreamCodec.of(
+			ByteBufCodecs.FLOAT, ScaledInterpolation::scale,
+			ScaledInterpolation::of
+		)
 	);
 
-	public static final InterpolationType<ScaledInterpolation> TYPE = InterpolationType.of("scaled", MAP_CODEC, STREAM_CODEC);
-
 	@Override
-	public InterpolationType<?> type() {
+	public CustomRegistryType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

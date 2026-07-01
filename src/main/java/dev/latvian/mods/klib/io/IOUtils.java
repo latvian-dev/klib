@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 public interface IOUtils {
 	Set<StandardOpenOption> WRITE_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	Set<StandardOpenOption> APPEND_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+	byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	static long getSize(Path path) {
 		try {
@@ -135,6 +136,11 @@ public interface IOUtils {
 
 	static byte[] readBytes(DataInput in) throws IOException {
 		int length = readVarInt(in);
+
+		if (length == 0) {
+			return EMPTY_BYTE_ARRAY;
+		}
+
 		var bytes = new byte[length];
 		in.readFully(bytes);
 		return bytes;
@@ -183,7 +189,17 @@ public interface IOUtils {
 	}
 
 	static byte[] toByteArray(ByteBuf buf, boolean release) {
-		var bytes = new byte[buf.readableBytes()];
+		int size = buf.readableBytes();
+
+		if (size == 0) {
+			if (release) {
+				buf.release();
+			}
+
+			return EMPTY_BYTE_ARRAY;
+		}
+
+		var bytes = new byte[size];
 		buf.getBytes(buf.readerIndex(), bytes);
 
 		if (release) {

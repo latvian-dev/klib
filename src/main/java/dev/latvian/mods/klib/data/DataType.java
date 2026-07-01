@@ -10,10 +10,11 @@ import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.EnumDataTypeArgument;
 import dev.latvian.mods.klib.command.ParsedDataTypeArgument;
-import dev.latvian.mods.klib.registry.RegistryKeys;
+import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.NameProvider;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Position;
@@ -42,7 +43,14 @@ public record DataType<T>(
 	List<Map.Entry<String, T>> enumValues,
 	@Nullable DataType<?> componentType
 ) implements ArgumentGetter<T> {
-	public static final RegistryKeys<DataType<?>> REGISTRY_KEYS = RegistryKeys.createKeys(ID.klib("data_type"));
+	public static final CustomRegistry<ByteBuf, DataType<?>> REGISTRY = CustomRegistry.<ByteBuf, DataType<?>>builder()
+		.keys(ID.klib("data_type"), "minecraft")
+		.server()
+		.build();
+
+	public static final Codec<DataType<?>> CODEC = REGISTRY.codec();
+	public static final StreamCodec<ByteBuf, DataType<?>> STREAM_CODEC = REGISTRY.streamCodec();
+	public static final DataType<DataType<?>> DATA_TYPE = of(CODEC, STREAM_CODEC);
 
 	public static <T> DataType<T> of(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, List<Map.Entry<String, T>> enumValues) {
 		return new DataType<>(codec, streamCodec, enumValues, null);
@@ -109,7 +117,7 @@ public record DataType<T>(
 
 	@Nullable
 	public ResourceKey<DataType<?>> key() {
-		return DataTypeRegistry.DATA.get().byType().get(this);
+		return REGISTRY.getKey(this);
 	}
 
 	public ResourceKey<DataType<?>> requireKey() {
@@ -131,7 +139,7 @@ public record DataType<T>(
 	}
 
 	public ArgumentType<?> argument(CommandBuildContext ctx) {
-		var commandInfo = DataTypeRegistry.DATA.get().commandInfo().get(this);
+		var commandInfo = DataTypeCommandInfoRegistry.MAP.get(this);
 
 		if (commandInfo != null) {
 			return commandInfo.argumentType().create(Cast.to(commandInfo), ctx);
@@ -147,9 +155,9 @@ public record DataType<T>(
 
 	@Override
 	public T get(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
-		var commandInfo = DataTypeRegistry.DATA.get().commandInfo().get(this);
+		var commandInfo = DataTypeCommandInfoRegistry.MAP.get(this);
 
-		if (commandInfo != null) {
+		if (commandInfo != null && commandInfo.argumentGetter() != null) {
 			return ((ArgumentGetter<T>) commandInfo.argumentGetter()).get(ctx, name);
 		}
 

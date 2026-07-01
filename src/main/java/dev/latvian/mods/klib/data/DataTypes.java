@@ -15,13 +15,13 @@ import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
-import dev.latvian.mods.klib.interpolation.InterpolationType;
 import dev.latvian.mods.klib.math.ClipPosition;
 import dev.latvian.mods.klib.math.InterpolatedDouble;
 import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.util.Hex32;
 import dev.latvian.mods.klib.util.Hex64;
@@ -32,6 +32,7 @@ import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import dev.latvian.mods.klib.util.ScreenCorner;
 import dev.latvian.mods.klib.util.Timestamp;
 import dev.latvian.mods.klib.util.UInt64;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -111,7 +112,9 @@ public interface DataTypes {
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM);
 	DataType<ClientAsset.ResourceTexture> RESOURCE_TEXTURE = DataType.of(ClientAsset.ResourceTexture.CODEC, ClientAsset.ResourceTexture.STREAM_CODEC);
 
-	static void register(DataTypeRegistry registry) {
+	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
+		registry.register(ID.klib("data_type"), DataType.DATA_TYPE);
+
 		registry.register(ID.java("bool"), BOOL);
 		registry.register(ID.java("int"), INT);
 		registry.register(ID.java("var_int"), VAR_INT);
@@ -162,7 +165,6 @@ public interface DataTypes {
 		registry.register(ID.klib("entity_selector/players"), ParsedEntitySelector.PLAYERS_DATA_TYPE);
 		registry.register(ID.klib("entity_selector"), ParsedEntitySelector.DATA_TYPE);
 		registry.register(ID.klib("interpolation"), Interpolation.DATA_TYPE);
-		registry.register(ID.klib("interpolation_type"), InterpolationType.DATA_TYPE);
 		registry.register(ID.klib("int_or_uuid"), IntOrUUID.DATA_TYPE);
 		registry.register(ID.klib("line"), Line.DATA_TYPE);
 		registry.register(ID.klib("interpolated_float"), InterpolatedFloat.DATA_TYPE);
@@ -174,38 +176,40 @@ public interface DataTypes {
 		registry.register(ID.klib("hex32"), Hex32.DATA_TYPE);
 		registry.register(ID.klib("hex64"), Hex64.DATA_TYPE);
 		registry.register(ID.klib("uint64"), UInt64.DATA_TYPE);
+	}
 
-		registry.registerCommandInfo(BOOL, BoolArgumentType::bool, BoolArgumentType::getBool);
-		registry.registerCommandInfo(INT, () -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
-		registry.registerCommandInfo(VAR_INT, () -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
-		registry.registerCommandInfo(LONG, () -> LongArgumentType.longArg(), LongArgumentType::getLong);
-		registry.registerCommandInfo(VAR_LONG, () -> LongArgumentType.longArg(), LongArgumentType::getLong);
-		registry.registerCommandInfo(FLOAT, () -> FloatArgumentType.floatArg(), FloatArgumentType::getFloat);
-		registry.registerCommandInfo(DOUBLE, () -> DoubleArgumentType.doubleArg(), DoubleArgumentType::getDouble);
-		registry.registerCommandInfo(STRING, StringArgumentType::string, StringArgumentType::getString);
-		registry.registerCommandInfo(UUID, UuidArgument::uuid, UuidArgument::getUuid);
-		registry.registerCommandInfo(ID.DATA_TYPE, IdentifierArgument::id, IdentifierArgument::getId);
-		registry.registerCommandInfo(TEXT_COMPONENT, ComponentArgument::textComponent, ComponentArgument::getResolvedComponent);
+	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {
+		registry.register(BOOL, BoolArgumentType::bool, BoolArgumentType::getBool);
+		registry.register(INT, () -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
+		registry.register(VAR_INT, () -> IntegerArgumentType.integer(), IntegerArgumentType::getInteger);
+		registry.register(LONG, () -> LongArgumentType.longArg(), LongArgumentType::getLong);
+		registry.register(VAR_LONG, () -> LongArgumentType.longArg(), LongArgumentType::getLong);
+		registry.register(FLOAT, () -> FloatArgumentType.floatArg(), FloatArgumentType::getFloat);
+		registry.register(DOUBLE, () -> DoubleArgumentType.doubleArg(), DoubleArgumentType::getDouble);
+		registry.register(STRING, StringArgumentType::string, StringArgumentType::getString);
+		registry.register(UUID, UuidArgument::uuid, UuidArgument::getUuid);
+		registry.register(ID.DATA_TYPE, IdentifierArgument::id, IdentifierArgument::getId);
+		registry.register(TEXT_COMPONENT, ComponentArgument::textComponent, ComponentArgument::getResolvedComponent);
 
-		registry.registerCommandInfo(ITEM_STACK, ItemArgument::item, (ctx, name) -> ItemArgument.getItem(ctx, name).createItemStack(1));
-		registry.registerCommandInfo(PARTICLE_OPTIONS, ParticleArgument::particle, ParticleArgument::getParticle);
-		registry.registerCommandInfo(BLOCK_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState());
-		registry.registerCommandInfo(FLUID_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState().getFluidState());
-		registry.registerCommandInfo(VEC3, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
-		registry.registerCommandInfo(VEC3S, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
-		registry.registerCommandInfo(BLOCK_POS, BlockPosArgument::blockPos, BlockPosArgument::getBlockPos);
-		registry.registerCommandInfo(TICKS, () -> KLibCodecs.TIME_ARGUMENT, IntegerArgumentType::getInteger);
-		registry.registerCommandInfo(GAME_PROFILE, GameProfileArgument::gameProfile, (ctx, name) -> {
+		registry.register(ITEM_STACK, ItemArgument::item, (ctx, name) -> ItemArgument.getItem(ctx, name).createItemStack(1));
+		registry.register(PARTICLE_OPTIONS, ParticleArgument::particle, ParticleArgument::getParticle);
+		registry.register(BLOCK_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState());
+		registry.register(FLUID_STATE, BlockStateArgument::block, (ctx, name) -> BlockStateArgument.getBlock(ctx, name).getState().getFluidState());
+		registry.register(VEC3, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
+		registry.register(VEC3S, () -> Vec3Argument.vec3(), Vec3Argument::getVec3);
+		registry.register(BLOCK_POS, BlockPosArgument::blockPos, BlockPosArgument::getBlockPos);
+		registry.register(TICKS, () -> KLibCodecs.TIME_ARGUMENT, IntegerArgumentType::getInteger);
+		registry.register(GAME_PROFILE, GameProfileArgument::gameProfile, (ctx, name) -> {
 			var profiles = GameProfileArgument.getGameProfiles(ctx, name);
 			var profile = profiles.isEmpty() ? null : profiles.iterator().next();
 			return profile == null ? null : new GameProfile(profile.id(), profile.name());
 		});
-		registry.registerCommandInfo(NAME_AND_ID, GameProfileArgument::gameProfile, (ctx, name) -> {
+		registry.register(NAME_AND_ID, GameProfileArgument::gameProfile, (ctx, name) -> {
 			var profiles = GameProfileArgument.getGameProfiles(ctx, name);
 			return profiles.isEmpty() ? null : profiles.iterator().next();
 		});
-		registry.registerCommandInfo(DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, Identifier.class)));
-		registry.registerCommandInfo(Color.SOLID_DATA_TYPE, HexColorArgument::hexColor, (ctx, name) -> Color.ofRGB(HexColorArgument.getHexColor(ctx, name)));
-		registry.registerCommandInfo(dev.latvian.mods.klib.math.Rotation.DATA_TYPE, RotationArgument::rotation, (ctx, name) -> dev.latvian.mods.klib.math.Rotation.deg(RotationArgument.getRotation(ctx, name).getRotation(ctx.getSource())));
+		registry.register(DIMENSION, DimensionArgument::dimension, (ctx, name) -> ResourceKey.create(Registries.DIMENSION, ctx.getArgument(name, Identifier.class)));
+		registry.register(Color.SOLID_DATA_TYPE, HexColorArgument::hexColor, (ctx, name) -> Color.ofRGB(HexColorArgument.getHexColor(ctx, name)));
+		registry.register(dev.latvian.mods.klib.math.Rotation.DATA_TYPE, RotationArgument::rotation, (ctx, name) -> dev.latvian.mods.klib.math.Rotation.deg(RotationArgument.getRotation(ctx, name).getRotation(ctx.getSource())));
 	}
 }

@@ -1,17 +1,16 @@
-package dev.latvian.mods.klib.math;
+package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
-import dev.latvian.mods.klib.shape.CuboidBuilder;
-import dev.latvian.mods.klib.shape.Shape;
-import dev.latvian.mods.klib.shape.ShapeType;
+import dev.latvian.mods.klib.math.AABBs;
+import dev.latvian.mods.klib.math.Line;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -33,18 +32,17 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 	public static final VoxelShapeBox CENTERED_Y_AXIS = of(AABBs.CENTERED_Y_AXIS);
 	public static final VoxelShapeBox CENTERED_Z_AXIS = of(AABBs.CENTERED_Z_AXIS);
 
-	public static final MapCodec<VoxelShapeBox> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Line.CODEC.listOf().fieldOf("edges").forGetter(VoxelShapeBox::edges),
-		MCCodecs.AABB.listOf().fieldOf("boxes").forGetter(VoxelShapeBox::boxes)
-	).apply(instance, (edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)));
-
-	public static final StreamCodec<ByteBuf, VoxelShapeBox> STREAM_CODEC = CompositeStreamCodec.of(
-		KLibStreamCodecs.listOf(Line.STREAM_CODEC), VoxelShapeBox::edges,
-		KLibStreamCodecs.listOf(MCStreamCodecs.AABB), VoxelShapeBox::boxes,
-		(edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("voxel_shape"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Line.CODEC.listOf().fieldOf("edges").forGetter(VoxelShapeBox::edges),
+			MCCodecs.AABB.listOf().fieldOf("boxes").forGetter(VoxelShapeBox::boxes)
+		).apply(instance, (edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1))),
+		CompositeStreamCodec.of(
+			KLibStreamCodecs.listOf(Line.STREAM_CODEC), VoxelShapeBox::edges,
+			KLibStreamCodecs.listOf(MCStreamCodecs.AABB), VoxelShapeBox::boxes,
+			(edges, boxes) -> new VoxelShapeBox(edges, boxes, boxes.size() == 1)
+		)
 	);
-
-	public static final ShapeType TYPE = new ShapeType("voxel_shape", CODEC, STREAM_CODEC);
 
 	public static VoxelShapeBox of(VoxelShape shape) {
 		if (shape.isEmpty()) {
@@ -128,6 +126,11 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 			edge(maxX, maxY, minZ, maxX, maxY, maxZ, edges);
 			return new VoxelShapeBox(List.copyOf(edges), List.of(box), true);
 		}
+	}
+
+	@Override
+	public CustomRegistryType<ByteBuf, Shape> type() {
+		return TYPE;
 	}
 
 	public void buildQuads(Vec3 offset, VertexCallback callback) {
@@ -216,11 +219,6 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 		}
 
 		return new VoxelShapeBox(List.copyOf(scaledEdges), List.copyOf(scaledBoxes), false);
-	}
-
-	@Override
-	public ShapeType type() {
-		return TYPE;
 	}
 
 	@Override

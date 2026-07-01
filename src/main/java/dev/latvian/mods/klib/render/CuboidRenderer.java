@@ -2,8 +2,8 @@ package dev.latvian.mods.klib.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.color.Color;
-import dev.latvian.mods.klib.math.VoxelShapeBox;
 import dev.latvian.mods.klib.shape.CuboidBuilder;
+import dev.latvian.mods.klib.shape.VoxelShapeBox;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec3;
 

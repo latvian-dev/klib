@@ -1,34 +1,37 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public record CylinderShape(float radius, float height) implements Shape {
-	public static final CylinderShape UNIT = new CylinderShape(0.5F, 1F);
+	public static final CylinderShape UNIT_CYLINDER = new CylinderShape(0.5F, 1F);
 
-	public static final MapCodec<CylinderShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("radius").forGetter(CylinderShape::radius),
-		Codec.FLOAT.optionalFieldOf("height", 0F).forGetter(CylinderShape::radius)
-	).apply(instance, CylinderShape::new));
+	public static CylinderShape of(float radius, float height) {
+		return radius == 0.5F && height == 1F ? UNIT_CYLINDER : new CylinderShape(radius, height);
+	}
 
-	public static final StreamCodec<ByteBuf, CylinderShape> STREAM_CODEC = CompositeStreamCodec.of(
-		ByteBufCodecs.FLOAT, CylinderShape::radius,
-		KLibStreamCodecs.FLOAT_OR_ZERO, CylinderShape::height,
-		CylinderShape::new
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("cylinder"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Codec.FLOAT.fieldOf("radius").forGetter(CylinderShape::radius),
+			Codec.FLOAT.optionalFieldOf("height", 0F).forGetter(CylinderShape::radius)
+		).apply(instance, CylinderShape::of)),
+		CompositeStreamCodec.of(
+			ByteBufCodecs.FLOAT, CylinderShape::radius,
+			KLibStreamCodecs.FLOAT_OR_ZERO, CylinderShape::height,
+			CylinderShape::of
+		)
 	);
 
-	public static final ShapeType TYPE = new ShapeType("cylinder", CODEC, STREAM_CODEC);
-
 	@Override
-	public ShapeType type() {
+	public CustomRegistryType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

@@ -13,7 +13,7 @@ import org.joml.Vector3dc;
 
 public record ColoredShape(Shape shape, Gradient quads, Gradient lines) {
 	public static final Codec<ColoredShape> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		Shape.DIRECT_CODEC.fieldOf("shape").forGetter(ColoredShape::shape),
+		Shape.CODEC.fieldOf("shape").forGetter(ColoredShape::shape),
 		Gradient.CODEC.optionalFieldOf("quads", Color.TRANSPARENT).forGetter(ColoredShape::quads),
 		Gradient.CODEC.optionalFieldOf("lines", Color.TRANSPARENT).forGetter(ColoredShape::lines)
 	).apply(instance, ColoredShape::new));

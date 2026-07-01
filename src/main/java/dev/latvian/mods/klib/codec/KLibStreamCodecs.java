@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.Utf8String;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.VarLong;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -279,7 +280,7 @@ public interface KLibStreamCodecs {
 		};
 	}
 
-	static <T> StreamCodec<ByteBuf, ResourceKey<T>> commonResourceKey(ResourceKey<? extends Registry<T>> root, String namespace) {
+	static <T> StreamCodec<ByteBuf, @Nullable ResourceKey<T>> commonResourceKey(ResourceKey<? extends Registry<T>> root, String namespace) {
 		if (namespace.isEmpty()) {
 			return ResourceKey.streamCodec(root);
 		}
@@ -288,15 +289,20 @@ public interface KLibStreamCodecs {
 			private final Identifier commonIdentifier = Identifier.fromNamespaceAndPath(namespace, "x");
 
 			@Override
+			@Nullable
 			public ResourceKey<T> decode(ByteBuf buf) {
-				var string = ByteBufCodecs.STRING_UTF8.decode(buf);
-				return ResourceKey.create(root, string.indexOf(':') == -1 ? commonIdentifier.withPath(string) : Identifier.parse(string));
+				var string = Utf8String.read(buf, 32767);
+				return string.isEmpty() ? null : ResourceKey.create(root, string.indexOf(':') == -1 ? commonIdentifier.withPath(string) : Identifier.parse(string));
 			}
 
 			@Override
-			public void encode(ByteBuf buf, ResourceKey<T> value) {
-				var id = value.identifier();
-				ByteBufCodecs.STRING_UTF8.encode(buf, id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString());
+			public void encode(ByteBuf buf, @Nullable ResourceKey<T> value) {
+				if (value == null) {
+					Utf8String.write(buf, "", 32767);
+				} else {
+					var id = value.identifier();
+					Utf8String.write(buf, id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString(), 32767);
+				}
 			}
 		};
 	}

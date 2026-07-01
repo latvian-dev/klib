@@ -1,17 +1,11 @@
 package dev.latvian.mods.klib.interpolation;
 
-import net.neoforged.bus.api.Event;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeEvent;
+import io.netty.buffer.ByteBuf;
 
-import java.util.List;
-
-public class InterpolationTypeRegistryEvent extends Event {
-	private final List<InterpolationType<?>> types;
-
-	public InterpolationTypeRegistryEvent(List<InterpolationType<?>> types) {
-		this.types = types;
-	}
-
-	public void register(InterpolationType<?> type) {
-		this.types.add(type);
+public class InterpolationTypeRegistryEvent extends CustomRegistryTypeEvent<ByteBuf, Interpolation> {
+	public InterpolationTypeRegistryEvent(CustomRegistryTypeCollector<ByteBuf, Interpolation> callback) {
+		super(callback);
 	}
 }

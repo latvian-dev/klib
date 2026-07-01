@@ -1,12 +1,12 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Vec3f;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public record LineShape(Vec3f vector) implements Shape {
@@ -17,19 +17,36 @@ public record LineShape(Vec3f vector) implements Shape {
 	public static final LineShape WEST_UNIT = new LineShape(Vec3f.WEST);
 	public static final LineShape EAST_UNIT = new LineShape(Vec3f.EAST);
 
-	public static final MapCodec<LineShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
-	).apply(instance, LineShape::new));
+	public static LineShape of(Vec3f vector) {
+		if (vector == Vec3f.DOWN) {
+			return DOWN_UNIT;
+		} else if (vector == Vec3f.UP) {
+			return UP_UNIT;
+		} else if (vector == Vec3f.NORTH) {
+			return NORTH_UNIT;
+		} else if (vector == Vec3f.SOUTH) {
+			return SOUTH_UNIT;
+		} else if (vector == Vec3f.WEST) {
+			return WEST_UNIT;
+		} else if (vector == Vec3f.EAST) {
+			return EAST_UNIT;
+		} else {
+			return new LineShape(vector);
+		}
+	}
 
-	public static final StreamCodec<ByteBuf, LineShape> STREAM_CODEC = CompositeStreamCodec.of(
-		Vec3f.STREAM_CODEC, LineShape::vector,
-		LineShape::new
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("line"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
+		).apply(instance, LineShape::of)),
+		CompositeStreamCodec.of(
+			Vec3f.STREAM_CODEC, LineShape::vector,
+			LineShape::of
+		)
 	);
 
-	public static final ShapeType TYPE = new ShapeType("line", CODEC, STREAM_CODEC);
-
 	@Override
-	public ShapeType type() {
+	public CustomRegistryType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

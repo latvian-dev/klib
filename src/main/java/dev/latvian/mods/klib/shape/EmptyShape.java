@@ -1,21 +1,19 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.MapCodec;
 import dev.latvian.mods.klib.math.FrustumCheck;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public enum EmptyShape implements Shape {
 	INSTANCE;
 
-	public static final MapCodec<EmptyShape> CODEC = MapCodec.unit(INSTANCE);
-	public static final StreamCodec<ByteBuf, EmptyShape> STREAM_CODEC = StreamCodec.unit(INSTANCE);
-	public static final ShapeType TYPE = new ShapeType("empty", CODEC, STREAM_CODEC);
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.unit(ID.klib("empty"), INSTANCE);
 
 	@Override
-	public ShapeType type() {
+	public CustomRegistryType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

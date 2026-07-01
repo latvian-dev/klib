@@ -3,8 +3,11 @@ package dev.latvian.mods.klib.color;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.Lazy;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
@@ -36,6 +39,11 @@ public interface Gradient {
 	}));
 
 	DataType<Gradient> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+
+	CustomRegistry<FriendlyByteBuf, Gradient> REGISTRY = CustomRegistry.<FriendlyByteBuf, Gradient>builder()
+		.keys(ID.klib("gradient"), "vidlib")
+		.client()
+		.build();
 
 	Color get(float delta);
 

@@ -1,31 +1,34 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public record CircleShape(float radius) implements Shape {
-	public static final CircleShape UNIT = new CircleShape(0.5F);
+	public static final CircleShape UNIT_CIRCLE = new CircleShape(0.5F);
 
-	public static final MapCodec<CircleShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("radius").forGetter(CircleShape::radius)
-	).apply(instance, CircleShape::new));
+	public static CircleShape of(float size) {
+		return size == 0.5F ? UNIT_CIRCLE : new CircleShape(size);
+	}
 
-	public static final StreamCodec<ByteBuf, CircleShape> STREAM_CODEC = CompositeStreamCodec.of(
-		ByteBufCodecs.FLOAT, CircleShape::radius,
-		CircleShape::new
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("circle"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Codec.FLOAT.fieldOf("radius").forGetter(CircleShape::radius)
+		).apply(instance, CircleShape::of)),
+		CompositeStreamCodec.of(
+			ByteBufCodecs.FLOAT, CircleShape::radius,
+			CircleShape::of
+		)
 	);
 
-	public static final ShapeType TYPE = new ShapeType("circle", CODEC, STREAM_CODEC);
-
 	@Override
-	public ShapeType type() {
+	public CustomRegistryType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

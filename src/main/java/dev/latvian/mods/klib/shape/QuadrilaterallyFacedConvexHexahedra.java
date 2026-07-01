@@ -9,6 +9,8 @@ import dev.latvian.mods.klib.math.Directions;
 import dev.latvian.mods.klib.math.Face;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Line3f;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -67,7 +69,7 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 			return shape;
 		});
 
-	public static final ShapeType TYPE = new ShapeType("quadrilaterally_faced_convex_hexahedra", CODEC, STREAM_CODEC);
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("quadrilaterally_faced_convex_hexahedra"), CODEC, STREAM_CODEC);
 
 	public final float minX;
 	public final float minY;
@@ -132,6 +134,11 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 			new Line3f(pnp, ppp),
 			new Line3f(nnp, npp),
 		};
+	}
+
+	@Override
+	public CustomRegistryType<ByteBuf, Shape> type() {
+		return TYPE;
 	}
 
 	public void identity() {
@@ -211,11 +218,6 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 			(nnn.y + pnn.y + pnp.y + nnp.y + npn.y + ppn.y + ppp.y + npp.y) / 8F,
 			(nnn.z + pnn.z + pnp.z + nnp.z + npn.z + ppn.z + ppp.z + npp.z) / 8F
 		);
-	}
-
-	@Override
-	public ShapeType type() {
-		return TYPE;
 	}
 
 	@Override

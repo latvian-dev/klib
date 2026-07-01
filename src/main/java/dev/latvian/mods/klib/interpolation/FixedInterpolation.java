@@ -1,12 +1,12 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public record FixedInterpolation(float value) implements Interpolation {
@@ -26,19 +26,18 @@ public record FixedInterpolation(float value) implements Interpolation {
 		}
 	}
 
-	public static final MapCodec<FixedInterpolation> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("value").forGetter(FixedInterpolation::value)
-	).apply(instance, FixedInterpolation::of));
-
-	public static final StreamCodec<ByteBuf, FixedInterpolation> STREAM_CODEC = CompositeStreamCodec.of(
-		ByteBufCodecs.FLOAT, FixedInterpolation::value,
-		FixedInterpolation::of
+	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("fixed"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Codec.FLOAT.fieldOf("value").forGetter(FixedInterpolation::value)
+		).apply(instance, FixedInterpolation::of)),
+		CompositeStreamCodec.of(
+			ByteBufCodecs.FLOAT, FixedInterpolation::value,
+			FixedInterpolation::of
+		)
 	);
 
-	public static final InterpolationType<FixedInterpolation> TYPE = InterpolationType.of("fixed", MAP_CODEC, STREAM_CODEC);
-
 	@Override
-	public InterpolationType<?> type() {
+	public CustomRegistryType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

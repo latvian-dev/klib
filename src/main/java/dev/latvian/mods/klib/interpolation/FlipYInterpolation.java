@@ -1,26 +1,25 @@
 package dev.latvian.mods.klib.interpolation;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public record FlipYInterpolation(Interpolation interpolation) implements Interpolation {
-	public static final MapCodec<FlipYInterpolation> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Interpolation.CODEC.fieldOf("interpolation").forGetter(FlipYInterpolation::interpolation)
-	).apply(instance, FlipYInterpolation::new));
-
-	public static final StreamCodec<ByteBuf, FlipYInterpolation> STREAM_CODEC = CompositeStreamCodec.of(
-		Interpolation.STREAM_CODEC, FlipYInterpolation::interpolation,
-		FlipYInterpolation::new
+	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("flip_y"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Interpolation.CODEC.fieldOf("interpolation").forGetter(FlipYInterpolation::interpolation)
+		).apply(instance, FlipYInterpolation::new)),
+		CompositeStreamCodec.of(
+			Interpolation.STREAM_CODEC, FlipYInterpolation::interpolation,
+			FlipYInterpolation::new
+		)
 	);
 
-	public static final InterpolationType<FlipYInterpolation> TYPE = InterpolationType.of("flip_y", MAP_CODEC, STREAM_CODEC);
-
 	@Override
-	public InterpolationType<?> type() {
+	public CustomRegistryType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

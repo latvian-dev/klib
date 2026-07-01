@@ -1,6 +1,8 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -28,16 +30,16 @@ public enum EaseIn implements Interpolation, StringRepresentable {
 
 	public final String name;
 	public final Double2DoubleFunction function;
-	public final InterpolationType<EaseIn> type;
+	public final CustomRegistryType<ByteBuf, Interpolation> type;
 
 	EaseIn(String name, Double2DoubleFunction function) {
 		this.name = name;
 		this.function = function;
-		this.type = InterpolationType.unit(name + "_in", this);
+		this.type = Interpolation.REGISTRY.unit(ID.klib(name + "_in"), this);
 	}
 
 	@Override
-	public InterpolationType<?> type() {
+	public CustomRegistryType<ByteBuf, Interpolation> type() {
 		return type;
 	}
 
@@ -64,7 +66,7 @@ public enum EaseIn implements Interpolation, StringRepresentable {
 	@Override
 	public Interpolation composite(Interpolation other) {
 		if (other instanceof EaseOut o && ordinal() == o.ordinal()) {
-			return CompositeInterpolation.EASING[ordinal()].unit();
+			return CompositeInterpolation.EASING.get(ordinal()).instance();
 		}
 
 		return Interpolation.super.composite(other);

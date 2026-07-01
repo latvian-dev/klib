@@ -8,7 +8,8 @@ plugins {
 	id 'net.neoforged.moddev' version "2.0.141"
 }
 
-ext.ENV = System.getenv()
+def ENV = System.getenv()
+def CI = ENV.CI == "true"
 def isLocal = !ENV.containsKey("GITHUB_RUN_NUMBER")
 
 version = "$mod_version-${isLocal ? "local.${Instant.now().epochSecond}" : "build.${ENV.GITHUB_RUN_NUMBER}"}"
@@ -20,8 +21,7 @@ println("Building version: $version")
 neoForge {
 	enable {
 		version = project.neoforge_version
-		validateAccessTransformers = ENV.CI != "true"
-		disableRecompilation = ENV.CI == "true"
+		validateAccessTransformers = !CI
 
 		accessTransformers {
 			publish(project.file('src/main/resources/META-INF/accesstransformer.cfg'))
@@ -40,7 +40,7 @@ neoForge {
 			client {
 				ideName = 'Client'
 				client()
-				systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+				// systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
 
 				if (ENV.MC_CLIENT_ARGS) {
 					programArguments.addAll(ENV.MC_CLIENT_ARGS.split(' '))
@@ -84,23 +84,6 @@ configurations {
 
 tasks.withType(Javadoc) {
 	options.addStringOption('Xdoclint:none', '-quiet')
-}
-
-repositories {
-	mavenLocal()
-	mavenCentral()
-
-	maven {
-		url "https://maven.neoforged.net/releases"
-	}
-
-	maven {
-		name = 'ParchmentMC'
-		url = 'https://maven.parchmentmc.org'
-		content {
-			includeGroup "org.parchmentmc.data"
-		}
-	}
 }
 
 processResources {
@@ -153,31 +136,29 @@ publishing {
 
 idea {
 	module {
-		if (ENV.CI != "true") {
-			downloadSources = true
-			downloadJavadoc = true
+		downloadSources = true
+		downloadJavadoc = true
 
-			["client", "server"].each {
-				[
-						"config",
-						"crash-reports",
-						"debug",
-						"downloads",
-						"flashback",
-						"local",
-						"logs",
-						"mods",
-						"pack-sync",
-						"profilekeys",
-						"saves",
-						"voicechat_recordings",
-						"command_history.txt",
-						"options.txt",
-						"server.properties",
-						"world",
-				].each { ext ->
-					excludeDirs.add(file("runs/$it/$ext"))
-				}
+		["client", "server"].each {
+			[
+					"config",
+					"crash-reports",
+					"debug",
+					"downloads",
+					"flashback",
+					"local",
+					"logs",
+					"mods",
+					"pack-sync",
+					"profilekeys",
+					"saves",
+					"voicechat_recordings",
+					"command_history.txt",
+					"options.txt",
+					"server.properties",
+					"world",
+			].each { ext ->
+				excludeDirs.add(file("runs/$it/$ext"))
 			}
 		}
 	}

@@ -1,27 +1,35 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.FrustumCheck;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public record CubeShape(float size) implements Shape {
-	public static final CubeShape UNIT = new CubeShape(1F);
+	public static final CubeShape UNIT_CUBE = new CubeShape(1F);
 
-	public static final MapCodec<CubeShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("size").forGetter(CubeShape::size)
-	).apply(instance, CubeShape::new));
+	public static CubeShape of(float size) {
+		return size == 1F ? UNIT_CUBE : new CubeShape(size);
+	}
 
-	public static final StreamCodec<ByteBuf, CubeShape> STREAM_CODEC = ByteBufCodecs.FLOAT.map(CubeShape::new, CubeShape::size);
-	public static final ShapeType TYPE = new ShapeType("cube", CODEC, STREAM_CODEC);
+	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("cube"),
+		RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Codec.FLOAT.fieldOf("size").forGetter(CubeShape::size)
+		).apply(instance, CubeShape::of)),
+		CompositeStreamCodec.of(
+			ByteBufCodecs.FLOAT, CubeShape::size,
+			CubeShape::of
+		)
+	);
 
 	@Override
-	public ShapeType type() {
+	public CustomRegistryType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

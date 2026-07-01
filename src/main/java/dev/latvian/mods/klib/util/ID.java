@@ -15,7 +15,6 @@ import net.minecraft.IdentifierException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
@@ -24,15 +23,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public interface ID {
-	Codec<Identifier> CODEC = KLibCodecs.commonIdentifier("minecraft");
-	StreamCodec<ByteBuf, Identifier> STREAM_CODEC = KLibStreamCodecs.commonIdentifier("minecraft");
-	DataType<Identifier> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
-	StreamCodec<RegistryFriendlyByteBuf, Identifier> REGISTRY_STREAM_CODEC = KLibStreamCodecs.toRegistry(STREAM_CODEC);
 	Identifier EMPTY_JAVA_ID = Identifier.fromNamespaceAndPath("java", "empty");
 	Identifier EMPTY_KLIB_ID = Identifier.fromNamespaceAndPath(KLib.ID, "empty");
 	Identifier EMPTY_VIDLIB_ID = Identifier.fromNamespaceAndPath("vidlib", "empty");
 	Identifier EMPTY_VIDEO_ID = Identifier.fromNamespaceAndPath("video", "empty");
 	Identifier EMPTY_JOML_ID = Identifier.fromNamespaceAndPath("joml", "empty");
+
+	Codec<Identifier> CODEC = KLibCodecs.commonIdentifier("minecraft");
+	StreamCodec<ByteBuf, Identifier> STREAM_CODEC = KLibStreamCodecs.commonIdentifier("minecraft");
+	DataType<Identifier> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	static Identifier mc(String path) {
 		return Identifier.withDefaultNamespace(path);

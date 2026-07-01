@@ -1,11 +1,24 @@
 package dev.latvian.mods.klib.platform;
 
+import dev.latvian.mods.klib.command.CustomRegistryRegistryEvent;
+import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistryEvent;
+import dev.latvian.mods.klib.data.DataTypeRegistryEvent;
+import dev.latvian.mods.klib.interpolation.Interpolation;
+import dev.latvian.mods.klib.interpolation.InterpolationTypeRegistryEvent;
+import dev.latvian.mods.klib.registry.CustomRegistryCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.shape.ShapeTypeRegistryEvent;
 import dev.latvian.mods.klib.util.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.network.connection.ConnectionType;
@@ -24,8 +37,8 @@ public class NeoPlatformHelper extends PlatformHelper {
 	}
 
 	@Override
-	public String getPlatform() {
-		return "neoforge";
+	public PlatformType getPlatform() {
+		return PlatformType.NEOFORGE;
 	}
 
 	@Override
@@ -54,8 +67,13 @@ public class NeoPlatformHelper extends PlatformHelper {
 	}
 
 	@Override
-	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access) {
-		return new RegistryFriendlyByteBuf(source, access, ConnectionType.NEOFORGE);
+	public PlatformType getPlatformOf(Player player) {
+		return PlatformType.NEOFORGE; // FIXME
+	}
+
+	@Override
+	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access, PlatformType platformType) {
+		return new RegistryFriendlyByteBuf(source, access, platformType == PlatformType.NEOFORGE ? ConnectionType.NEOFORGE : ConnectionType.OTHER);
 	}
 
 	@Override
@@ -99,5 +117,35 @@ public class NeoPlatformHelper extends PlatformHelper {
 	@Override
 	public boolean isModLoaded(String modId) {
 		return ModList.get().isLoaded(modId);
+	}
+
+	@Override
+	public void collectCustomRegistries(CustomRegistryCollector registry) {
+		super.collectCustomRegistries(registry);
+		ModLoader.postEvent(new CustomRegistryRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectDataTypes(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
+		super.collectDataTypes(registry);
+		ModLoader.postEvent(new DataTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectDataTypeCommandInfos(DataTypeCommandInfoRegistry registry) {
+		super.collectDataTypeCommandInfos(registry);
+		ModLoader.postEvent(new DataTypeCommandInfoRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectInterpolationTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
+		super.collectInterpolationTypes(registry);
+		ModLoader.postEvent(new InterpolationTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectShapeTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
+		super.collectShapeTypes(registry);
+		ModLoader.postEvent(new ShapeTypeRegistryEvent(registry));
 	}
 }

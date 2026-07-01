@@ -1,25 +1,58 @@
 package dev.latvian.mods.klib.interpolation;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Vec3f;
+import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 public interface Interpolation {
-	Codec<Interpolation> UNIT_CODEC = InterpolationType.CODEC.comapFlatMap(t -> t.unit() == null ? DataResult.error(() -> "Not a unit type") : DataResult.success(t.unit()), Interpolation::type);
-	Codec<Interpolation> DIRECT_CODEC = InterpolationType.CODEC.dispatch("type", Interpolation::type, InterpolationType::mapCodec);
-	Codec<Interpolation> CODEC = Codec.either(UNIT_CODEC, DIRECT_CODEC).xmap(Either::unwrap, i -> i.type().unit() == null ? Either.right(i) : Either.left(i));
+	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.<ByteBuf, Interpolation>builder()
+		.keys(ID.klib("interpolation"), KLib.ID)
+		.type(Interpolation::type)
+		.server()
+		.build();
 
-	StreamCodec<ByteBuf, Interpolation> STREAM_CODEC = InterpolationType.STREAM_CODEC.dispatch(Interpolation::type, InterpolationType::streamCodec);
-
+	Codec<Interpolation> CODEC = REGISTRY.codec();
+	StreamCodec<ByteBuf, Interpolation> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Interpolation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
-	InterpolationType<?> type();
+	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
+		registry.register(LinearInterpolation.TYPE);
+		registry.register(FixedInterpolation.TYPE);
+		registry.register(ScaledInterpolation.TYPE);
+		registry.register(CompositeInterpolation.TYPE);
+		registry.register(JoinedInterpolation.TYPE);
+		registry.register(InverseInterpolation.TYPE);
+		registry.register(FlipXInterpolation.TYPE);
+		registry.register(FlipYInterpolation.TYPE);
+		registry.register(BezierInterpolation.TYPE);
+
+		for (var type : EaseIn.VALUES) {
+			registry.register(type.type);
+		}
+
+		for (var type : EaseOut.VALUES) {
+			registry.register(type.type);
+		}
+
+		for (var type : CompositeInterpolation.EASING) {
+			registry.register(type);
+		}
+	}
+
+	@Nullable
+	default CustomRegistryType<ByteBuf, Interpolation> type() {
+		return null;
+	}
 
 	double interpolate(double t);
 
