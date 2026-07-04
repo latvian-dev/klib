@@ -48,7 +48,7 @@ public class KLibMod {
 
 	@SubscribeEvent
 	public static void syncDataPacks(OnDatapackSyncEvent event) {
-		event.getRelevantPlayers().forEach(CustomRegistry::sync);
+		event.getRelevantPlayers().forEach(CustomRegistry::syncAll);
 	}
 
 	@SubscribeEvent

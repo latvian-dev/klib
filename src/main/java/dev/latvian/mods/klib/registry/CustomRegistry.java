@@ -76,7 +76,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public static void sync(ServerPlayer player) {
+	public static void syncAll(ServerPlayer player) {
 		var registryAccess = player.registryAccess();
 		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
 		var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
@@ -692,5 +692,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 		var ops = ctx.createSerializationContext(NbtOps.INSTANCE);
 		return new CustomRegistryArgument<>(ops, TagParser.create(ops), this);
+	}
+
+	public void syncValues(ServerPlayer player) {
+		var registryAccess = player.registryAccess();
+		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
+		player.connection.send(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(writeValues(registryAccess, platformType))));
 	}
 }
