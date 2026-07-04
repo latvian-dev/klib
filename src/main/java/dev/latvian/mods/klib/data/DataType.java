@@ -11,6 +11,7 @@ import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.EnumDataTypeArgument;
 import dev.latvian.mods.klib.command.ParsedDataTypeArgument;
 import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.NameProvider;
@@ -44,13 +45,12 @@ public record DataType<T>(
 	@Nullable DataType<?> componentType
 ) implements ArgumentGetter<T> {
 	public static final CustomRegistry<ByteBuf, DataType<?>> REGISTRY = CustomRegistry.<ByteBuf, DataType<?>>builder()
-		.keys(ID.klib("data_type"), "minecraft")
-		.server()
+		.keys(ID.klib("data_type"), "java")
 		.build();
 
-	public static final Codec<DataType<?>> CODEC = REGISTRY.codec();
-	public static final StreamCodec<ByteBuf, DataType<?>> STREAM_CODEC = REGISTRY.streamCodec();
-	public static final DataType<DataType<?>> DATA_TYPE = of(CODEC, STREAM_CODEC);
+	public static final Codec<Ref<DataType<?>>> CODEC = REGISTRY.codec();
+	public static final StreamCodec<ByteBuf, Ref<DataType<?>>> STREAM_CODEC = REGISTRY.streamCodec();
+	public static final DataType<Ref<DataType<?>>> DATA_TYPE = REGISTRY.dataType();
 
 	public static <T> DataType<T> of(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec, List<Map.Entry<String, T>> enumValues) {
 		return new DataType<>(codec, streamCodec, enumValues, null);
@@ -146,10 +146,11 @@ public record DataType<T>(
 		}
 
 		if (!enumValues.isEmpty()) {
-			return new EnumDataTypeArgument<>(this);
+			//noinspection rawtypes,unchecked
+			return new EnumDataTypeArgument(REGISTRY.ref(this));
 		} else {
 			var ops = ctx.createSerializationContext(NbtOps.INSTANCE);
-			return new ParsedDataTypeArgument<>(ops, TagParser.create(ops), this);
+			return new ParsedDataTypeArgument<>(ops, TagParser.create(ops), REGISTRY.ref(this));
 		}
 	}
 

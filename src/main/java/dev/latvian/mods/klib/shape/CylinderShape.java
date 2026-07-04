@@ -3,30 +3,26 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
-import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.Mth;
 import org.joml.Vector3fc;
 
-public record CylinderShape(float radius, float height) implements Shape {
-	public static final CylinderShape UNIT_CYLINDER = new CylinderShape(0.5F, 1F);
-
-	public static CylinderShape of(float radius, float height) {
-		return radius == 0.5F && height == 1F ? UNIT_CYLINDER : new CylinderShape(radius, height);
-	}
+public record CylinderShape(float width, float height) implements Shape {
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_CYLINDER = Shape.REGISTRY.unit(ID.klib("unit_cylinder"), new CylinderShape(1F, 1F));
 
 	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("cylinder"),
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Codec.FLOAT.fieldOf("radius").forGetter(CylinderShape::radius),
-			Codec.FLOAT.optionalFieldOf("height", 0F).forGetter(CylinderShape::radius)
-		).apply(instance, CylinderShape::of)),
+			Codec.FLOAT.optionalFieldOf("width", 1F).forGetter(CylinderShape::width),
+			Codec.FLOAT.optionalFieldOf("height", 1F).forGetter(CylinderShape::height)
+		).apply(instance, CylinderShape::new)),
 		CompositeStreamCodec.of(
-			ByteBufCodecs.FLOAT, CylinderShape::radius,
-			KLibStreamCodecs.FLOAT_OR_ZERO, CylinderShape::height,
-			CylinderShape::of
+			ByteBufCodecs.FLOAT, CylinderShape::width,
+			ByteBufCodecs.FLOAT, CylinderShape::height,
+			CylinderShape::new
 		)
 	);
 
@@ -37,21 +33,23 @@ public record CylinderShape(float radius, float height) implements Shape {
 
 	@Override
 	public Shape optimize() {
-		if (radius <= 0F && height <= 0F) {
+		if (width <= 0F && height <= 0F) {
 			return EmptyShape.INSTANCE;
+		} else if (width == 1F && height == 1F) {
+			return UNIT_CYLINDER.value();
+		} else {
+			return this;
 		}
-
-		return this;
 	}
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		buildLines(x, y, z, callback, radius, height, 96, 8);
+		buildLines(x, y, z, callback, width, height, 96, 8);
 	}
 
-	public static void buildLines(float x, float y, float z, VertexCallback callback, float radius, float height, int detail, int hdetail) {
-		float r = Math.max(radius, 0F);
-		float h = Math.max(height, 0F) / 2F;
+	public static void buildLines(float x, float y, float z, VertexCallback callback, float width, float height, int detail, int hdetail) {
+		float r = Math.max(width / 2F, 0F);
+		float h = Math.max(height / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
 		for (int i = 0; i < detail; i++) {
@@ -80,11 +78,11 @@ public record CylinderShape(float radius, float height) implements Shape {
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		buildQuads(x, y, z, callback, radius, height, 96);
+		buildQuads(x, y, z, callback, width, height, 96);
 	}
 
-	public static void buildQuads(float x, float y, float z, VertexCallback callback, float radius, float height, int detail) {
-		float r = Math.max(radius, 0F);
+	public static void buildQuads(float x, float y, float z, VertexCallback callback, float width, float height, int detail) {
+		float r = Math.max(width, 0F) / 2F;
 		float h = Math.max(height, 0F) / 2F;
 		double rs = Math.PI * 2D / (double) detail;
 
@@ -131,7 +129,7 @@ public record CylinderShape(float radius, float height) implements Shape {
 	@Override
 	public boolean contains(Vector3fc p) {
 		if (height <= 0F) {
-			return p.lengthSquared() <= radius * radius;
+			return p.lengthSquared() <= Mth.square(width / 2F);
 		}
 
 		float h = height / 2F;
@@ -142,6 +140,6 @@ public record CylinderShape(float radius, float height) implements Shape {
 
 		float dx = p.x();
 		float dz = p.z();
-		return dx * dx + dz * dz <= radius * radius;
+		return dx * dx + dz * dz <= Mth.square(width / 2F);
 	}
 }

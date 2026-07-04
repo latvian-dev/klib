@@ -3,15 +3,13 @@ package dev.latvian.mods.klib.registry;
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class CustomRegistryType<B extends ByteBuf, V> {
-	public static class Unit<B extends ByteBuf, V> extends CustomRegistryType<B, V> {
+public abstract class CustomRegistryType<B extends ByteBuf, V> implements WithKey<V> {
+	public static final class Unit<B extends ByteBuf, V> extends CustomRegistryType<B, V> implements Ref<V> {
 		private final V instance;
 
 		Unit(ResourceKey<V> key, Function<CustomRegistryType<B, V>, V> factory) {
@@ -22,8 +20,28 @@ public abstract class CustomRegistryType<B extends ByteBuf, V> {
 		}
 
 		@Override
-		public V instance() {
+		public Unit<B, V> unit() {
+			return this;
+		}
+
+		@Override
+		public boolean isUnit() {
+			return true;
+		}
+
+		@Override
+		public V optionalValue() {
 			return instance;
+		}
+
+		@Override
+		public V value() {
+			return instance;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(instance);
 		}
 	}
 
@@ -44,7 +62,7 @@ public abstract class CustomRegistryType<B extends ByteBuf, V> {
 		}
 	}
 
-	private final ResourceKey<V> key;
+	protected final ResourceKey<V> key;
 	protected MapCodec<V> codec;
 	protected StreamCodec<? super B, V> streamCodec;
 	protected int version;
@@ -54,7 +72,13 @@ public abstract class CustomRegistryType<B extends ByteBuf, V> {
 		this.version = 1;
 	}
 
+	@Override
 	public ResourceKey<V> key() {
+		return key;
+	}
+
+	@Override
+	public ResourceKey<V> optionalKey() {
 		return key;
 	}
 
@@ -66,17 +90,13 @@ public abstract class CustomRegistryType<B extends ByteBuf, V> {
 		return streamCodec;
 	}
 
-	public Identifier id() {
-		return key.identifier();
-	}
-
 	@Nullable
-	public V instance() {
+	public Unit<B, V> unit() {
 		return null;
 	}
 
-	public V instanceOrThrow() {
-		return Objects.requireNonNull(instance());
+	public boolean isUnit() {
+		return false;
 	}
 
 	public int version() {

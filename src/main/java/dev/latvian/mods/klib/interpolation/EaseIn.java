@@ -57,18 +57,4 @@ public enum EaseIn implements Interpolation, StringRepresentable {
 	public String toString() {
 		return name;
 	}
-
-	@Override
-	public Interpolation inverse() {
-		return EaseOut.VALUES[ordinal()];
-	}
-
-	@Override
-	public Interpolation composite(Interpolation other) {
-		if (other instanceof EaseOut o && ordinal() == o.ordinal()) {
-			return CompositeInterpolation.EASING.get(ordinal()).instance();
-		}
-
-		return Interpolation.super.composite(other);
-	}
 }

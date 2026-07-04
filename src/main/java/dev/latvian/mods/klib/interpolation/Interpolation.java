@@ -8,22 +8,28 @@ import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.registry.RefOptimizer;
 import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.EasingType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public interface Interpolation {
+public interface Interpolation extends EasingType, RefOptimizer<Interpolation> {
 	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.<ByteBuf, Interpolation>builder()
 		.keys(ID.klib("interpolation"), KLib.ID)
 		.type(Interpolation::type)
-		.server()
 		.build();
 
-	Codec<Interpolation> CODEC = REGISTRY.codec();
-	StreamCodec<ByteBuf, Interpolation> STREAM_CODEC = REGISTRY.streamCodec();
-	DataType<Interpolation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	Codec<Ref<Interpolation>> CODEC = REGISTRY.codec();
+	StreamCodec<ByteBuf, Ref<Interpolation>> STREAM_CODEC = REGISTRY.streamCodec();
+	DataType<Ref<Interpolation>> DATA_TYPE = REGISTRY.dataType();
+
+	static Ref<Interpolation> linear() {
+		return LinearInterpolation.TYPE.unit();
+	}
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
 		registry.register(LinearInterpolation.TYPE);
@@ -52,6 +58,11 @@ public interface Interpolation {
 	@Nullable
 	default CustomRegistryType<ByteBuf, Interpolation> type() {
 		return null;
+	}
+
+	@Override
+	default float apply(float x) {
+		return interpolate(x);
 	}
 
 	double interpolate(double t);
@@ -94,27 +105,7 @@ public interface Interpolation {
 		return interpolateMirrored(x, this);
 	}
 
-	default Interpolation inverse() {
-		return new InverseInterpolation(this);
-	}
-
-	default Interpolation flipX() {
-		return new FlipXInterpolation(this);
-	}
-
-	default Interpolation flipY() {
-		return new FlipYInterpolation(this);
-	}
-
 	default boolean isLinear() {
 		return false;
-	}
-
-	default Interpolation composite(Interpolation other) {
-		return CompositeInterpolation.of(this, other);
-	}
-
-	default Interpolation join(Interpolation other) {
-		return new JoinedInterpolation(this, other);
 	}
 }

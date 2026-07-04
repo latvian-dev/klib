@@ -1,8 +1,8 @@
 package dev.latvian.mods.klib;
 
-import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
+import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
@@ -24,12 +24,13 @@ public class KLib {
 		DataTypeCommandInfoRegistry.registerAll(helper::collectDataTypeCommandInfos);
 		Interpolation.REGISTRY.registerTypes(helper::collectInterpolationTypes);
 		Shape.REGISTRY.registerTypes(helper::collectShapeTypes);
+		Gradient.REGISTRY.registerTypes(helper::collectGradientTypes);
 	}
 
 	public static void builtInRegistries(CustomRegistryCollector registry) {
-		registry.register(DataType.DATA_TYPE, DataType.REGISTRY);
-		registry.register(Interpolation.DATA_TYPE, Interpolation.REGISTRY);
-		registry.register(Shape.DATA_TYPE, Shape.REGISTRY);
-		registry.register(Gradient.DATA_TYPE, Gradient.REGISTRY);
+		registry.register(DataType.REGISTRY);
+		registry.register(Interpolation.REGISTRY);
+		registry.register(Shape.REGISTRY);
+		registry.register(Gradient.REGISTRY);
 	}
 }

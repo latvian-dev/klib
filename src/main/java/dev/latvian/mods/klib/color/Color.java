@@ -4,8 +4,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.gradient.CompoundGradient;
+import dev.latvian.mods.klib.gradient.FlatColorGradient;
+import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.gradient.LinearGradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
-import dev.latvian.mods.klib.interpolation.LinearInterpolation;
+import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 
-public record Color(int argb) implements Gradient {
+public record Color(int argb) {
 	public static final Color[] EMPTY_ARRAY = new Color[0];
 
 	public static final Color TRANSPARENT = new Color(0x00000000);
@@ -276,11 +280,6 @@ public record Color(int argb) implements Gradient {
 		}
 	}
 
-	@Override
-	public Color get(float delta) {
-		return this;
-	}
-
 	public boolean isTransparent() {
 		return alpha() == 0;
 	}
@@ -424,22 +423,16 @@ public record Color(int argb) implements Gradient {
 		return hsb;
 	}
 
-	@Override
-	public Color optimize() {
-		return this;
-	}
-
-	@Override
-	public List<PositionedColor> getPositionedColors() {
-		return List.of(new PositionedColor(0F, this));
+	public Gradient toGradient() {
+		return argb == 0 ? Gradient.EMPTY.value() : new FlatColorGradient(this);
 	}
 
 	public Gradient gradient(Color other) {
-		return gradient(other, LinearInterpolation.INSTANCE);
+		return gradient(other, Interpolation.linear());
 	}
 
-	public Gradient gradient(Color other, Interpolation interpolation) {
-		return interpolation.isLinear() ? new LinearPairGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, interpolation), new PositionedColor(1F, other)));
+	public Gradient gradient(Color other, Ref<Interpolation> interpolation) {
+		return equals(other) ? toGradient() : interpolation.value().isLinear() ? new LinearGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, interpolation), new PositionedColor(1F, other)));
 	}
 
 	public Color mix(Color color, int mixAlpha) {

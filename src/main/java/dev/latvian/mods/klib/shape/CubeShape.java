@@ -12,19 +12,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import org.joml.Vector3fc;
 
 public record CubeShape(float size) implements Shape {
-	public static final CubeShape UNIT_CUBE = new CubeShape(1F);
-
-	public static CubeShape of(float size) {
-		return size == 1F ? UNIT_CUBE : new CubeShape(size);
-	}
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_CUBE = Shape.REGISTRY.unit(ID.klib("unit_cube"), new CubeShape(1F));
 
 	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("cube"),
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.FLOAT.fieldOf("size").forGetter(CubeShape::size)
-		).apply(instance, CubeShape::of)),
+		).apply(instance, CubeShape::new)),
 		CompositeStreamCodec.of(
 			ByteBufCodecs.FLOAT, CubeShape::size,
-			CubeShape::of
+			CubeShape::new
 		)
 	);
 
@@ -55,5 +51,10 @@ public record CubeShape(float size) implements Shape {
 	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
 		double r = size / 2D;
 		return frustum.isVisible(x - r, y - r, z - r, x + r, y + r, z + r);
+	}
+
+	@Override
+	public Shape optimize() {
+		return size == 1F ? UNIT_CUBE.value() : this;
 	}
 }

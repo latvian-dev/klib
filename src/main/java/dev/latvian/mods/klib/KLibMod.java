@@ -62,7 +62,7 @@ public class KLibMod {
 		var map = payload.registries().stream().collect(Collectors.toMap(info -> info.registryKeys().root(), Function.identity()));
 
 		for (var registry : CustomRegistry.ALL.values()) {
-			if (registry.side().isServer()) {
+			if (registry.syncValues()) {
 				var info = map.get(registry.registryKeys().root());
 				registry.readMeta(Cast.to(info));
 			}

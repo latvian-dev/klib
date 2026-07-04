@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.DynamicOps;
 import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.Ref;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -25,21 +26,21 @@ import net.minecraft.resources.ResourceKey;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
-public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> parser, CustomRegistry<?, T> registry) implements ArgumentType<T> {
+public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> parser, CustomRegistry<?, T> registry) implements ArgumentType<Ref<T>> {
 	private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> Component.translatable("commands.neoforge.arguments.enum.invalid", constants, found));
 	private static final DynamicCommandExceptionType INVALID_DATA = new DynamicCommandExceptionType(error -> Component.literal("Parsing error: " + error));
 
 	@Override
-	public T parse(StringReader reader) throws CommandSyntaxException {
-		if (!registry.valueMap().isEmpty()) {
+	public Ref<T> parse(StringReader reader) throws CommandSyntaxException {
+		if (!registry.values().isEmpty()) {
 			int cursor = reader.getCursor();
 
 			try {
 				var id = Identifier.read(reader);
 
-				for (var entry : registry.valueMap().entrySet()) {
-					if (entry.getKey().identifier().equals(id)) {
-						return entry.getValue();
+				for (var ref : registry.values()) {
+					if (ref.key().identifier().equals(id)) {
+						return ref;
 					}
 				}
 
@@ -51,17 +52,17 @@ public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 		}
 
 		var tag = parser.parseAsArgument(reader);
-		return registry.dataType().codec().parse(ops, tag).getOrThrow(INVALID_DATA::create);
+		return registry.codec().parse(ops, tag).getOrThrow(INVALID_DATA::create);
 	}
 
 	@Override
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-		return SharedSuggestionProvider.suggestResource(registry.sortedKeys().stream().map(ResourceKey::identifier), builder);
+		return SharedSuggestionProvider.suggestResource(registry.values().stream().map(Ref::key).map(ResourceKey::identifier), builder);
 	}
 
 	@Override
 	public Collection<String> getExamples() {
-		return registry.sortedKeys().stream().map(ResourceKey::identifier).map(Identifier::toString).toList();
+		return registry.values().stream().map(Ref::key).map(ResourceKey::identifier).map(Identifier::toString).toList();
 	}
 
 	public static class Info<T> implements ArgumentTypeInfo<CustomRegistryArgument<T>, Info.ArgumentTemplate<T>> {

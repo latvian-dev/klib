@@ -67,9 +67,4 @@ public enum EaseOut implements Interpolation, StringRepresentable {
 	public String toString() {
 		return name;
 	}
-
-	@Override
-	public Interpolation inverse() {
-		return EaseIn.VALUES[ordinal()];
-	}
 }

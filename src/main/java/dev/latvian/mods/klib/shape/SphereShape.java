@@ -8,17 +8,18 @@ import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.Mth;
 import org.joml.Vector3fc;
 
-public record SphereShape(float radius) implements Shape {
-	public static final SphereShape UNIT_SPHERE = new SphereShape(0.5F);
+public record SphereShape(float size) implements Shape {
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_SPHERE = Shape.REGISTRY.unit(ID.klib("unit_sphere"), new SphereShape(1F));
 
 	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("sphere"),
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Codec.FLOAT.fieldOf("radius").forGetter(SphereShape::radius)
+			Codec.FLOAT.fieldOf("size").forGetter(SphereShape::size)
 		).apply(instance, SphereShape::new)),
 		CompositeStreamCodec.of(
-			ByteBufCodecs.FLOAT, SphereShape::radius,
+			ByteBufCodecs.FLOAT, SphereShape::size,
 			SphereShape::new
 		)
 	);
@@ -30,16 +31,21 @@ public record SphereShape(float radius) implements Shape {
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildLines(x, y, z, radius * 2F, callback);
+		SpherePoints.M.buildLines(x, y, z, size, callback);
 	}
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildQuads(x, y, z, radius * 2F, callback);
+		SpherePoints.M.buildQuads(x, y, z, size, callback);
 	}
 
 	@Override
 	public boolean contains(Vector3fc p) {
-		return p.lengthSquared() <= radius * radius;
+		return p.lengthSquared() <= Mth.square(size / 2F);
+	}
+
+	@Override
+	public Shape optimize() {
+		return size == 1F ? UNIT_SPHERE.value() : this;
 	}
 }

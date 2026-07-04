@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.data.DataTypes;
 import dev.latvian.mods.klib.data.JOMLDataTypes;
+import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
@@ -125,5 +126,9 @@ public class PlatformHelper {
 
 	public void collectShapeTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
 		Shape.builtInTypes(registry);
+	}
+
+	public void collectGradientTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
+		Gradient.builtInTypes(registry);
 	}
 }

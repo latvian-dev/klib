@@ -10,38 +10,20 @@ import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
 public record LineShape(Vec3f vector) implements Shape {
-	public static final LineShape DOWN_UNIT = new LineShape(Vec3f.DOWN);
-	public static final LineShape UP_UNIT = new LineShape(Vec3f.UP);
-	public static final LineShape NORTH_UNIT = new LineShape(Vec3f.NORTH);
-	public static final LineShape SOUTH_UNIT = new LineShape(Vec3f.SOUTH);
-	public static final LineShape WEST_UNIT = new LineShape(Vec3f.WEST);
-	public static final LineShape EAST_UNIT = new LineShape(Vec3f.EAST);
-
-	public static LineShape of(Vec3f vector) {
-		if (vector == Vec3f.DOWN) {
-			return DOWN_UNIT;
-		} else if (vector == Vec3f.UP) {
-			return UP_UNIT;
-		} else if (vector == Vec3f.NORTH) {
-			return NORTH_UNIT;
-		} else if (vector == Vec3f.SOUTH) {
-			return SOUTH_UNIT;
-		} else if (vector == Vec3f.WEST) {
-			return WEST_UNIT;
-		} else if (vector == Vec3f.EAST) {
-			return EAST_UNIT;
-		} else {
-			return new LineShape(vector);
-		}
-	}
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_DOWN_LINE = Shape.REGISTRY.unit(ID.klib("unit_down_line"), new LineShape(Vec3f.DOWN));
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_UP_LINE = Shape.REGISTRY.unit(ID.klib("unit_up_line"), new LineShape(Vec3f.UP));
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_NORTH_LINE = Shape.REGISTRY.unit(ID.klib("unit_north_line"), new LineShape(Vec3f.NORTH));
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_SOUTH_LINE = Shape.REGISTRY.unit(ID.klib("unit_south_line"), new LineShape(Vec3f.SOUTH));
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_WEST_LINE = Shape.REGISTRY.unit(ID.klib("unit_west_line"), new LineShape(Vec3f.WEST));
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_EAST_LINE = Shape.REGISTRY.unit(ID.klib("unit_east_line"), new LineShape(Vec3f.EAST));
 
 	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("line"),
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
-		).apply(instance, LineShape::of)),
+		).apply(instance, LineShape::new)),
 		CompositeStreamCodec.of(
 			Vec3f.STREAM_CODEC, LineShape::vector,
-			LineShape::of
+			LineShape::new
 		)
 	);
 
@@ -54,9 +36,21 @@ public record LineShape(Vec3f vector) implements Shape {
 	public Shape optimize() {
 		if (vector.lengthSq() <= 0F) {
 			return EmptyShape.INSTANCE;
+		} else if (vector == Vec3f.DOWN) {
+			return UNIT_DOWN_LINE.value();
+		} else if (vector == Vec3f.UP) {
+			return UNIT_UP_LINE.value();
+		} else if (vector == Vec3f.NORTH) {
+			return UNIT_NORTH_LINE.value();
+		} else if (vector == Vec3f.SOUTH) {
+			return UNIT_SOUTH_LINE.value();
+		} else if (vector == Vec3f.WEST) {
+			return UNIT_WEST_LINE.value();
+		} else if (vector == Vec3f.EAST) {
+			return UNIT_EAST_LINE.value();
+		} else {
+			return this;
 		}
-
-		return this;
 	}
 
 	@Override

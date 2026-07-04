@@ -9,8 +9,7 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
-import dev.latvian.mods.klib.util.Cast;
+import dev.latvian.mods.klib.registry.Ref;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -22,30 +21,32 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public record EnumDataTypeArgument<T>(DataType<T> dataType) implements ArgumentType<T> {
+public record EnumDataTypeArgument<T>(Ref<DataType<?>> dataType) implements ArgumentType<T> {
 	private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> Component.translatable("commands.neoforge.arguments.enum.invalid", constants, found));
 
 	@Override
 	public T parse(StringReader reader) throws CommandSyntaxException {
+		var dataTypeValue = dataType.value();
 		var name = reader.readUnquotedString();
 
-		for (var entry : dataType.enumValues()) {
+		for (var entry : dataTypeValue.enumValues()) {
 			if (entry.getKey().equalsIgnoreCase(name)) {
-				return entry.getValue();
+				//noinspection unchecked
+				return (T) entry.getValue();
 			}
 		}
 
-		throw INVALID_ENUM.createWithContext(reader, name, dataType.enumValues().stream().map(Map.Entry::getKey).collect(Collectors.joining(", ", "[", "]")));
+		throw INVALID_ENUM.createWithContext(reader, name, dataTypeValue.enumValues().stream().map(Map.Entry::getKey).collect(Collectors.joining(", ", "[", "]")));
 	}
 
 	@Override
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-		return SharedSuggestionProvider.suggest(dataType.enumValues().stream().map(Map.Entry::getKey), builder);
+		return SharedSuggestionProvider.suggest(dataType.value().enumValues().stream().map(Map.Entry::getKey), builder);
 	}
 
 	@Override
 	public Collection<String> getExamples() {
-		return dataType.enumValues().stream().map(Map.Entry::getKey).toList();
+		return dataType.value().enumValues().stream().map(Map.Entry::getKey).toList();
 	}
 
 	public static class Info<T> implements ArgumentTypeInfo<EnumDataTypeArgument<T>, Info.ArgumentTemplate<T>> {
@@ -56,10 +57,10 @@ public record EnumDataTypeArgument<T>(DataType<T> dataType) implements ArgumentT
 
 		@Override
 		public ArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buf) {
-			var key = DataType.REGISTRY.streamCodec().decode(buf);
+			var ref = DataType.REGISTRY.streamCodec().decode(buf);
 
 			try {
-				return new ArgumentTemplate<>(this, Cast.to(DataTypeCommandInfoRegistry.require(key).dataType()));
+				return new ArgumentTemplate(this, ref);
 			} catch (NullPointerException _) {
 				return null;
 			}
@@ -67,7 +68,7 @@ public record EnumDataTypeArgument<T>(DataType<T> dataType) implements ArgumentT
 
 		@Override
 		public void serializeToJson(ArgumentTemplate<T> template, JsonObject json) {
-			json.addProperty("data_type", template.dataType.requireKey().identifier().toString());
+			json.addProperty("data_type", template.dataType.key().identifier().toString());
 		}
 
 		@Override
@@ -75,7 +76,7 @@ public record EnumDataTypeArgument<T>(DataType<T> dataType) implements ArgumentT
 			return new ArgumentTemplate<>(this, argument.dataType);
 		}
 
-		public record ArgumentTemplate<T>(Info<T> info, DataType<T> dataType) implements Template<EnumDataTypeArgument<T>> {
+		public record ArgumentTemplate<T>(Info<T> info, Ref<DataType<?>> dataType) implements Template<EnumDataTypeArgument<T>> {
 			@Override
 			public EnumDataTypeArgument<T> instantiate(CommandBuildContext ctx) {
 				return new EnumDataTypeArgument<>(dataType);

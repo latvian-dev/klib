@@ -14,7 +14,6 @@ import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.platform.PlatformType;
 import dev.latvian.mods.klib.util.Cast;
-import dev.latvian.mods.klib.util.Side;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -22,6 +21,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -38,16 +38,18 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class CustomRegistry<B extends ByteBuf, V> {
+public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private static final Map<ResourceKey<? extends Registry<?>>, CustomRegistry<?, ?>> ALL0 = new Reference2ObjectLinkedOpenHashMap<>();
 	public static final Map<ResourceKey<? extends Registry<?>>, CustomRegistry<?, ?>> ALL = Collections.unmodifiableMap(ALL0);
 	private static final Map<DataType<?>, CustomRegistry<?, ?>> DATA_TYPE_TO_REGISTRY0 = new Reference2ObjectLinkedOpenHashMap<>();
@@ -59,17 +61,16 @@ public class CustomRegistry<B extends ByteBuf, V> {
 
 		callback.accept(new CustomRegistryCollector() {
 			@Override
-			public <T> void register(DataType<T> dataType, CustomRegistry<?, T> registry) {
+			public <T> void register(CustomRegistry<?, T> registry) {
 				ALL0.put(registry.registryKeys().root(), registry);
-				DATA_TYPE_TO_REGISTRY0.put(dataType, registry);
-				registry.dataType = dataType;
+				DATA_TYPE_TO_REGISTRY0.put(registry.dataType, registry);
 			}
 		});
 	}
 
 	public static void buildAllMeta() {
 		for (var registry : ALL.values()) {
-			if (registry.side().isServer()) {
+			if (registry.syncValues()) {
 				registry.buildMeta();
 			}
 		}
@@ -82,17 +83,13 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		var metaList = new ArrayList<CustomRegistryMetaInfo<?>>();
 
 		for (var registry : CustomRegistry.ALL.values()) {
-			if (registry.side().isServer()) {
-				metaList.add(registry.writeMeta());
-			}
+			metaList.add(registry.writeMeta());
 		}
 
 		packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryMetaPayload(metaList)));
 
 		for (var registry : CustomRegistry.ALL.values()) {
-			if (registry.side().isServer()) {
-				packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
-			}
+			packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
 		}
 
 		if (!packets.isEmpty()) {
@@ -112,10 +109,23 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		}
 	}
 
+	private record ValueStreamCodec<B extends ByteBuf, T>(CustomRegistry<B, T> registry) implements StreamCodec<B, Ref<T>> {
+		@Override
+		public Ref<T> decode(B buf) {
+			return registry.decodeValue(buf);
+		}
+
+		@Override
+		public void encode(B buf, Ref<T> value) {
+			registry.encodeValue(buf, value);
+		}
+	}
+
 	public static class Builder<B extends ByteBuf, T> {
 		private RegistryKeys<T> registryKeys;
-		private Side side = null;
+		private boolean syncValues = true;
 		private CustomRegistryTypeProvider<B, T> typeProvider;
+		private Codec<T> customCodec;
 
 		public Builder<B, T> keys(RegistryKeys<T> registryKeys) {
 			this.registryKeys = registryKeys;
@@ -126,13 +136,8 @@ public class CustomRegistry<B extends ByteBuf, V> {
 			return keys(RegistryKeys.createKeys(id, commonNamespace));
 		}
 
-		public Builder<B, T> client() {
-			this.side = Side.CLIENT;
-			return this;
-		}
-
-		public Builder<B, T> server() {
-			this.side = Side.SERVER;
+		public Builder<B, T> noValueSync() {
+			this.syncValues = false;
 			return this;
 		}
 
@@ -141,8 +146,18 @@ public class CustomRegistry<B extends ByteBuf, V> {
 			return this;
 		}
 
+		public Builder<B, T> customCodec(Codec<T> customCodec) {
+			this.customCodec = customCodec;
+			return this;
+		}
+
 		public CustomRegistry<B, T> build() {
-			return new CustomRegistry<>(Objects.requireNonNull(side, "You must specify .client() or .server()"), registryKeys, typeProvider);
+			return new CustomRegistry<>(
+				syncValues,
+				Objects.requireNonNull(registryKeys, "You must specify .keys()"),
+				typeProvider,
+				customCodec
+			);
 		}
 	}
 
@@ -150,81 +165,90 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		return new Builder<>();
 	}
 
-	private final Side side;
+	private final boolean syncValues;
 	private final RegistryKeys<V> registryKeys;
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
-	DataType<V> dataType;
 
+	private final Map<ResourceKey<V>, Ref.OfKey<V>> refMap;
 	private final Map<ResourceKey<V>, CustomRegistryType<B, V>> typeMap;
-	private final Map<V, CustomRegistryType<B, V>> unitTypeMap;
+	private List<CustomRegistryType<B, V>> typeList;
 	private final Int2ObjectMap<CustomRegistryType<B, V>> rxTypeMap;
 	private final Reference2IntMap<CustomRegistryType<B, V>> txTypeMap;
 
 	public final Codec<CustomRegistryType<B, V>> typeCodec;
-	private final Codec<V> codec;
-	private final StreamCodec<B, V> streamCodec;
+	private final Codec<V> directCodec;
+	private final Codec<Ref<V>> codec;
+	private final StreamCodec<B, Ref<V>> streamCodec;
+	private final DataType<Ref<V>> dataType;
 
-	private final Map<ResourceKey<V>, V> valueMap;
-	private final Int2ObjectMap<V> rxValueMap;
-	private final Reference2IntMap<V> txValueMap;
-	private List<ResourceKey<V>> sortedKeys;
+	private final Map<ResourceKey<V>, Ref<V>> valueMap;
+	private List<Ref<V>> valueList;
+	private final Int2ObjectMap<Ref<V>> rxValueMap;
+	private final Reference2IntMap<ResourceKey<V>> txValueMap;
 
-	private CustomRegistry(Side side, RegistryKeys<V> registryKeys, @Nullable CustomRegistryTypeProvider<B, V> typeProvider) {
-		this.side = side;
+	private CustomRegistry(
+		boolean syncValues,
+		RegistryKeys<V> registryKeys,
+		@Nullable CustomRegistryTypeProvider<B, V> typeProvider,
+		@Nullable Codec<V> customCodec
+	) {
+		this.syncValues = syncValues;
 		this.registryKeys = registryKeys;
 		this.typeProvider = typeProvider;
 
+		this.refMap = new Reference2ObjectLinkedOpenHashMap<>();
 		this.typeMap = new Reference2ObjectLinkedOpenHashMap<>();
-		this.unitTypeMap = new Reference2ObjectLinkedOpenHashMap<>();
+		this.typeList = List.of();
 		this.rxTypeMap = new Int2ObjectOpenHashMap<>();
 		this.txTypeMap = new Reference2IntOpenHashMap<>();
 
 		this.typeCodec = KLibCodecs.map(typeMap, registryKeys.codec(), CustomRegistryType::key);
 
-		Codec<V> unitCodec = registryKeys.codec().flatXmap(key -> {
-			var type = typeMap.get(key);
+		Codec<Ref<V>> unitCodec = registryKeys.codec().flatXmap(key -> {
+			var type = getType(key);
 
 			if (type == null) {
 				return DataResult.error(() -> "Value " + key + " not found");
 			}
 
-			var unit = type.instance();
+			var unit = type.unit();
 
 			if (unit != null) {
 				return DataResult.success(unit);
 			} else {
 				return DataResult.error(() -> "Type " + key + " is not a unit type");
 			}
-		}, value -> {
-			var type = unitTypeMap.get(value);
-
-			if (type != null) {
-				return DataResult.success(type.key());
+		}, ref -> {
+			if (ref instanceof CustomRegistryType.Unit<?, V>) {
+				return DataResult.success(ref.key());
 			} else {
-				return DataResult.error(() -> "Type " + (typeProvider == null ? null : typeProvider.apply(value)) + " of " + value + " is not a unit type");
+				return DataResult.error(() -> "Type is not a unit type");
 			}
 		});
 
-		Codec<V> directCodec = typeCodec.dispatch("type", this::getType, CustomRegistryType::codec);
+		var directCodec = typeCodec.dispatch("type", this::getType, CustomRegistryType::codec);
 
-		this.codec = KLibCodecs.or(unitCodec, directCodec);
+		if (customCodec != null) {
+			directCodec = KLibCodecs.or(customCodec, directCodec);
+		}
 
-		this.streamCodec = new StreamCodec<>() {
-			@Override
-			public void encode(B buf, V value) {
-				encodeValue(buf, value);
+		this.directCodec = directCodec;
+
+		this.codec = KLibCodecs.or(unitCodec, directCodec.xmap(v -> {
+			if (v instanceof RefOptimizer<?> o) {
+				v = (V) o.optimize();
 			}
 
-			@Override
-			public V decode(B buf) {
-				return decodeValue(buf);
-			}
-		};
+			return ref(v);
+		}, Ref::value));
 
-		this.valueMap = new Reference2ObjectLinkedOpenHashMap<>();
+		this.streamCodec = new ValueStreamCodec<>(this);
+		this.dataType = DataType.of(codec, Cast.to(streamCodec));
+
+		this.valueMap = new Reference2ObjectOpenHashMap<>();
+		this.valueList = List.of();
 		this.rxValueMap = new Int2ObjectOpenHashMap<>();
 		this.txValueMap = new Reference2IntOpenHashMap<>();
-		this.sortedKeys = List.of();
 	}
 
 	public CustomRegistryType.Unit<B, V> unitWithType(Identifier id, Function<CustomRegistryType<B, V>, V> instance) {
@@ -239,24 +263,49 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		return new CustomRegistryType.Dynamic<>(registryKeys.create(id), Cast.to(codec), Cast.to(streamCodec));
 	}
 
-	public void registerTypes(Consumer<CustomRegistryTypeCollector<B, V>> callback) {
-		typeMap.clear();
-		unitTypeMap.clear();
-		rxTypeMap.clear();
-		txTypeMap.clear();
-		var list = new ArrayList<CustomRegistryType<B, V>>();
-		callback.accept(new CustomRegistryTypeCollectorImpl<>(this, list));
-		list.sort((o1, o2) -> o1.id().compareNamespaced(o2.id()));
+	public Ref<V> ref(Identifier id) {
+		return ref(registryKeys.create(id));
+	}
 
-		for (var type : list) {
-			typeMap.put(type.key(), type);
-			V unitValue = type.instance();
+	public Ref<V> ref(ResourceKey<V> key) {
+		var type = getType(key);
 
-			if (unitValue != null) {
-				unitTypeMap.put(unitValue, type);
+		if (type instanceof CustomRegistryType.Unit<?, V> unit) {
+			return unit;
+		}
+
+		return refMap.computeIfAbsent(key, Ref.OfKey::new);
+	}
+
+	Ref<V> createRef(ResourceKey<V> key, V value) {
+		var ref = refMap.computeIfAbsent(key, Ref.OfKey::new);
+		ref.value = value;
+		return ref;
+	}
+
+	public Ref<V> ref(V value) {
+		for (var ref : valueList) {
+			if (ref.optionalValue() == value) {
+				return ref;
 			}
 		}
 
+		return new Ref.OfValue<>(value);
+	}
+
+	public void registerTypes(Consumer<CustomRegistryTypeCollector<B, V>> callback) {
+		typeMap.clear();
+		rxTypeMap.clear();
+		txTypeMap.clear();
+		typeList = new ArrayList<>();
+		callback.accept(new CustomRegistryTypeCollectorImpl<>(this, typeList));
+		typeList.sort(null);
+
+		for (var type : typeList) {
+			typeMap.put(type.key(), type);
+		}
+
+		typeList = List.copyOf(typeMap.values());
 		updateValues(Map.of());
 	}
 
@@ -266,8 +315,7 @@ public class CustomRegistry<B extends ByteBuf, V> {
 
 		int index = 2;
 
-		for (var entry : typeMap.entrySet()) {
-			var type = entry.getValue();
+		for (var type : typeList) {
 			rxTypeMap.put(index, type);
 			txTypeMap.put(type, index);
 			index++;
@@ -290,11 +338,13 @@ public class CustomRegistry<B extends ByteBuf, V> {
 
 		if (info != null) {
 			for (var entry : info.typeInfos()) {
-				var type = typeMap.get(entry.key());
+				var type = getType(entry.key());
 
 				if (type != null) {
 					rxTypeMap.put(entry.index(), type);
 					txTypeMap.put(type, entry.index());
+				} else {
+					throw new NullPointerException("Missing type " + entry.key().identifier() + " on client side");
 				}
 			}
 		}
@@ -305,53 +355,61 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		rxValueMap.clear();
 		txValueMap.clear();
 
-		var valueList = new ArrayList<Map.Entry<ResourceKey<V>, V>>(unitTypeMap.size() + map.size());
+		valueList = new ArrayList<>(typeList.size() + map.size());
 
-		for (var unit : unitTypeMap.values()) {
-			valueList.add(Map.entry(unit.key(), unit.instance()));
+		for (var type : typeList) {
+			var unit = type.unit();
+
+			if (unit != null) {
+				valueList.add(unit);
+			}
 		}
 
 		for (var entry : map.entrySet()) {
 			var key = registryKeys.create(entry.getKey());
 			var value = entry.getValue();
-			valueList.add(Map.entry(key, value));
+			valueList.add(createRef(key, value));
 		}
 
-		valueList.sort((o1, o2) -> o1.getKey().identifier().compareNamespaced(o2.getKey().identifier()));
-		int index = 2;
+		for (var ref : valueList) {
+			valueMap.put(ref.key(), ref);
+		}
 
-		for (var entry : valueList) {
-			var value = entry.getValue();
+		valueList = new ArrayList<>(valueMap.values());
+		valueList.sort(null);
+		valueList = List.copyOf(valueList);
 
-			if (side.isServer()) {
-				rxValueMap.put(index, value);
-				txValueMap.put(value, index);
+		updateRefs();
+
+		if (syncValues) {
+			int index = 2;
+
+			for (var ref : valueList) {
+				rxValueMap.put(index, ref);
+				txValueMap.put(ref.key(), index);
+				index++;
 			}
-
-			valueMap.put(entry.getKey(), value);
-			index++;
 		}
-
-		sortedKeys = List.copyOf(valueMap.keySet());
 	}
 
 	public CustomRegistryValueInfo<V> writeValues(RegistryAccess registryAccess, PlatformType platformType) {
 		var list = new ArrayList<CustomRegistryValueInfo.ValueInfo<V>>();
 
-		for (var entry : valueMap.entrySet()) {
-			var value = entry.getValue();
-			var index = getValueIndex(value);
+		for (var ref : valueList) {
+			var key = ref.key();
+			var value = ref.value();
+			var index = getValueIndex(key);
 
 			try {
-				var type = getType(value);
+				var type = getType(ref);
 
-				if (type.instance() == value) {
-					list.add(new CustomRegistryValueInfo.ValueInfo<>(index, type.key(), IOUtils.EMPTY_BYTE_ARRAY));
+				if (type.unit() == value) {
+					list.add(new CustomRegistryValueInfo.ValueInfo<>(index, key, IOUtils.EMPTY_BYTE_ARRAY));
 				} else {
 					var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), registryAccess, platformType);
 					type.streamCodec.encode(Cast.to(buf), value);
 					var bytes = IOUtils.toByteArray(buf, true);
-					list.add(new CustomRegistryValueInfo.ValueInfo<>(index, type.key(), bytes));
+					list.add(new CustomRegistryValueInfo.ValueInfo<>(index, key, bytes));
 				}
 			} catch (Exception ex) {
 				KLib.LOGGER.error("Failed to write custom registry " + registryKeys.root().identifier() + " value " + value);
@@ -361,31 +419,47 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		return new CustomRegistryValueInfo<>(registryKeys, List.copyOf(list));
 	}
 
+	private void updateRefs() {
+		for (var ref : refMap.values()) {
+			ref.value = null;
+		}
+
+		for (var ref : valueList) {
+			var ref0 = refMap.get(ref.key());
+
+			if (ref0 != null && ref0 != ref) {
+				ref0.value = ref.value();
+			}
+		}
+	}
+
 	public void readValues(CustomRegistryValueInfo<V> info, RegistryAccess registryAccess, PlatformType platformType) {
 		valueMap.clear();
 		rxValueMap.clear();
 		txValueMap.clear();
+		valueList = new ArrayList<>(info.valueInfos().size());
 
 		for (var entry : info.valueInfos()) {
 			int index = entry.index();
 			var key = entry.key();
-			var type = typeMap.get(key);
+			var type = getType(key);
 
 			if (type != null) {
-				var unit = type.instance();
+				var unit = type.unit();
 
 				if (unit != null) {
 					valueMap.put(key, unit);
 					rxValueMap.put(index, unit);
-					txValueMap.put(unit, index);
+					txValueMap.put(unit.key, index);
 				} else {
 					var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.wrappedBuffer(entry.value()), registryAccess, platformType);
 
 					try {
 						var value = type.streamCodec.decode(Cast.to(buf));
-						valueMap.put(key, value);
-						rxValueMap.put(index, value);
-						txValueMap.put(value, index);
+						var ref = createRef(key, value);
+						valueMap.put(key, ref);
+						rxValueMap.put(index, ref);
+						txValueMap.put(ref.key(), index);
 					} catch (Exception ex) {
 						KLib.LOGGER.error("Failed to decode custom registry entry " + registryKeys.root().identifier() + "/" + key.identifier(), ex);
 					}
@@ -397,13 +471,18 @@ public class CustomRegistry<B extends ByteBuf, V> {
 			}
 		}
 
-		sortedKeys = new ArrayList<>(valueMap.keySet());
-		sortedKeys.sort((o1, o2) -> o1.identifier().compareNamespaced(o2.identifier()));
-		sortedKeys = List.copyOf(sortedKeys);
+		for (var ref : valueList) {
+			valueMap.put(ref.key(), ref);
+		}
+
+		valueList = new ArrayList<>(valueMap.values());
+		valueList.sort(null);
+		valueList = List.copyOf(valueList);
+		updateRefs();
 	}
 
-	public Side side() {
-		return side;
+	public boolean syncValues() {
+		return syncValues;
 	}
 
 	public RegistryKeys<V> registryKeys() {
@@ -411,20 +490,47 @@ public class CustomRegistry<B extends ByteBuf, V> {
 	}
 
 	@Nullable
+	public CustomRegistryType<B, V> getOptionalType(Ref<V> ref) {
+		if (ref instanceof CustomRegistryType.Unit<?, ?> unit) {
+			//noinspection unchecked
+			return (CustomRegistryType.Unit<B, V>) unit;
+		}
+
+		var value = ref.value();
+		return typeProvider == null ? null : typeProvider.apply(value);
+	}
+
+	@Nullable
 	public CustomRegistryType<B, V> getOptionalType(V value) {
 		var type = typeProvider == null ? null : typeProvider.apply(value);
 
-		if (type != null && type.instance() == value) {
+		if (type != null) {
 			return type;
 		}
 
-		var unitType = unitTypeMap.get(value);
-
-		if (unitType != null) {
-			return unitType;
+		for (var ref : valueList) {
+			if (ref instanceof CustomRegistryType.Unit<?, V> unit && ref.optionalValue() == value) {
+				//noinspection unchecked
+				return (CustomRegistryType.Unit<B, V>) unit;
+			}
 		}
 
-		return type;
+		return null;
+	}
+
+	@Nullable
+	public CustomRegistryType<B, V> getType(ResourceKey<V> key) {
+		return typeMap.get(key);
+	}
+
+	public CustomRegistryType<B, V> getType(Ref<V> value) {
+		var type = getOptionalType(value);
+
+		if (type != null) {
+			return type;
+		}
+
+		throw new NullPointerException("Value " + value.optionalValue() + " does not have a type");
 	}
 
 	public CustomRegistryType<B, V> getType(V value) {
@@ -443,32 +549,47 @@ public class CustomRegistry<B extends ByteBuf, V> {
 		return type == null ? null : type.key();
 	}
 
-	public Codec<V> codec() {
+	public Codec<V> directCodec() {
+		return directCodec;
+	}
+
+	public Codec<Ref<V>> codec() {
 		return codec;
 	}
 
-	public StreamCodec<B, V> streamCodec() {
+	public StreamCodec<B, Ref<V>> streamCodec() {
 		return streamCodec;
 	}
 
-	public DataType<V> dataType() {
+	public DataType<Ref<V>> dataType() {
 		return dataType;
 	}
 
-	public Map<ResourceKey<V>, CustomRegistryType<B, V>> typeMap() {
-		return typeMap;
-	}
-
-	public Map<ResourceKey<V>, V> valueMap() {
-		return valueMap;
-	}
-
-	public List<ResourceKey<V>> sortedKeys() {
-		return sortedKeys;
+	public List<CustomRegistryType<B, V>> typeList() {
+		return typeList;
 	}
 
 	@Nullable
-	public V decodeValue(B buf) {
+	public Ref<V> get(ResourceKey<V> key) {
+		return valueMap.get(key);
+	}
+
+	@Nullable
+	public Ref<V> get(Identifier id) {
+		return get(registryKeys.create(id));
+	}
+
+	public List<Ref<V>> values() {
+		return valueList;
+	}
+
+	@Override
+	public @NonNull Iterator<Ref<V>> iterator() {
+		return valueList.iterator();
+	}
+
+	@Nullable
+	public Ref<V> decodeValue(B buf) {
 		int index = VarInt.read(buf);
 
 		if (index == 0) {
@@ -477,48 +598,49 @@ public class CustomRegistry<B extends ByteBuf, V> {
 			var type = decodeType(buf);
 
 			if (type != null) {
-				return type.streamCodec().decode(buf);
+				return ref(type.streamCodec().decode(buf));
 			}
 
 			return null;
 		} else {
-			var value = rxValueMap.get(index);
+			var ref = rxValueMap.get(index);
 
-			if (value == null) {
+			if (ref == null) {
 				throw new NullPointerException("Value " + registryKeys.root().identifier() + "/" + index + " not found");
 			}
 
-			return value;
+			return ref;
 		}
 	}
 
-	public int getValueIndex(V value) {
-		return side.isClient() ? 0 : txValueMap.getInt(value);
+	public int getValueIndex(ResourceKey<V> key) {
+		return syncValues ? txValueMap.getInt(key) : 0;
 	}
 
-	public void encodeValue(B buf, @Nullable V value) {
-		if (value == null) {
+	public void encodeValue(B buf, @Nullable Ref<V> ref) {
+		if (ref == null) {
 			VarInt.write(buf, 0);
+			return;
 		}
 
-		int index = getValueIndex(value);
+		int index = getValueIndex(ref.key());
 
 		if (index != 0) {
 			VarInt.write(buf, index);
 		} else {
 			VarInt.write(buf, 1);
-			var type = value == null ? null : getType(value);
+			var type = getType(ref);
 			encodeType(buf, type);
 
 			if (type != null) {
-				type.streamCodec().encode(buf, value);
+				type.streamCodec().encode(buf, ref.value());
 			}
 		}
 	}
 
 	@Nullable
 	public CustomRegistryType<B, V> decodeType(B buf) {
-		if (side.isServer()) {
+		if (syncValues) {
 			int index = VarInt.read(buf);
 
 			if (index == 0) {
@@ -534,7 +656,7 @@ public class CustomRegistry<B extends ByteBuf, V> {
 			return type;
 		} else {
 			var key = registryKeys.streamCodec().decode(buf);
-			var type = typeMap.get(key);
+			var type = getType(key);
 
 			if (type == null) {
 				throw new NullPointerException("Type " + registryKeys.root().identifier() + "/" + key.identifier() + " not found");
@@ -545,7 +667,7 @@ public class CustomRegistry<B extends ByteBuf, V> {
 	}
 
 	public void encodeType(ByteBuf buf, @Nullable CustomRegistryType<B, V> value) {
-		if (side.isServer()) {
+		if (syncValues) {
 			if (value == null) {
 				VarInt.write(buf, 0);
 			} else {
@@ -563,7 +685,7 @@ public class CustomRegistry<B extends ByteBuf, V> {
 	}
 
 	@ApiStatus.Internal
-	public ArgumentType<V> createArgument(CommandBuildContext ctx) {
+	public ArgumentType<Ref<V>> createArgument(CommandBuildContext ctx) {
 		if (dataType == null) {
 			throw new NullPointerException("Registry " + registryKeys.root().identifier() + " doesn't have a registered DataType");
 		}

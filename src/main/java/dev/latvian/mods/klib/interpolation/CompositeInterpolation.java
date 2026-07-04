@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.interpolation;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -10,42 +11,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record CompositeInterpolation(Interpolation in, Interpolation out, @Nullable CustomRegistryType<ByteBuf, Interpolation> type) implements Interpolation {
-	public static final CustomRegistryType<ByteBuf, Interpolation> SINE = Interpolation.REGISTRY.unitWithType(ID.klib("sine_in_out"), type -> new CompositeInterpolation(EaseIn.SINE, EaseOut.SINE, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> QUAD = Interpolation.REGISTRY.unitWithType(ID.klib("quad_in_out"), type -> new CompositeInterpolation(EaseIn.QUAD, EaseOut.QUAD, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> CUBIC = Interpolation.REGISTRY.unitWithType(ID.klib("cubic_in_out"), type -> new CompositeInterpolation(EaseIn.CUBIC, EaseOut.CUBIC, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> QUART = Interpolation.REGISTRY.unitWithType(ID.klib("quart_in_out"), type -> new CompositeInterpolation(EaseIn.QUART, EaseOut.QUART, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> QUINT = Interpolation.REGISTRY.unitWithType(ID.klib("quint_in_out"), type -> new CompositeInterpolation(EaseIn.QUINT, EaseOut.QUINT, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> EXPO = Interpolation.REGISTRY.unitWithType(ID.klib("expo_in_out"), type -> new CompositeInterpolation(EaseIn.EXPO, EaseOut.EXPO, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> CIRC = Interpolation.REGISTRY.unitWithType(ID.klib("circ_in_out"), type -> new CompositeInterpolation(EaseIn.CIRC, EaseOut.CIRC, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> BACK = Interpolation.REGISTRY.unitWithType(ID.klib("back_in_out"), type -> new CompositeInterpolation(EaseIn.BACK, EaseOut.BACK, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> ELASTIC = Interpolation.REGISTRY.unitWithType(ID.klib("elastic_in_out"), type -> new CompositeInterpolation(EaseIn.ELASTIC, EaseOut.ELASTIC, type));
-	public static final CustomRegistryType<ByteBuf, Interpolation> BOUNCE = Interpolation.REGISTRY.unitWithType(ID.klib("bounce_in_out"), type -> new CompositeInterpolation(EaseIn.BOUNCE, EaseOut.BOUNCE, type));
+public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> out, @Nullable CustomRegistryType<ByteBuf, Interpolation> type) implements Interpolation {
+	private static CustomRegistryType.Unit<ByteBuf, Interpolation> inOut(String id, EaseIn in, EaseOut out) {
+		return Interpolation.REGISTRY.unitWithType(ID.klib(id), type -> new CompositeInterpolation(in.type.unit(), out.type.unit(), type));
+	}
 
-	public static CompositeInterpolation of(Interpolation in, Interpolation out) {
-		if (in == EaseIn.SINE && out == EaseOut.SINE) {
-			return (CompositeInterpolation) SINE.instance();
-		} else if (in == EaseIn.QUAD && out == EaseOut.QUAD) {
-			return (CompositeInterpolation) QUAD.instance();
-		} else if (in == EaseIn.CUBIC && out == EaseOut.CUBIC) {
-			return (CompositeInterpolation) CUBIC.instance();
-		} else if (in == EaseIn.QUART && out == EaseOut.QUART) {
-			return (CompositeInterpolation) QUART.instance();
-		} else if (in == EaseIn.QUINT && out == EaseOut.QUINT) {
-			return (CompositeInterpolation) QUINT.instance();
-		} else if (in == EaseIn.EXPO && out == EaseOut.EXPO) {
-			return (CompositeInterpolation) EXPO.instance();
-		} else if (in == EaseIn.CIRC && out == EaseOut.CIRC) {
-			return (CompositeInterpolation) CIRC.instance();
-		} else if (in == EaseIn.BACK && out == EaseOut.BACK) {
-			return (CompositeInterpolation) BACK.instance();
-		} else if (in == EaseIn.ELASTIC && out == EaseOut.ELASTIC) {
-			return (CompositeInterpolation) ELASTIC.instance();
-		} else if (in == EaseIn.BOUNCE && out == EaseOut.BOUNCE) {
-			return (CompositeInterpolation) BOUNCE.instance();
-		}
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> SINE = inOut("sine_in_out", EaseIn.SINE, EaseOut.SINE);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> QUAD = inOut("quad_in_out", EaseIn.QUAD, EaseOut.QUAD);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> CUBIC = inOut("cubic_in_out", EaseIn.CUBIC, EaseOut.CUBIC);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> QUART = inOut("quart_in_out", EaseIn.QUART, EaseOut.QUART);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> QUINT = inOut("quint_in_out", EaseIn.QUINT, EaseOut.QUINT);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> EXPO = inOut("expo_in_out", EaseIn.EXPO, EaseOut.EXPO);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> CIRC = inOut("circ_in_out", EaseIn.CIRC, EaseOut.CIRC);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> BACK = inOut("back_in_out", EaseIn.BACK, EaseOut.BACK);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> ELASTIC = inOut("elastic_in_out", EaseIn.ELASTIC, EaseOut.ELASTIC);
+	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> BOUNCE = inOut("bounce_in_out", EaseIn.BOUNCE, EaseOut.BOUNCE);
 
-		return new CompositeInterpolation(in, out, null);
+	public static CompositeInterpolation of(Ref<Interpolation> inRef, Ref<Interpolation> outRef) {
+		return new CompositeInterpolation(inRef, outRef, null);
 	}
 
 	public static final List<CustomRegistryType<ByteBuf, Interpolation>> EASING = List.of(
@@ -80,16 +63,43 @@ public record CompositeInterpolation(Interpolation in, Interpolation out, @Nulla
 
 	@Override
 	public double interpolate(double t) {
-		return (t < 0.5D ? in.interpolate(t * 2D) : (1D + out.interpolate(t * 2D - 1D))) / 2D;
+		return (t < 0.5D ? in.value().interpolate(t * 2D) : (1D + out.value().interpolate(t * 2D - 1D))) / 2D;
 	}
 
 	@Override
 	public float interpolate(float t) {
-		return (t < 0.5F ? in.interpolate(t * 2F) : (1F + out.interpolate(t * 2F - 1F))) / 2F;
+		return (t < 0.5F ? in.value().interpolate(t * 2F) : (1F + out.value().interpolate(t * 2F - 1F))) / 2F;
 	}
 
 	@Override
 	public @NotNull String toString() {
 		return "Composite[" + in + " -> " + out + "]";
+	}
+
+	@Override
+	public Interpolation optimize() {
+		if (in == EaseIn.SINE.type && out == EaseOut.SINE.type) {
+			return SINE.value();
+		} else if (in == EaseIn.QUAD.type && out == EaseOut.QUAD.type) {
+			return QUAD.value();
+		} else if (in == EaseIn.CUBIC.type && out == EaseOut.CUBIC.type) {
+			return CUBIC.value();
+		} else if (in == EaseIn.QUART.type && out == EaseOut.QUART.type) {
+			return QUART.value();
+		} else if (in == EaseIn.QUINT.type && out == EaseOut.QUINT.type) {
+			return QUINT.value();
+		} else if (in == EaseIn.EXPO.type && out == EaseOut.EXPO.type) {
+			return EXPO.value();
+		} else if (in == EaseIn.CIRC.type && out == EaseOut.CIRC.type) {
+			return CIRC.value();
+		} else if (in == EaseIn.BACK.type && out == EaseOut.BACK.type) {
+			return BACK.value();
+		} else if (in == EaseIn.ELASTIC.type && out == EaseOut.ELASTIC.type) {
+			return ELASTIC.value();
+		} else if (in == EaseIn.BOUNCE.type && out == EaseOut.BOUNCE.type) {
+			return BOUNCE.value();
+		} else {
+			return this;
+		}
 	}
 }

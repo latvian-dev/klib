@@ -8,22 +8,19 @@ import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.Mth;
 import org.joml.Vector3fc;
 
-public record CircleShape(float radius) implements Shape {
-	public static final CircleShape UNIT_CIRCLE = new CircleShape(0.5F);
-
-	public static CircleShape of(float size) {
-		return size == 0.5F ? UNIT_CIRCLE : new CircleShape(size);
-	}
+public record CircleShape(float size) implements Shape {
+	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_CIRCLE = Shape.REGISTRY.unit(ID.klib("unit_circle"), new CircleShape(1F));
 
 	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("circle"),
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Codec.FLOAT.fieldOf("radius").forGetter(CircleShape::radius)
-		).apply(instance, CircleShape::of)),
+			Codec.FLOAT.fieldOf("size").forGetter(CircleShape::size)
+		).apply(instance, CircleShape::new)),
 		CompositeStreamCodec.of(
-			ByteBufCodecs.FLOAT, CircleShape::radius,
-			CircleShape::of
+			ByteBufCodecs.FLOAT, CircleShape::size,
+			CircleShape::new
 		)
 	);
 
@@ -34,20 +31,22 @@ public record CircleShape(float radius) implements Shape {
 
 	@Override
 	public Shape optimize() {
-		if (radius <= 0F) {
+		if (size <= 0F) {
 			return EmptyShape.INSTANCE;
+		} else if (size == 1F) {
+			return UNIT_CIRCLE.value();
+		} else {
+			return this;
 		}
-
-		return this;
 	}
 
 	@Override
 	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		buildLines(x, y, z, callback, radius, 96);
+		buildLines(x, y, z, callback, size, 96);
 	}
 
-	public static void buildLines(float x, float y, float z, VertexCallback callback, float radius, int detail) {
-		float r = Math.max(radius, 0F);
+	public static void buildLines(float x, float y, float z, VertexCallback callback, float size, int detail) {
+		float r = Math.max(size / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
 		for (int i = 0; i < detail; i++) {
@@ -62,11 +61,11 @@ public record CircleShape(float radius) implements Shape {
 
 	@Override
 	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		buildTopQuads(x, y, z, callback, radius, 96);
+		buildTopQuads(x, y, z, callback, size, 96);
 	}
 
-	public static void buildTopQuads(float x, float y, float z, VertexCallback callback, float radius, int detail) {
-		float r = Math.max(radius, 0F);
+	public static void buildTopQuads(float x, float y, float z, VertexCallback callback, float size, int detail) {
+		float r = Math.max(size / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
 		for (int i = 0; i < detail; i += 2) {
@@ -84,8 +83,8 @@ public record CircleShape(float radius) implements Shape {
 		}
 	}
 
-	public static void buildBottomQuads(float x, float y, float z, VertexCallback callback, float radius, int detail) {
-		float r = Math.max(radius, 0F);
+	public static void buildBottomQuads(float x, float y, float z, VertexCallback callback, float size, int detail) {
+		float r = Math.max(size / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
 		for (int i = 0; i < detail; i += 2) {
@@ -105,6 +104,6 @@ public record CircleShape(float radius) implements Shape {
 
 	@Override
 	public boolean contains(Vector3fc p) {
-		return p.y() == 0F && p.lengthSquared() <= radius * radius;
+		return p.y() == 0F && p.lengthSquared() <= Mth.square(size / 2F);
 	}
 }

@@ -5,6 +5,8 @@ import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistryEvent;
 import dev.latvian.mods.klib.data.DataTypeRegistryEvent;
+import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.gradient.GradientTypeRegistryEvent;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.InterpolationTypeRegistryEvent;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
@@ -147,5 +149,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	public void collectShapeTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
 		super.collectShapeTypes(registry);
 		ModLoader.postEvent(new ShapeTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectGradientTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
+		super.collectGradientTypes(registry);
+		ModLoader.postEvent(new GradientTypeRegistryEvent(registry));
 	}
 }
