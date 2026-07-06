@@ -5,18 +5,16 @@ import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.CustomRegistry;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.registry.RefOptimizer;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3fc;
 
-public interface Shape extends RefOptimizer<Shape> {
+public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.<ByteBuf, Shape>builder()
 		.keys(ID.klib("shape"), KLib.ID)
 		.type(Shape::type)
@@ -51,9 +49,9 @@ public interface Shape extends RefOptimizer<Shape> {
 		registry.register(LineShape.UNIT_EAST_LINE);
 	}
 
-	@Nullable
-	default CustomRegistryType<ByteBuf, Shape> type() {
-		return null;
+	@Override
+	default CustomRegistry<ByteBuf, Shape> getRegistry() {
+		return REGISTRY;
 	}
 
 	void buildLines(float x, float y, float z, VertexCallback callback);

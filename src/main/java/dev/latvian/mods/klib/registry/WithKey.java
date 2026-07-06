@@ -3,9 +3,12 @@ package dev.latvian.mods.klib.registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
-public interface WithKey<V> extends Comparable<WithKey<V>> {
+import java.util.Comparator;
+
+public interface WithKey<V> {
+	Comparator<? super WithKey<?>> COMPARATOR = (o1, o2) -> o1.id().compareNamespaced(o2.id());
+
 	@Nullable
 	ResourceKey<V> optionalKey();
 
@@ -25,10 +28,5 @@ public interface WithKey<V> extends Comparable<WithKey<V>> {
 
 	default Identifier id() {
 		return key().identifier();
-	}
-
-	@Override
-	default int compareTo(@NonNull WithKey<V> o) {
-		return id().compareNamespaced(o.id());
 	}
 }

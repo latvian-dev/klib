@@ -7,20 +7,18 @@ import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.registry.RefOptimizer;
 import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface Gradient extends RefOptimizer<Gradient> {
+public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder()
 		.keys(ID.klib("gradient"), "vidlib")
-		.type(Gradient::type)
 		.noValueSync()
 		.build();
 
@@ -37,9 +35,9 @@ public interface Gradient extends RefOptimizer<Gradient> {
 		registry.register(ClientGradient.TYPE);
 	}
 
-	@Nullable
-	default CustomRegistryType<ByteBuf, Gradient> type() {
-		return null;
+	@Override
+	default CustomRegistry<ByteBuf, Gradient> getRegistry() {
+		return REGISTRY;
 	}
 
 	Color get(float delta);

@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record ClientGradient(ClientGradientRef ref) implements Gradient {
+public record ClientGradient(ClientGradientRef gradient) implements Gradient {
 	public static final class ClientGradientRef {
 		public static final Map<Identifier, ClientGradientRef> INTERN = new HashMap<>();
 
@@ -48,10 +48,10 @@ public record ClientGradient(ClientGradientRef ref) implements Gradient {
 
 	public static final CustomRegistryType<ByteBuf, Gradient> TYPE = Gradient.REGISTRY.dynamic(ID.klib("client"),
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			ClientGradientRef.CODEC.fieldOf("ref").forGetter(ClientGradient::ref)
+			ClientGradientRef.CODEC.fieldOf("ref").forGetter(ClientGradient::gradient)
 		).apply(instance, ClientGradient::new)),
 		CompositeStreamCodec.of(
-			ClientGradientRef.STREAM_CODEC, ClientGradient::ref,
+			ClientGradientRef.STREAM_CODEC, ClientGradient::gradient,
 			ClientGradient::new
 		)
 	);
@@ -76,16 +76,16 @@ public record ClientGradient(ClientGradientRef ref) implements Gradient {
 
 	@Override
 	public Color get(float delta) {
-		return ref.gradient.get(delta);
+		return gradient.gradient.get(delta);
 	}
 
 	@Override
 	public Color sample(RandomSource random) {
-		return ref.gradient.sample(random);
+		return gradient.gradient.sample(random);
 	}
 
 	@Override
 	public List<PositionedColor> getPositionedColors() {
-		return ref.gradient.getPositionedColors();
+		return gradient.gradient.getPositionedColors();
 	}
 }

@@ -11,6 +11,7 @@ import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.EnumDataTypeArgument;
 import dev.latvian.mods.klib.command.ParsedDataTypeArgument;
 import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
@@ -43,7 +44,7 @@ public record DataType<T>(
 	StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec,
 	List<Map.Entry<String, T>> enumValues,
 	@Nullable DataType<?> componentType
-) implements ArgumentGetter<T> {
+) implements CustomRegistryValue<ByteBuf, DataType<?>>, ArgumentGetter<T> {
 	public static final CustomRegistry<ByteBuf, DataType<?>> REGISTRY = CustomRegistry.<ByteBuf, DataType<?>>builder()
 		.keys(ID.klib("data_type"), "java")
 		.build();
@@ -100,6 +101,11 @@ public record DataType<T>(
 	}
 
 	@Override
+	public CustomRegistry<ByteBuf, DataType<?>> getRegistry() {
+		return REGISTRY;
+	}
+
+	@Override
 	public int hashCode() {
 		return System.identityHashCode(this);
 	}
@@ -113,21 +119,6 @@ public record DataType<T>(
 	public String toString() {
 		var key = key();
 		return key != null ? key.identifier().toString() : ("Unregistered type " + codec);
-	}
-
-	@Nullable
-	public ResourceKey<DataType<?>> key() {
-		return REGISTRY.getKey(this);
-	}
-
-	public ResourceKey<DataType<?>> requireKey() {
-		var key = key();
-
-		if (key == null) {
-			throw new NullPointerException("DataType not registered");
-		}
-
-		return key;
 	}
 
 	public DataType<List<T>> listOf() {

@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-public abstract class CustomRegistryType<B extends ByteBuf, V> implements WithKey<V> {
-	public static final class Unit<B extends ByteBuf, V> extends CustomRegistryType<B, V> implements Ref<V> {
+public abstract class CustomRegistryType<B extends ByteBuf, V> implements WithKey<V>, CustomRegistryOwnTypeProvider<B, V> {
+	public static final class Unit<B extends ByteBuf, V> extends CustomRegistryType<B, V> implements Ref<V>, CustomRegistryOwnTypeProvider<B, V> {
 		private final V instance;
 
 		Unit(ResourceKey<V> key, Function<CustomRegistryType<B, V>, V> factory) {
@@ -70,6 +70,11 @@ public abstract class CustomRegistryType<B extends ByteBuf, V> implements WithKe
 	private CustomRegistryType(ResourceKey<V> key) {
 		this.key = key;
 		this.version = 1;
+	}
+
+	@Override
+	public CustomRegistryType<B, V> type() {
+		return this;
 	}
 
 	@Override

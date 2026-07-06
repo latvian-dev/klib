@@ -92,9 +92,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
 		}
 
-		if (!packets.isEmpty()) {
-			player.connection.send(new ClientboundBundlePacket(packets));
-		}
+		player.connection.send(new ClientboundBundlePacket(packets));
 	}
 
 	private record CustomRegistryTypeCollectorImpl<B extends ByteBuf, V>(CustomRegistry<B, V> registry, List<CustomRegistryType<B, V>> list) implements CustomRegistryTypeCollector<B, V> {
@@ -299,7 +297,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		txTypeMap.clear();
 		typeList = new ArrayList<>();
 		callback.accept(new CustomRegistryTypeCollectorImpl<>(this, typeList));
-		typeList.sort(null);
+		typeList.sort(WithKey.COMPARATOR);
 
 		for (var type : typeList) {
 			typeMap.put(type.key(), type);
@@ -376,7 +374,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		valueList = new ArrayList<>(valueMap.values());
-		valueList.sort(null);
+		valueList.sort(WithKey.COMPARATOR);
 		valueList = List.copyOf(valueList);
 
 		updateRefs();
@@ -476,7 +474,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		valueList = new ArrayList<>(valueMap.values());
-		valueList.sort(null);
+		valueList.sort(WithKey.COMPARATOR);
 		valueList = List.copyOf(valueList);
 		updateRefs();
 	}
@@ -491,17 +489,25 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	@Nullable
 	public CustomRegistryType<B, V> getOptionalType(Ref<V> ref) {
-		if (ref instanceof CustomRegistryType.Unit<?, ?> unit) {
+		if (ref instanceof CustomRegistryOwnTypeProvider<?, ?> provider) {
 			//noinspection unchecked
-			return (CustomRegistryType.Unit<B, V>) unit;
+			return (CustomRegistryType.Unit<B, V>) provider.type();
 		}
 
-		var value = ref.value();
-		return typeProvider == null ? null : typeProvider.apply(value);
+		return getOptionalType(ref.value());
 	}
 
 	@Nullable
 	public CustomRegistryType<B, V> getOptionalType(V value) {
+		if (value instanceof CustomRegistryOwnTypeProvider<?, ?> provider) {
+			var type = provider.type();
+
+			if (type != null) {
+				//noinspection unchecked
+				return (CustomRegistryType.Unit<B, V>) type;
+			}
+		}
+
 		var type = typeProvider == null ? null : typeProvider.apply(value);
 
 		if (type != null) {

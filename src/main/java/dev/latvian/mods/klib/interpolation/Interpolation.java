@@ -6,21 +6,18 @@ import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistry;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.registry.RefOptimizer;
 import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.EasingType;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
-public interface Interpolation extends EasingType, RefOptimizer<Interpolation> {
+public interface Interpolation extends EasingType, CustomRegistryValue<ByteBuf, Interpolation> {
 	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.<ByteBuf, Interpolation>builder()
 		.keys(ID.klib("interpolation"), KLib.ID)
-		.type(Interpolation::type)
 		.build();
 
 	Codec<Ref<Interpolation>> CODEC = REGISTRY.codec();
@@ -55,9 +52,9 @@ public interface Interpolation extends EasingType, RefOptimizer<Interpolation> {
 		}
 	}
 
-	@Nullable
-	default CustomRegistryType<ByteBuf, Interpolation> type() {
-		return null;
+	@Override
+	default CustomRegistry<ByteBuf, Interpolation> getRegistry() {
+		return REGISTRY;
 	}
 
 	@Override
