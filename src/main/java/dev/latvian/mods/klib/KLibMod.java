@@ -6,6 +6,7 @@ import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
 import dev.latvian.mods.klib.platform.NeoPlatformHelper;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.CustomRegistryMetaInfo;
 import dev.latvian.mods.klib.util.Cast;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -59,18 +60,18 @@ public class KLibMod {
 	}
 
 	private static void handleServerRegistryMeta(SyncCustomRegistryMetaPayload payload, IPayloadContext context) {
-		var map = payload.registries().stream().collect(Collectors.toMap(info -> info.registryKeys().root(), Function.identity()));
+		var map = payload.registries().stream().collect(Collectors.toMap(CustomRegistryMetaInfo::registryId, Function.identity()));
 
 		for (var registry : CustomRegistry.ALL.values()) {
 			if (registry.syncValues()) {
-				var info = map.get(registry.registryKeys().root());
+				var info = map.get(registry.registryId());
 				registry.readMeta(Cast.to(info));
 			}
 		}
 	}
 
 	private static void handleServerRegistryValues(SyncCustomRegistryValuesPayload payload, IPayloadContext context) {
-		var registry = CustomRegistry.ALL.get(payload.info().registryKeys().root());
+		var registry = CustomRegistry.ALL.get(payload.info().registryId());
 
 		if (registry != null) {
 			var registryAccess = context.player().registryAccess();

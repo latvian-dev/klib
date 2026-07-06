@@ -51,7 +51,7 @@ public record ParsedDataTypeArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 
 		@Override
 		public void serializeToJson(ArgumentTemplate<T> template, JsonObject json) {
-			json.addProperty("data_type", template.dataType.key().identifier().toString());
+			json.addProperty("data_type", template.dataType.key());
 		}
 
 		@Override

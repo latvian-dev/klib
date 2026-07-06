@@ -10,6 +10,8 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.DynamicOps;
+import dev.latvian.mods.klib.codec.KLibCodecs;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.Ref;
 import net.minecraft.commands.CommandBuildContext;
@@ -20,8 +22,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -36,15 +36,15 @@ public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 			int cursor = reader.getCursor();
 
 			try {
-				var id = Identifier.read(reader);
+				var id = KLibCodecs.readInternPath(reader);
 
-				for (var ref : registry.values()) {
-					if (ref.key().identifier().equals(id)) {
-						return ref;
-					}
+				var ref = registry.get(id);
+
+				if (ref != null) {
+					return ref;
 				}
 
-				throw INVALID_ENUM.createWithContext(reader, id, registry.registryKeys().root().identifier());
+				throw INVALID_ENUM.createWithContext(reader, id, registry.registryId());
 			} catch (Exception ignore) {
 			}
 
@@ -57,23 +57,23 @@ public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 
 	@Override
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-		return SharedSuggestionProvider.suggestResource(registry.values().stream().map(Ref::key).map(ResourceKey::identifier), builder);
+		return SharedSuggestionProvider.suggest(registry.values().stream().map(Ref::key), builder);
 	}
 
 	@Override
 	public Collection<String> getExamples() {
-		return registry.values().stream().map(Ref::key).map(ResourceKey::identifier).map(Identifier::toString).toList();
+		return registry.values().stream().map(Ref::key).toList();
 	}
 
 	public static class Info<T> implements ArgumentTypeInfo<CustomRegistryArgument<T>, Info.ArgumentTemplate<T>> {
 		@Override
 		public void serializeToNetwork(ArgumentTemplate<T> template, FriendlyByteBuf buf) {
-			buf.writeResourceKey(template.registry.registryKeys().root());
+			KLibStreamCodecs.INTERN_STRING.encode(buf, template.registry.registryId());
 		}
 
 		@Override
 		public ArgumentTemplate<T> deserializeFromNetwork(FriendlyByteBuf buf) {
-			var key = buf.readRegistryKey();
+			var key = KLibStreamCodecs.INTERN_STRING.decode(buf);
 			var registry = CustomRegistry.ALL.get(key);
 
 			if (registry != null) {
@@ -85,7 +85,7 @@ public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 
 		@Override
 		public void serializeToJson(ArgumentTemplate<T> template, JsonObject json) {
-			json.addProperty("registry", template.registry.registryKeys().root().identifier().toString());
+			json.addProperty("registry", template.registry.registryId());
 		}
 
 		@Override

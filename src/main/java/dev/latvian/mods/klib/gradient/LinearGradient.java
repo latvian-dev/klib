@@ -5,13 +5,14 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
 
 public record LinearGradient(Color start, Color end) implements Gradient {
-	public static final CustomRegistryType<ByteBuf, Gradient> TYPE = Gradient.REGISTRY.dynamic(ID.klib("linear"),
+	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
+		"linear",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Color.CODEC.fieldOf("start").forGetter(LinearGradient::start),
 			Color.CODEC.fieldOf("end").forGetter(LinearGradient::end)

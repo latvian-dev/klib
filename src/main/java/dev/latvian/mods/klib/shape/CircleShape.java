@@ -4,7 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -12,9 +13,10 @@ import net.minecraft.util.Mth;
 import org.joml.Vector3fc;
 
 public record CircleShape(float size) implements Shape {
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_CIRCLE = Shape.REGISTRY.unit(ID.klib("unit_circle"), new CircleShape(1F));
+	public static final UnitType<ByteBuf, Shape> UNIT_CIRCLE = UnitType.create("unit_circle", new CircleShape(1F));
 
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("circle"),
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"circle",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.FLOAT.fieldOf("size").forGetter(CircleShape::size)
 		).apply(instance, CircleShape::new)),

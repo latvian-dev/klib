@@ -1,23 +1,19 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
-	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.<ByteBuf, Shape>builder()
-		.keys(ID.klib("shape"), KLib.ID)
-		.build();
+	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.create("shape");
 
 	Codec<Ref<Shape>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Shape>> STREAM_CODEC = REGISTRY.streamCodec();

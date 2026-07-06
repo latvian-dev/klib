@@ -3,13 +3,14 @@ package dev.latvian.mods.klib.interpolation;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 public record FlipXInterpolation(Ref<Interpolation> interpolation) implements Interpolation {
-	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("flip_x"),
+	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
+		"flip_x",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Interpolation.CODEC.fieldOf("interpolation").forGetter(FlipXInterpolation::interpolation)
 		).apply(instance, FlipXInterpolation::new)),

@@ -3,13 +3,14 @@ package dev.latvian.mods.klib.interpolation;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 public record JoinedInterpolation(Ref<Interpolation> left, Ref<Interpolation> right) implements Interpolation {
-	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("joined"),
+	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
+		"joined",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Interpolation.CODEC.fieldOf("left").forGetter(JoinedInterpolation::left),
 			Interpolation.CODEC.fieldOf("right").forGetter(JoinedInterpolation::right)

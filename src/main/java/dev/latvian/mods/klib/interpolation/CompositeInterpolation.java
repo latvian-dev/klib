@@ -3,8 +3,9 @@ package dev.latvian.mods.klib.interpolation;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,26 +13,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> out, @Nullable CustomRegistryType<ByteBuf, Interpolation> type) implements Interpolation {
-	private static CustomRegistryType.Unit<ByteBuf, Interpolation> inOut(String id, EaseIn in, EaseOut out) {
-		return Interpolation.REGISTRY.unitWithType(ID.klib(id), type -> new CompositeInterpolation(in.type.unit(), out.type.unit(), type));
+	private static UnitType<ByteBuf, Interpolation> inOut(String id, EaseIn in, EaseOut out) {
+		return UnitType.create(id, type -> new CompositeInterpolation(in.type.unit(), out.type.unit(), type));
 	}
 
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> SINE = inOut("sine_in_out", EaseIn.SINE, EaseOut.SINE);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> QUAD = inOut("quad_in_out", EaseIn.QUAD, EaseOut.QUAD);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> CUBIC = inOut("cubic_in_out", EaseIn.CUBIC, EaseOut.CUBIC);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> QUART = inOut("quart_in_out", EaseIn.QUART, EaseOut.QUART);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> QUINT = inOut("quint_in_out", EaseIn.QUINT, EaseOut.QUINT);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> EXPO = inOut("expo_in_out", EaseIn.EXPO, EaseOut.EXPO);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> CIRC = inOut("circ_in_out", EaseIn.CIRC, EaseOut.CIRC);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> BACK = inOut("back_in_out", EaseIn.BACK, EaseOut.BACK);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> ELASTIC = inOut("elastic_in_out", EaseIn.ELASTIC, EaseOut.ELASTIC);
-	public static final CustomRegistryType.Unit<ByteBuf, Interpolation> BOUNCE = inOut("bounce_in_out", EaseIn.BOUNCE, EaseOut.BOUNCE);
+	public static final UnitType<ByteBuf, Interpolation> SINE = inOut("sine_in_out", EaseIn.SINE, EaseOut.SINE);
+	public static final UnitType<ByteBuf, Interpolation> QUAD = inOut("quad_in_out", EaseIn.QUAD, EaseOut.QUAD);
+	public static final UnitType<ByteBuf, Interpolation> CUBIC = inOut("cubic_in_out", EaseIn.CUBIC, EaseOut.CUBIC);
+	public static final UnitType<ByteBuf, Interpolation> QUART = inOut("quart_in_out", EaseIn.QUART, EaseOut.QUART);
+	public static final UnitType<ByteBuf, Interpolation> QUINT = inOut("quint_in_out", EaseIn.QUINT, EaseOut.QUINT);
+	public static final UnitType<ByteBuf, Interpolation> EXPO = inOut("expo_in_out", EaseIn.EXPO, EaseOut.EXPO);
+	public static final UnitType<ByteBuf, Interpolation> CIRC = inOut("circ_in_out", EaseIn.CIRC, EaseOut.CIRC);
+	public static final UnitType<ByteBuf, Interpolation> BACK = inOut("back_in_out", EaseIn.BACK, EaseOut.BACK);
+	public static final UnitType<ByteBuf, Interpolation> ELASTIC = inOut("elastic_in_out", EaseIn.ELASTIC, EaseOut.ELASTIC);
+	public static final UnitType<ByteBuf, Interpolation> BOUNCE = inOut("bounce_in_out", EaseIn.BOUNCE, EaseOut.BOUNCE);
 
 	public static CompositeInterpolation of(Ref<Interpolation> inRef, Ref<Interpolation> outRef) {
 		return new CompositeInterpolation(inRef, outRef, null);
 	}
 
-	public static final List<CustomRegistryType<ByteBuf, Interpolation>> EASING = List.of(
+	public static final List<UnitType<ByteBuf, Interpolation>> EASING = List.of(
 		SINE,
 		QUAD,
 		CUBIC,
@@ -44,7 +45,8 @@ public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> o
 		BOUNCE
 	);
 
-	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("composite"),
+	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
+		"composite",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Interpolation.CODEC.fieldOf("in").forGetter(CompositeInterpolation::in),
 			Interpolation.CODEC.fieldOf("out").forGetter(CompositeInterpolation::out)

@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +26,8 @@ public record ScaledInterpolation(float scale) implements Interpolation {
 		}
 	}
 
-	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("scaled"),
+	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
+		"scaled",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.FLOAT.fieldOf("scale").forGetter(ScaledInterpolation::scale)
 		).apply(instance, ScaledInterpolation::of)),

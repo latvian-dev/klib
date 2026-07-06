@@ -5,14 +5,15 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.RandomSource;
 
 import java.util.List;
 
 public record FlatColorGradient(Color color) implements Gradient {
-	public static final CustomRegistryType<ByteBuf, Gradient> TYPE = Gradient.REGISTRY.dynamic(ID.klib("color"),
+	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
+		"color",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Color.CODEC.fieldOf("color").forGetter(FlatColorGradient::color)
 		).apply(instance, FlatColorGradient::new)),

@@ -10,9 +10,9 @@ public interface WithValue<V> {
 		var value = optionalValue();
 
 		if (value == null) {
-			if (this instanceof WithKey<?> withKey) {
+			if (this instanceof WithKey withKey) {
 				var key = withKey.key();
-				throw new NullPointerException("Value of " + key.registry() + "/" + key.identifier() + " isn't bound");
+				throw new NullPointerException("Value of " + key + " isn't bound");
 			} else {
 				throw new NullPointerException("Value of " + this + " isn't bound");
 			}

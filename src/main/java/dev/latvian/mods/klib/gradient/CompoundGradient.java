@@ -4,15 +4,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.math.KMath;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Arrays;
 import java.util.List;
 
 public final class CompoundGradient implements Gradient {
-	public static final CustomRegistryType<ByteBuf, Gradient> TYPE = Gradient.REGISTRY.dynamic(ID.klib("compound"),
+	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
+		"compound",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			PositionedColor.LIST_CODEC.fieldOf("colors").forGetter(CompoundGradient::getPositionedColors)
 		).apply(instance, CompoundGradient::new)),

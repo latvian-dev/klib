@@ -14,7 +14,6 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
-import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.NameProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandBuildContext;
@@ -45,9 +44,7 @@ public record DataType<T>(
 	List<Map.Entry<String, T>> enumValues,
 	@Nullable DataType<?> componentType
 ) implements CustomRegistryValue<ByteBuf, DataType<?>>, ArgumentGetter<T> {
-	public static final CustomRegistry<ByteBuf, DataType<?>> REGISTRY = CustomRegistry.<ByteBuf, DataType<?>>builder()
-		.keys(ID.klib("data_type"), "java")
-		.build();
+	public static final CustomRegistry<ByteBuf, DataType<?>> REGISTRY = CustomRegistry.create("data_type");
 
 	public static final Codec<Ref<DataType<?>>> CODEC = REGISTRY.codec();
 	public static final StreamCodec<ByteBuf, Ref<DataType<?>>> STREAM_CODEC = REGISTRY.streamCodec();
@@ -117,8 +114,8 @@ public record DataType<T>(
 
 	@Override
 	public String toString() {
-		var key = key();
-		return key != null ? key.identifier().toString() : ("Unregistered type " + codec);
+		var key = optionalKey();
+		return key.isEmpty() ? ("Unregistered DataType " + codec) : key;
 	}
 
 	public DataType<List<T>> listOf() {

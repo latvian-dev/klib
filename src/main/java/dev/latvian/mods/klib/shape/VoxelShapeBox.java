@@ -8,7 +8,7 @@ import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.math.AABBs;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.phys.AABB;
@@ -32,7 +32,8 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 	public static final VoxelShapeBox CENTERED_Y_AXIS = of(AABBs.CENTERED_Y_AXIS);
 	public static final VoxelShapeBox CENTERED_Z_AXIS = of(AABBs.CENTERED_Z_AXIS);
 
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("voxel_shape"),
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"voxel_shape",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Line.CODEC.listOf().fieldOf("edges").forGetter(VoxelShapeBox::edges),
 			MCCodecs.AABB.listOf().fieldOf("boxes").forGetter(VoxelShapeBox::boxes)

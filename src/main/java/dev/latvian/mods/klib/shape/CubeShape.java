@@ -5,16 +5,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import org.joml.Vector3fc;
 
 public record CubeShape(float size) implements Shape {
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_CUBE = Shape.REGISTRY.unit(ID.klib("unit_cube"), new CubeShape(1F));
+	public static final UnitType<ByteBuf, Shape> UNIT_CUBE = UnitType.create("unit_cube", new CubeShape(1F));
 
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("cube"),
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"cube",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.FLOAT.fieldOf("size").forGetter(CubeShape::size)
 		).apply(instance, CubeShape::new)),

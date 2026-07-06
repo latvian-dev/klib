@@ -40,6 +40,26 @@ public interface KLibCodecs {
 	}
 
 	Codec<Unit> UNIT = MapCodec.unitCodec(Unit.INSTANCE);
+	Codec<String> INTERN_STRING = Codec.STRING.xmap(String::intern, Function.identity());
+
+	Codec<String> INTERN_PATH = INTERN_STRING.validate(s -> {
+		if (Identifier.isValidPath(s)) {
+			return DataResult.success(s);
+		} else {
+			return DataResult.error(() -> "Non [a-z0-9/._-] character in path " + s);
+		}
+	});
+
+	static String readInternPath(StringReader reader) {
+		int start = reader.getCursor();
+
+		while (reader.canRead() && Identifier.isAllowedInIdentifier(reader.peek())) {
+			reader.skip();
+		}
+
+		return reader.getString().substring(start, reader.getCursor()).intern();
+	}
+
 	Codec<UUID> UUID = Codec.STRING.comapFlatMap(s -> {
 		try {
 			return DataResult.success(UndashedUuid.fromStringLenient(s));

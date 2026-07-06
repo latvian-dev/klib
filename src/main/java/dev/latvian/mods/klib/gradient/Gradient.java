@@ -5,11 +5,10 @@ import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.registry.CustomRegistry;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
@@ -17,12 +16,11 @@ import net.minecraft.util.RandomSource;
 import java.util.List;
 
 public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
-	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder()
-		.keys(ID.klib("gradient"), "vidlib")
+	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder("gradient")
 		.noValueSync()
 		.build();
 
-	CustomRegistryType.Unit<ByteBuf, Gradient> EMPTY = REGISTRY.unit(ID.klib("empty"), new FlatColorGradient(Color.TRANSPARENT));
+	UnitType<ByteBuf, Gradient> EMPTY = UnitType.create("empty", new FlatColorGradient(Color.TRANSPARENT));
 	Codec<Ref<Gradient>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Gradient>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Gradient>> DATA_TYPE = REGISTRY.dataType();

@@ -3,7 +3,6 @@ package dev.latvian.mods.klib.data;
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
-import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import org.joml.Matrix2d;
 import org.joml.Matrix2dc;
@@ -134,7 +133,7 @@ public interface JOMLDataTypes {
 	}
 
 	private static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry, String name, DataType<?> type, DataType<?> ctype) {
-		registry.register(ID.joml(name), type);
-		registry.register(ID.joml(name + "c"), ctype);
+		registry.register("joml_" + name, type);
+		registry.register("joml_" + name + "c", ctype);
 	}
 }

@@ -6,13 +6,14 @@ import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2fc;
 
 public record BezierInterpolation(Vector2fc a, Vector2fc b) implements Interpolation {
-	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.dynamic(ID.klib("bezier"),
+	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
+		"bezier",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			JOMLCodecs.VEC2C.fieldOf("a").forGetter(BezierInterpolation::a),
 			JOMLCodecs.VEC2C.fieldOf("b").forGetter(BezierInterpolation::b)

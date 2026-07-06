@@ -1,13 +1,13 @@
 package dev.latvian.mods.klib.interpolation;
 
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 
 public enum LinearInterpolation implements Interpolation {
 	INSTANCE;
 
-	public static final CustomRegistryType<ByteBuf, Interpolation> TYPE = Interpolation.REGISTRY.unit(ID.klib("linear"), INSTANCE);
+	public static final UnitType<ByteBuf, Interpolation> TYPE = UnitType.create("linear", INSTANCE);
 
 	@Override
 	public CustomRegistryType<ByteBuf, Interpolation> type() {

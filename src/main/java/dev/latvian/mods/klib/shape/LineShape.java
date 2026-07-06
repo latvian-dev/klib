@@ -4,20 +4,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
 public record LineShape(Vec3f vector) implements Shape {
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_DOWN_LINE = Shape.REGISTRY.unit(ID.klib("unit_down_line"), new LineShape(Vec3f.DOWN));
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_UP_LINE = Shape.REGISTRY.unit(ID.klib("unit_up_line"), new LineShape(Vec3f.UP));
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_NORTH_LINE = Shape.REGISTRY.unit(ID.klib("unit_north_line"), new LineShape(Vec3f.NORTH));
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_SOUTH_LINE = Shape.REGISTRY.unit(ID.klib("unit_south_line"), new LineShape(Vec3f.SOUTH));
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_WEST_LINE = Shape.REGISTRY.unit(ID.klib("unit_west_line"), new LineShape(Vec3f.WEST));
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_EAST_LINE = Shape.REGISTRY.unit(ID.klib("unit_east_line"), new LineShape(Vec3f.EAST));
+	public static final UnitType<ByteBuf, Shape> UNIT_DOWN_LINE = UnitType.create("unit_down_line", new LineShape(Vec3f.DOWN));
+	public static final UnitType<ByteBuf, Shape> UNIT_UP_LINE = UnitType.create("unit_up_line", new LineShape(Vec3f.UP));
+	public static final UnitType<ByteBuf, Shape> UNIT_NORTH_LINE = UnitType.create("unit_north_line", new LineShape(Vec3f.NORTH));
+	public static final UnitType<ByteBuf, Shape> UNIT_SOUTH_LINE = UnitType.create("unit_south_line", new LineShape(Vec3f.SOUTH));
+	public static final UnitType<ByteBuf, Shape> UNIT_WEST_LINE = UnitType.create("unit_west_line", new LineShape(Vec3f.WEST));
+	public static final UnitType<ByteBuf, Shape> UNIT_EAST_LINE = UnitType.create("unit_east_line", new LineShape(Vec3f.EAST));
 
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("line"),
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"line",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
 		).apply(instance, LineShape::new)),

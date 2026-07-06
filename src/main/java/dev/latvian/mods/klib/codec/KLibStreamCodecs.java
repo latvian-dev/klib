@@ -31,6 +31,7 @@ import java.util.function.ToIntFunction;
 
 public interface KLibStreamCodecs {
 	StreamCodec<ByteBuf, Unit> UNIT = StreamCodec.unit(Unit.INSTANCE);
+	StreamCodec<ByteBuf, String> INTERN_STRING = ByteBufCodecs.STRING_UTF8.map(String::intern, Function.identity());
 
 	static <V> StreamCodec<ByteBuf, V> toBasic(StreamCodec<? super RegistryFriendlyByteBuf, V> parent) {
 		return new StreamCodec<>() {

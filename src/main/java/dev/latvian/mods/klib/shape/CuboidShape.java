@@ -5,15 +5,17 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
 public record CuboidShape(Vec3f size) implements Shape {
-	public static final CustomRegistryType.Unit<ByteBuf, Shape> UNIT_SQUARE = Shape.REGISTRY.unit(ID.klib("unit_square"), new CuboidShape(new Vec3f(1F, 0F, 1F)));
+	public static final UnitType<ByteBuf, Shape> UNIT_SQUARE = UnitType.create("unit_square", new CuboidShape(new Vec3f(1F, 0F, 1F)));
 
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("cuboid"),
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"cuboid",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Vec3f.CODEC.fieldOf("size").forGetter(CuboidShape::size)
 		).apply(instance, CuboidShape::new)),

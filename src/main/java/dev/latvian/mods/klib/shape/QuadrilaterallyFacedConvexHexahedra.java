@@ -10,7 +10,7 @@ import dev.latvian.mods.klib.math.Face;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Line3f;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -69,7 +69,11 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 			return shape;
 		});
 
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("quadrilaterally_faced_convex_hexahedra"), CODEC, STREAM_CODEC);
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"quadrilaterally_faced_convex_hexahedra",
+		CODEC,
+		STREAM_CODEC
+	);
 
 	public final float minX;
 	public final float minY;

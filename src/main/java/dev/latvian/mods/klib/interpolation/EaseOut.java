@@ -2,7 +2,7 @@ package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -40,12 +40,12 @@ public enum EaseOut implements Interpolation, StringRepresentable {
 
 	public final String name;
 	public final Double2DoubleFunction function;
-	public final CustomRegistryType<ByteBuf, Interpolation> type;
+	public final UnitType<ByteBuf, Interpolation> type;
 
 	EaseOut(String name, Double2DoubleFunction function) {
 		this.name = name;
 		this.function = function;
-		this.type = Interpolation.REGISTRY.unit(ID.klib(name + "_out"), this);
+		this.type = UnitType.create(name + "_out", this);
 	}
 
 	@Override

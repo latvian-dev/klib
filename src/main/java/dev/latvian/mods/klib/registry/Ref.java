@@ -1,25 +1,24 @@
 package dev.latvian.mods.klib.registry;
 
-import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.Nullable;
 
-public sealed interface Ref<V> extends WithKey<V>, WithValue<V> permits CustomRegistryType.Unit, Ref.OfKey, Ref.OfValue {
+public sealed interface Ref<V> extends WithKey, WithValue<V> permits UnitType, Ref.OfKey, Ref.OfValue {
 	final class OfKey<V> implements Ref<V> {
-		private final ResourceKey<V> key;
+		private final String key;
 		V value;
 
-		OfKey(ResourceKey<V> key) {
+		OfKey(String key) {
 			this.key = key;
 			this.value = null;
 		}
 
 		@Override
-		public ResourceKey<V> optionalKey() {
+		public String optionalKey() {
 			return key;
 		}
 
 		@Override
-		public ResourceKey<V> key() {
+		public String key() {
 			return key;
 		}
 
@@ -31,23 +30,20 @@ public sealed interface Ref<V> extends WithKey<V>, WithValue<V> permits CustomRe
 
 		@Override
 		public String toString() {
-			return value == null ? ("Ref[" + key.identifier() + "]") : value.toString();
+			return value == null ? ("Ref[" + key + "]") : value.toString();
 		}
 	}
 
 	final class OfValue<V> implements Ref<V> {
-		ResourceKey<V> key;
 		private final V value;
 
 		OfValue(V value) {
-			this.key = null;
 			this.value = value;
 		}
 
 		@Override
-		@Nullable
-		public ResourceKey<V> optionalKey() {
-			return key;
+		public String optionalKey() {
+			return "";
 		}
 
 		@Override
@@ -72,7 +68,7 @@ public sealed interface Ref<V> extends WithKey<V>, WithValue<V> permits CustomRe
 
 		if (value == null) {
 			var key = key();
-			throw new NullPointerException("Value of " + key.registry() + "/" + key.identifier() + " isn't bound");
+			throw new NullPointerException("Value of " + key + " isn't bound");
 		}
 
 		return value;

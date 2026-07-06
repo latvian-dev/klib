@@ -8,7 +8,7 @@ import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
-import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -46,7 +46,8 @@ public record ClientGradient(ClientGradientRef gradient) implements Gradient {
 		}
 	}
 
-	public static final CustomRegistryType<ByteBuf, Gradient> TYPE = Gradient.REGISTRY.dynamic(ID.klib("client"),
+	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
+		"client",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			ClientGradientRef.CODEC.fieldOf("ref").forGetter(ClientGradient::gradient)
 		).apply(instance, ClientGradient::new)),

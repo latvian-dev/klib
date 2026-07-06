@@ -4,8 +4,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Matrix4f;
@@ -13,7 +13,8 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 public record RotatedShape(Ref<Shape> shape, Rotation rotation) implements Shape {
-	public static final CustomRegistryType<ByteBuf, Shape> TYPE = Shape.REGISTRY.dynamic(ID.klib("rotated"),
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"rotated",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Shape.CODEC.fieldOf("shape").forGetter(RotatedShape::shape),
 			Rotation.CODEC.optionalFieldOf("rotation", Rotation.NONE).forGetter(RotatedShape::rotation)

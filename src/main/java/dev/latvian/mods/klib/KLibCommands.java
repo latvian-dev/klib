@@ -6,8 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.klib.registry.CustomRegistry;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -44,7 +44,7 @@ public class KLibCommands {
 	private static <T> LiteralArgumentBuilder<CommandSourceStack> registryCommands(CustomRegistry<?, T> registry, CommandBuildContext context) {
 		var ops = context.createSerializationContext(JsonOps.INSTANCE);
 
-		return Commands.literal(registry.registryKeys().root().identifier().toString())
+		return Commands.literal(registry.registryId())
 			.then(Commands.literal("list")
 				.executes(ctx -> list(ctx.getSource().getPlayerOrException(), registry, ops))
 			)
@@ -72,7 +72,7 @@ public class KLibCommands {
 
 				var keys1 = type.codec().keys(ops).map(String::valueOf).distinct().toList();
 
-				var component1 = Component.literal(registry.registryKeys().encode(type.key()) + "[");
+				var component1 = Component.literal(type.key() + "[");
 
 				for (int i = 0; i < keys1.size(); ++i) {
 					if (i > 0) {
@@ -101,11 +101,11 @@ public class KLibCommands {
 		for (var ref : registry.values()) {
 			valuesComponent.append(Component.literal("\n"));
 
-			var color = registry.getType(ref) instanceof CustomRegistryType.Unit<?, T> ? ChatFormatting.GOLD : ChatFormatting.GREEN;
+			var color = registry.getType(ref) instanceof UnitType<?, T> ? ChatFormatting.GOLD : ChatFormatting.GREEN;
 
 			valuesComponent.append(Component.empty()
 				.append(format.formatted(registry.syncValues() ? registry.getValueIndex(ref.key()) : "-"))
-				.append(Component.literal(registry.registryKeys().encode(ref.key())).withStyle(ChatFormatting.YELLOW))
+				.append(Component.literal(ref.key()).withStyle(ChatFormatting.YELLOW))
 				.append(": ")
 				.append(Component.literal(String.valueOf(ref.value())).withStyle(color))
 			);
@@ -115,7 +115,7 @@ public class KLibCommands {
 
 		player.openDialog(Holder.direct(new NoticeDialog(
 			new CommonDialogData(
-				Component.literal(registry.registryKeys().root().identifier().toString()),
+				Component.literal(registry.registryId()),
 				Optional.empty(),
 				true,
 				true,
@@ -130,8 +130,8 @@ public class KLibCommands {
 	}
 
 	private static <T> int parse(CommandSourceStack source, CustomRegistry<?, T> registry, Ref<T> value) {
-		if (registry.getType(value) instanceof CustomRegistryType.Unit<?, T> unit) {
-			source.sendSuccess(() -> Component.literal(registry.registryKeys().encode(unit.key())).withStyle(ChatFormatting.GOLD), false);
+		if (registry.getType(value) instanceof UnitType<?, T> unit) {
+			source.sendSuccess(() -> Component.literal(unit.key()).withStyle(ChatFormatting.GOLD), false);
 		} else {
 			source.sendSuccess(() -> Component.literal(String.valueOf(value)).withStyle(ChatFormatting.GREEN), false);
 		}
