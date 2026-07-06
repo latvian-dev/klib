@@ -17,7 +17,6 @@ import org.joml.Vector3fc;
 public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.<ByteBuf, Shape>builder()
 		.keys(ID.klib("shape"), KLib.ID)
-		.type(Shape::type)
 		.build();
 
 	Codec<Ref<Shape>> CODEC = REGISTRY.codec();
