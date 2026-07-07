@@ -104,6 +104,10 @@ public class PlatformHelper {
 	}
 
 	public void collectDataTypes(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
+		for (var reg : CustomRegistry.ALL.values()) {
+			registry.register("custom_registry/" + reg.registryId(), reg.dataType());
+		}
+
 		DataTypes.register(registry);
 		JOMLDataTypes.register(registry);
 	}

@@ -283,7 +283,9 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		typeList.sort(WithKey.COMPARATOR);
 
 		for (var type : typeList) {
-			typeMap.put(type.key(), type);
+			if (typeMap.put(type.key(), type) != null) {
+				throw new IllegalStateException("Duplicate type key: " + registryId + ":" + type.key());
+			}
 		}
 
 		typeList = List.copyOf(typeMap.values());
@@ -442,13 +444,13 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 						rxValueMap.put(index, ref);
 						txValueMap.put(ref.key(), index);
 					} catch (Exception ex) {
-						KLib.LOGGER.error("Failed to decode custom registry entry " + registryId + "/" + key, ex);
+						KLib.LOGGER.error("Failed to decode custom registry entry " + registryId + ":" + key, ex);
 					}
 
 					buf.release();
 				}
 			} else {
-				KLib.LOGGER.error("Missing custom registry type " + registryId + "/" + key);
+				KLib.LOGGER.error("Missing custom registry type " + registryId + ":" + key);
 			}
 		}
 
@@ -585,7 +587,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			var ref = rxValueMap.get(index);
 
 			if (ref == null) {
-				throw new NullPointerException("Value " + registryId + "/" + index + " not found");
+				throw new NullPointerException("Value " + registryId + ":" + index + " not found");
 			}
 
 			return ref;
@@ -629,7 +631,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			var type = rxTypeMap.get(index);
 
 			if (type == null) {
-				throw new NullPointerException("Type " + registryId + "/" + index + " not found");
+				throw new NullPointerException("Type " + registryId + ":" + index + " not found");
 			}
 
 			return type;
@@ -638,7 +640,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			var type = typeMap.get(key);
 
 			if (type == null) {
-				throw new NullPointerException("Type " + registryId + "/" + key + " not found");
+				throw new NullPointerException("Type " + registryId + ":" + key + " not found");
 			}
 
 			return type;
@@ -653,7 +655,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				int index = txTypeMap.getInt(value);
 
 				if (index == 0) {
-					throw new NullPointerException("Index of " + registryId + "/" + value.key() + " not found");
+					throw new NullPointerException("Index of " + registryId + ":" + value.key() + " not found");
 				}
 
 				VarInt.write(buf, index);

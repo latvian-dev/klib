@@ -133,7 +133,7 @@ public interface JOMLDataTypes {
 	}
 
 	private static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry, String name, DataType<?> type, DataType<?> ctype) {
-		registry.register("joml_" + name, type);
-		registry.register("joml_" + name + "c", ctype);
+		registry.register("joml/" + name, type);
+		registry.register("joml/" + name + "c", ctype);
 	}
 }
