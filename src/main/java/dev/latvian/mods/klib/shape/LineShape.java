@@ -1,7 +1,5 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
@@ -20,13 +18,11 @@ public record LineShape(Vec3f vector) implements Shape {
 
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
 		"line",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
-		).apply(instance, LineShape::new)),
-		CompositeStreamCodec.of(
-			Vec3f.STREAM_CODEC, LineShape::vector,
-			LineShape::new
-		)
+		"vector",
+		Vec3f.CODEC,
+		Vec3f.STREAM_CODEC,
+		LineShape::new,
+		LineShape::vector
 	);
 
 	@Override

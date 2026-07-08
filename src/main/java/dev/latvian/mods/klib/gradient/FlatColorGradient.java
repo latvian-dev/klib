@@ -1,7 +1,5 @@
 package dev.latvian.mods.klib.gradient;
 
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
@@ -14,13 +12,11 @@ import java.util.List;
 public record FlatColorGradient(Color color) implements Gradient {
 	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
 		"color",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Color.CODEC.fieldOf("color").forGetter(FlatColorGradient::color)
-		).apply(instance, FlatColorGradient::new)),
-		CompositeStreamCodec.of(
-			Color.STREAM_CODEC, FlatColorGradient::color,
-			FlatColorGradient::new
-		)
+		"color",
+		Color.CODEC,
+		Color.STREAM_CODEC,
+		FlatColorGradient::new,
+		FlatColorGradient::color
 	);
 
 	@Override

@@ -1,8 +1,6 @@
 package dev.latvian.mods.klib.gradient;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
@@ -48,13 +46,11 @@ public record ClientGradient(ClientGradientRef gradient) implements Gradient {
 
 	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
 		"client",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			ClientGradientRef.CODEC.fieldOf("ref").forGetter(ClientGradient::gradient)
-		).apply(instance, ClientGradient::new)),
-		CompositeStreamCodec.of(
-			ClientGradientRef.STREAM_CODEC, ClientGradient::gradient,
-			ClientGradient::new
-		)
+		"gradient",
+		ClientGradientRef.CODEC,
+		ClientGradientRef.STREAM_CODEC,
+		ClientGradient::new,
+		ClientGradient::gradient
 	);
 
 	public static void updateRefs(Map<Identifier, Gradient> map) {

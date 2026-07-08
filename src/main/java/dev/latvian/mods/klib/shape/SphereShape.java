@@ -1,8 +1,6 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
@@ -17,13 +15,11 @@ public record SphereShape(float size) implements Shape {
 
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
 		"sphere",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Codec.FLOAT.fieldOf("size").forGetter(SphereShape::size)
-		).apply(instance, SphereShape::new)),
-		CompositeStreamCodec.of(
-			ByteBufCodecs.FLOAT, SphereShape::size,
-			SphereShape::new
-		)
+		"size",
+		Codec.FLOAT,
+		ByteBufCodecs.FLOAT,
+		SphereShape::new,
+		SphereShape::size
 	);
 
 	@Override

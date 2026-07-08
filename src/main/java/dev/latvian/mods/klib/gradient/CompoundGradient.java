@@ -1,6 +1,5 @@
 package dev.latvian.mods.klib.gradient;
 
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.math.KMath;
@@ -13,10 +12,11 @@ import java.util.List;
 public final class CompoundGradient implements Gradient {
 	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
 		"compound",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			PositionedColor.LIST_CODEC.fieldOf("colors").forGetter(CompoundGradient::getPositionedColors)
-		).apply(instance, CompoundGradient::new)),
-		PositionedColor.LIST_STREAM_CODEC.map(CompoundGradient::new, CompoundGradient::getPositionedColors)
+		"colors",
+		PositionedColor.LIST_CODEC,
+		PositionedColor.LIST_STREAM_CODEC,
+		CompoundGradient::new,
+		CompoundGradient::getPositionedColors
 	);
 
 	private final PositionedColor[] sorted;

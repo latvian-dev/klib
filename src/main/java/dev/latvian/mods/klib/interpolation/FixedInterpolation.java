@@ -1,8 +1,6 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
@@ -28,13 +26,11 @@ public record FixedInterpolation(float value) implements Interpolation {
 
 	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
 		"fixed",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Codec.FLOAT.fieldOf("value").forGetter(FixedInterpolation::value)
-		).apply(instance, FixedInterpolation::of)),
-		CompositeStreamCodec.of(
-			ByteBufCodecs.FLOAT, FixedInterpolation::value,
-			FixedInterpolation::of
-		)
+		"value",
+		Codec.FLOAT,
+		ByteBufCodecs.FLOAT,
+		FixedInterpolation::new,
+		FixedInterpolation::value
 	);
 
 	@Override

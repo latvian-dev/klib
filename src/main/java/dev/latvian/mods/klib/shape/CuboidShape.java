@@ -1,7 +1,5 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
@@ -16,13 +14,11 @@ public record CuboidShape(Vec3f size) implements Shape {
 
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
 		"cuboid",
-		RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Vec3f.CODEC.fieldOf("size").forGetter(CuboidShape::size)
-		).apply(instance, CuboidShape::new)),
-		CompositeStreamCodec.of(
-			Vec3f.STREAM_CODEC, CuboidShape::size,
-			CuboidShape::new
-		)
+		"size",
+		Vec3f.CODEC,
+		Vec3f.STREAM_CODEC,
+		CuboidShape::new,
+		CuboidShape::size
 	);
 
 	@Override
