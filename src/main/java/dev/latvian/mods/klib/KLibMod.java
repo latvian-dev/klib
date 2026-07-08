@@ -71,7 +71,7 @@ public class KLibMod {
 	}
 
 	private static void handleServerRegistryValues(SyncCustomRegistryValuesPayload payload, IPayloadContext context) {
-		var registry = CustomRegistry.ALL.get(payload.info().registryId());
+		var registry = CustomRegistry.ALL.get(payload.info().registryId().intern());
 
 		if (registry != null) {
 			var registryAccess = context.player().registryAccess();

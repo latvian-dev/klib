@@ -17,11 +17,11 @@ public record RotatedShape(Ref<Shape> shape, Rotation rotation) implements Shape
 		"rotated",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Shape.CODEC.fieldOf("shape").forGetter(RotatedShape::shape),
-			Rotation.CODEC.optionalFieldOf("rotation", Rotation.NONE).forGetter(RotatedShape::rotation)
+			Rotation.CODEC_WITH_ROLL.optionalFieldOf("rotation", Rotation.NONE).forGetter(RotatedShape::rotation)
 		).apply(instance, RotatedShape::new)),
 		CompositeStreamCodec.of(
 			Shape.STREAM_CODEC, RotatedShape::shape,
-			Rotation.STREAM_CODEC, RotatedShape::rotation,
+			Rotation.STREAM_CODEC_WITH_ROLL, RotatedShape::rotation,
 			RotatedShape::new
 		)
 	);

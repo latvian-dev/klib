@@ -74,6 +74,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	}
 
 	@Override
+	public PlatformType getPlatformOf(RegistryFriendlyByteBuf buf) {
+		return buf.getConnectionType() == ConnectionType.NEOFORGE ? PlatformType.NEOFORGE : PlatformType.OTHER;
+	}
+
+	@Override
 	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access, PlatformType platformType) {
 		return new RegistryFriendlyByteBuf(source, access, platformType == PlatformType.NEOFORGE ? ConnectionType.NEOFORGE : ConnectionType.OTHER);
 	}

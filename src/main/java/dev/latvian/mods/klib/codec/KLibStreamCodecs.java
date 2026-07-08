@@ -16,6 +16,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.EasingType;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -208,6 +209,8 @@ public interface KLibStreamCodecs {
 			VarInt.write(buf, value.getNano());
 		}
 	};
+
+	StreamCodec<ByteBuf, EasingType> EASING_TYPE = ByteBufCodecs.fromCodecTrusted(EasingType.CODEC);
 
 	static <T> StreamCodec<ByteBuf, ResourceKey<T>> resourceKey(ResourceKey<? extends Registry<T>> registry) {
 		return Identifier.STREAM_CODEC.map(id -> ResourceKey.create(registry, id), ResourceKey::identifier);

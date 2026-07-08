@@ -29,7 +29,7 @@ public class PlatformHelper {
 	public static PlatformHelper CURRENT = new PlatformHelper();
 
 	public PlatformType getPlatform() {
-		return PlatformType.BUKKIT;
+		return PlatformType.OTHER;
 	}
 
 	public Side getSide() {
@@ -57,7 +57,11 @@ public class PlatformHelper {
 	}
 
 	public PlatformType getPlatformOf(Player player) {
-		return PlatformType.VANILLA; // FIXME
+		return PlatformType.OTHER; // FIXME
+	}
+
+	public PlatformType getPlatformOf(RegistryFriendlyByteBuf buf) {
+		return PlatformType.OTHER;
 	}
 
 	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryAccess access, PlatformType platformType) {

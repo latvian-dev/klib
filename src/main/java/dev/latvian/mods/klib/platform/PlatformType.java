@@ -3,9 +3,8 @@ package dev.latvian.mods.klib.platform;
 import net.minecraft.util.StringRepresentable;
 
 public enum PlatformType implements StringRepresentable {
-	VANILLA("vanilla"),
 	NEOFORGE("neoforge"),
-	BUKKIT("bukkit");
+	OTHER("other");
 
 	private final String name;
 

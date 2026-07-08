@@ -13,7 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.EasingType;
 import net.minecraft.world.phys.Vec3;
 
-public interface Interpolation extends EasingType, CustomRegistryValue<ByteBuf, Interpolation> {
+public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolation> {
 	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.create("interpolation");
 
 	Codec<Ref<Interpolation>> CODEC = REGISTRY.codec();
@@ -51,11 +51,6 @@ public interface Interpolation extends EasingType, CustomRegistryValue<ByteBuf, 
 	@Override
 	default CustomRegistry<ByteBuf, Interpolation> getRegistry() {
 		return REGISTRY;
-	}
-
-	@Override
-	default float apply(float x) {
-		return interpolate(x);
 	}
 
 	double interpolate(double t);
@@ -100,5 +95,9 @@ public interface Interpolation extends EasingType, CustomRegistryValue<ByteBuf, 
 
 	default boolean isLinear() {
 		return false;
+	}
+
+	default EasingType toEasingType() {
+		return new WrappedEasingType(ref());
 	}
 }

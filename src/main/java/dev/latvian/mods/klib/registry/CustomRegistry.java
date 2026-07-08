@@ -259,7 +259,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	Ref<V> createRef(String key, V value) {
-		var ref = refMap.computeIfAbsent(key.intern(), Ref.OfKey::new);
+		var ref = refMap.computeIfAbsent(key, Ref.OfKey::new);
 		ref.value = value;
 		return ref;
 	}
@@ -321,7 +321,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 		if (info != null) {
 			for (var entry : info.typeInfos()) {
-				var type = typeMap.get(entry.key());
+				var type = getType(entry.key());
 
 				if (type != null) {
 					rxTypeMap.put(entry.index(), type);
@@ -424,7 +424,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 		for (var entry : info.valueInfos()) {
 			int index = entry.index();
-			var key = entry.key();
+			var key = entry.key().intern();
 			var type = typeMap.get(key);
 
 			if (type != null) {

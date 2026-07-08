@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.math;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -106,6 +107,9 @@ public record Vec3f(float x, float y, float z) {
 		ByteBufCodecs.FLOAT, Vec3f::z,
 		Vec3f::of
 	);
+
+	public static final DataType<Vec3f> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	public static final DataType<Vec3f> DIRECTION_DATA_TYPE = DataType.of(DIRECTION_CODEC, STREAM_CODEC);
 
 	public float lengthSq() {
 		return x * x + y * y + z * z;

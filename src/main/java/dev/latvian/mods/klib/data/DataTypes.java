@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
@@ -21,6 +22,7 @@ import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
+import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.util.Hex32;
@@ -48,21 +50,27 @@ import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.EasingType;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -72,6 +80,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface DataTypes {
@@ -85,7 +95,10 @@ public interface DataTypes {
 	DataType<Float> FLOAT = DataType.of(Codec.FLOAT, ByteBufCodecs.FLOAT);
 	DataType<Double> DOUBLE = DataType.of(Codec.DOUBLE, ByteBufCodecs.DOUBLE);
 	DataType<String> STRING = DataType.of(Codec.STRING, ByteBufCodecs.STRING_UTF8);
+	DataType<List<String>> STRING_LIST = STRING.listOf();
+	DataType<Set<String>> STRING_SET = STRING.setOf();
 	DataType<UUID> UUID = DataType.of(KLibCodecs.UUID, KLibStreamCodecs.UUID);
+	DataType<Set<UUID>> UUID_SET = UUID.setOf();
 	DataType<byte[]> B64_BYTE_ARRAY = DataType.of(KLibCodecs.B64_BYTE_ARRAY, ByteBufCodecs.BYTE_ARRAY);
 	DataType<Instant> ISO_INSTANT = DataType.of(KLibCodecs.ISO_INSTANT, KLibStreamCodecs.INSTANT);
 	DataType<Instant> UINT64_INSTANT = DataType.of(KLibCodecs.UINT64_INSTANT, KLibStreamCodecs.INSTANT);
@@ -98,7 +111,35 @@ public interface DataTypes {
 	DataType<InteractionHand> HAND = DataType.of(InteractionHand.values());
 	DataType<Holder<SoundEvent>> SOUND_EVENT = DataType.of(SoundEvent.CODEC, SoundEvent.STREAM_CODEC);
 	DataType<SoundSource> SOUND_SOURCE = DataType.of(SoundSource.values());
-	DataType<ItemStack> ITEM_STACK = DataType.of(ItemStack.OPTIONAL_CODEC, ItemStack.OPTIONAL_STREAM_CODEC);
+
+	DataType<ItemStack> ITEM_STACK = DataType.of(ItemStack.OPTIONAL_CODEC, new StreamCodec<>() {
+		@Override
+		public ItemStack decode(RegistryFriendlyByteBuf buf) {
+			if (KLib.writeSafeItemStacks) {
+				var id = buf.readUtf();
+				var item = id.isEmpty() ? null : BuiltInRegistries.ITEM.get(Identifier.parse(id)).orElse(null);
+				return item == null || item.value() == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, 1, DataComponentPatch.EMPTY);
+			} else {
+				return ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
+			}
+		}
+
+		@Override
+		public void encode(RegistryFriendlyByteBuf buf, ItemStack value) {
+			if (KLib.writeSafeItemStacks) {
+				if (value.isEmpty()) {
+					buf.writeUtf("");
+				} else {
+					buf.writeUtf(value.typeHolder().unwrapKey().map(ResourceKey::identifier).map(Identifier::toString).orElse(""));
+				}
+			} else {
+				ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, value);
+			}
+		}
+	});
+
+	DataType<List<ItemStack>> ITEM_STACK_LIST = ITEM_STACK.listOf();
+
 	DataType<ParticleOptions> PARTICLE_OPTIONS = DataType.of(ParticleTypes.CODEC, ParticleTypes.STREAM_CODEC);
 	DataType<BlockState> BLOCK_STATE = DataType.of(MCCodecs.BLOCK_STATE, MCStreamCodecs.BLOCK_STATE);
 	DataType<FluidState> FLUID_STATE = DataType.of(MCCodecs.FLUID_STATE, MCStreamCodecs.FLUID_STATE);
@@ -111,6 +152,7 @@ public interface DataTypes {
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION);
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM);
 	DataType<ClientAsset.ResourceTexture> RESOURCE_TEXTURE = DataType.of(ClientAsset.ResourceTexture.CODEC, ClientAsset.ResourceTexture.STREAM_CODEC);
+	DataType<EasingType> EASING_TYPE = DataType.of(EasingType.CODEC, KLibStreamCodecs.EASING_TYPE);
 
 	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
 		registry.register("data_type", DataType.DATA_TYPE);
@@ -123,7 +165,10 @@ public interface DataTypes {
 		registry.register("float", FLOAT);
 		registry.register("double", DOUBLE);
 		registry.register("string", STRING);
+		registry.register("string_list", STRING_LIST);
+		registry.register("string_set", STRING_SET);
 		registry.register("uuid", UUID);
+		registry.register("uuid_set", UUID_SET);
 
 		registry.register("b64_byte_array", B64_BYTE_ARRAY);
 		registry.register("iso_instant", ISO_INSTANT);
@@ -139,6 +184,7 @@ public interface DataTypes {
 		registry.register("sound_event", SOUND_EVENT);
 		registry.register("sound_source", SOUND_SOURCE);
 		registry.register("item_stack", ITEM_STACK);
+		registry.register("item_stack_list", ITEM_STACK_LIST);
 		registry.register("particle_options", PARTICLE_OPTIONS);
 		registry.register("block_state", BLOCK_STATE);
 		registry.register("fluid_state", FLUID_STATE);
@@ -151,12 +197,14 @@ public interface DataTypes {
 		registry.register("dimension", DIMENSION);
 		registry.register("platform", PLATFORM);
 		registry.register("resource_texture", RESOURCE_TEXTURE);
+		registry.register("easing_type", EASING_TYPE);
 
 		registry.register("color", Color.DATA_TYPE);
 		registry.register("solid_color", Color.SOLID_DATA_TYPE);
 		registry.register("gradient", Gradient.DATA_TYPE);
 		registry.register("shape", Shape.DATA_TYPE);
 		registry.register("rotation", dev.latvian.mods.klib.math.Rotation.DATA_TYPE);
+		registry.register("rotation_with_roll", dev.latvian.mods.klib.math.Rotation.DATA_TYPE_WITH_ROLL);
 		registry.register("movement_type", MovementType.DATA_TYPE);
 		registry.register("range", Range.DATA_TYPE);
 		registry.register("entity_selector/entity", ParsedEntitySelector.ENTITY_DATA_TYPE);
@@ -176,6 +224,8 @@ public interface DataTypes {
 		registry.register("hex32", Hex32.DATA_TYPE);
 		registry.register("hex64", Hex64.DATA_TYPE);
 		registry.register("uint64", UInt64.DATA_TYPE);
+		registry.register("vec3f", Vec3f.DATA_TYPE);
+		registry.register("direction_vec3f", Vec3f.DIRECTION_DATA_TYPE);
 	}
 
 	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {

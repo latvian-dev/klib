@@ -12,14 +12,14 @@ public record CustomRegistryValueInfo(String registryId, List<ValueInfo> valueIn
 	public record ValueInfo(int index, String key, byte[] value) {
 		public static final StreamCodec<ByteBuf, ValueInfo> STREAM_CODEC = CompositeStreamCodec.of(
 			ByteBufCodecs.VAR_INT, ValueInfo::index,
-			KLibStreamCodecs.INTERN_STRING, ValueInfo::key,
+			ByteBufCodecs.STRING_UTF8, ValueInfo::key,
 			ByteBufCodecs.BYTE_ARRAY, ValueInfo::value,
 			ValueInfo::new
 		);
 	}
 
 	public static final StreamCodec<ByteBuf, CustomRegistryValueInfo> STREAM_CODEC = CompositeStreamCodec.of(
-		KLibStreamCodecs.INTERN_STRING, CustomRegistryValueInfo::registryId,
+		ByteBufCodecs.STRING_UTF8, CustomRegistryValueInfo::registryId,
 		KLibStreamCodecs.listOf(ValueInfo.STREAM_CODEC), CustomRegistryValueInfo::valueInfos,
 		CustomRegistryValueInfo::new
 	);

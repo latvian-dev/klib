@@ -50,7 +50,22 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 		}
 	}
 
-	public static final Codec<Rotation> CODEC = Codec.either(Codec.FLOAT, Codec.FLOAT.listOf()).xmap(
+	public static final Codec<Rotation> CODEC = Codec.either(Codec.FLOAT, Codec.FLOAT.listOf(1, 2)).xmap(
+		either -> either.map(Rotation::deg, list -> switch (list.size()) {
+			case 1 -> deg(list.get(0));
+			case 2 -> deg(list.get(0), list.get(1));
+			default -> throw new IllegalArgumentException("Invalid Rotation list size: " + list.size());
+		}),
+		r -> {
+			if (r.pitch == 0F) {
+				return Either.left(r.yawDeg());
+			} else {
+				return Either.right(List.of(r.yawDeg(), r.pitchDeg()));
+			}
+		}
+	);
+
+	public static final Codec<Rotation> CODEC_WITH_ROLL = Codec.either(Codec.FLOAT, Codec.FLOAT.listOf(1, 3)).xmap(
 		either -> either.map(Rotation::deg, list -> switch (list.size()) {
 			case 1 -> deg(list.get(0));
 			case 2 -> deg(list.get(0), list.get(1));
@@ -71,17 +86,18 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, Rotation::yawDeg,
 		ByteBufCodecs.FLOAT, Rotation::pitchDeg,
+		Rotation::deg
+	);
+
+	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC_WITH_ROLL = CompositeStreamCodec.of(
+		ByteBufCodecs.FLOAT, Rotation::yawDeg,
+		ByteBufCodecs.FLOAT, Rotation::pitchDeg,
 		ByteBufCodecs.FLOAT, Rotation::rollDeg,
 		Rotation::deg
 	);
 
-	public static final StreamCodec<ByteBuf, Rotation> STREAM_CODEC_NO_ROLL = CompositeStreamCodec.of(
-		ByteBufCodecs.FLOAT, Rotation::yawDeg,
-		ByteBufCodecs.FLOAT, Rotation::pitchDeg,
-		Rotation::deg
-	);
-
 	public static final DataType<Rotation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	public static final DataType<Rotation> DATA_TYPE_WITH_ROLL = DataType.of(CODEC_WITH_ROLL, STREAM_CODEC_WITH_ROLL);
 
 	public static final Rotation NONE = new Rotation(0F, 0F, 0F, Type.RAD);
 
