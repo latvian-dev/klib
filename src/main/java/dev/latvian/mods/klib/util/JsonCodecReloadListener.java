@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.util;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.KLib;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -19,8 +20,8 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 	public static class Dummy<T> extends JsonCodecReloadListener<T> {
 		public final Map<Identifier, T> map;
 
-		public Dummy(String rootPath, Codec<T> codec, String includeId) {
-			super(rootPath, codec, includeId);
+		public Dummy(String rootPath, Codec<T> codec) {
+			super(rootPath, codec);
 			this.map = new Object2ObjectOpenHashMap<>();
 		}
 
@@ -38,12 +39,14 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 	}
 
 	public final Codec<T> codec;
-	public final String includeId;
+	public String includeId;
+	public final JsonObject defaultProperties;
 
-	public JsonCodecReloadListener(String rootPath, Codec<T> codec, String includeId) {
+	public JsonCodecReloadListener(String rootPath, Codec<T> codec) {
 		super(rootPath);
 		this.codec = codec;
-		this.includeId = includeId;
+		this.includeId = "";
+		this.defaultProperties = new JsonObject();
 	}
 
 	@Nullable
@@ -63,7 +66,18 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 				var json = entry.getValue();
 
 				if (!includeId.isEmpty()) {
-					json.getAsJsonObject().addProperty(includeId, id.toString());
+					var obj = json.getAsJsonObject();
+					obj.addProperty(includeId, id.toString());
+				}
+
+				if (!defaultProperties.isEmpty()) {
+					var obj = json.getAsJsonObject();
+
+					for (var e : defaultProperties.entrySet()) {
+						if (!obj.has(e.getKey())) {
+							obj.add(e.getKey(), e.getValue());
+						}
+					}
 				}
 
 				map.put(id, CompletableFuture.supplyAsync(() -> {

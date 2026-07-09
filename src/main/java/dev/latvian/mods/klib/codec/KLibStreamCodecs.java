@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -194,6 +195,25 @@ public interface KLibStreamCodecs {
 		public void encode(ByteBuf buf, Instant value) {
 			VarLong.write(buf, value.getEpochSecond());
 			VarInt.write(buf, value.getNano());
+		}
+	};
+
+	StreamCodec<ByteBuf, Optional<Boolean>> OPTIONAL_BOOLEAN = new StreamCodec<>() {
+		private static final Optional<Boolean> TRUE = Optional.of(Boolean.TRUE);
+		private static final Optional<Boolean> FALSE = Optional.of(Boolean.FALSE);
+
+		@Override
+		public Optional<Boolean> decode(ByteBuf buf) {
+			return switch (buf.readByte()) {
+				case 0 -> FALSE;
+				case 1 -> TRUE;
+				default -> Optional.empty();
+			};
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Optional<Boolean> value) {
+			buf.writeByte(value.isPresent() ? value.get() ? 1 : 0 : 2);
 		}
 	};
 

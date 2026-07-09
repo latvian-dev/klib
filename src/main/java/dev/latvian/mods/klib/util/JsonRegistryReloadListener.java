@@ -9,13 +9,9 @@ import java.util.Map;
 public class JsonRegistryReloadListener<T> extends JsonCodecReloadListener<T> {
 	private final CustomRegistry<?, T> registry;
 
-	public JsonRegistryReloadListener(String rootPath, CustomRegistry<?, T> registry, String includeId) {
-		super(rootPath, registry.directCodec(), includeId);
-		this.registry = registry;
-	}
-
 	public JsonRegistryReloadListener(String rootPath, CustomRegistry<?, T> registry) {
-		this(rootPath, registry, "");
+		super(rootPath, registry.directCodec());
+		this.registry = registry;
 	}
 
 	@Override
