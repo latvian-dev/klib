@@ -135,10 +135,10 @@ public record DataType<T>(
 
 		if (!enumValues.isEmpty()) {
 			//noinspection rawtypes,unchecked
-			return new EnumDataTypeArgument(REGISTRY.ref(this));
+			return new EnumDataTypeArgument(ref());
 		} else {
 			var ops = ctx.createSerializationContext(NbtOps.INSTANCE);
-			return new ParsedDataTypeArgument<>(ops, TagParser.create(ops), REGISTRY.ref(this));
+			return new ParsedDataTypeArgument<>(ops, TagParser.create(ops), ref());
 		}
 	}
 

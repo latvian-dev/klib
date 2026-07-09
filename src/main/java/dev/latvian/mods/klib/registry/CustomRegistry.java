@@ -162,7 +162,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
 	private final boolean syncValues;
 
-	private final SequencedMap<String, Ref.OfKey<V>> refMap;
+	private final SequencedMap<String, RefOfKey<V>> refMap;
 	private final SequencedMap<String, CustomRegistryType<B, V>> typeMap;
 	private List<CustomRegistryType<B, V>> typeList;
 	private final Int2ObjectMap<CustomRegistryType<B, V>> rxTypeMap;
@@ -258,23 +258,31 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			return unit;
 		}
 
-		return refMap.computeIfAbsent(ikey, Ref.OfKey::new);
+		return refMap.computeIfAbsent(ikey, RefOfKey::new);
 	}
 
-	Ref<V> createRef(String key, V value) {
-		var ref = refMap.computeIfAbsent(key, Ref.OfKey::new);
+	private Ref<V> createRef(String key, V value) {
+		var ref = refMap.computeIfAbsent(key, RefOfKey::new);
 		ref.value = value;
 		return ref;
 	}
 
 	public Ref<V> ref(V value) {
+		if (value instanceof WithRef<?> withRef) {
+			return (Ref<V>) withRef.ref();
+		}
+
+		return valueRef(value);
+	}
+
+	public Ref<V> valueRef(V value) {
 		for (var ref : valueList) {
 			if (ref.optionalValue() == value) {
 				return ref;
 			}
 		}
 
-		return new Ref.OfValue<>(value);
+		return new RefOfValue<>(value);
 	}
 
 	public void registerTypes(Consumer<CustomRegistryTypeCollector<B, V>> callback) {
