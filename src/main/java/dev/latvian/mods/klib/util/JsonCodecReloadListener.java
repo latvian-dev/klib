@@ -19,7 +19,7 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 	public static class Dummy<T> extends JsonCodecReloadListener<T> {
 		public final Map<Identifier, T> map;
 
-		public Dummy(String rootPath, Codec<T> codec, boolean includeId) {
+		public Dummy(String rootPath, Codec<T> codec, String includeId) {
 			super(rootPath, codec, includeId);
 			this.map = new Object2ObjectOpenHashMap<>();
 		}
@@ -38,9 +38,9 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 	}
 
 	public final Codec<T> codec;
-	public final boolean includeId;
+	public final String includeId;
 
-	public JsonCodecReloadListener(String rootPath, Codec<T> codec, boolean includeId) {
+	public JsonCodecReloadListener(String rootPath, Codec<T> codec, String includeId) {
 		super(rootPath);
 		this.codec = codec;
 		this.includeId = includeId;
@@ -62,8 +62,8 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 			try {
 				var json = entry.getValue();
 
-				if (includeId) {
-					json.getAsJsonObject().addProperty("id", id.toString());
+				if (!includeId.isEmpty()) {
+					json.getAsJsonObject().addProperty(includeId, id.toString());
 				}
 
 				map.put(id, CompletableFuture.supplyAsync(() -> {
