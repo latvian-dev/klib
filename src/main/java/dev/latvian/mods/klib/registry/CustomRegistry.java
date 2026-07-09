@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.function.Consumer;
 
 public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
@@ -161,8 +162,8 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
 	private final boolean syncValues;
 
-	private final Map<String, Ref.OfKey<V>> refMap;
-	private final Map<String, CustomRegistryType<B, V>> typeMap;
+	private final SequencedMap<String, Ref.OfKey<V>> refMap;
+	private final SequencedMap<String, CustomRegistryType<B, V>> typeMap;
 	private List<CustomRegistryType<B, V>> typeList;
 	private final Int2ObjectMap<CustomRegistryType<B, V>> rxTypeMap;
 	private final Reference2IntMap<CustomRegistryType<B, V>> txTypeMap;
@@ -174,6 +175,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final DataType<Ref<V>> dataType;
 
 	private final Map<String, Ref<V>> valueMap;
+	private List<String> keyList;
 	private List<Ref<V>> valueList;
 	private final Int2ObjectMap<Ref<V>> rxValueMap;
 	private final Reference2IntMap<String> txValueMap;
@@ -238,6 +240,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.dataType = DataType.of(codec, Cast.to(streamCodec));
 
 		this.valueMap = new Reference2ObjectOpenHashMap<>();
+		this.keyList = List.of();
 		this.valueList = List.of();
 		this.rxValueMap = new Int2ObjectOpenHashMap<>();
 		this.txValueMap = new Reference2IntOpenHashMap<>();
@@ -338,6 +341,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		rxValueMap.clear();
 		txValueMap.clear();
 
+		keyList = List.of();
 		valueList = new ArrayList<>(typeList.size() + map.size());
 
 		for (var type : typeList) {
@@ -358,11 +362,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			valueMap.put(ref.key(), ref);
 		}
 
-		valueList = new ArrayList<>(valueMap.values());
-		valueList.sort(WithKey.COMPARATOR);
-		valueList = List.copyOf(valueList);
-
-		updateRefs();
+		updateValuesAndRefs();
 
 		if (syncValues) {
 			int index = 2;
@@ -402,7 +402,18 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		return new CustomRegistryValueInfo(registryId, List.copyOf(list));
 	}
 
-	private void updateRefs() {
+	private void updateValuesAndRefs() {
+		keyList = new ArrayList<>(valueMap.size());
+		valueList = new ArrayList<>(valueMap.values());
+		valueList.sort(WithKey.COMPARATOR);
+
+		for (var ref : valueList) {
+			keyList.add(ref.key());
+		}
+
+		keyList = List.copyOf(keyList);
+		valueList = List.copyOf(valueList);
+
 		for (var ref : refMap.values()) {
 			ref.value = null;
 		}
@@ -420,6 +431,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		valueMap.clear();
 		rxValueMap.clear();
 		txValueMap.clear();
+		keyList = List.of();
 		valueList = new ArrayList<>(info.valueInfos().size());
 
 		for (var entry : info.valueInfos()) {
@@ -458,10 +470,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			valueMap.put(ref.key(), ref);
 		}
 
-		valueList = new ArrayList<>(valueMap.values());
-		valueList.sort(WithKey.COMPARATOR);
-		valueList = List.copyOf(valueList);
-		updateRefs();
+		updateValuesAndRefs();
 	}
 
 	public boolean syncValues() {
@@ -562,6 +571,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	public List<Ref<V>> values() {
 		return valueList;
+	}
+
+	public List<String> keys() {
+		return keyList;
 	}
 
 	@Override
