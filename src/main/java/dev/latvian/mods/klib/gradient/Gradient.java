@@ -21,12 +21,17 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 		.build();
 
 	UnitType<ByteBuf, Gradient> EMPTY = UnitType.create("empty", new FlatColorGradient(Color.TRANSPARENT));
+	UnitType<ByteBuf, Gradient> BLACK = UnitType.create("black", new FlatColorGradient(Color.BLACK));
+	UnitType<ByteBuf, Gradient> WHITE = UnitType.create("white", new FlatColorGradient(Color.WHITE));
+
 	Codec<Ref<Gradient>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Gradient>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Gradient>> DATA_TYPE = REGISTRY.dataType();
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
 		registry.register(EMPTY);
+		registry.register(WHITE);
+		registry.register(BLACK);
 		registry.register(FlatColorGradient.TYPE);
 		registry.register(LinearGradient.TYPE);
 		registry.register(CompoundGradient.TYPE);

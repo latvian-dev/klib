@@ -152,7 +152,7 @@ public interface DataTypes {
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION);
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM);
 	DataType<ClientAsset.ResourceTexture> RESOURCE_TEXTURE = DataType.of(ClientAsset.ResourceTexture.CODEC, ClientAsset.ResourceTexture.STREAM_CODEC);
-	DataType<EasingType> EASING_TYPE = DataType.of(EasingType.CODEC, KLibStreamCodecs.EASING_TYPE);
+	DataType<EasingType> EASING_TYPE = DataType.of(EasingType.CODEC, MCStreamCodecs.EASING_TYPE);
 
 	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
 		registry.register("data_type", DataType.DATA_TYPE);
