@@ -5,7 +5,6 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
 import dev.latvian.mods.klib.math.KMath;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,7 @@ public record BezierInterpolation(Vector2fc a, Vector2fc b) implements Interpola
 	);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Interpolation> type() {
+	public DynamicType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

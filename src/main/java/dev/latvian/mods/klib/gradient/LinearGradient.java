@@ -4,7 +4,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 
@@ -25,7 +24,7 @@ public record LinearGradient(Color start, Color end) implements Gradient {
 	);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Gradient> type() {
+	public DynamicType<ByteBuf, Gradient> type() {
 		return TYPE;
 	}
 

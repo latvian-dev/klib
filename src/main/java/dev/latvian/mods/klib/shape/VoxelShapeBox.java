@@ -7,7 +7,6 @@ import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.math.AABBs;
 import dev.latvian.mods.klib.math.Line;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
@@ -130,7 +129,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 	}
 
 	@Override
-	public CustomRegistryType<ByteBuf, Shape> type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

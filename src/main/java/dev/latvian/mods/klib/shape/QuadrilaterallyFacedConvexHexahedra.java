@@ -9,7 +9,6 @@ import dev.latvian.mods.klib.math.Directions;
 import dev.latvian.mods.klib.math.Face;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Line3f;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
@@ -141,7 +140,7 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	}
 
 	@Override
-	public CustomRegistryType<ByteBuf, Shape> type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

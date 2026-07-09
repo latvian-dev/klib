@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.function.Function;
 
 public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, V> implements Ref<V>, CustomRegistryOwnTypeProvider<B, V> {
-	public static <B extends ByteBuf, V> UnitType<B, V> create(String id, Function<CustomRegistryType<B, V>, V> instance) {
+	public static <B extends ByteBuf, V> UnitType<B, V> create(String id, Function<UnitType<B, V>, V> instance) {
 		return new UnitType<>(id.intern(), instance);
 	}
 
@@ -17,11 +17,16 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 
 	private final V instance;
 
-	UnitType(String key, Function<CustomRegistryType<B, V>, V> factory) {
+	UnitType(String key, Function<UnitType<B, V>, V> factory) {
 		super(key);
 		this.instance = factory.apply(this);
 		this.codec = MapCodec.unit(instance);
 		this.streamCodec = StreamCodec.unit(instance);
+	}
+
+	@Override
+	public UnitType<B, V> type() {
+		return this;
 	}
 
 	@Override

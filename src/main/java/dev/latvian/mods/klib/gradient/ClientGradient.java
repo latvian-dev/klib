@@ -5,7 +5,6 @@ import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -67,7 +66,7 @@ public record ClientGradient(ClientGradientRef gradient) implements Gradient {
 	}
 
 	@Override
-	public CustomRegistryType<ByteBuf, Gradient> type() {
+	public DynamicType<ByteBuf, Gradient> type() {
 		return TYPE;
 	}
 

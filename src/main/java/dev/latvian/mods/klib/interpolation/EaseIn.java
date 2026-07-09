@@ -1,7 +1,6 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
@@ -39,7 +38,7 @@ public enum EaseIn implements Interpolation, StringRepresentable {
 	}
 
 	@Override
-	public CustomRegistryType<ByteBuf, Interpolation> type() {
+	public UnitType<ByteBuf, Interpolation> type() {
 		return type;
 	}
 

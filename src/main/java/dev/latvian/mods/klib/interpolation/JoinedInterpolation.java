@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
@@ -23,7 +22,7 @@ public record JoinedInterpolation(Ref<Interpolation> left, Ref<Interpolation> ri
 	);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Interpolation> type() {
+	public DynamicType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

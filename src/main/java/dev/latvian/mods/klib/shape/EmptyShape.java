@@ -1,7 +1,6 @@
 package dev.latvian.mods.klib.shape;
 
 import dev.latvian.mods.klib.math.FrustumCheck;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
@@ -13,7 +12,7 @@ public enum EmptyShape implements Shape {
 	public static final UnitType<ByteBuf, Shape> TYPE = UnitType.create("empty", INSTANCE);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Shape> type() {
+	public UnitType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 

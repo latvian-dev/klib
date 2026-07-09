@@ -1,7 +1,6 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -34,7 +33,7 @@ public record FixedInterpolation(float value) implements Interpolation {
 	);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Interpolation> type() {
+	public DynamicType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 

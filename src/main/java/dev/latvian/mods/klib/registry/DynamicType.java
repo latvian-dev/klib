@@ -32,4 +32,9 @@ public class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<B, V> 
 	public DynamicType<B, V> backwardsCompatibility(int version, StreamCodec<? super B, V> streamCodec) {
 		throw new IllegalStateException("Not yet implemented");
 	}
+
+	@Override
+	public DynamicType<B, V> type() {
+		return this;
+	}
 }

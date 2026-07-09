@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> out, @Nullable CustomRegistryType<ByteBuf, Interpolation> type) implements Interpolation {
+public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> out, @Nullable UnitType<ByteBuf, Interpolation> unitType) implements Interpolation {
 	private static UnitType<ByteBuf, Interpolation> inOut(String id, EaseIn in, EaseOut out) {
 		return UnitType.create(id, type -> new CompositeInterpolation(in.type.unit(), out.type.unit(), type));
 	}
@@ -60,7 +60,7 @@ public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> o
 
 	@Override
 	public CustomRegistryType<ByteBuf, Interpolation> type() {
-		return type == null ? TYPE : type;
+		return unitType == null ? TYPE : unitType;
 	}
 
 	@Override

@@ -3,7 +3,6 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Rotation;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.vertex.VertexCallback;
@@ -27,7 +26,7 @@ public record RotatedShape(Ref<Shape> shape, Rotation rotation) implements Shape
 	);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Shape> type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 
