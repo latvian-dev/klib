@@ -8,6 +8,7 @@ import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.CustomRegistryArgument;
+import dev.latvian.mods.klib.core.KLibFriendlyByteBuf;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.io.IOUtils;
 import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
@@ -27,6 +28,7 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
@@ -291,12 +293,6 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		return refMap.computeIfAbsent(ikey, RefOfKey::new);
 	}
 
-	private Ref<V> createRef(String key, V value) {
-		var ref = refMap.computeIfAbsent(key, RefOfKey::new);
-		ref.value = value;
-		return ref;
-	}
-
 	public Ref<V> ref(V value) {
 		if (value instanceof WithRef<?> withRef) {
 			//noinspection unchecked
@@ -409,9 +405,12 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		for (var entry : map.entrySet()) {
-			var key = entry.getKey().getPath().intern();
-			var value = entry.getValue();
-			valueList.add(createRef(key, value));
+			if (!(ref(entry.getKey().getPath()) instanceof RefOfKey<V> ref)) {
+				throw new IllegalStateException("Tried to update values containing unit type " + entry.getKey().getPath());
+			}
+
+			ref.value = entry.getValue();
+			valueList.add(ref);
 		}
 
 		for (var ref : valueList) {
@@ -506,8 +505,12 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 					var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.wrappedBuffer(entry.value()), registryAccess, platformType);
 
 					try {
-						var value = type.streamCodec.decode(Cast.to(buf));
-						var ref = createRef(key, value);
+						if (!(ref(key) instanceof RefOfKey<V> ref)) {
+							throw new IllegalStateException("Invalid ref, tried to decode a unit value");
+						}
+
+						KLibFriendlyByteBuf.set(buf, ref);
+						ref.value = type.streamCodec.decode(Cast.to(buf));
 						valueMap.put(key, ref);
 						rxValueMap.put(index, ref);
 						txValueMap.put(ref.key(), index);
@@ -648,7 +651,14 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			var type = decodeType(buf);
 
 			if (type != null) {
-				return ref(type.streamCodec().decode(buf));
+				KLibFriendlyByteBuf.set((FriendlyByteBuf) buf, this);
+
+				try {
+					var value = type.streamCodec.decode(buf);
+					return ref(value);
+				} finally {
+					KLibFriendlyByteBuf.set((FriendlyByteBuf) buf, null);
+				}
 			}
 
 			return null;
@@ -683,7 +693,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			encodeType(buf, type);
 
 			if (type != null) {
-				type.streamCodec().encode(buf, ref.value());
+				type.streamCodec.encode(buf, ref.value());
 			}
 		}
 	}

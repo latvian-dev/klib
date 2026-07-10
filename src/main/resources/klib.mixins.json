@@ -4,8 +4,10 @@
 	"package": "dev.latvian.mods.klib.core.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"ConditionalOpsMixin",
 		"EasingTypeMixin",
 		"EnumArgumentMixin",
+		"FriendlyByteBufMixin",
 		"RandomSourceMixin",
 		"StreamCodecMixin"
 	],

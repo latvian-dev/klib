@@ -10,6 +10,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Util;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -54,6 +55,10 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 		return t;
 	}
 
+	public ConditionalOps<JsonElement> wrapOps(Identifier id, ConditionalOps<JsonElement> ops, JsonElement json) {
+		return ops;
+	}
+
 	@Override
 	protected void apply(Map<Identifier, JsonElement> from, ResourceManager resourceManager, ProfilerFiller profiler) {
 		var map = new HashMap<Identifier, CompletableFuture<T>>();
@@ -81,7 +86,7 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 				}
 
 				map.put(id, CompletableFuture.supplyAsync(() -> {
-					var decoded = codec.parse(ops, json);
+					var decoded = codec.parse(wrapOps(id, ops, json), json);
 
 					if (decoded.error().isPresent()) {
 						KLib.LOGGER.error("Error while parsing " + id.withPath(p -> rootPath + "/" + p) + ": " + decoded.error().get());

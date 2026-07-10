@@ -300,17 +300,17 @@ public interface KLibStreamCodecs {
 			@Override
 			@Nullable
 			public ResourceKey<T> decode(ByteBuf buf) {
-				var string = Utf8String.read(buf, 32767);
+				var string = Utf8String.read(buf, Short.MAX_VALUE);
 				return string.isEmpty() ? null : ResourceKey.create(root, string.indexOf(':') == -1 ? commonIdentifier.withPath(string) : Identifier.parse(string));
 			}
 
 			@Override
 			public void encode(ByteBuf buf, @Nullable ResourceKey<T> value) {
 				if (value == null) {
-					Utf8String.write(buf, "", 32767);
+					Utf8String.write(buf, "", Short.MAX_VALUE);
 				} else {
 					var id = value.identifier();
-					Utf8String.write(buf, id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString(), 32767);
+					Utf8String.write(buf, id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString(), Short.MAX_VALUE);
 				}
 			}
 		};

@@ -21,7 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Mixin(EnumArgument.class)
-public class EnumArgumentMixin<T extends Enum<T>> {
+public abstract class EnumArgumentMixin<T extends Enum<T>> {
 	@Shadow
 	@Final
 	private Class<T> enumClass;
