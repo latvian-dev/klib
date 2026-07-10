@@ -20,19 +20,16 @@ public class KLib {
 	public static boolean writeSafeItemStacks = false;
 
 	public static void setup() {
-		var helper = PlatformHelper.CURRENT;
-		CustomRegistry.registerAll(helper::collectCustomRegistries);
-		DataType.REGISTRY.registerTypes(helper::collectDataTypes);
-		DataTypeCommandInfoRegistry.registerAll(helper::collectDataTypeCommandInfos);
-		Interpolation.REGISTRY.registerTypes(helper::collectInterpolationTypes);
-		Shape.REGISTRY.registerTypes(helper::collectShapeTypes);
-		Gradient.REGISTRY.registerTypes(helper::collectGradientTypes);
+		var platform = PlatformHelper.CURRENT;
+		CustomRegistry.registerAll(platform::collectCustomRegistries);
+		DataTypeCommandInfoRegistry.registerAll(platform::collectDataTypeCommandInfos);
 	}
 
 	public static void builtInRegistries(CustomRegistryCollector registry) {
-		registry.register(DataType.REGISTRY);
-		registry.register(Interpolation.REGISTRY);
-		registry.register(Shape.REGISTRY);
-		registry.register(Gradient.REGISTRY);
+		var platform = PlatformHelper.CURRENT;
+		registry.register(DataType.REGISTRY, platform::collectDataTypes);
+		registry.register(Interpolation.REGISTRY, platform::collectInterpolationTypes);
+		registry.register(Shape.REGISTRY, platform::collectShapeTypes);
+		registry.register(Gradient.REGISTRY, platform::collectGradientTypes);
 	}
 }

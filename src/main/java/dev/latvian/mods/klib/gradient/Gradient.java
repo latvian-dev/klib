@@ -16,9 +16,7 @@ import net.minecraft.util.RandomSource;
 import java.util.List;
 
 public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
-	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder("gradient")
-		.noValueSync()
-		.build();
+	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.create("gradient");
 
 	UnitType<ByteBuf, Gradient> EMPTY = UnitType.create("empty", new FlatColorGradient(Color.TRANSPARENT));
 	UnitType<ByteBuf, Gradient> BLACK = UnitType.create("black", new FlatColorGradient(Color.BLACK));

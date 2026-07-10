@@ -58,14 +58,17 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	public static void registerAll(Consumer<CustomRegistryCollector> callback) {
 		ALL0.clear();
 		DATA_TYPE_TO_REGISTRY0.clear();
+		var list = new ArrayList<CustomRegistryCollector.Entry<?, ?>>();
+		callback.accept(list::add);
 
-		callback.accept(new CustomRegistryCollector() {
-			@Override
-			public <T> void register(CustomRegistry<?, T> registry) {
-				ALL0.put(registry.registryId, registry);
-				DATA_TYPE_TO_REGISTRY0.put(registry.dataType, registry);
-			}
-		});
+		for (var entry : list) {
+			ALL0.put(entry.registry().registryId, entry.registry());
+			DATA_TYPE_TO_REGISTRY0.put(entry.registry().dataType, entry.registry());
+		}
+
+		for (var entry : list) {
+			entry.registry().registerTypes(Cast.to(entry.callback()));
+		}
 	}
 
 	public static void buildAllMeta() {
@@ -170,6 +173,14 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	public static <B extends ByteBuf, T> CustomRegistry<B, T> create(String registryId) {
 		return CustomRegistry.<B, T>builder(registryId).build();
+	}
+
+	public static <B extends ByteBuf, T> CustomRegistry<B, T> create(String registryId, CustomRegistryType<B, T> defaultType) {
+		return CustomRegistry.<B, T>builder(registryId).defaultType(defaultType).build();
+	}
+
+	public static <B extends ByteBuf, T> CustomRegistry<B, T> create(String registryId, UnaryOperator<Codec<T>> directCodecFactory) {
+		return CustomRegistry.<B, T>builder(registryId).customCodec(directCodecFactory).build();
 	}
 
 	private boolean isBound;
@@ -305,9 +316,13 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		return new RefOfValue<>(value);
 	}
 
-	public void registerTypes(Consumer<CustomRegistryTypeCollector<B, V>> callback) {
+	public void registerTypes(@Nullable Consumer<CustomRegistryTypeCollector<B, V>> callback) {
 		if (isBound) {
 			throw new IllegalStateException("Can't register types twice of registry " + registryId);
+		}
+
+		if (callback == null && defaultType == null) {
+			throw new NullPointerException("Callback can't be null without a default type");
 		}
 
 		typeMap.clear();
@@ -319,7 +334,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			typeList.add(defaultType);
 		}
 
-		callback.accept(new CustomRegistryTypeCollectorImpl<>(this, typeList));
+		if (callback != null) {
+			callback.accept(new CustomRegistryTypeCollectorImpl<>(this, typeList));
+		}
+
 		typeList.sort(WithKey.COMPARATOR);
 
 		for (var type : typeList) {
