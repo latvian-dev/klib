@@ -172,6 +172,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		return CustomRegistry.<B, T>builder(registryId).build();
 	}
 
+	private boolean isBound;
 	private final String registryId;
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
 	private final boolean syncValues;
@@ -202,6 +203,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		UnaryOperator<Codec<V>> directCodecFactory,
 		@Nullable CustomRegistryType<B, V> defaultType
 	) {
+		this.isBound = false;
 		this.registryId = registryId;
 		this.typeProvider = typeProvider;
 		this.syncValues = syncValues;
@@ -263,11 +265,16 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	public Ref<V> ref(String key) {
+		if (!isBound) {
+			throw new IllegalStateException("Called .ref() before .registerTypes() of registry " + registryId + " was called");
+		}
+
 		var ikey = key.intern();
 		var type = typeMap.get(ikey);
 
-		if (type instanceof UnitType<?, V> unit) {
-			return unit;
+		if (type instanceof WithRef<?> withRef) {
+			//noinspection unchecked
+			return (Ref<V>) withRef.ref();
 		}
 
 		return refMap.computeIfAbsent(ikey, RefOfKey::new);
@@ -281,6 +288,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	public Ref<V> ref(V value) {
 		if (value instanceof WithRef<?> withRef) {
+			//noinspection unchecked
 			return (Ref<V>) withRef.ref();
 		}
 
@@ -298,6 +306,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	public void registerTypes(Consumer<CustomRegistryTypeCollector<B, V>> callback) {
+		if (isBound) {
+			throw new IllegalStateException("Can't register types twice of registry " + registryId);
+		}
+
 		typeMap.clear();
 		rxTypeMap.clear();
 		txTypeMap.clear();
@@ -318,6 +330,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 		typeList = List.copyOf(typeMap.values());
 		updateValues(Map.of());
+		isBound = true;
 	}
 
 	private void buildMeta() {
@@ -506,7 +519,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	public CustomRegistryType<B, V> getOptionalType(Ref<V> ref) {
 		if (ref instanceof CustomRegistryOwnTypeProvider<?, ?> provider) {
 			//noinspection unchecked
-			return (UnitType<B, V>) provider.type();
+			return (CustomRegistryType<B, V>) provider.type();
 		}
 
 		return getOptionalType(ref.value());
@@ -519,7 +532,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 			if (type != null) {
 				//noinspection unchecked
-				return (UnitType<B, V>) type;
+				return (CustomRegistryType<B, V>) type;
 			}
 		}
 
