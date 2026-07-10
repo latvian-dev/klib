@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SequencedMap;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private static final Map<String, CustomRegistry<?, ?>> ALL0 = new Reference2ObjectLinkedOpenHashMap<>();
@@ -116,8 +117,9 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	public static class Builder<B extends ByteBuf, T> {
 		private final String registryId;
 		private boolean syncValues = true;
-		private CustomRegistryTypeProvider<B, T> typeProvider;
-		private Codec<T> customCodec;
+		private CustomRegistryTypeProvider<B, T> typeProvider = null;
+		private UnaryOperator<Codec<T>> directCodecFactory = UnaryOperator.identity();
+		private CustomRegistryType<B, T> defaultType = null;
 
 		private Builder(String registryId) {
 			this.registryId = registryId;
@@ -133,8 +135,17 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			return this;
 		}
 
+		public Builder<B, T> customCodec(UnaryOperator<Codec<T>> directCodecFactory) {
+			this.directCodecFactory = directCodecFactory;
+			return this;
+		}
+
 		public Builder<B, T> customCodec(Codec<T> customCodec) {
-			this.customCodec = customCodec;
+			return customCodec(directCodec -> KLibCodecs.or(customCodec, directCodec));
+		}
+
+		public Builder<B, T> defaultType(CustomRegistryType<B, T> defaultType) {
+			this.defaultType = defaultType;
 			return this;
 		}
 
@@ -143,7 +154,8 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				registryId,
 				typeProvider,
 				syncValues,
-				customCodec
+				directCodecFactory,
+				defaultType
 			);
 		}
 	}
@@ -163,6 +175,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final String registryId;
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
 	private final boolean syncValues;
+	private final CustomRegistryType<B, V> defaultType;
 
 	private final SequencedMap<String, RefOfKey<V>> refMap;
 	private final SequencedMap<String, CustomRegistryType<B, V>> typeMap;
@@ -186,11 +199,13 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		String registryId,
 		@Nullable CustomRegistryTypeProvider<B, V> typeProvider,
 		boolean syncValues,
-		@Nullable Codec<V> customCodec
+		UnaryOperator<Codec<V>> directCodecFactory,
+		@Nullable CustomRegistryType<B, V> defaultType
 	) {
 		this.registryId = registryId;
 		this.typeProvider = typeProvider;
 		this.syncValues = syncValues;
+		this.defaultType = defaultType;
 
 		this.refMap = new Reference2ObjectLinkedOpenHashMap<>();
 		this.typeMap = new Reference2ObjectLinkedOpenHashMap<>();
@@ -222,15 +237,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			}
 		});
 
-		var directCodec = typeCodec.dispatch("type", this::getType, CustomRegistryType::codec);
+		var typeField = defaultType == null ? typeCodec.fieldOf("type") : typeCodec.optionalFieldOf("type", defaultType);
+		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::codec));
 
-		if (customCodec != null) {
-			directCodec = KLibCodecs.or(customCodec, directCodec);
-		}
-
-		this.directCodec = directCodec;
-
-		this.codec = KLibCodecs.or(unitCodec, directCodec.xmap(v -> {
+		this.codec = KLibCodecs.or(unitCodec, this.directCodec.xmap(v -> {
 			if (v instanceof RefOptimizer<?> o) {
 				v = (V) o.optimize();
 			}
@@ -292,6 +302,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		rxTypeMap.clear();
 		txTypeMap.clear();
 		typeList = new ArrayList<>();
+
+		if (defaultType != null) {
+			typeList.add(defaultType);
+		}
+
 		callback.accept(new CustomRegistryTypeCollectorImpl<>(this, typeList));
 		typeList.sort(WithKey.COMPARATOR);
 
