@@ -193,9 +193,9 @@ public interface KLibCodecs {
 			var map = mapGetter.get();
 
 			if (map == null) {
-				return DataResult.error(() -> "Map is null");
+				return KLibCodecErrors.mapIsNull();
 			} else if (map.isEmpty()) {
-				return DataResult.error(() -> "Map is empty");
+				return KLibCodecErrors.mapIsEmpty();
 			} else {
 				var value = map.get(k);
 				return value == null ? DataResult.error(() -> "No value for key " + k) : DataResult.success(value);
@@ -208,7 +208,7 @@ public interface KLibCodecs {
 
 		return keyCodec.flatXmap(k -> {
 			if (map.isEmpty()) {
-				return DataResult.error(() -> "Map is empty");
+				return KLibCodecErrors.mapIsEmpty();
 			} else {
 				var value = map.get(k);
 				return value == null ? DataResult.error(() -> "No value for key " + k) : DataResult.success(value);
@@ -228,7 +228,7 @@ public interface KLibCodecs {
 
 		return keyCodec.flatXmap(k -> {
 			if (map.isEmpty()) {
-				return DataResult.error(() -> "Map is empty");
+				return KLibCodecErrors.mapIsEmpty();
 			} else {
 				var value = map.get(k);
 				return value == null ? DataResult.error(() -> "No value for key " + k) : DataResult.success(value);

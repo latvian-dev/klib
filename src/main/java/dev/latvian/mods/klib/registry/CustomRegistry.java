@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.CustomRegistryArgument;
@@ -51,6 +52,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	public static final Map<String, CustomRegistry<?, ?>> ALL = Collections.unmodifiableMap(ALL0);
 	private static final Map<DataType<?>, CustomRegistry<?, ?>> DATA_TYPE_TO_REGISTRY0 = new Reference2ObjectLinkedOpenHashMap<>();
 	public static final Map<DataType<?>, CustomRegistry<?, ?>> DATA_TYPE_TO_REGISTRY = Collections.unmodifiableMap(DATA_TYPE_TO_REGISTRY0);
+	private static final DataResult<?> ERROR_NOT_UNIT = KLibCodecErrors.error("Type is not a unit type");
 
 	public static void registerAll(Consumer<CustomRegistryCollector> callback) {
 		ALL0.clear();
@@ -216,7 +218,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			if (ref instanceof UnitType<?, V>) {
 				return DataResult.success(ref.key());
 			} else {
-				return DataResult.error(() -> "Type is not a unit type");
+				return Cast.to(ERROR_NOT_UNIT);
 			}
 		});
 

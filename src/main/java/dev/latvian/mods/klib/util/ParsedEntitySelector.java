@@ -5,6 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
@@ -18,6 +19,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public final class ParsedEntitySelector {
+	private static final DataResult<EntitySelector> ERROR_ONLY_ONE_PLAYER = KLibCodecErrors.error("Only one player is allowed, but the provided selector allows more than one");
+	private static final DataResult<EntitySelector> ERROR_ONLY_ONE_ENTITY = KLibCodecErrors.error("Only one entity is allowed, but the provided selector allows more than one");
+	private static final DataResult<EntitySelector> ERROR_ONlY_PLAYERS = KLibCodecErrors.error("Only players are allowed, but the provided selector includes entities");
+
 	public static final Codec<ParsedEntitySelector> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		Codec.STRING.fieldOf("selector").forGetter(ParsedEntitySelector::getInput),
 		Codec.BOOL.optionalFieldOf("single", false).forGetter(ParsedEntitySelector::isSingle),
@@ -91,17 +96,17 @@ public final class ParsedEntitySelector {
 
 			if (single && selector.getMaxResults() > 1) {
 				if (playersOnly) {
-					return DataResult.error(() -> "Only one player is allowed, but the provided selector allows more than one");
+					return ERROR_ONLY_ONE_PLAYER;
 				} else {
-					return DataResult.error(() -> "Only one entity is allowed, but the provided selector allows more than one");
+					return ERROR_ONLY_ONE_ENTITY;
 				}
 			} else if (selector.includesEntities() && playersOnly && !selector.isSelfSelector()) {
-				return DataResult.error(() -> "Only players are allowed, but the provided selector includes entities");
+				return ERROR_ONlY_PLAYERS;
 			}
 
 			return DataResult.success(selector);
 		} catch (CommandSyntaxException ex) {
-			return DataResult.error(ex::getMessage);
+			return KLibCodecErrors.error(ex);
 		}
 	}
 

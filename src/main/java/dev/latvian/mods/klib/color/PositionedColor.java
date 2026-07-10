@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.registry.Ref;
@@ -120,11 +121,13 @@ public record PositionedColor(float position, Color color, Ref<Interpolation> in
 		return list;
 	}
 
+	private static final DataResult<List<Color>> NOT_A_SIMPLE_LIST = KLibCodecErrors.error("Not a simple list");
+
 	private static final Codec<List<PositionedColor>> LIST_CODEC_OF_SIMPLE_COLORS = Color.CODEC.listOf().flatComapMap(PositionedColor::fromSimpleList, colors -> {
 		if (isSimple(colors)) {
 			return DataResult.success(toSimpleList(colors));
 		} else {
-			return DataResult.error(() -> "Not a simple list");
+			return NOT_A_SIMPLE_LIST;
 		}
 	});
 
