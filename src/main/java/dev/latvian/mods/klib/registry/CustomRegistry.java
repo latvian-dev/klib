@@ -185,6 +185,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		return CustomRegistry.<B, T>builder(registryId).customCodec(directCodecFactory).build();
 	}
 
+	public static <B extends ByteBuf, T> CustomRegistry<B, T> createNoValueSync(String registryId, CustomRegistryType<B, T> defaultType) {
+		return CustomRegistry.<B, T>builder(registryId).defaultType(defaultType).noValueSync().build();
+	}
+
 	private boolean isBound;
 	private final String registryId;
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
