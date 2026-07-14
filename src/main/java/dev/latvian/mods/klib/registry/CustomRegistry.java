@@ -125,6 +125,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		private CustomRegistryTypeProvider<B, T> typeProvider = null;
 		private UnaryOperator<Codec<T>> directCodecFactory = UnaryOperator.identity();
 		private CustomRegistryType<B, T> defaultType = null;
+		private final List<Runnable> updateCallbacks = new ArrayList<>(0);
 
 		private Builder(String registryId) {
 			this.registryId = registryId;
@@ -154,13 +155,19 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			return this;
 		}
 
+		public Builder<B, T> updateCallback(Runnable callback) {
+			this.updateCallbacks.add(callback);
+			return this;
+		}
+
 		public CustomRegistry<B, T> build() {
 			return new CustomRegistry<>(
 				registryId,
 				typeProvider,
 				syncValues,
 				directCodecFactory,
-				defaultType
+				defaultType,
+				List.copyOf(updateCallbacks)
 			);
 		}
 	}
@@ -194,6 +201,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
 	private final boolean syncValues;
 	private final CustomRegistryType<B, V> defaultType;
+	private final List<Runnable> updateCallbacks;
 
 	private final SequencedMap<String, RefOfKey<V>> refMap;
 	private final SequencedMap<String, CustomRegistryType<B, V>> typeMap;
@@ -218,13 +226,15 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		@Nullable CustomRegistryTypeProvider<B, V> typeProvider,
 		boolean syncValues,
 		UnaryOperator<Codec<V>> directCodecFactory,
-		@Nullable CustomRegistryType<B, V> defaultType
+		@Nullable CustomRegistryType<B, V> defaultType,
+		List<Runnable> updateCallbacks
 	) {
 		this.isBound = false;
 		this.registryId = registryId;
 		this.typeProvider = typeProvider;
 		this.syncValues = syncValues;
 		this.defaultType = defaultType;
+		this.updateCallbacks = updateCallbacks;
 
 		this.refMap = new Reference2ObjectLinkedOpenHashMap<>();
 		this.typeMap = new Reference2ObjectLinkedOpenHashMap<>();
@@ -432,6 +442,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				index++;
 			}
 		}
+
+		for (var callback : updateCallbacks) {
+			callback.run();
+		}
 	}
 
 	public CustomRegistryValueInfo writeValues(RegistryAccess registryAccess, PlatformType platformType) {
@@ -534,6 +548,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		updateValuesAndRefs();
+
+		for (var callback : updateCallbacks) {
+			callback.run();
+		}
 	}
 
 	public boolean syncValues() {
