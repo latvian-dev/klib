@@ -6,6 +6,7 @@ import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.RandomSource;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -37,5 +38,10 @@ public record FlatColorGradient(Color color) implements Gradient {
 	@Override
 	public List<PositionedColor> getPositionedColors() {
 		return List.of(new PositionedColor(0F, color));
+	}
+
+	@Override
+	public @NonNull String toString() {
+		return color.toString();
 	}
 }

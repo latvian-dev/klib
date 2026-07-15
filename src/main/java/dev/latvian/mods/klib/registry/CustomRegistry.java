@@ -4,7 +4,6 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.KLib;
-import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.CustomRegistryArgument;
@@ -55,7 +54,6 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	public static final Map<String, CustomRegistry<?, ?>> ALL = Collections.unmodifiableMap(ALL0);
 	private static final Map<DataType<?>, CustomRegistry<?, ?>> DATA_TYPE_TO_REGISTRY0 = new Reference2ObjectLinkedOpenHashMap<>();
 	public static final Map<DataType<?>, CustomRegistry<?, ?>> DATA_TYPE_TO_REGISTRY = Collections.unmodifiableMap(DATA_TYPE_TO_REGISTRY0);
-	private static final DataResult<?> ERROR_NOT_UNIT = KLibCodecErrors.error("Type is not a unit type");
 
 	public static void registerAll(Consumer<CustomRegistryCollector> callback) {
 		ALL0.clear();
@@ -243,40 +241,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.txTypeMap = new Reference2IntOpenHashMap<>();
 
 		this.typeCodec = KLibCodecs.map(typeMap, KLibCodecs.INTERN_PATH, CustomRegistryType::key);
-
-		Codec<Ref<V>> unitCodec = KLibCodecs.INTERN_PATH.flatXmap(key -> {
-			var type = typeMap.get(key);
-
-			if (type == null) {
-				return DataResult.error(() -> "Value " + key + " not found");
-			}
-
-			var unit = type.unit();
-
-			if (unit != null) {
-				return DataResult.success(unit);
-			} else {
-				return DataResult.error(() -> "Type " + key + " is not a unit type");
-			}
-		}, ref -> {
-			if (ref instanceof UnitType<?, V>) {
-				return DataResult.success(ref.key());
-			} else {
-				return Cast.to(ERROR_NOT_UNIT);
-			}
-		});
-
-		var typeField = defaultType == null ? typeCodec.fieldOf("type") : typeCodec.optionalFieldOf("type", defaultType);
+		var unitCodec = KLibCodecs.INTERN_PATH.flatXmap(this::resolveUnitRef, Ref::unitKeyResult);
+		var typeField = this.defaultType instanceof DynamicType<?, ?> ? typeCodec.optionalFieldOf("type", this.defaultType) : typeCodec.fieldOf("type");
 		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::codec));
-
-		this.codec = KLibCodecs.or(unitCodec, this.directCodec.xmap(v -> {
-			if (v instanceof RefOptimizer<?> o) {
-				v = (V) o.optimize();
-			}
-
-			return ref(v);
-		}, Ref::value));
-
+		this.codec = KLibCodecs.or(unitCodec, this.directCodec.xmap(this::resolveValueRef, Ref::value));
 		this.streamCodec = new ValueStreamCodec<>(this);
 		this.dataType = DataType.of(codec, Cast.to(streamCodec));
 
@@ -289,6 +257,34 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	public String registryId() {
 		return registryId;
+	}
+
+	private DataResult<Ref<V>> resolveUnitRef(String key) {
+		if (this.defaultType instanceof UnitType<B, V> unit && key.isEmpty()) {
+			return DataResult.success(unit);
+		}
+
+		var type = typeMap.get(key);
+
+		if (type == null) {
+			return DataResult.error(() -> "Value " + key + " not found");
+		}
+
+		var unit = type.unit();
+
+		if (unit != null) {
+			return DataResult.success(unit);
+		} else {
+			return DataResult.error(() -> "Type " + key + " is not a unit type");
+		}
+	}
+
+	private Ref<V> resolveValueRef(V value) {
+		if (value instanceof RefOptimizer<?> o) {
+			value = (V) o.optimize();
+		}
+
+		return ref(value);
 	}
 
 	public Ref<V> ref(String key) {
@@ -478,7 +474,16 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private void updateValuesAndRefs() {
 		keyList = new ArrayList<>(valueMap.size());
 		valueList = new ArrayList<>(valueMap.values());
+
+		if (defaultType instanceof UnitType<B, V> unit) {
+			valueList.remove(unit);
+		}
+
 		valueList.sort(WithKey.COMPARATOR);
+
+		if (defaultType instanceof UnitType<B, V> unit) {
+			valueList.addFirst(unit);
+		}
 
 		for (var ref : valueList) {
 			keyList.add(ref.key());

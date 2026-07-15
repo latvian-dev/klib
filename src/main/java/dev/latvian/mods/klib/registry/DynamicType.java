@@ -9,7 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.function.Function;
 
-public class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<B, V> {
+public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<B, V> {
 	public static <B extends ByteBuf, V, D extends V> DynamicType<B, V> create(String id, MapCodec<D> codec, StreamCodec<? super B, D> streamCodec) {
 		return new DynamicType<>(id.intern(), Cast.to(codec), Cast.to(streamCodec));
 	}

@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.registry;
 
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,12 +17,14 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 	}
 
 	private final V instance;
+	private final DataResult<String> unitKeyResult;
 
 	UnitType(String key, Function<UnitType<B, V>, V> factory) {
 		super(key);
 		this.instance = factory.apply(this);
 		this.codec = MapCodec.unit(instance);
 		this.streamCodec = StreamCodec.unit(instance);
+		this.unitKeyResult = DataResult.success(key);
 	}
 
 	@Override
@@ -52,5 +55,27 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 	@Override
 	public String toString() {
 		return String.valueOf(instance);
+	}
+
+	@Override
+	public int hashCode() {
+		return key.hashCode();
+	}
+
+	@Override
+	@SuppressWarnings("StringEquality")
+	public boolean equals(Object obj) {
+		if (obj instanceof CustomRegistryType<?, ?> ut) {
+			return key == ut.key;
+		} else if (obj instanceof Ref<?> ref) {
+			return key == ref.optionalKey();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public DataResult<String> unitKeyResult() {
+		return unitKeyResult;
 	}
 }

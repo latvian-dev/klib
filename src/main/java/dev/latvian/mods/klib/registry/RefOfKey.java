@@ -31,4 +31,19 @@ public final class RefOfKey<V> implements Ref<V> {
 	public String toString() {
 		return value == null ? ("Ref[" + key + "]") : value.toString();
 	}
+
+	@Override
+	public int hashCode() {
+		return key.hashCode();
+	}
+
+	@Override
+	@SuppressWarnings("StringEquality")
+	public boolean equals(Object obj) {
+		if (obj instanceof Ref<?> ref) {
+			return key == ref.optionalKey();
+		} else {
+			return false;
+		}
+	}
 }

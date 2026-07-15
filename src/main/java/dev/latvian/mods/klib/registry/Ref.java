@@ -13,6 +13,8 @@ import net.minecraft.util.ExtraCodecs;
 import java.util.Optional;
 
 public sealed interface Ref<V> extends WithKey, WithRef<V>, WithValue<V> permits UnitType, RefOfKey, RefOfValue {
+	DataResult<String> ERROR_NOT_UNIT = KLibCodecErrors.error("Type is not a unit type");
+
 	static <V> MapCodec<Ref<V>> contextRefCodec() {
 		DataResult<Ref<V>> error = KLibCodecErrors.error("Could not retrieve ref from this context");
 
@@ -122,5 +124,9 @@ public sealed interface Ref<V> extends WithKey, WithRef<V>, WithValue<V> permits
 		}
 
 		return value;
+	}
+
+	default DataResult<String> unitKeyResult() {
+		return ERROR_NOT_UNIT;
 	}
 }

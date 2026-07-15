@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class CustomRegistryType<B extends ByteBuf, V> implements WithKey, CustomRegistryOwnTypeProvider<B, V> {
+public abstract sealed class CustomRegistryType<B extends ByteBuf, V> implements WithKey, CustomRegistryOwnTypeProvider<B, V> permits UnitType, DynamicType {
 	protected final String key;
 	protected MapCodec<V> codec;
 	protected StreamCodec<? super B, V> streamCodec;

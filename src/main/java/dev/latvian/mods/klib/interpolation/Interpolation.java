@@ -14,8 +14,7 @@ import net.minecraft.util.EasingType;
 import net.minecraft.world.phys.Vec3;
 
 public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolation> {
-	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.create("interpolation");
-
+	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.create("interpolation", LinearInterpolation.TYPE);
 	Codec<Ref<Interpolation>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Interpolation>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Interpolation>> DATA_TYPE = REGISTRY.dataType();
@@ -25,7 +24,6 @@ public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolatio
 	}
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
-		registry.register(LinearInterpolation.TYPE);
 		registry.register(FixedInterpolation.TYPE);
 		registry.register(ScaledInterpolation.TYPE);
 		registry.register(CompositeInterpolation.TYPE);

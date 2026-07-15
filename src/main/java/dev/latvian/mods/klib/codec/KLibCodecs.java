@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface KLibCodecs {
@@ -300,5 +301,31 @@ public interface KLibCodecs {
 			var id = key.identifier();
 			return id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString();
 		});
+	}
+
+	static <V, T> Codec<T> unit(V unitValue, T resultValue, Predicate<T> isUnit) {
+		return MapCodec.unitCodec(unitValue).flatXmap(value -> {
+			if (unitValue.equals(value)) {
+				return DataResult.success(resultValue);
+			} else {
+				return DataResult.error(() -> "Not unit");
+			}
+		}, value -> {
+			if (isUnit.test(value)) {
+				return DataResult.success(unitValue);
+			} else {
+				return DataResult.error(() -> "Not empty value");
+			}
+		});
+	}
+
+	static <K, V> Codec<Map.Entry<K, V>> mapEntry(Codec<K> keyCodec, Codec<V> valueCodec) {
+		return Codec.unboundedMap(keyCodec, valueCodec).comapFlatMap(map -> {
+			if (map.size() == 1) {
+				return DataResult.success(map.entrySet().iterator().next());
+			} else {
+				return DataResult.error(() -> "Map must have exactly one entry");
+			}
+		}, entry -> Map.of(entry.getKey(), entry.getValue()));
 	}
 }
