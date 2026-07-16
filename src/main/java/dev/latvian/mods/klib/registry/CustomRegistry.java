@@ -710,7 +710,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			return;
 		}
 
-		int index = getValueIndex(ref.key());
+		int index = getValueIndex(ref.optionalKey());
 
 		if (index != 0) {
 			VarInt.write(buf, index);

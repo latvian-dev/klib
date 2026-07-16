@@ -3,6 +3,8 @@ package dev.latvian.mods.klib.codec;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Reference2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -117,4 +119,30 @@ public interface MCStreamCodecs {
 	);
 
 	StreamCodec<ByteBuf, EasingType> EASING_TYPE = ByteBufCodecs.fromCodecTrusted(EasingType.CODEC);
+
+	StreamCodec<ByteBuf, Reference2IntMap<BlockState>> STATE_TO_INT_MAP = new StreamCodec<>() {
+		@Override
+		public Reference2IntMap<BlockState> decode(ByteBuf buf) {
+			int count = VarInt.read(buf);
+			var map = new Reference2IntLinkedOpenHashMap<BlockState>(count);
+
+			for (int i = 0; i < count; i++) {
+				var state = MCStreamCodecs.BLOCK_STATE.decode(buf);
+				int weight = VarInt.read(buf);
+				map.put(state, weight);
+			}
+
+			return map;
+		}
+
+		@Override
+		public void encode(ByteBuf buf, Reference2IntMap<BlockState> value) {
+			VarInt.write(buf, value.size());
+
+			for (var entry : value.reference2IntEntrySet()) {
+				MCStreamCodecs.BLOCK_STATE.encode(buf, entry.getKey());
+				VarInt.write(buf, entry.getIntValue());
+			}
+		}
+	};
 }

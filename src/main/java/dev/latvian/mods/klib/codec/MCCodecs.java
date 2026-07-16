@@ -3,6 +3,8 @@ package dev.latvian.mods.klib.codec;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.math.KMath;
+import it.unimi.dsi.fastutil.objects.Reference2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -31,4 +33,5 @@ public interface MCCodecs {
 	Codec<SoundSource> SOUND_SOURCE = KLibCodecs.anyEnum(SoundSource.values(), SoundSource::getName);
 	Codec<BlockState> BLOCK_STATE = Codec.either(BlockState.CODEC, BuiltInRegistries.BLOCK.byNameCodec()).xmap(either -> either.map(Function.identity(), Block::defaultBlockState), state -> state == state.getBlock().defaultBlockState() ? Either.right(state.getBlock()) : Either.left(state));
 	Codec<FluidState> FLUID_STATE = Codec.either(FluidState.CODEC, BuiltInRegistries.FLUID.byNameCodec()).xmap(either -> either.map(Function.identity(), Fluid::defaultFluidState), state -> state == state.getType().defaultFluidState() ? Either.right(state.getType()) : Either.left(state));
+	Codec<Reference2IntMap<BlockState>> STATE_TO_INT_MAP = Codec.unboundedMap(MCCodecs.BLOCK_STATE, Codec.INT).xmap(Reference2IntLinkedOpenHashMap::new, Function.identity());
 }

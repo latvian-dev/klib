@@ -7,20 +7,20 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
-	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.create("shape");
-
+	UnitType<ByteBuf, Shape> EMPTY = UnitType.create("empty", EmptyShape.INSTANCE);
+	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.create("shape", EMPTY);
 	Codec<Ref<Shape>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Shape>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Shape>> DATA_TYPE = REGISTRY.dataType();
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
-		registry.register(EmptyShape.TYPE);
 		registry.register(CubeShape.TYPE);
 		registry.register(CuboidShape.TYPE);
 		registry.register(CircleShape.TYPE);

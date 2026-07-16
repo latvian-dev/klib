@@ -1,14 +1,28 @@
 package dev.latvian.mods.klib.platform;
 
+import dev.latvian.mods.klib.block.BlockStatePalette;
+import dev.latvian.mods.klib.block.BlockStatePaletteTypeRegistryEvent;
+import dev.latvian.mods.klib.block.collection.BlockCollection;
+import dev.latvian.mods.klib.block.collection.BlockCollectionTypeRegistryEvent;
+import dev.latvian.mods.klib.block.filter.BlockFilter;
+import dev.latvian.mods.klib.block.filter.BlockFilterTypeRegistryEvent;
 import dev.latvian.mods.klib.command.CustomRegistryRegistryEvent;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistryEvent;
 import dev.latvian.mods.klib.data.DataTypeRegistryEvent;
+import dev.latvian.mods.klib.entity.filter.EntityFilter;
+import dev.latvian.mods.klib.entity.filter.EntityFilterTypeRegistryEvent;
+import dev.latvian.mods.klib.entity.number.EntityNumber;
+import dev.latvian.mods.klib.entity.number.EntityNumberTypeRegistryEvent;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.gradient.GradientTypeRegistryEvent;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.InterpolationTypeRegistryEvent;
+import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.knumber.KNumberTypeRegistryEvent;
+import dev.latvian.mods.klib.kvector.KVector;
+import dev.latvian.mods.klib.kvector.KVectorTypeRegistryEvent;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
@@ -160,5 +174,47 @@ public class NeoPlatformHelper extends PlatformHelper {
 	public void collectGradientTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
 		super.collectGradientTypes(registry);
 		ModLoader.postEvent(new GradientTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBlockStatePaletteTypes(CustomRegistryTypeCollector<ByteBuf, BlockStatePalette> registry) {
+		super.collectBlockStatePaletteTypes(registry);
+		ModLoader.postEvent(new BlockStatePaletteTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBlockCollectionTypes(CustomRegistryTypeCollector<ByteBuf, BlockCollection> registry) {
+		super.collectBlockCollectionTypes(registry);
+		ModLoader.postEvent(new BlockCollectionTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBlockFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BlockFilter> registry) {
+		super.collectBlockFilterTypes(registry);
+		ModLoader.postEvent(new BlockFilterTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectEntityFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityFilter> registry) {
+		super.collectEntityFilterTypes(registry);
+		ModLoader.postEvent(new EntityFilterTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectEntityNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityNumber> registry) {
+		super.collectEntityNumberTypes(registry);
+		ModLoader.postEvent(new EntityNumberTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectKNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KNumber> registry) {
+		super.collectKNumberTypes(registry);
+		ModLoader.postEvent(new KNumberTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectKVectorTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KVector> registry) {
+		super.collectKVectorTypes(registry);
+		ModLoader.postEvent(new KVectorTypeRegistryEvent(registry));
 	}
 }

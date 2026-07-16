@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(PoseStack.Pose.class)
-public class PoseStackPoseMixin implements KLibPoseStackPose {
+public abstract class PoseStackPoseMixin implements KLibPoseStackPose {
 	@Shadow
 	@Final
 	private Matrix4f pose;

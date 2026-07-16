@@ -54,7 +54,7 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 
 	@Override
 	public String toString() {
-		return String.valueOf(instance);
+		return key;
 	}
 
 	@Override

@@ -27,29 +27,29 @@ public abstract class EnumArgumentMixin<T extends Enum<T>> {
 	private Class<T> enumClass;
 
 	@Unique
-	private Map<T, String> vl$enumValues;
+	private Map<T, String> klib$enumValues;
 
 	@Redirect(method = "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/StringReader;readUnquotedString()Ljava/lang/String;"))
-	private String vl$readString(StringReader instance) throws CommandSyntaxException {
+	private String klib$readString(StringReader instance) throws CommandSyntaxException {
 		return instance.readString();
 	}
 
 	@Unique
-	private Map<T, String> vl$enumValues() {
-		if (vl$enumValues == null) {
-			vl$enumValues = new EnumMap<>(enumClass);
+	private Map<T, String> klib$enumValues() {
+		if (klib$enumValues == null) {
+			klib$enumValues = new EnumMap<>(enumClass);
 
 			for (var value : enumClass.getEnumConstants()) {
-				vl$enumValues.put(value, value instanceof EnumCommandName e ? e.getCommandName() : value instanceof StringRepresentable v ? v.getSerializedName() : value.name().toLowerCase(Locale.ROOT));
+				klib$enumValues.put(value, value instanceof EnumCommandName e ? e.getCommandName() : value instanceof StringRepresentable v ? v.getSerializedName() : value.name().toLowerCase(Locale.ROOT));
 			}
 		}
 
-		return vl$enumValues;
+		return klib$enumValues;
 	}
 
 	@Redirect(method = "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;", at = @At(value = "INVOKE", target = "Ljava/lang/Enum;valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;"))
-	private T vl$betterName(Class<T> enumClass, String name) {
-		var map = vl$enumValues();
+	private T klib$betterName(Class<T> enumClass, String name) {
+		var map = klib$enumValues();
 
 		for (var entry : map.entrySet()) {
 			if (entry.getValue().equalsIgnoreCase(name)) {
@@ -61,8 +61,8 @@ public abstract class EnumArgumentMixin<T extends Enum<T>> {
 	}
 
 	@Redirect(method = {"getExamples", "listSuggestions", "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;"}, at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;map(Ljava/util/function/Function;)Ljava/util/stream/Stream;"))
-	private Stream<String> vl$betterName(Stream<T> instance, Function<? super T, ? extends String> function) {
-		var map = vl$enumValues();
+	private Stream<String> klib$betterName(Stream<T> instance, Function<? super T, ? extends String> function) {
+		var map = klib$enumValues();
 		return instance.map(t -> StringArgumentType.escapeIfRequired(Objects.requireNonNull(map.get(t))));
 	}
 }

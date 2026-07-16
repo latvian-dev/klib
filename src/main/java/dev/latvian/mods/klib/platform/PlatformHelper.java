@@ -1,12 +1,19 @@
 package dev.latvian.mods.klib.platform;
 
 import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.block.BlockStatePalette;
+import dev.latvian.mods.klib.block.collection.BlockCollection;
+import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.data.DataTypes;
 import dev.latvian.mods.klib.data.JOMLDataTypes;
+import dev.latvian.mods.klib.entity.filter.EntityFilter;
+import dev.latvian.mods.klib.entity.number.EntityNumber;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
+import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.kvector.KVector;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
@@ -138,5 +145,33 @@ public class PlatformHelper {
 
 	public void collectGradientTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
 		Gradient.builtInTypes(registry);
+	}
+
+	public void collectBlockStatePaletteTypes(CustomRegistryTypeCollector<ByteBuf, BlockStatePalette> registry) {
+		BlockStatePalette.builtInTypes(registry);
+	}
+
+	public void collectBlockCollectionTypes(CustomRegistryTypeCollector<ByteBuf, BlockCollection> registry) {
+		BlockCollection.builtInTypes(registry);
+	}
+
+	public void collectBlockFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BlockFilter> registry) {
+		BlockFilter.builtInTypes(registry);
+	}
+
+	public void collectEntityFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityFilter> registry) {
+		EntityFilter.builtInTypes(registry);
+	}
+
+	public void collectEntityNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityNumber> registry) {
+		EntityNumber.builtInTypes(registry);
+	}
+
+	public void collectKNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KNumber> registry) {
+		KNumber.builtInTypes(registry);
+	}
+
+	public void collectKVectorTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KVector> registry) {
+		KVector.builtInTypes(registry);
 	}
 }

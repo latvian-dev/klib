@@ -9,11 +9,9 @@ import org.joml.Vector3fc;
 public enum EmptyShape implements Shape {
 	INSTANCE;
 
-	public static final UnitType<ByteBuf, Shape> TYPE = UnitType.create("empty", INSTANCE);
-
 	@Override
 	public UnitType<ByteBuf, Shape> type() {
-		return TYPE;
+		return Shape.EMPTY;
 	}
 
 	@Override

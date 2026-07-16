@@ -1,9 +1,16 @@
 package dev.latvian.mods.klib;
 
+import dev.latvian.mods.klib.block.BlockStatePalette;
+import dev.latvian.mods.klib.block.collection.BlockCollection;
+import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
+import dev.latvian.mods.klib.entity.filter.EntityFilter;
+import dev.latvian.mods.klib.entity.number.EntityNumber;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
+import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.kvector.KVector;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
@@ -31,5 +38,12 @@ public class KLib {
 		registry.register(Interpolation.REGISTRY, platform::collectInterpolationTypes);
 		registry.register(Shape.REGISTRY, platform::collectShapeTypes);
 		registry.register(Gradient.REGISTRY, platform::collectGradientTypes);
+		registry.register(BlockStatePalette.REGISTRY, platform::collectBlockStatePaletteTypes);
+		registry.register(BlockCollection.REGISTRY, platform::collectBlockCollectionTypes);
+		registry.register(BlockFilter.REGISTRY, platform::collectBlockFilterTypes);
+		registry.register(EntityFilter.REGISTRY, platform::collectEntityFilterTypes);
+		registry.register(EntityNumber.REGISTRY, platform::collectEntityNumberTypes);
+		registry.register(KNumber.REGISTRY, platform::collectKNumberTypes);
+		registry.register(KVector.REGISTRY, platform::collectKVectorTypes);
 	}
 }

@@ -5,14 +5,21 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import dev.latvian.mods.klib.io.IOUtils;
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.util.Cast;
+import dev.latvian.mods.klib.util.StringUtils;
+import io.netty.buffer.Unpooled;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.dialog.ActionButton;
 import net.minecraft.server.dialog.CommonButtonData;
@@ -102,12 +109,23 @@ public class KLibCommands {
 			valuesComponent.append(Component.literal("\n"));
 
 			var color = registry.getType(ref) instanceof UnitType<?, T> ? ChatFormatting.GOLD : ChatFormatting.GREEN;
+			int bytes = 0;
+
+			try {
+				var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), player.registryAccess());
+				registry.streamCodec().encode(Cast.to(buf), ref);
+				bytes = buf.readableBytes();
+				buf.release();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 
 			valuesComponent.append(Component.empty()
 				.append(format.formatted(registry.syncValues() ? registry.getValueIndex(ref.key()) : "-"))
 				.append(Component.literal(ref.key()).withStyle(ChatFormatting.YELLOW))
 				.append(": ")
 				.append(Component.literal(String.valueOf(ref.value())).withStyle(color))
+				.append(bytes == 0 ? " (Error writing bytes)" : (" (" + StringUtils.siByteSize(bytes) + ")"))
 			);
 		}
 
@@ -130,10 +148,51 @@ public class KLibCommands {
 	}
 
 	private static <T> int parse(CommandSourceStack source, CustomRegistry<?, T> registry, Ref<T> value) {
-		if (registry.getType(value) instanceof UnitType<?, T> unit) {
-			source.sendSuccess(() -> Component.literal(unit.key()).withStyle(ChatFormatting.GOLD), false);
-		} else {
-			source.sendSuccess(() -> Component.literal(String.valueOf(value)).withStyle(ChatFormatting.GREEN), false);
+		source.sendSuccess(() -> {
+			var component = Component.literal("Value: ");
+
+			if (registry.getType(value) instanceof UnitType<?, T> unit) {
+				component.append(Component.literal(unit.key()).withStyle(ChatFormatting.GOLD));
+			} else {
+				component.append(Component.literal(String.valueOf(value)).withStyle(ChatFormatting.GREEN));
+			}
+
+			return component;
+		}, false);
+
+		source.sendSuccess(() -> {
+			var jsonComponent = Component.literal("SNBT: ");
+			var ops = source.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+			var tag = registry.codec().encodeStart(ops, value).getOrThrow();
+			jsonComponent.append(NbtUtils.toPrettyComponent(tag));
+			return jsonComponent;
+		}, false);
+
+		try {
+			var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), source.registryAccess());
+			registry.streamCodec().encode(Cast.to(buf), value);
+			var bytes = IOUtils.toByteArray(buf, true);
+
+			source.sendSuccess(() -> {
+				var netComponent = Component.literal("Network Size: ");
+				netComponent.append(Component.literal(StringUtils.siByteSize(bytes.length)).withStyle(ChatFormatting.YELLOW));
+				return netComponent;
+			}, false);
+
+			source.sendSuccess(() -> {
+				var netComponent = Component.literal("Bytes:");
+				var sb = new StringBuilder();
+
+				for (byte b : bytes) {
+					sb.append(" %02X".formatted(b & 0xFF));
+				}
+
+				netComponent.append(Component.literal(sb.toString()).withStyle(ChatFormatting.YELLOW));
+				return netComponent;
+			}, false);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			source.sendSuccess(() -> Component.literal("Network: Error " + ex), false);
 		}
 
 		return 1;

@@ -9,11 +9,13 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.block.PositionedBlock;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
+import dev.latvian.mods.klib.entity.PositionType;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.math.ClipPosition;
@@ -226,6 +228,9 @@ public interface DataTypes {
 		registry.register("uint64", UInt64.DATA_TYPE);
 		registry.register("vec3f", Vec3f.DATA_TYPE);
 		registry.register("direction_vec3f", Vec3f.DIRECTION_DATA_TYPE);
+		registry.register("positioned_block", PositionedBlock.DATA_TYPE);
+		registry.register("positioned_block_list", PositionedBlock.LIST_DATA_TYPE);
+		registry.register("position_type", PositionType.DATA_TYPE);
 	}
 
 	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {
