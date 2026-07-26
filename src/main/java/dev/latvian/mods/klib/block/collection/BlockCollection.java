@@ -10,6 +10,10 @@ import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public interface BlockCollection extends CustomRegistryValue<ByteBuf, BlockCollection> {
 	UnitType<ByteBuf, BlockCollection> EMPTY = UnitType.create("empty", EmptyBlockCollection.INSTANCE);
@@ -28,4 +32,12 @@ public interface BlockCollection extends CustomRegistryValue<ByteBuf, BlockColle
 	default CustomRegistry<ByteBuf, BlockCollection> getRegistry() {
 		return REGISTRY;
 	}
+
+	default List<PositionedBlock> collectBlocks(RandomSource random) {
+		var list = new ArrayList<PositionedBlock>(1);
+		forEach((pos, state) -> list.add(new PositionedBlock(pos, state)), random);
+		return list;
+	}
+
+	void forEach(BlockCollectionCallback callback, RandomSource random);
 }

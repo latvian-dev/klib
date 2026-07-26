@@ -26,7 +26,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public record BlockStatePalette(@Nullable UnitType<ByteBuf, BlockStatePalette> typeOverride, Reference2IntMap<BlockState> map, int totalWeight) implements CustomRegistryValue<ByteBuf, BlockStatePalette> {
+public record BlockStatePalette(
+	@Nullable UnitType<ByteBuf, BlockStatePalette> typeOverride,
+	Reference2IntMap<BlockState> map,
+	@Nullable BlockState singleState,
+	int totalWeight
+) implements CustomRegistryValue<ByteBuf, BlockStatePalette> {
 	private static final DataResult<BlockState> NOT_SINGLE_BLOCK = KLibCodecErrors.error("Not a single block");
 
 	public static final DynamicType<ByteBuf, BlockStatePalette> TYPE = DynamicType.create(
@@ -51,7 +56,7 @@ public record BlockStatePalette(@Nullable UnitType<ByteBuf, BlockStatePalette> t
 		}
 
 		public UnitType<ByteBuf, BlockStatePalette> buildUnit(String key) {
-			return UnitType.create(key, type -> new BlockStatePalette(type, map, map.values().intStream().sum()));
+			return UnitType.create(key, type -> new BlockStatePalette(type, map, map.size() == 1 ? map.keySet().iterator().next() : null, map.values().intStream().sum()));
 		}
 	}
 
@@ -84,11 +89,11 @@ public record BlockStatePalette(@Nullable UnitType<ByteBuf, BlockStatePalette> t
 	}
 
 	public BlockStatePalette(Reference2IntMap<BlockState> map) {
-		this(null, map, map.values().intStream().sum());
+		this(null, map, map.size() == 1 ? map.keySet().iterator().next() : null, map.values().intStream().sum());
 	}
 
 	public BlockStatePalette(BlockState state) {
-		this(null, new Reference2IntLinkedOpenHashMap<>(Map.of(state, 1)), 1);
+		this(null, new Reference2IntLinkedOpenHashMap<>(Map.of(state, 1)), state, 1);
 	}
 
 	@Override
@@ -102,6 +107,10 @@ public record BlockStatePalette(@Nullable UnitType<ByteBuf, BlockStatePalette> t
 	}
 
 	public BlockState get(int at) {
+		if (singleState != null) {
+			return singleState;
+		}
+
 		for (var entry : map.reference2IntEntrySet()) {
 			at -= entry.getIntValue();
 
@@ -114,6 +123,10 @@ public record BlockStatePalette(@Nullable UnitType<ByteBuf, BlockStatePalette> t
 	}
 
 	public BlockState sample(RandomSource random) {
+		if (singleState != null) {
+			return singleState;
+		}
+
 		return get(random.nextInt(totalWeight));
 	}
 }

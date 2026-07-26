@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.block.collection.BlockCollection;
+import dev.latvian.mods.klib.block.collection.BlockCollectionCallback;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
@@ -14,6 +15,7 @@ import dev.latvian.mods.klib.util.BlockUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
@@ -46,5 +48,15 @@ public record PositionedBlock(BlockPos pos, BlockState state) implements BlockCo
 	@Override
 	public String toString() {
 		return "PositionedBlock[%d,%d,%d,%s]".formatted(pos.getX(), pos.getY(), pos.getZ(), BlockUtils.toString(state));
+	}
+
+	@Override
+	public List<PositionedBlock> collectBlocks(RandomSource random) {
+		return List.of(this);
+	}
+
+	@Override
+	public void forEach(BlockCollectionCallback callback, RandomSource random) {
+		callback.accept(pos, state);
 	}
 }
