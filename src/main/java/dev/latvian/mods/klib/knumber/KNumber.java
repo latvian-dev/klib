@@ -42,6 +42,8 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 
 	UnitType<RegistryFriendlyByteBuf, KNumber> ZERO = UnitType.create("zero", type -> new FixedKNumber(type, 0D));
 	UnitType<RegistryFriendlyByteBuf, KNumber> ONE = UnitType.create("one", type -> new FixedKNumber(type, 1D));
+	UnitType<RegistryFriendlyByteBuf, KNumber> HALF = UnitType.create("half", type -> new FixedKNumber(type, 0.5));
+	UnitType<RegistryFriendlyByteBuf, KNumber> TWO = UnitType.create("two", type -> new FixedKNumber(type, 2D));
 	UnitType<RegistryFriendlyByteBuf, KNumber> PROGRESS = simple("progress", ctx -> ctx.progress);
 	UnitType<RegistryFriendlyByteBuf, KNumber> TICK = simple("tick", ctx -> ctx.tick);
 	UnitType<RegistryFriendlyByteBuf, KNumber> MAX_TICK = simple("max_tick", ctx -> ctx.maxTick);
@@ -58,6 +60,10 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 			return ZERO.value();
 		} else if (number == 1D) {
 			return ONE.value();
+		} else if (number == 0.5D) {
+			return HALF.value();
+		} else if (number == 2D) {
+			return TWO.value();
 		} else {
 			return new FixedKNumber(number);
 		}
@@ -66,6 +72,8 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 	static void builtInTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KNumber> registry) {
 		registry.register(ZERO);
 		registry.register(ONE);
+		registry.register(HALF);
+		registry.register(TWO);
 		registry.register(PROGRESS);
 		registry.register(TICK);
 		registry.register(MAX_TICK);
