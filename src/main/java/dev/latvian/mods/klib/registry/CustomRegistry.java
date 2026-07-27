@@ -34,13 +34,13 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -353,7 +353,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		typeList = List.copyOf(typeMap.values());
-		updateValues(Map.of());
+		updateValues(List.of());
 		isBound = true;
 	}
 
@@ -398,13 +398,13 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public void updateValues(Map<Identifier, V> map) {
+	public void updateValues(Collection<? extends Map.Entry<String, ? extends V>> entries) {
 		valueMap.clear();
 		rxValueMap.clear();
 		txValueMap.clear();
 
 		keyList = List.of();
-		valueList = new ArrayList<>(typeList.size() + map.size());
+		valueList = new ArrayList<>(typeList.size() + entries.size());
 
 		for (var type : typeList) {
 			var unit = type.unit();
@@ -414,9 +414,9 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			}
 		}
 
-		for (var entry : map.entrySet()) {
-			if (!(ref(entry.getKey().getPath()) instanceof RefOfKey<V> ref)) {
-				throw new IllegalStateException("Tried to update values containing unit type " + entry.getKey().getPath());
+		for (var entry : entries) {
+			if (!(ref(entry.getKey()) instanceof RefOfKey<V> ref)) {
+				throw new IllegalStateException("Tried to update values containing unit type " + entry.getKey());
 			}
 
 			ref.value = entry.getValue();

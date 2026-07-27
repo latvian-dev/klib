@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class JsonRegistryReloadListener<T> extends JsonCodecReloadListener<T> {
@@ -24,6 +25,12 @@ public class JsonRegistryReloadListener<T> extends JsonCodecReloadListener<T> {
 
 	@Override
 	protected void apply(ResourceManager resourceManager, Map<Identifier, T> map) {
-		registry.updateValues(map);
+		var entries = new ArrayList<Map.Entry<String, T>>(map.size());
+
+		for (var entry : map.entrySet()) {
+			entries.add(Map.entry(entry.getKey().getPath(), entry.getValue()));
+		}
+
+		registry.updateValues(entries);
 	}
 }
