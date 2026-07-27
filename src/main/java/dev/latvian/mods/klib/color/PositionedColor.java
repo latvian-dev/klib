@@ -6,31 +6,31 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
-import dev.latvian.mods.klib.interpolation.Interpolation;
-import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.EasingType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record PositionedColor(float position, Color color, Ref<Interpolation> interpolation) implements Comparable<PositionedColor> {
+public record PositionedColor(float position, Color color, EasingType ease) implements Comparable<PositionedColor> {
 	public static final PositionedColor[] EMPTY_ARRAY = new PositionedColor[0];
-	public static final PositionedColor INVALID = new PositionedColor(Float.NaN, Color.TRANSPARENT, Interpolation.linear());
+	public static final PositionedColor INVALID = new PositionedColor(Float.NaN, Color.TRANSPARENT, EasingType.LINEAR);
 
 	public static final Codec<PositionedColor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		Codec.FLOAT.fieldOf("position").forGetter(PositionedColor::position),
 		Color.CODEC.fieldOf("colors").forGetter(PositionedColor::color),
-		Interpolation.CODEC.optionalFieldOf("interpolation", Interpolation.linear()).forGetter(PositionedColor::interpolation)
+		EasingType.CODEC.optionalFieldOf("interpolation", EasingType.LINEAR).forGetter(PositionedColor::ease)
 	).apply(instance, PositionedColor::new));
 
 	public static final StreamCodec<ByteBuf, PositionedColor> STREAM_CODEC = CompositeStreamCodec.of(
 		ByteBufCodecs.FLOAT, PositionedColor::position,
 		Color.STREAM_CODEC, PositionedColor::color,
-		Interpolation.STREAM_CODEC, PositionedColor::interpolation,
+		MCStreamCodecs.EASING_TYPE, PositionedColor::ease,
 		PositionedColor::new
 	);
 
@@ -142,7 +142,7 @@ public record PositionedColor(float position, Color color, Ref<Interpolation> in
 			var c = colors.get(i);
 			var position = i / (float) (size - 1);
 
-			if (!c.interpolation().value().isLinear() || Math.abs(c.position() - position) > 0.001F) {
+			if (c.ease() != EasingType.LINEAR || Math.abs(c.position() - position) > 0.001F) {
 				return false;
 			}
 		}
@@ -153,7 +153,7 @@ public record PositionedColor(float position, Color color, Ref<Interpolation> in
 	public static final Codec<List<PositionedColor>> LIST_CODEC = KLibCodecs.or(LIST_CODEC_OF_SIMPLE_COLORS, CODEC.listOf());
 
 	public PositionedColor(float position, Color color) {
-		this(position, color, Interpolation.linear());
+		this(position, color, EasingType.LINEAR);
 	}
 
 	@Override
@@ -162,11 +162,11 @@ public record PositionedColor(float position, Color color, Ref<Interpolation> in
 	}
 
 	public Color interpolate(float delta, PositionedColor other) {
-		return color.lerp(interpolation.value().interpolate(delta), other.color);
+		return color.lerp(ease.apply(delta), other.color);
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return o == this || o instanceof PositionedColor c && Math.abs(position - c.position) <= 0.001F && color.argb() == c.color.argb() && interpolation == c.interpolation;
+		return o == this || o instanceof PositionedColor c && Math.abs(position - c.position) <= 0.001F && color.argb() == c.color.argb() && ease.equals(c.ease);
 	}
 }

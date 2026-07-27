@@ -8,11 +8,10 @@ import dev.latvian.mods.klib.gradient.CompoundGradient;
 import dev.latvian.mods.klib.gradient.FlatColorGradient;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.gradient.LinearGradient;
-import dev.latvian.mods.klib.interpolation.Interpolation;
-import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.EasingType;
 import net.minecraft.util.Mth;
 
 import java.util.List;
@@ -428,11 +427,11 @@ public record Color(int argb) {
 	}
 
 	public Gradient gradient(Color other) {
-		return gradient(other, Interpolation.linear());
+		return gradient(other, EasingType.LINEAR);
 	}
 
-	public Gradient gradient(Color other, Ref<Interpolation> interpolation) {
-		return equals(other) ? toGradient() : interpolation.value().isLinear() ? new LinearGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, interpolation), new PositionedColor(1F, other)));
+	public Gradient gradient(Color other, EasingType ease) {
+		return equals(other) ? toGradient() : ease == EasingType.LINEAR ? new LinearGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, ease), new PositionedColor(1F, other)));
 	}
 
 	public Color mix(Color color, int mixAlpha) {
