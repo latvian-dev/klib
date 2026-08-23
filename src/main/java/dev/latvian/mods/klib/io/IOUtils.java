@@ -23,6 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.LongConsumer;
@@ -339,5 +341,19 @@ public interface IOUtils {
 
 	static FileSystem openAsZip(Path path) throws IOException {
 		return openAsZip(path, Map.of());
+	}
+
+	static List<String> platformCopy(String from, String to) {
+		if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+			// /E = Recursive + Empty subdirectories
+			// /COPY:DAT = Copies Data, Attributes and Timestamps
+			// /DCOPY:T = Copies directory Timestamps
+			// /MT:16 = 16 threads
+			return List.of("robocopy", from, to, "/E", "/COPY:DAT", "/DCOPY:T", "/MT:16");
+		} else {
+			// -R = Recursive
+			// --preserve=all = Copy attributes
+			return List.of("cp", "-R", "--preserve=all", from, to);
+		}
 	}
 }

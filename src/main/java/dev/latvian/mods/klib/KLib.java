@@ -38,6 +38,7 @@ public class KLib {
 		registry.register(Interpolation.REGISTRY, platform::collectInterpolationTypes);
 		registry.register(Shape.REGISTRY, platform::collectShapeTypes);
 		registry.register(Gradient.REGISTRY, platform::collectGradientTypes);
+		registry.register(Gradient.CLIENT_REGISTRY);
 		registry.register(BlockStatePalette.REGISTRY, platform::collectBlockStatePaletteTypes);
 		registry.register(BlockCollection.REGISTRY, platform::collectBlockCollectionTypes);
 		registry.register(BlockFilter.REGISTRY, platform::collectBlockFilterTypes);

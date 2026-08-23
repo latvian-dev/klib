@@ -15,4 +15,8 @@ public interface CustomRegistryCollector {
 	default <B extends ByteBuf, T> void register(CustomRegistry<B, T> registry, @Nullable Consumer<CustomRegistryTypeCollector<B, T>> callback) {
 		register(new Entry<>(registry, callback));
 	}
+
+	default <B extends ByteBuf, T> void register(CustomRegistry<B, T> registry) {
+		register(registry, null);
+	}
 }
