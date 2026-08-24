@@ -103,6 +103,10 @@ repositories {
 	}
 }
 
+dependencies {
+	compileOnly('com.github.luben:zstd-jni:1.5.7-7')
+}
+
 processResources {
 	def toReplace = [
 			"version": project.version

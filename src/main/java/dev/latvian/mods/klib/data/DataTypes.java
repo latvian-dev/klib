@@ -17,6 +17,7 @@ import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.InterpolationType;
+import dev.latvian.mods.klib.io.CompressionMethod;
 import dev.latvian.mods.klib.math.ClipPosition;
 import dev.latvian.mods.klib.math.InterpolatedDouble;
 import dev.latvian.mods.klib.math.InterpolatedFloat;
@@ -174,5 +175,6 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("hex32"), Hex32.DATA_TYPE);
 		DataType.register(KLibMod.id("hex64"), Hex64.DATA_TYPE);
 		DataType.register(KLibMod.id("uint64"), UInt64.DATA_TYPE);
+		DataType.register(KLibMod.id("compression_method"), CompressionMethod.DATA_TYPE);
 	}
 }
