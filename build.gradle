@@ -66,6 +66,15 @@ neoForge {
 	}
 }
 
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	compileOnly('com.github.luben:zstd-jni:1.5.7-7')
+}
+
 compileJava {
 	options.encoding = "UTF-8"
 	options.release.set(25)
