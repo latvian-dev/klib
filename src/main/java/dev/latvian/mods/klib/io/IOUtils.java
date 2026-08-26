@@ -356,4 +356,14 @@ public interface IOUtils {
 			return List.of("cp", "-R", "--preserve=all", from, to);
 		}
 	}
+
+	static ByteBuffer toDirect(ByteBuffer buffer) {
+		if (buffer.isDirect()) {
+			return buffer;
+		}
+
+		var directBuffer = ByteBuffer.allocateDirect(buffer.remaining());
+		directBuffer.put(buffer);
+		return directBuffer;
+	}
 }
