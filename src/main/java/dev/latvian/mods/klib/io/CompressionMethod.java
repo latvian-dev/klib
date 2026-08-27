@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
@@ -31,10 +32,8 @@ public enum CompressionMethod {
 	NONE(0, "none",
 		in -> in,
 		out -> out,
-		bytes -> bytes,
-		bytes -> bytes,
-		buf -> buf,
-		buf -> buf
+		IOByteArrayOperator.IDENTITY,
+		IOByteArrayOperator.IDENTITY
 	),
 
 	GZIP(1, "gzip",
@@ -55,12 +54,21 @@ public enum CompressionMethod {
 	ZSTD(4, "zstd",
 		ZstdInputStream::new,
 		ZstdOutputStream::new,
-		Zstd::compress,
-		Zstd::decompress,
-		buf -> Zstd.compress(IOUtils.toDirect(buf), Zstd.defaultCompressionLevel()),
-		buf -> {
-			int remaining = buf.remaining();
-			return Zstd.decompress(IOUtils.toDirect(buf), remaining);
+		(src, offset, len) -> {
+			if (offset == 0 && len == src.length) {
+				return Zstd.compress(src);
+			} else {
+				// TODO: Use a more efficient method
+				return Zstd.compress(Arrays.copyOfRange(src, offset, len));
+			}
+		},
+		(src, offset, len) -> {
+			if (offset == 0 && len == src.length) {
+				return Zstd.decompress(src);
+			} else {
+				// TODO: Use a more efficient method
+				return Zstd.decompress(Arrays.copyOfRange(src, offset, len));
+			}
 		}
 	),
 
@@ -104,19 +112,15 @@ public enum CompressionMethod {
 	public final String name;
 	private final IOUnaryOperator<InputStream> input;
 	private final IOUnaryOperator<OutputStream> output;
-	private final IOUnaryOperator<byte[]> compressBytes;
-	private final IOUnaryOperator<byte[]> decompressBytes;
-	private final IOUnaryOperator<ByteBuffer> compressByteBuffer;
-	private final IOUnaryOperator<ByteBuffer> decompressByteBuffer;
+	private final IOByteArrayOperator<byte[]> compressBytes;
+	private final IOByteArrayOperator<byte[]> decompressBytes;
 
 	CompressionMethod(
 		int id, String name,
 		IOUnaryOperator<InputStream> input,
 		IOUnaryOperator<OutputStream> output,
-		@Nullable IOUnaryOperator<byte[]> compressBytes,
-		@Nullable IOUnaryOperator<byte[]> decompressBytes,
-		@Nullable IOUnaryOperator<ByteBuffer> compressByteBuffer,
-		@Nullable IOUnaryOperator<ByteBuffer> decompressByteBuffer
+		@Nullable IOByteArrayOperator<byte[]> compressBytes,
+		@Nullable IOByteArrayOperator<byte[]> decompressBytes
 	) {
 		this.id = id;
 		this.name = name;
@@ -124,8 +128,6 @@ public enum CompressionMethod {
 		this.output = output;
 		this.compressBytes = compressBytes;
 		this.decompressBytes = decompressBytes;
-		this.compressByteBuffer = compressByteBuffer;
-		this.decompressByteBuffer = decompressByteBuffer;
 	}
 
 	CompressionMethod(
@@ -133,7 +135,7 @@ public enum CompressionMethod {
 		IOUnaryOperator<InputStream> input,
 		IOUnaryOperator<OutputStream> output
 	) {
-		this(id, name, input, output, null, null, null, null);
+		this(id, name, input, output, null, null);
 	}
 
 	public InputStream in(InputStream in) throws IOException {
@@ -152,39 +154,45 @@ public enum CompressionMethod {
 		return new BufferedOutputStream(out(out));
 	}
 
-	public byte[] compress(byte[] data) throws IOException {
+	public byte[] compress(byte[] data, int offset, int len) throws IOException {
 		if (compressBytes != null) {
-			return compressBytes.apply(data);
+			return compressBytes.apply(data, offset, len);
 		}
 
-		var byteOut = new ByteArrayOutputStream(Math.max(64, data.length / 4));
+		var byteOut = new ByteArrayOutputStream(Math.max(64, len / 4));
 
 		try (var out = out(byteOut)) {
-			out.write(data);
+			out.write(data, offset, len);
 		}
 
 		return byteOut.toByteArray();
 	}
 
-	public byte[] decompress(byte[] data) throws IOException {
+	public byte[] compress(byte[] data) throws IOException {
+		return compress(data, 0, data.length);
+	}
+
+	public byte[] decompress(byte[] data, int offset, int len) throws IOException {
 		if (decompressBytes != null) {
-			return decompressBytes.apply(data);
+			return decompressBytes.apply(data, offset, len);
 		}
 
-		try (var in = in(new ByteArrayInputStream(data))) {
+		try (var in = in(new ByteArrayInputStream(data, offset, len))) {
 			return in.readAllBytes();
 		}
 	}
 
-	public ByteBuffer compress(ByteBuffer data) throws IOException {
-		if (compressByteBuffer != null) {
-			return compressByteBuffer.apply(data);
-		}
+	public byte[] decompress(byte[] data) throws IOException {
+		return decompress(data, 0, data.length);
+	}
 
-		if (data.hasArray() && data.position() == 0 && data.limit() == data.capacity()) {
-			int limit = data.limit();
-			var result = compress(data.array());
-			data.limit(limit);
+	public ByteBuffer compress(ByteBuffer data) throws IOException {
+		if (this == NONE) {
+			return data;
+		} else if (data.hasArray()) {
+			int remaining = data.remaining();
+			var result = compress(data.array(), data.arrayOffset() + data.position(), remaining);
+			data.position(data.position() + remaining);
 			return ByteBuffer.wrap(result);
 		} else {
 			var arr = new byte[data.remaining()];
@@ -194,14 +202,12 @@ public enum CompressionMethod {
 	}
 
 	public ByteBuffer decompress(ByteBuffer data) throws IOException {
-		if (decompressByteBuffer != null) {
-			return decompressByteBuffer.apply(data);
-		}
-
-		if (data.hasArray() && data.position() == 0 && data.limit() == data.capacity()) {
-			int limit = data.limit();
-			var result = decompress(data.array());
-			data.limit(limit);
+		if (this == NONE) {
+			return data;
+		} else if (data.hasArray()) {
+			int remaining = data.remaining();
+			var result = decompress(data.array(), data.arrayOffset() + data.position(), remaining);
+			data.position(data.position() + remaining);
 			return ByteBuffer.wrap(result);
 		} else {
 			var arr = new byte[data.remaining()];
