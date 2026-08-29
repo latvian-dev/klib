@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.io;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -15,19 +16,19 @@ import java.util.UUID;
 
 @FunctionalInterface
 public interface ByteInput {
-	static OfStream of(InputStream in) {
+	static ByteInput of(InputStream in) {
 		return new OfStream(in);
 	}
 
-	static OfData of(DataInput in) {
+	static ByteInput of(DataInput in) {
 		return new OfData(in);
 	}
 
-	static OfBuffer of(ByteBuffer in) {
+	static ByteInput of(ByteBuffer in) {
 		return new OfBuffer(in, in.position());
 	}
 
-	static OfData of(DataInputStream in) {
+	static ByteInput of(DataInputStream in) {
 		return new OfData(in);
 	}
 
@@ -45,34 +46,51 @@ public interface ByteInput {
 
 	record OfStream(InputStream in) implements ByteInput {
 		@Override
-		public byte readByte() throws IOException {
-			var value = in.read();
-
-			if (value == -1) {
-				throw new EOFException();
-			} else {
-				return (byte) value;
-			}
+		public int readRaw() throws IOException {
+			return in.read();
 		}
 
 		@Override
-		public int readUByte() throws IOException {
-			var value = in.read();
-
-			if (value == -1) {
-				throw new EOFException();
-			} else {
-				return value;
-			}
+		public void skip(long skip) throws IOException {
+			in.skipNBytes(skip);
 		}
 
 		@Override
-		public void readAll(byte[] buffer, int offset, int len) throws IOException {
-			in.readNBytes(buffer, offset, len);
+		public int readAll(byte[] buffer, int offset, int len) throws IOException {
+			return in.readNBytes(buffer, offset, len);
+		}
+
+		@Override
+		public byte[] readAll() throws IOException {
+			return in.readAllBytes();
 		}
 	}
 
 	record OfData(DataInput in) implements ByteInput {
+		@Override
+		public int readRaw() throws IOException {
+			if (in instanceof InputStream stream) {
+				return stream.read();
+			} else {
+				try {
+					return in.readUnsignedByte();
+				} catch (EOFException ex) {
+					return -1;
+				}
+			}
+		}
+
+		@Override
+		public void skip(long skip) throws IOException {
+			if (in instanceof InputStream stream) {
+				stream.skipNBytes(skip);
+			} else {
+				while (skip > 0L) {
+					skip -= in.skipBytes((int) Math.min(skip, Integer.MAX_VALUE));
+				}
+			}
+		}
+
 		@Override
 		public byte readByte() throws IOException {
 			return in.readByte();
@@ -84,13 +102,43 @@ public interface ByteInput {
 		}
 
 		@Override
-		public void readAll(byte[] buffer, int offset, int len) throws IOException {
-			in.readFully(buffer, offset, len);
+		public int readAll(byte[] buffer, int offset, int len) throws IOException {
+			if (in instanceof InputStream stream) {
+				return stream.readNBytes(buffer, offset, len);
+			} else {
+				return ByteInput.super.readAll(buffer, offset, len);
+			}
 		}
 
 		@Override
-		public void readAll(byte[] buffer) throws IOException {
-			in.readFully(buffer);
+		public int readAll(byte[] buffer) throws IOException {
+			if (in instanceof InputStream stream) {
+				return stream.readNBytes(buffer, 0, buffer.length);
+			} else {
+				return ByteInput.super.readAll(buffer, 0, buffer.length);
+			}
+		}
+
+		@Override
+		public byte[] readAll() throws IOException {
+			if (in instanceof InputStream stream) {
+				return stream.readAllBytes();
+			} else {
+				var bytes = new ByteArrayOutputStream();
+
+				try {
+					while (true) {
+						var raw = in.readUnsignedByte();
+					}
+				} catch (EOFException ex) {
+					return bytes.toByteArray();
+				}
+			}
+		}
+
+		@Override
+		public boolean readBoolean() throws IOException {
+			return in.readBoolean();
 		}
 
 		@Override
@@ -126,18 +174,42 @@ public interface ByteInput {
 
 	record OfBuffer(ByteBuffer in, int startingPosition) implements ByteInput {
 		@Override
+		public int readRaw() {
+			if (in.hasRemaining()) {
+				return in.get() & 0xFF;
+			} else {
+				return -1;
+			}
+		}
+
+		@Override
+		public void skip(long skip) throws IOException {
+			long pos = in.position() + skip;
+
+			if (pos > in.limit()) {
+				throw new EOFException();
+			}
+
+			in.position((int) pos);
+		}
+
+		@Override
 		public byte readByte() {
 			return in.get();
 		}
 
 		@Override
-		public void readAll(byte[] buffer, int offset, int len) {
-			in.get(buffer, offset, len);
+		public int readAll(byte[] buffer, int offset, int len) {
+			int result = Math.min(in.remaining(), len);
+			in.get(buffer, offset, result);
+			return result;
 		}
 
 		@Override
-		public void readAll(byte[] buffer) {
-			in.get(buffer);
+		public byte[] readAll() {
+			var bytes = new byte[in.remaining()];
+			in.get(bytes);
+			return bytes;
 		}
 
 		@Override
@@ -171,20 +243,69 @@ public interface ByteInput {
 		}
 	}
 
-	byte readByte() throws IOException;
+	int readRaw() throws IOException;
 
-	default int readUByte() throws IOException {
-		return readByte() & 0xFF;
-	}
-
-	default void readAll(byte[] buffer, int offset, int len) throws IOException {
-		for (var i = 0; i < len; i++) {
-			buffer[i + offset] = readByte();
+	default void skip(long skip) throws IOException {
+		while (skip > 0L) {
+			readByte();
+			skip--;
 		}
 	}
 
-	default void readAll(byte[] buffer) throws IOException {
-		readAll(buffer, 0, buffer.length);
+	default byte readByte() throws IOException {
+		var value = readRaw();
+
+		if (value == -1) {
+			throw new EOFException();
+		} else {
+			return (byte) value;
+		}
+	}
+
+	default int readUByte() throws IOException {
+		var value = readRaw();
+
+		if (value == -1) {
+			throw new EOFException();
+		} else {
+			return value;
+		}
+	}
+
+	default int readAll(byte[] buffer, int offset, int len) throws IOException {
+		for (var i = 0; i < len; i++) {
+			int value = readRaw();
+
+			if (value == -1) {
+				return i;
+			} else {
+				buffer[i + offset] = (byte) value;
+			}
+		}
+
+		return len;
+	}
+
+	default int readAll(byte[] buffer) throws IOException {
+		return readAll(buffer, 0, buffer.length);
+	}
+
+	default byte[] readAll() throws IOException {
+		var bytes = new ByteArrayOutputStream();
+
+		while (true) {
+			var raw = readRaw();
+
+			if (raw == -1) {
+				return bytes.toByteArray();
+			} else {
+				bytes.write(raw);
+			}
+		}
+	}
+
+	default boolean readBoolean() throws IOException {
+		return readByte() != 0;
 	}
 
 	default short readShort() throws IOException {

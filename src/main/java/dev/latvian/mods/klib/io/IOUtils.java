@@ -1,8 +1,12 @@
 package dev.latvian.mods.klib.io;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
@@ -351,5 +355,34 @@ public interface IOUtils {
 		var directBuffer = ByteBuffer.allocateDirect(buffer.remaining());
 		directBuffer.put(buffer);
 		return directBuffer;
+	}
+
+	static BufferedImage resize(BufferedImage image, int width, int height) {
+		int w0 = image.getWidth();
+		int h0 = image.getHeight();
+
+		if (w0 == width && h0 == height) {
+			return image;
+		}
+
+		double ratio;
+
+		if (w0 > h0) {
+			ratio = width / (float) w0;
+		} else {
+			ratio = height / (float) h0;
+		}
+
+		int w1 = Math.clamp(Mth.ceil(w0 * ratio), 1, width);
+		int h1 = Math.clamp(Mth.ceil(h0 * ratio), 1, height);
+
+		// App.info("Resizing image from " + w0 + "x" + h0 + " to " + w1 + "x" + h1 + " with ratio " + ratio + " and target size " + width + "x" + height);
+
+		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = resized.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.drawImage(image, (width - w1) / 2, (height - h1) / 2, w1, h1, null);
+		g.dispose();
+		return resized;
 	}
 }

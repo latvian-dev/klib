@@ -42,6 +42,11 @@ public interface ByteOutput {
 		}
 
 		@Override
+		public void flush() throws IOException {
+			out.flush();
+		}
+
+		@Override
 		public void writeUByte(int value) throws IOException {
 			out.write(value);
 		}
@@ -77,6 +82,13 @@ public interface ByteOutput {
 		@Override
 		public void writeByte(byte value) throws IOException {
 			out.writeByte(value);
+		}
+
+		@Override
+		public void flush() throws IOException {
+			if (out instanceof OutputStream stream) {
+				stream.flush();
+			}
 		}
 
 		@Override
@@ -190,6 +202,9 @@ public interface ByteOutput {
 	}
 
 	void writeByte(byte value) throws IOException;
+
+	default void flush() throws IOException {
+	}
 
 	default void writeUByte(int value) throws IOException {
 		writeByte((byte) value);
