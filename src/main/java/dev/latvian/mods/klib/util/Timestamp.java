@@ -5,13 +5,12 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.io.IOUtils;
+import dev.latvian.mods.klib.io.ByteInput;
+import dev.latvian.mods.klib.io.ByteOutput;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -35,9 +34,9 @@ public record Timestamp(long utc, long tick) {
 		return of(Math.floorDiv(System.currentTimeMillis(), 1000L), tick);
 	}
 
-	public static Timestamp read(DataInput in) throws IOException {
-		long utc = inflateUTC(IOUtils.readVarInt(in));
-		long tick = IOUtils.readVarLong(in);
+	public static Timestamp read(ByteInput data) throws IOException {
+		long utc = inflateUTC(data.readVarInt());
+		long tick = data.readVarLong();
 		return of(utc, tick);
 	}
 
@@ -56,9 +55,9 @@ public record Timestamp(long utc, long tick) {
 
 	public static final DataType<Timestamp> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Timestamp.class);
 
-	public void write(DataOutput out) throws IOException {
-		IOUtils.writeVarLong(out, deflateUTC(utc));
-		IOUtils.writeVarLong(out, tick);
+	public void write(ByteOutput out) throws IOException {
+		out.writeVarLong(deflateUTC(utc));
+		out.writeVarLong(tick);
 	}
 
 	public boolean isNone() {
