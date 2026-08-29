@@ -7,12 +7,6 @@ import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.util.MD5;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,10 +22,10 @@ public record FileMD5(MD5 checksum, long size, Instant lastModified, boolean cha
 		MapCodec.unit(false).forGetter(FileMD5::changed)
 	).apply(instance, FileMD5::new));
 
-	public static FileMD5 read(DataInput data) throws IOException {
+	public static FileMD5 read(ByteInput data) throws IOException {
 		var checksum = MD5.read(data);
-		var size = IOUtils.readVarLong(data);
-		var lastModified = IOUtils.readExactTime(data);
+		var size = data.readVarLong();
+		var lastModified = data.readExactTime();
 		return new FileMD5(checksum, size, lastModified, false);
 	}
 
@@ -41,10 +35,9 @@ public record FileMD5(MD5 checksum, long size, Instant lastModified, boolean cha
 			var attribute = IOUtils.getAttributeBytes(fileInfo.path(), "latviandev-file-md5");
 
 			if (attribute != null) {
-				try (var data = new DataInputStream(new ByteArrayInputStream(attribute))) {
-					data.readUnsignedByte(); // Binary marker
-					return read(data);
-				}
+				var data = ByteInput.of(attribute);
+				data.readUByte(); // Binary marker
+				return read(data);
 			}
 		} catch (Exception ignored) {
 		}
@@ -73,13 +66,10 @@ public record FileMD5(MD5 checksum, long size, Instant lastModified, boolean cha
 	}
 
 	public static void save(Path file, FileMD5 metadata) throws IOException {
-		try (var bytes = new ByteArrayOutputStream();
-		     var data = new DataOutputStream(bytes)
-		) {
-			data.writeByte(0);
-			metadata.write(data);
-			IOUtils.setAttributeBytes(file, "latviandev-file-md5", bytes.toByteArray());
-		}
+		var out = ByteOutput.ofByteBuilder(16);
+		out.writeUByte(0);
+		metadata.write(out);
+		IOUtils.setAttributeBytes(file, "latviandev-file-md5", out.toByteArray());
 	}
 
 	@Nullable
@@ -95,9 +85,9 @@ public record FileMD5(MD5 checksum, long size, Instant lastModified, boolean cha
 		return null;
 	}
 
-	public void write(DataOutput data) throws IOException {
+	public void write(ByteOutput data) throws IOException {
 		checksum.write(data);
-		IOUtils.writeVarLong(data, size);
-		IOUtils.writeExactTime(data, lastModified);
+		data.writeVarLong(size);
+		data.writeExactTime(lastModified);
 	}
 }
