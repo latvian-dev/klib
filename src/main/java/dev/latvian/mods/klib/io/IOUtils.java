@@ -152,11 +152,11 @@ public interface IOUtils {
 	}
 
 	static ByteBuffer allocateTempBuffer(int maxBufferSize, long fileSize) {
-		return ByteBuffer.allocate(Math.min(maxBufferSize, (int) Math.min(Integer.MAX_VALUE, fileSize)));
+		return ByteBuffer.allocateDirect((int) Math.min(maxBufferSize, fileSize));
 	}
 
 	static ByteBuffer allocateTempBuffer(Path file) throws IOException {
-		return allocateTempBuffer(4096, Files.size(file));
+		return allocateTempBuffer(16384, Files.size(file));
 	}
 
 	static MessageDigest md(String algorithm) {
@@ -175,18 +175,26 @@ public interface IOUtils {
 		var md = md(algorithm);
 
 		try (var channel = Files.newByteChannel(file)) {
-			var buf = allocateTempBuffer(4096, size);
-			int len;
+			var buf = allocateTempBuffer(16384, size);
 
-			while ((len = channel.read(buf)) != -1) {
-				buf.flip();
-				md.update(buf);
-				buf.clear();
+			do {
+				int len = (int) Math.min(size, buf.capacity());
 
 				if (callback != null) {
 					callback.accept(len);
 				}
-			}
+
+				buf.clear().limit(len);
+
+				if (channel.read(buf) == -1) {
+					break;
+				}
+
+				buf.flip();
+
+				size -= len;
+				md.update(buf);
+			} while (size > 0L);
 
 			return md.digest();
 		}
