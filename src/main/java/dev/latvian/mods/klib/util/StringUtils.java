@@ -65,7 +65,11 @@ public interface StringUtils {
 	}
 
 	static String clock(long seconds) {
-		return "%02d:%02d:%02d ".formatted(seconds / 3600L, (seconds / 60L) % 60L, seconds % 60L);
+		if (seconds >= 3600L) {
+			return "%02d:%02d:%02d".formatted(seconds / 3600L, (seconds / 60L) % 60L, seconds % 60L);
+		} else {
+			return "%02d:%02d".formatted((seconds / 60L) % 60L, seconds % 60L);
+		}
 	}
 
 	@Nullable
