@@ -136,6 +136,22 @@ public interface StringUtils {
 		return value.toString().replace("-", "");
 	}
 
+	static boolean isHex(char c) {
+		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F';
+	}
+
+	static boolean isHex(String string) {
+		int len = string.length();
+
+		for (int i = 0; i < len; i += 2) {
+			if (!isHex(string.charAt(i))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	static String toHex(byte[] array) {
 		var chars = new byte[array.length * 2];
 

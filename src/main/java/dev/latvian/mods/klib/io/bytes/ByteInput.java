@@ -1,5 +1,6 @@
-package dev.latvian.mods.klib.io;
+package dev.latvian.mods.klib.io.bytes;
 
+import dev.latvian.mods.klib.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -17,19 +18,19 @@ import java.util.UUID;
 @FunctionalInterface
 public interface ByteInput {
 	static ByteInput of(InputStream in) {
-		return new OfStream(in);
+		return new StreamByteInput(in);
 	}
 
 	static ByteInput of(DataInput in) {
-		return new OfData(in);
+		return new DataByteInput(in);
 	}
 
 	static ByteInput of(ByteBuffer in) {
-		return new OfBuffer(in, in.position());
+		return new ByteBufferByteInput(in, in.position());
 	}
 
 	static ByteInput of(DataInputStream in) {
-		return new OfData(in);
+		return new DataByteInput(in);
 	}
 
 	static ByteInput of(byte[] bytes) {
@@ -41,205 +42,6 @@ public interface ByteInput {
 			}
 		} else {
 			return of(ByteBuffer.wrap(bytes));
-		}
-	}
-
-	record OfStream(InputStream in) implements ByteInput {
-		@Override
-		public int readRaw() throws IOException {
-			return in.read();
-		}
-
-		@Override
-		public void skip(long skip) throws IOException {
-			in.skipNBytes(skip);
-		}
-
-		@Override
-		public int readAll(byte[] buffer, int offset, int len) throws IOException {
-			return in.readNBytes(buffer, offset, len);
-		}
-
-		@Override
-		public byte[] readAll() throws IOException {
-			return in.readAllBytes();
-		}
-	}
-
-	record OfData(DataInput in) implements ByteInput {
-		@Override
-		public int readRaw() throws IOException {
-			if (in instanceof InputStream stream) {
-				return stream.read();
-			} else {
-				try {
-					return in.readUnsignedByte();
-				} catch (EOFException ex) {
-					return -1;
-				}
-			}
-		}
-
-		@Override
-		public void skip(long skip) throws IOException {
-			if (in instanceof InputStream stream) {
-				stream.skipNBytes(skip);
-			} else {
-				while (skip > 0L) {
-					skip -= in.skipBytes((int) Math.min(skip, Integer.MAX_VALUE));
-				}
-			}
-		}
-
-		@Override
-		public byte readByte() throws IOException {
-			return in.readByte();
-		}
-
-		@Override
-		public int readUByte() throws IOException {
-			return in.readUnsignedByte();
-		}
-
-		@Override
-		public int readAll(byte[] buffer, int offset, int len) throws IOException {
-			if (in instanceof InputStream stream) {
-				return stream.readNBytes(buffer, offset, len);
-			} else {
-				return ByteInput.super.readAll(buffer, offset, len);
-			}
-		}
-
-		@Override
-		public int readAll(byte[] buffer) throws IOException {
-			if (in instanceof InputStream stream) {
-				return stream.readNBytes(buffer, 0, buffer.length);
-			} else {
-				return ByteInput.super.readAll(buffer, 0, buffer.length);
-			}
-		}
-
-		@Override
-		public byte[] readAll() throws IOException {
-			if (in instanceof InputStream stream) {
-				return stream.readAllBytes();
-			} else {
-				var bytes = new ByteArrayOutputStream();
-
-				try {
-					while (true) {
-						var raw = in.readUnsignedByte();
-					}
-				} catch (EOFException ex) {
-					return bytes.toByteArray();
-				}
-			}
-		}
-
-		@Override
-		public boolean readBoolean() throws IOException {
-			return in.readBoolean();
-		}
-
-		@Override
-		public short readShort() throws IOException {
-			return in.readShort();
-		}
-
-		@Override
-		public int readUShort() throws IOException {
-			return in.readUnsignedShort();
-		}
-
-		@Override
-		public int readInt() throws IOException {
-			return in.readInt();
-		}
-
-		@Override
-		public long readLong() throws IOException {
-			return in.readLong();
-		}
-
-		@Override
-		public float readFloat() throws IOException {
-			return in.readFloat();
-		}
-
-		@Override
-		public double readDouble() throws IOException {
-			return in.readDouble();
-		}
-	}
-
-	record OfBuffer(ByteBuffer in, int startingPosition) implements ByteInput {
-		@Override
-		public int readRaw() {
-			if (in.hasRemaining()) {
-				return in.get() & 0xFF;
-			} else {
-				return -1;
-			}
-		}
-
-		@Override
-		public void skip(long skip) throws IOException {
-			long pos = in.position() + skip;
-
-			if (pos > in.limit()) {
-				throw new EOFException();
-			}
-
-			in.position((int) pos);
-		}
-
-		@Override
-		public byte readByte() {
-			return in.get();
-		}
-
-		@Override
-		public int readAll(byte[] buffer, int offset, int len) {
-			int result = Math.min(in.remaining(), len);
-			in.get(buffer, offset, result);
-			return result;
-		}
-
-		@Override
-		public byte[] readAll() {
-			var bytes = new byte[in.remaining()];
-			in.get(bytes);
-			return bytes;
-		}
-
-		@Override
-		public short readShort() {
-			return in.getShort();
-		}
-
-		@Override
-		public int readUShort() {
-			return in.getShort() & 0xFFFF;
-		}
-
-		@Override
-		public int readInt() {
-			return in.getInt();
-		}
-
-		@Override
-		public long readLong() {
-			return in.getLong();
-		}
-
-		@Override
-		public float readFloat() {
-			return in.getFloat();
-		}
-
-		@Override
-		public double readDouble() {
-			return in.getDouble();
 		}
 	}
 
