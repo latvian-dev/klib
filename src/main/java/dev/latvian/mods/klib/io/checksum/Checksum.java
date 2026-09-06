@@ -1,12 +1,11 @@
 package dev.latvian.mods.klib.io.checksum;
 
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.codec.KLibCodecs;
+import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.io.bytes.ByteBufByteOutput;
 import dev.latvian.mods.klib.io.bytes.ByteInput;
 import dev.latvian.mods.klib.io.bytes.ByteOutput;
-import dev.latvian.mods.klib.util.Cast;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -18,7 +17,37 @@ public interface Checksum {
 		return checksumType.read(data);
 	}
 
-	Codec<Checksum> CODEC = KLibCodecs.or(NoChecksum.TYPE.codec, KLibCodecs.or(Cast.to(ChecksumType.TYPES.stream().filter(t -> t != NoChecksum.TYPE).map(t -> t.codec).toList())));
+	static Checksum of(String checksum) {
+		if (checksum.isEmpty()) {
+			return NoChecksum.INSTANCE;
+		}
+
+		int len = checksum.length() / 2;
+
+		for (var type : ChecksumType.TYPES) {
+			if (type.size == len) {
+				return type.of(checksum);
+			}
+		}
+
+		return NoChecksum.INSTANCE;
+	}
+
+	Codec<Checksum> CODEC = Codec.STRING.comapFlatMap(checksum -> {
+		if (checksum.isEmpty()) {
+			return DataResult.success(NoChecksum.INSTANCE);
+		}
+
+		int len = checksum.length() / 2;
+
+		for (var type : ChecksumType.TYPES) {
+			if (type.size == len) {
+				return DataResult.success(type.of(checksum));
+			}
+		}
+
+		return DataResult.error(() -> "Unknown checksum algorithm of " + checksum);
+	}, Checksum::toString);
 
 	StreamCodec<ByteBuf, Checksum> STREAM_CODEC = new StreamCodec<>() {
 		@Override
