@@ -30,7 +30,7 @@ public interface Checksum {
 			}
 		}
 
-		return NoChecksum.INSTANCE;
+		throw new IllegalArgumentException("Unknown checksum algorithm of " + checksum);
 	}
 
 	Codec<Checksum> CODEC = Codec.STRING.comapFlatMap(checksum -> {
