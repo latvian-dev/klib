@@ -35,6 +35,7 @@ public interface IOUtils {
 	UUID NIL_UUID = new UUID(0L, 0L);
 	ReentrantLock FS_LOCK = new ReentrantLock();
 	ReentrantLock ZIP_FS_LOCK = new ReentrantLock();
+	Set<StandardOpenOption> READ_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.READ);
 	Set<StandardOpenOption> WRITE_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	Set<StandardOpenOption> APPEND_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 	byte[] EMPTY_BYTE_ARRAY = new byte[0];
@@ -269,8 +270,8 @@ public interface IOUtils {
 		return resized;
 	}
 
-	static void consumeFile(Path path, long offset, long size, @Nullable LongConsumer progressConsumer, IOConsumer<ByteBuffer> dataConsumer) throws IOException {
-		try (var channel = Files.newByteChannel(path)) {
+	static void readFile(Path path, long offset, long size, @Nullable LongConsumer progressConsumer, IOConsumer<ByteBuffer> dataConsumer) throws IOException {
+		try (var channel = Files.newByteChannel(path, READ_OPEN_OPTIONS)) {
 			channel.position(offset);
 
 			var buf = allocateTempBuffer(16384, size);

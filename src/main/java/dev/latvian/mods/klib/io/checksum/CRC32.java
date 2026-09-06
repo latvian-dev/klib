@@ -37,7 +37,7 @@ public record CRC32(int a) implements Checksum {
 		public CRC32 digest(Path file, long offset, long size, @Nullable LongConsumer callback) throws IOException {
 			if (size > 0L && Files.exists(file)) {
 				var crc32 = new java.util.zip.CRC32();
-				IOUtils.consumeFile(file, offset, size, callback, crc32::update);
+				IOUtils.readFile(file, offset, size, callback, crc32::update);
 				return CRC32.of((int) crc32.getValue());
 			}
 

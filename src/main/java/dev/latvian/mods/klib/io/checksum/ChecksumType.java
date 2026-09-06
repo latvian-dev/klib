@@ -111,7 +111,7 @@ public class ChecksumType<C extends Checksum> {
 		}
 	}
 
-	public C digest(Path file, @Nullable LongConsumer callback) throws IOException {
+	public final C digest(Path file, @Nullable LongConsumer callback) throws IOException {
 		if (Files.exists(file)) {
 			long size = Files.size(file);
 
@@ -123,7 +123,7 @@ public class ChecksumType<C extends Checksum> {
 		return nil;
 	}
 
-	public C digest(FileInfo fileInfo, @Nullable LongConsumer callback) throws IOException {
+	public final C digest(FileInfo fileInfo, @Nullable LongConsumer callback) throws IOException {
 		return digest(fileInfo.path(), 0L, fileInfo.size(), callback);
 	}
 
@@ -131,7 +131,7 @@ public class ChecksumType<C extends Checksum> {
 		if (size > 0L && Files.exists(file)) {
 			try {
 				var md = MessageDigest.getInstance(algorithm);
-				IOUtils.consumeFile(file, offset, size, callback, md::update);
+				IOUtils.readFile(file, offset, size, callback, md::update);
 				return of(md.digest());
 			} catch (NoSuchAlgorithmException ex) {
 				throw new IOException(ex);
@@ -153,6 +153,10 @@ public class ChecksumType<C extends Checksum> {
 		}
 
 		return nil;
+	}
+
+	public final C digest(byte[] input) {
+		return digest(input, 0, input.length);
 	}
 
 	public C read(ByteInput data) throws IOException {
