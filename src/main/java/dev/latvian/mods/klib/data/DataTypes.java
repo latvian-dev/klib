@@ -18,6 +18,7 @@ import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.InterpolationType;
 import dev.latvian.mods.klib.io.CompressionMethod;
+import dev.latvian.mods.klib.io.checksum.CRC32;
 import dev.latvian.mods.klib.io.checksum.Checksum;
 import dev.latvian.mods.klib.io.checksum.MD5;
 import dev.latvian.mods.klib.io.checksum.SHA1;
@@ -175,6 +176,7 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("screen_corner"), ScreenCorner.DATA_TYPE);
 		DataType.register(KLibMod.id("timestamp"), Timestamp.DATA_TYPE);
 		DataType.register(KLibMod.id("checksum"), Checksum.DATA_TYPE);
+		DataType.register(KLibMod.id("crc32"), CRC32.DATA_TYPE);
 		DataType.register(KLibMod.id("md5"), MD5.DATA_TYPE);
 		DataType.register(KLibMod.id("sha1"), SHA1.DATA_TYPE);
 		DataType.register(KLibMod.id("sha256"), SHA256.DATA_TYPE);

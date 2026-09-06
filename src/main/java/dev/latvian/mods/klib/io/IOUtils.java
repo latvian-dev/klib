@@ -19,8 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -39,6 +37,7 @@ public interface IOUtils {
 	ReentrantLock ZIP_FS_LOCK = new ReentrantLock();
 	Set<StandardOpenOption> WRITE_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	Set<StandardOpenOption> APPEND_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+	byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 	static long getSize(Path path) {
 		try {
@@ -85,7 +84,7 @@ public interface IOUtils {
 		var time = Files.getLastModifiedTime(path);
 
 		try {
-			operation.run(path);
+			operation.accept(path);
 		} finally {
 			Files.setLastModifiedTime(path, time);
 		}
@@ -160,47 +159,6 @@ public interface IOUtils {
 
 	static ByteBuffer allocateTempBuffer(Path file) throws IOException {
 		return allocateTempBuffer(16384, Files.size(file));
-	}
-
-	static MessageDigest md(String algorithm) {
-		try {
-			return MessageDigest.getInstance(algorithm);
-		} catch (NoSuchAlgorithmException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	static MessageDigest md5() {
-		return md("MD5");
-	}
-
-	static byte[] digest(String algorithm, Path file, long size, @Nullable LongConsumer callback) throws IOException {
-		var md = md(algorithm);
-
-		try (var channel = Files.newByteChannel(file)) {
-			var buf = allocateTempBuffer(16384, size);
-
-			do {
-				int len = (int) Math.min(size, buf.capacity());
-
-				if (callback != null) {
-					callback.accept(len);
-				}
-
-				buf.clear().limit(len);
-
-				if (channel.read(buf) == -1) {
-					break;
-				}
-
-				buf.flip();
-
-				size -= len;
-				md.update(buf);
-			} while (size > 0L);
-
-			return md.digest();
-		}
 	}
 
 	@Nullable
@@ -309,5 +267,32 @@ public interface IOUtils {
 		g.drawImage(image, (width - w1) / 2, (height - h1) / 2, w1, h1, null);
 		g.dispose();
 		return resized;
+	}
+
+	static void consumeFile(Path path, long offset, long size, @Nullable LongConsumer progressConsumer, IOConsumer<ByteBuffer> dataConsumer) throws IOException {
+		try (var channel = Files.newByteChannel(path)) {
+			channel.position(offset);
+
+			var buf = allocateTempBuffer(16384, size);
+
+			do {
+				int len = (int) Math.min(size, buf.capacity());
+
+				if (progressConsumer != null) {
+					progressConsumer.accept(len);
+				}
+
+				buf.clear().limit(len);
+
+				if (channel.read(buf) == -1) {
+					break;
+				}
+
+				buf.flip();
+
+				size -= len;
+				dataConsumer.accept(buf);
+			} while (size > 0L);
+		}
 	}
 }

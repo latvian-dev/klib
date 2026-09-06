@@ -83,12 +83,4 @@ public record SHA256(long a, long b, long c, long d) implements Checksum {
 		data.writeLong(c);
 		data.writeLong(d);
 	}
-
-	@Override
-	public void encode(ByteBuf buf) {
-		buf.writeLong(a);
-		buf.writeLong(b);
-		buf.writeLong(c);
-		buf.writeLong(d);
-	}
 }

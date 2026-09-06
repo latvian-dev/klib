@@ -89,14 +89,4 @@ public record SHA384(long a, long b, long c, long d, long e, long f) implements 
 		data.writeLong(e);
 		data.writeLong(f);
 	}
-
-	@Override
-	public void encode(ByteBuf buf) {
-		buf.writeLong(a);
-		buf.writeLong(b);
-		buf.writeLong(c);
-		buf.writeLong(d);
-		buf.writeLong(e);
-		buf.writeLong(f);
-	}
 }

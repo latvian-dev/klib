@@ -53,7 +53,7 @@ public record FileChecksum(Checksum checksum, long size, Instant lastModified, b
 		var lastModified = IOUtils.getLastModifiedTime(fileInfo.path());
 
 		if (existing == null || fileInfo.size() != existing.size || lastModified == null || lastModified.isAfter(existing.lastModified)) {
-			var checksum = type.digest(fileInfo, progress);
+			var checksum = type.digest(fileInfo.path(), 0L, fileInfo.size(), progress);
 
 			return new FileChecksum(
 				checksum,

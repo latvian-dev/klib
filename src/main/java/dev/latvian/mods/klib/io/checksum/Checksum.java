@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.io.checksum;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.io.bytes.ByteBufByteOutput;
 import dev.latvian.mods.klib.io.bytes.ByteInput;
 import dev.latvian.mods.klib.io.bytes.ByteOutput;
 import dev.latvian.mods.klib.util.Cast;
@@ -17,7 +18,7 @@ public interface Checksum {
 		return checksumType.read(data);
 	}
 
-	Codec<Checksum> CODEC = KLibCodecs.or(Cast.to(ChecksumType.TYPES.stream().map(t -> t.codec).toList()));
+	Codec<Checksum> CODEC = KLibCodecs.or(NoChecksum.TYPE.codec, KLibCodecs.or(Cast.to(ChecksumType.TYPES.stream().filter(t -> t != NoChecksum.TYPE).map(t -> t.codec).toList())));
 
 	StreamCodec<ByteBuf, Checksum> STREAM_CODEC = new StreamCodec<>() {
 		@Override
@@ -29,7 +30,12 @@ public interface Checksum {
 		@Override
 		public void encode(ByteBuf buf, Checksum checksum) {
 			buf.writeByte(checksum.type().id);
-			checksum.encode(buf);
+
+			try {
+				checksum.write(ByteBufByteOutput.of(buf));
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
+			}
 		}
 	};
 
@@ -48,9 +54,5 @@ public interface Checksum {
 	default void writeFully(ByteOutput data) throws IOException {
 		data.writeUByte(type().id);
 		write(data);
-	}
-
-	default void encode(ByteBuf buf) {
-		buf.writeBytes(toByteArray());
 	}
 }

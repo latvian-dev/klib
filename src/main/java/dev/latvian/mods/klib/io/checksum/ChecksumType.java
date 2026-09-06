@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.io.FileInfo;
 import dev.latvian.mods.klib.io.IOUtils;
+import dev.latvian.mods.klib.io.bytes.ByteBufByteInput;
+import dev.latvian.mods.klib.io.bytes.ByteBufByteOutput;
 import dev.latvian.mods.klib.io.bytes.ByteInput;
 import dev.latvian.mods.klib.util.StringUtils;
 import io.netty.buffer.ByteBuf;
@@ -21,6 +23,7 @@ import java.util.function.LongConsumer;
 
 public class ChecksumType<C extends Checksum> {
 	public static final List<ChecksumType<?>> TYPES = List.of(
+		NoChecksum.TYPE,
 		CRC32.TYPE,
 		MD5.TYPE,
 		SHA1.TYPE,
@@ -31,7 +34,7 @@ public class ChecksumType<C extends Checksum> {
 
 	public final int id;
 	public final String name;
-	public final String md;
+	public final String algorithm;
 	public final C nil;
 	public final int size;
 	public final Function<byte[], C> fromBytes;
@@ -51,14 +54,14 @@ public class ChecksumType<C extends Checksum> {
 	public ChecksumType(
 		int id,
 		String name,
-		String md,
+		String algorithm,
 		C nil,
 		int size,
 		Function<byte[], C> fromBytes
 	) {
 		this.id = id;
 		this.name = name;
-		this.md = md;
+		this.algorithm = algorithm;
 		this.nil = nil;
 		this.size = size;
 		this.fromBytes = fromBytes;
@@ -69,19 +72,27 @@ public class ChecksumType<C extends Checksum> {
 			} else if (string.length() == this.size * 2 && StringUtils.isHex(string)) {
 				return DataResult.success(of(StringUtils.fromHex(string)));
 			} else {
-				return DataResult.error(() -> "Invalid " + this.md + " " + string);
+				return DataResult.error(() -> "Invalid " + this.algorithm + " " + string);
 			}
 		}, checksum -> checksum.isNil() ? "" : checksum.toString());
 
 		this.streamCodec = new StreamCodec<>() {
 			@Override
 			public C decode(ByteBuf buf) {
-				return ChecksumType.this.decode(buf);
+				try {
+					return read(ByteBufByteInput.of(buf));
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
 			}
 
 			@Override
 			public void encode(ByteBuf buf, C value) {
-				value.encode(buf);
+				try {
+					value.write(ByteBufByteOutput.of(buf));
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
 			}
 		};
 	}
@@ -90,19 +101,13 @@ public class ChecksumType<C extends Checksum> {
 		return fromBytes.apply(bytes);
 	}
 
-	public C decode(ByteBuf buf) {
-		var bytes = new byte[size];
-		buf.readBytes(bytes);
-		return of(bytes);
-	}
-
 	public C of(String string) {
 		if (string.isEmpty()) {
 			return nil;
 		} else if (string.length() == size * 2 && StringUtils.isHex(string)) {
 			return of(StringUtils.fromHex(string));
 		} else {
-			throw new IllegalArgumentException("Invalid " + md + " " + string);
+			throw new IllegalArgumentException("Invalid " + algorithm + " " + string);
 		}
 	}
 
@@ -111,7 +116,7 @@ public class ChecksumType<C extends Checksum> {
 			long size = Files.size(file);
 
 			if (size > 0L) {
-				return digest(new FileInfo(file, "file", size), callback);
+				return digest(file, 0L, size, callback);
 			}
 		}
 
@@ -119,15 +124,35 @@ public class ChecksumType<C extends Checksum> {
 	}
 
 	public C digest(FileInfo fileInfo, @Nullable LongConsumer callback) throws IOException {
-		if (fileInfo.size() > 0L && Files.exists(fileInfo.path())) {
-			return of(IOUtils.digest(md, fileInfo.path(), fileInfo.size(), callback));
+		return digest(fileInfo.path(), 0L, fileInfo.size(), callback);
+	}
+
+	public C digest(Path file, long offset, long size, @Nullable LongConsumer callback) throws IOException {
+		if (size > 0L && Files.exists(file)) {
+			try {
+				var md = MessageDigest.getInstance(algorithm);
+				IOUtils.consumeFile(file, offset, size, callback, md::update);
+				return of(md.digest());
+			} catch (NoSuchAlgorithmException ex) {
+				throw new IOException(ex);
+			}
 		}
 
 		return nil;
 	}
 
-	public C digest(byte[] input) throws NoSuchAlgorithmException {
-		return of(MessageDigest.getInstance(md).digest(input));
+	public C digest(byte[] input, int offset, int len) {
+		if (len > 0) {
+			try {
+				var md = MessageDigest.getInstance(algorithm);
+				md.update(input, offset, len);
+				return of(md.digest());
+			} catch (Exception ex) {
+				throw new RuntimeException(ex.getMessage());
+			}
+		}
+
+		return nil;
 	}
 
 	public C read(ByteInput data) throws IOException {

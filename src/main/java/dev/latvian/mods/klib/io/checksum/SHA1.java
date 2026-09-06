@@ -80,11 +80,4 @@ public record SHA1(long a, long b, int c) implements Checksum {
 		data.writeLong(b);
 		data.writeInt(c);
 	}
-
-	@Override
-	public void encode(ByteBuf buf) {
-		buf.writeLong(a);
-		buf.writeLong(b);
-		buf.writeInt(c);
-	}
 }

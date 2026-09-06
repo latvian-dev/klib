@@ -77,10 +77,4 @@ public record MD5(long a, long b) implements Checksum {
 		data.writeLong(a);
 		data.writeLong(b);
 	}
-
-	@Override
-	public void encode(ByteBuf buf) {
-		buf.writeLong(a);
-		buf.writeLong(b);
-	}
 }

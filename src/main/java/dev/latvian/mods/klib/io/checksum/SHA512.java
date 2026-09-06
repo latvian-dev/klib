@@ -95,16 +95,4 @@ public record SHA512(long a, long b, long c, long d, long e, long f, long g, lon
 		data.writeLong(g);
 		data.writeLong(h);
 	}
-
-	@Override
-	public void encode(ByteBuf buf) {
-		buf.writeLong(a);
-		buf.writeLong(b);
-		buf.writeLong(c);
-		buf.writeLong(d);
-		buf.writeLong(e);
-		buf.writeLong(f);
-		buf.writeLong(g);
-		buf.writeLong(h);
-	}
 }
