@@ -17,21 +17,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
 
 public class ChecksumType<C extends Checksum> {
-	public static final List<ChecksumType<?>> TYPES = List.of(
-		NoChecksum.TYPE,
-		CRC32.TYPE,
-		MD5.TYPE,
-		SHA1.TYPE,
-		SHA256.TYPE,
-		SHA384.TYPE,
-		SHA512.TYPE
-	);
-
 	public final int id;
 	public final String name;
 	public final String algorithm;
@@ -40,16 +29,6 @@ public class ChecksumType<C extends Checksum> {
 	public final Function<byte[], C> fromBytes;
 	public final Codec<C> codec;
 	public final StreamCodec<ByteBuf, C> streamCodec;
-
-	public static ChecksumType<?> typeOf(int id) {
-		for (var type : TYPES) {
-			if (type.id == id) {
-				return type;
-			}
-		}
-
-		throw new IllegalArgumentException("Unknown type: " + id);
-	}
 
 	public ChecksumType(
 		int id,

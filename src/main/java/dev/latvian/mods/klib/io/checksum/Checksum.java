@@ -10,10 +10,31 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface Checksum {
+	List<ChecksumType<?>> TYPES = List.of(
+		NoChecksumType.TYPE,
+		CRC32.TYPE,
+		MD5.TYPE,
+		SHA1.TYPE,
+		SHA256.TYPE,
+		SHA384.TYPE,
+		SHA512.TYPE
+	);
+
+	static ChecksumType<?> typeOf(int id) {
+		for (var type : TYPES) {
+			if (type.id == id) {
+				return type;
+			}
+		}
+
+		throw new IllegalArgumentException("Unknown type: " + id);
+	}
+
 	static Checksum read(ByteInput data) throws IOException {
-		var checksumType = ChecksumType.typeOf(data.readUByte());
+		var checksumType = typeOf(data.readUByte());
 		return checksumType.read(data);
 	}
 
@@ -24,7 +45,7 @@ public interface Checksum {
 
 		int len = checksum.length() / 2;
 
-		for (var type : ChecksumType.TYPES) {
+		for (var type : TYPES) {
 			if (type.size == len) {
 				return type.of(checksum);
 			}
@@ -40,7 +61,7 @@ public interface Checksum {
 
 		int len = checksum.length() / 2;
 
-		for (var type : ChecksumType.TYPES) {
+		for (var type : TYPES) {
 			if (type.size == len) {
 				return DataResult.success(type.of(checksum));
 			}
@@ -52,7 +73,7 @@ public interface Checksum {
 	StreamCodec<ByteBuf, Checksum> STREAM_CODEC = new StreamCodec<>() {
 		@Override
 		public Checksum decode(ByteBuf buf) {
-			var type = ChecksumType.typeOf(buf.readUnsignedByte());
+			var type = typeOf(buf.readUnsignedByte());
 			return type.streamCodec.decode(buf);
 		}
 
