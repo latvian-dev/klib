@@ -67,7 +67,7 @@ public record SHA1(long a, long b, int c) implements Checksum {
 
 	@Override
 	public byte[] toByteArray() {
-		var bytes = ByteBuffer.allocate(20);
+		var bytes = ByteBuffer.allocate(type().size);
 		bytes.putLong(a);
 		bytes.putLong(b);
 		bytes.putInt(c);

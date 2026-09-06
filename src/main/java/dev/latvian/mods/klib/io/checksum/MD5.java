@@ -66,7 +66,7 @@ public record MD5(long a, long b) implements Checksum {
 
 	@Override
 	public byte[] toByteArray() {
-		var bytes = ByteBuffer.allocate(16);
+		var bytes = ByteBuffer.allocate(type().size);
 		bytes.putLong(a);
 		bytes.putLong(b);
 		return bytes.array();

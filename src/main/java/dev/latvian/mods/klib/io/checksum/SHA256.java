@@ -68,7 +68,7 @@ public record SHA256(long a, long b, long c, long d) implements Checksum {
 
 	@Override
 	public byte[] toByteArray() {
-		var bytes = ByteBuffer.allocate(64);
+		var bytes = ByteBuffer.allocate(type().size);
 		bytes.putLong(a);
 		bytes.putLong(b);
 		bytes.putLong(c);

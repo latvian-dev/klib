@@ -92,7 +92,7 @@ public record CRC32(int a) implements Checksum {
 
 	@Override
 	public byte[] toByteArray() {
-		var bytes = ByteBuffer.allocate(4);
+		var bytes = ByteBuffer.allocate(type().size);
 		bytes.putInt(a);
 		return bytes.array();
 	}

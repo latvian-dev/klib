@@ -70,7 +70,7 @@ public record SHA384(long a, long b, long c, long d, long e, long f) implements 
 
 	@Override
 	public byte[] toByteArray() {
-		var bytes = ByteBuffer.allocate(64);
+		var bytes = ByteBuffer.allocate(type().size);
 		bytes.putLong(a);
 		bytes.putLong(b);
 		bytes.putLong(c);
