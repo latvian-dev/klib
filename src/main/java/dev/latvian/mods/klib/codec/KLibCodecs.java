@@ -232,4 +232,8 @@ public interface KLibCodecs {
 	static <V> Codec<V> or(Codec<? extends V> first, Codec<? extends V> second) {
 		return new OrCodec<>((List) List.of(first, second));
 	}
+
+	static Codec<URI> relativeURI(URI base) {
+		return URI.xmap(base::resolve, base::relativize);
+	}
 }
