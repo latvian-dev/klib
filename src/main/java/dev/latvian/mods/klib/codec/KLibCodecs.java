@@ -236,4 +236,34 @@ public interface KLibCodecs {
 	static Codec<URI> relativeURI(URI base) {
 		return URI.xmap(base::resolve, base::relativize);
 	}
+
+	static Codec<URI> webSocketURI(Codec<URI> codec) {
+		return codec.flatXmap(uri -> {
+			try {
+				var str = uri.toString();
+
+				if (str.startsWith("ws")) {
+					return DataResult.success(uri);
+				} else if (str.startsWith("http")) {
+					return DataResult.success(java.net.URI.create("ws" + str.substring(4)));
+				}
+			} catch (Exception ignored) {
+			}
+
+			return DataResult.error(() -> "Invalid URI: " + uri);
+		}, uri -> {
+			try {
+				var str = uri.toString();
+
+				if (str.startsWith("http")) {
+					return DataResult.success(uri);
+				} else if (str.startsWith("ws")) {
+					return DataResult.success(java.net.URI.create("http" + str.substring(2)));
+				}
+			} catch (Exception ignored) {
+			}
+
+			return DataResult.error(() -> "Invalid URI: " + uri);
+		});
+	}
 }
