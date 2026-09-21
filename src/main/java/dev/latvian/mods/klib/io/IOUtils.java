@@ -1,6 +1,8 @@
 package dev.latvian.mods.klib.io;
 
+import dev.latvian.mods.klib.KLibMod;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,10 +18,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -27,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.LongConsumer;
 import java.util.function.Predicate;
@@ -105,6 +111,66 @@ public interface IOUtils {
 				deleteRecursively(dir);
 			}
 		}
+	}
+
+	static void copyDirectory(Path from, Path to, boolean excludeLocks, @Nullable LongConsumer totalSize, @Nullable LongConsumer progress) throws IOException {
+		List<Path> allPaths;
+
+		try (var stream = Files.walk(from)) {
+			allPaths = new ArrayList<>(stream.filter(p -> {
+				if (!excludeLocks) {
+					return true;
+				} else {
+					var n = p.getFileName().toString().toLowerCase(Locale.ROOT);
+					return !(n.endsWith(".lock") || n.equals("lock"));
+				}
+			}).sorted().toList());
+		}
+
+		long totalSizeNum = 0L;
+
+		for (var src : allPaths) {
+			if (Files.isDirectory(src)) {
+				var dst = to.resolve(from.relativize(src).toString());
+
+				try {
+					var attributes = Files.readAttributes(src, BasicFileAttributes.class);
+					Files.createDirectory(dst);
+					Files.getFileAttributeView(dst, BasicFileAttributeView.class).setTimes(attributes.lastModifiedTime(), attributes.lastAccessTime(), attributes.creationTime());
+				} catch (Exception ex) {
+					throw new RuntimeException("Error creating directory " + dst, ex);
+				}
+			} else if (totalSize != null && Files.isRegularFile(src)) {
+				totalSizeNum += Files.size(src);
+			}
+		}
+
+		if (totalSize != null) {
+			totalSize.accept(totalSizeNum);
+		}
+
+		var list = new ArrayList<CompletableFuture<Void>>();
+
+		for (var src : allPaths) {
+			if (Files.isRegularFile(src) && Files.isReadable(src)) {
+				var relativePath = from.relativize(src);
+				var dst = to.resolve(relativePath);
+
+				list.add(CompletableFuture.runAsync(() -> {
+					try {
+						Files.copy(src, dst, StandardCopyOption.COPY_ATTRIBUTES);
+
+						if (progress != null) {
+							progress.accept(Files.size(dst));
+						}
+					} catch (Exception ex) {
+						KLibMod.LOGGER.error("Error copying " + relativePath, ex);
+					}
+				}, Util.ioPool()));
+			}
+		}
+
+		CompletableFuture.allOf(list.toArray(new CompletableFuture[0])).join();
 	}
 
 	static byte[] toByteArray(ByteBuf buf, boolean release) {

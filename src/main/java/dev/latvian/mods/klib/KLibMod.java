@@ -9,6 +9,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 public class KLibMod {
 	public static final String ID = "klib";
 	public static final String NAME = "KLib";
+	public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
 	public static ResourceLocation id(String path) {
 		return ResourceLocation.fromNamespaceAndPath(ID, path);
