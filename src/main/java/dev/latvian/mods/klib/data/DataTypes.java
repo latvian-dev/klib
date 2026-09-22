@@ -181,7 +181,9 @@ public interface DataTypes {
 		DataType.register(KLibMod.id("sha1"), SHA1.DATA_TYPE);
 		DataType.register(KLibMod.id("sha256"), SHA256.DATA_TYPE);
 		DataType.register(KLibMod.id("hex32"), Hex32.DATA_TYPE);
+		DataType.register(KLibMod.id("lenient_hex32"), Hex32.LENIENT_DATA_TYPE);
 		DataType.register(KLibMod.id("hex64"), Hex64.DATA_TYPE);
+		DataType.register(KLibMod.id("lenient_hex64"), Hex64.LENIENT_DATA_TYPE);
 		DataType.register(KLibMod.id("uint64"), UInt64.DATA_TYPE);
 		DataType.register(KLibMod.id("compression_method"), CompressionMethod.DATA_TYPE);
 	}
