@@ -69,4 +69,8 @@ public record Hex32(int raw) {
 	public @NotNull String toLenientString() {
 		return raw == 0L ? "" : "%08X".formatted(raw);
 	}
+
+	public boolean is(int flag) {
+		return (raw & flag) != 0;
+	}
 }

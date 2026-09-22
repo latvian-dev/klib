@@ -77,4 +77,8 @@ public record Hex64(long raw) {
 	public int getLeastSignificantBits() {
 		return (int) (raw & 0xFFFFFFFFL);
 	}
+
+	public boolean is(long flag) {
+		return (raw & flag) != 0L;
+	}
 }
