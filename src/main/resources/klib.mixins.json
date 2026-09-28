@@ -4,11 +4,28 @@
 	"package": "dev.latvian.mods.klib.core.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"BlockInWorldMixin",
+		"BlockStateMixin",
+		"ClipContextMixin",
+		"ConditionalOpsMixin",
+		"EntityMixin",
+		"EntitySelectorMixin",
+		"EnumArgumentMixin",
+		"FriendlyByteBufMixin",
+		"ItemEntityMixin",
+		"LevelMixin",
+		"LivingEntityMixin",
+		"PlayerMixin",
 		"RandomSourceMixin",
-		"StreamCodecMixin"
+		"ServerLevelMixin",
+		"StreamCodecMixin",
+		"StyleMixin"
 	],
 	"client": [
+		"CameraMixin",
+		"ClientLevelMixin",
 		"GameRendererMixin",
+		"LocalPlayerMixin",
 		"PoseStackPoseMixin",
 		"VertexConsumerMixin"
 	],

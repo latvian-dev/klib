@@ -6,11 +6,17 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.util.UndashedUuid;
+import dev.latvian.mods.klib.util.NameProvider;
 import dev.latvian.mods.klib.util.StringUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.commands.arguments.TimeArgument;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
 import java.time.Instant;
@@ -140,12 +146,15 @@ public interface KLibCodecs {
 		}
 	});
 
-	static <E> Codec<E> anyEnumCodec(E[] enumValues, Function<E, String> nameGetter) {
-		var map = new HashMap<String, E>(enumValues.length);
+	static <E> Codec<E> anyEnum(E[] enumValues, @Nullable NameProvider<E> nameProvider) {
+		var map0 = new HashMap<String, E>(enumValues.length);
+		var provider = NameProvider.resolve(nameProvider);
 
 		for (var value : enumValues) {
-			map.put(nameGetter.apply(value), value);
+			map0.put(provider.provideName(value), value);
 		}
+
+		var map = Map.copyOf(map0);
 
 		return Codec.STRING.comapFlatMap(s -> {
 			var e = map.get(s);
@@ -155,11 +164,11 @@ public interface KLibCodecs {
 			}
 
 			return DataResult.error(() -> "Unknown enum value: " + s);
-		}, nameGetter);
+		}, provider.toFunction());
 	}
 
-	static <E> Codec<E> anyEnumCodec(E[] enumValues) {
-		return anyEnumCodec(enumValues, (Function) DEFAULT_NAME_GETTER);
+	static <E> Codec<E> anyEnum(E[] enumValues) {
+		return anyEnum(enumValues, null);
 	}
 
 	static <K, V> Codec<V> map(Supplier<Map<K, V>> mapGetter, Codec<K> keyCodec, Function<V, K> keyGetter) {
@@ -231,6 +240,49 @@ public interface KLibCodecs {
 
 	static <V> Codec<V> or(Codec<? extends V> first, Codec<? extends V> second) {
 		return new OrCodec<>((List) List.of(first, second));
+	}
+
+	static Codec<ResourceLocation> commonIdentifier(String namespace) {
+		if (namespace.isEmpty()) {
+			return ResourceLocation.CODEC;
+		}
+
+		var commonIdentifier = ResourceLocation.fromNamespaceAndPath(namespace, "x");
+
+		return Codec.STRING.comapFlatMap(input -> {
+			try {
+				if (input.indexOf(':') == -1) {
+					return DataResult.success(commonIdentifier.withPath(input));
+				} else {
+					return DataResult.success(ResourceLocation.parse(input));
+				}
+			} catch (ResourceLocationException var2) {
+				return DataResult.error(() -> "Not a valid resource location: " + input + " " + var2.getMessage());
+			}
+		}, id -> id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString());
+	}
+
+	static <T> Codec<ResourceKey<T>> commonResourceKey(ResourceKey<? extends Registry<T>> root, String namespace) {
+		if (namespace.isEmpty()) {
+			return ResourceKey.codec(root);
+		}
+
+		var commonIdentifier = ResourceLocation.fromNamespaceAndPath(namespace, "x");
+
+		return Codec.STRING.comapFlatMap(input -> {
+			try {
+				if (input.indexOf(':') == -1) {
+					return DataResult.success(ResourceKey.create(root, commonIdentifier.withPath(input)));
+				} else {
+					return DataResult.success(ResourceKey.create(root, ResourceLocation.parse(input)));
+				}
+			} catch (ResourceLocationException var2) {
+				return DataResult.error(() -> "Not a valid resource location: " + input + " " + var2.getMessage());
+			}
+		}, key -> {
+			var id = key.location();
+			return id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString();
+		});
 	}
 
 	static Codec<URI> relativeURI(URI base) {

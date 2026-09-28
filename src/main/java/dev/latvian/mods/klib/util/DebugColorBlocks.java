@@ -111,7 +111,7 @@ public enum DebugColorBlocks implements StringRepresentable {
 
 	public static final DebugColorBlocks[] VALUES = values();
 	public static final Codec<DebugColorBlocks> CODEC = StringRepresentable.fromEnum(() -> VALUES);
-	public static final StreamCodec<ByteBuf, DebugColorBlocks> STREAM_CODEC = KLibStreamCodecs.enumValue(VALUES);
+	public static final StreamCodec<ByteBuf, DebugColorBlocks> STREAM_CODEC = KLibStreamCodecs.anyEnum(VALUES);
 	public static final DataType<DebugColorBlocks> DATA_TYPE = DataType.of(VALUES);
 
 	public final String name;

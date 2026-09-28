@@ -8,8 +8,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 
 public record BlendFactorPair(SourceFactor src, DestFactor dst) {
-	public static final Codec<SourceFactor> SRC_FACTOR_CODEC = KLibCodecs.anyEnumCodec(SourceFactor.values());
-	public static final Codec<DestFactor> DST_FACTOR_CODEC = KLibCodecs.anyEnumCodec(DestFactor.values());
+	public static final Codec<SourceFactor> SRC_FACTOR_CODEC = KLibCodecs.anyEnum(SourceFactor.values());
+	public static final Codec<DestFactor> DST_FACTOR_CODEC = KLibCodecs.anyEnum(DestFactor.values());
 
 	public static final Codec<BlendFactorPair> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		SRC_FACTOR_CODEC.fieldOf("src").forGetter(BlendFactorPair::src),

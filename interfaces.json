@@ -10,5 +10,41 @@
 	],
 	"net/minecraft/network/codec/StreamCodec": [
 		"dev/latvian/mods/klib/core/KLibStreamCodec<B, V>"
+	],
+	"net/minecraft/world/level/block/state/BlockState": [
+		"dev/latvian/mods/klib/core/KLibBlockState"
+	],
+	"net/minecraft/world/level/ClipContext": [
+		"dev/latvian/mods/klib/core/KLibClipContext"
+	],
+	"net/minecraft/world/level/Level": [
+		"dev/latvian/mods/klib/core/KLibLevel"
+	],
+	"net/minecraft/client/multiplayer/ClientLevel": [
+		"dev/latvian/mods/klib/core/KLibClientLevel"
+	],
+	"net/minecraft/server/level/ServerLevel": [
+		"dev/latvian/mods/klib/core/KLibServerLevel"
+	],
+	"net/minecraft/commands/arguments/selector/EntitySelector": [
+		"dev/latvian/mods/klib/core/KLibEntitySelector"
+	],
+	"net/minecraft/world/entity/Entity": [
+		"dev/latvian/mods/klib/core/KLibEntity"
+	],
+	"net/minecraft/world/entity/LivingEntity": [
+		"dev/latvian/mods/klib/core/KLibLivingEntity"
+	],
+	"net/minecraft/world/entity/player/Player": [
+		"dev/latvian/mods/klib/core/KLibPlayer"
+	],
+	"net/minecraft/client/player/LocalPlayer": [
+		"dev/latvian/mods/klib/core/KLibLocalPlayer"
+	],
+	"net/minecraft/client/Camera": [
+		"dev/latvian/mods/klib/core/KLibCamera"
+	],
+	"net/minecraft/network/chat/Style": [
+		"dev/latvian/mods/klib/core/KLibStyle"
 	]
 }

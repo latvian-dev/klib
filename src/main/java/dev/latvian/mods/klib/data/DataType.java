@@ -21,6 +21,7 @@ import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.MethodHandleInvoker;
+import dev.latvian.mods.klib.util.NameProvider;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Position;
@@ -99,16 +100,16 @@ public final class DataType<T> {
 		return new DataType<>(codec, streamCodec, typeClass);
 	}
 
-	public static <E extends Enum<E>> DataType<E> of(E[] values, Function<E, String> nameGetter) {
+	public static <E> DataType<E> of(E[] values, @Nullable NameProvider<E> nameProvider) {
 		return of(
-			KLibCodecs.anyEnumCodec(values, nameGetter),
-			KLibStreamCodecs.enumValue(values),
+			KLibCodecs.anyEnum(values, nameProvider),
+			KLibStreamCodecs.anyEnum(values),
 			Cast.to(values.getClass().getComponentType())
 		);
 	}
 
-	public static <E extends Enum<E>> DataType<E> of(E[] values) {
-		return of(values, (Function<E, String>) KLibCodecs.DEFAULT_NAME_GETTER);
+	public static <E> DataType<E> of(E[] values) {
+		return of(values, null);
 	}
 
 	public static <T> DataType<ResourceKey<T>> of(ResourceKey<? extends Registry<T>> registry) {

@@ -104,7 +104,7 @@ public enum CompressionMethod {
 		throw new NullPointerException("Unknown compression method " + name);
 	}
 
-	public static final Codec<CompressionMethod> CODEC = KLibCodecs.anyEnumCodec(values());
+	public static final Codec<CompressionMethod> CODEC = KLibCodecs.anyEnum(values());
 	public static final StreamCodec<ByteBuf, CompressionMethod> STREAM_CODEC = ByteBufCodecs.idMapper(CompressionMethod::of, m -> m.id);
 	public static final DataType<CompressionMethod> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, CompressionMethod.class);
 

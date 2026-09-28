@@ -6,14 +6,15 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.codec.KLibCodecs;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
@@ -22,25 +23,43 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public interface ID {
-	Codec<ResourceLocation> CODEC = Codec.STRING.xmap(ID::idFromString, ID::idToString);
-	StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ID::idFromString, ID::idToString);
+	ResourceLocation EMPTY = ResourceLocation.withDefaultNamespace("empty");
+	ResourceLocation EMPTY_JAVA_ID = ResourceLocation.fromNamespaceAndPath("java", "empty");
+	ResourceLocation EMPTY_KLIB_ID = ResourceLocation.fromNamespaceAndPath(KLib.ID, "empty");
+	ResourceLocation EMPTY_VIDLIB_ID = ResourceLocation.fromNamespaceAndPath("vidlib", "empty");
+	ResourceLocation EMPTY_VIDEO_ID = ResourceLocation.fromNamespaceAndPath("video", "empty");
+	ResourceLocation EMPTY_JOML_ID = ResourceLocation.fromNamespaceAndPath("joml", "empty");
+
+	Codec<ResourceLocation> CODEC = KLibCodecs.commonIdentifier("minecraft");
+	StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = KLibStreamCodecs.commonIdentifier("minecraft");
 	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ResourceLocation.class);
-	StreamCodec<RegistryFriendlyByteBuf, ResourceLocation> REGISTRY_STREAM_CODEC = Cast.to(STREAM_CODEC);
 
 	static ResourceLocation mc(String path) {
-		return ResourceLocation.withDefaultNamespace(path);
+		return EMPTY.withPath(path);
 	}
 
 	static ResourceLocation java(String path) {
-		return ResourceLocation.fromNamespaceAndPath("java", path);
+		return EMPTY_JAVA_ID.withPath(path);
+	}
+
+	static ResourceLocation klib(String path) {
+		return EMPTY_KLIB_ID.withPath(path);
+	}
+
+	static ResourceLocation vidlib(String path) {
+		return EMPTY_VIDLIB_ID.withPath(path);
 	}
 
 	static ResourceLocation video(String path) {
-		return ResourceLocation.fromNamespaceAndPath("video", path);
+		return EMPTY_VIDEO_ID.withPath(path);
+	}
+
+	static ResourceLocation joml(String path) {
+		return EMPTY_JOML_ID.withPath(path);
 	}
 
 	static ResourceLocation idFromString(String string) {
-		return string.indexOf(':') == -1 ? ResourceLocation.withDefaultNamespace(string) : ResourceLocation.parse(string);
+		return ResourceLocation.tryParse(string);
 	}
 
 	static String idToString(ResourceLocation id) {

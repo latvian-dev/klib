@@ -69,6 +69,7 @@ public interface KMath {
 		}
 	}
 
+	AABB INFINITE = new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
 	Vec3 CENTER_VEC3 = new Vec3(0.5D, 0.5D, 0.5D);
 	Vec3 ONE_VEC3 = new Vec3(1D, 1D, 1D);
@@ -451,5 +452,9 @@ public interface KMath {
 
 	static float linearizedBezierY(float t, float x1, float y1, float x2, float y2) {
 		return linearizedBezierY(t, x1, y1, x2, y2, 8, 16);
+	}
+
+	static AABB infiniteAABB() {
+		return INFINITE;
 	}
 }

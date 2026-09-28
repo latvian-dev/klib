@@ -1,6 +1,6 @@
 package dev.latvian.mods.klib.io;
 
-import dev.latvian.mods.klib.KLibMod;
+import dev.latvian.mods.klib.KLib;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
@@ -164,7 +164,7 @@ public interface IOUtils {
 							progress.accept(Files.size(dst));
 						}
 					} catch (Exception ex) {
-						KLibMod.LOGGER.error("Error copying " + relativePath, ex);
+						KLib.LOGGER.error("Error copying " + relativePath, ex);
 					}
 				}, Util.ioPool()));
 			}

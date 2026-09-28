@@ -7,7 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.FrameGraphSetupEvent;
 
-@EventBusSubscriber(modid = KLibMod.ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = KLib.ID, value = Dist.CLIENT)
 public class KLibClientEventHandler {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void setup(FrameGraphSetupEvent event) {
