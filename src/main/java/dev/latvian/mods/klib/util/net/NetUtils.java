@@ -7,6 +7,7 @@ import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.util.FastBufferedInputStream;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -57,12 +58,16 @@ public interface NetUtils {
 		return HTTP_REQUEST_BASE.get().copy();
 	}
 
+	static InputStream decode(HttpResponse<InputStream> response) throws IOException {
+		var encoding = response.headers().firstValue("Content-Encoding").orElse("");
+		return CompressionMethod.of(encoding).in(new FastBufferedInputStream(response.body()));
+	}
+
 	static HttpResponseData send(HttpRequest request, boolean responseBody) throws IOException, InterruptedException {
 		if (responseBody) {
 			var response = send(request, HttpResponse.BodyHandlers.ofInputStream());
-			var encoding = response.headers().firstValue("Content-Encoding").orElse("");
 
-			try (var in = CompressionMethod.of(encoding).in(new FastBufferedInputStream(response.body()))) {
+			try (var in = decode(response)) {
 				return new HttpResponseData(response, response.statusCode(), in.readAllBytes());
 			}
 		} else {
