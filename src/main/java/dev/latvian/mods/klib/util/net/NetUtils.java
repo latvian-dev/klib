@@ -24,22 +24,19 @@ public interface NetUtils {
 
 	Semaphore HTTP_SEMAPHORE = new Semaphore(100);
 
-	Executor EXECUTOR = command -> {
+	Executor EXECUTOR = command -> Async.EXECUTOR.execute(() -> {
 		try {
 			HTTP_SEMAPHORE.acquire();
 
-			Async.EXECUTOR.execute(() -> {
-				try {
-					command.run();
-				} finally {
-					HTTP_SEMAPHORE.release();
-				}
-			});
-			command.run();
+			try {
+				command.run();
+			} finally {
+				HTTP_SEMAPHORE.release();
+			}
 		} catch (InterruptedException ex) {
 			KLib.LOGGER.error("HTTP call interrupted", ex);
 		}
-	};
+	});
 
 	HttpClient CLIENT = HttpClient.newBuilder()
 		.version(HttpClient.Version.HTTP_1_1)
