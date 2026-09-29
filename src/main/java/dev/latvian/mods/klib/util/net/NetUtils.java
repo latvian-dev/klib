@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.util.net;
 
 import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.io.CompressionMethod;
-import dev.latvian.mods.klib.util.Async;
 import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.util.FastBufferedInputStream;
 
@@ -16,7 +15,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 
 public interface NetUtils {
@@ -24,23 +22,8 @@ public interface NetUtils {
 
 	Semaphore HTTP_SEMAPHORE = new Semaphore(100);
 
-	Executor EXECUTOR = command -> Async.EXECUTOR.execute(() -> {
-		try {
-			HTTP_SEMAPHORE.acquire();
-
-			try {
-				command.run();
-			} finally {
-				HTTP_SEMAPHORE.release();
-			}
-		} catch (InterruptedException ex) {
-			KLib.LOGGER.error("HTTP call interrupted", ex);
-		}
-	});
-
 	HttpClient CLIENT = HttpClient.newBuilder()
 		.version(HttpClient.Version.HTTP_1_1)
-		.executor(EXECUTOR)
 		.followRedirects(HttpClient.Redirect.ALWAYS)
 		.connectTimeout(Duration.ofSeconds(30L))
 		.build();
