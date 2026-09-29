@@ -4,6 +4,7 @@ import net.minecraft.util.StringRepresentable;
 
 public enum PlatformType implements StringRepresentable {
 	NEOFORGE("neoforge"),
+	BUKKIT("bukkit"),
 	OTHER("other");
 
 	private final String name;

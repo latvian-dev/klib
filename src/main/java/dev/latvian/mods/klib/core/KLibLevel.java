@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.core;
 
 import com.mojang.brigadier.context.CommandContext;
 import dev.latvian.mods.klib.entity.EntityUtils;
-import dev.latvian.mods.klib.util.IntOrUUID;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -15,27 +14,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public interface KLibLevel {
+	default Level klib$self() {
+		return (Level) this;
+	}
+
 	default float klib$getDelta() {
 		return 1F;
 	}
 
-	@Nullable
-	default Entity klib$getEntityByUUID(UUID uuid) {
-		throw new NoMixinException(this);
-	}
-
-	@Nullable
-	default Entity klib$getEntity(IntOrUUID id) {
-		return id.getEntity((Level) this);
-	}
-
 	default Iterable<Entity> klib$allEntities() {
-		return ((Level) this).getEntities((Entity) null, AABB.INFINITE, Entity::isAlive);
+		return klib$self().getEntities((Entity) null, AABB.INFINITE, Entity::isAlive);
 	}
 
 	default Iterable<LivingEntity> klib$allLivingEntities() {
@@ -69,7 +61,7 @@ public interface KLibLevel {
 	default List<Player> klib$selectPlayers(EntitySelector selector) {
 		var list = new ArrayList<Player>(1);
 
-		for (var player : ((Level) this).players()) {
+		for (var player : klib$self().players()) {
 			if (selector.test(player)) {
 				list.add(player);
 			}
@@ -83,7 +75,7 @@ public interface KLibLevel {
 	}
 
 	default List<LivingEntity> klib$getDamageableEntities(@Nullable Entity ignoredEntity, AABB box) {
-		return (List) ((Level) this).getEntities(ignoredEntity, box, EntityUtils::isDamageable);
+		return (List) klib$self().getEntities(ignoredEntity, box, EntityUtils::isDamageable);
 	}
 
 	default void klib$discardAll(Predicate<Entity> filter) {
@@ -106,5 +98,13 @@ public interface KLibLevel {
 
 	default boolean klib$getTickDayTime() {
 		return true;
+	}
+
+	default void klib$setDayTime(long time) {
+		throw new NoMixinException(this);
+	}
+
+	default boolean klib$isLocalServer() {
+		return false;
 	}
 }

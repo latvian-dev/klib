@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.entity;
 
 import dev.latvian.mods.klib.math.Rotation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,9 +10,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface EntityUtils {
@@ -132,7 +135,22 @@ public interface EntityUtils {
 		};
 	}
 
-	private static Vec3 getLeashOffset(Entity entity, float delta) {
+	static Vec3 getLeashOffset(Entity entity, float delta) {
 		return entity instanceof Leashable ? entity.getLeashOffset(delta) : new Vec3(0D, entity.getEyeHeight(), entity.getBbWidth() * 0.4F);
+	}
+
+	default <T extends Entity> T summon(Level level, EntityType<T> type, EntityType.EntityFactory<T> factory, Consumer<T> callback) {
+		var entity = factory.create(type, level);
+
+		if (entity != null && !level.isClientSide()) {
+			callback.accept(entity);
+			level.addFreshEntity(entity);
+		}
+
+		return entity;
+	}
+
+	default <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
+		return summon(level, type, type.factory, callback);
 	}
 }

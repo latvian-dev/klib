@@ -27,4 +27,17 @@ public interface KLibEntity {
 	default Line klib$ray(float delta) {
 		return klib$ray(4.5D, delta);
 	}
+
+	default float klib$getHealth(float delta) {
+		return 1F;
+	}
+
+	default float klib$getMaxHealth(float delta) {
+		return 1F;
+	}
+
+	default float klib$getRelativeHealth(float delta) {
+		float max = klib$getMaxHealth(delta);
+		return max > 0F ? Math.clamp(klib$getHealth(delta) / max, 0F, 1F) : 0F;
+	}
 }

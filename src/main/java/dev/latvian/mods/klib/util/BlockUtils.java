@@ -4,6 +4,7 @@ import dev.latvian.mods.klib.block.ConnectedBlock;
 import dev.latvian.mods.klib.block.PositionedBlock;
 import dev.latvian.mods.klib.block.filter.SimpleBlockPredicate;
 import dev.latvian.mods.klib.core.KLibBlockState;
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -12,10 +13,12 @@ import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.BarrierBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.CarpetBlock;
 import net.minecraft.world.level.block.CrossCollisionBlock;
@@ -35,13 +38,16 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public interface BlockUtils {
 	Reference2FloatMap<BlockState> DENSITY = new Reference2FloatOpenHashMap<>();
@@ -242,5 +248,21 @@ public interface BlockUtils {
 		}
 
 		return bpos.getY() + state.getCollisionShape(level, bpos).max(Direction.Axis.Y);
+	}
+
+	static void setBlockFast(Level level, BlockPos pos, BlockState state) {
+		level.setBlock(pos, state, Block.UPDATE_CLIENTS, 0);
+	}
+
+	static void setBlockFast(Level level, BlockPos pos, Block block) {
+		setBlockFast(level, pos, block.defaultBlockState());
+	}
+
+	static Stream<LevelChunk> getChunks(Level level) {
+		return PlatformHelper.CURRENT.getChunks(level);
+	}
+
+	static Stream<BlockEntity> getAllBlockEntities(Level level) {
+		return getChunks(level).flatMap(c -> c.getBlockEntities().values().stream());
 	}
 }

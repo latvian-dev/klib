@@ -7,4 +7,14 @@ public interface KLibLivingEntity extends KLibEntity {
 	default LivingEntity klib$self() {
 		return (LivingEntity) this;
 	}
+
+	@Override
+	default float klib$getHealth(float delta) {
+		return klib$self().getHealth();
+	}
+
+	@Override
+	default float klib$getMaxHealth(float delta) {
+		return klib$self().getMaxHealth();
+	}
 }
