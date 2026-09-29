@@ -66,7 +66,8 @@ public interface EntityUtils {
 	}
 
 	static float getRelativeHealth(Entity entity) {
-		return Math.clamp(getHealth(entity) / getMaxHealth(entity), 0F, 1F);
+		float max = getMaxHealth(entity);
+		return max > 0F ? Math.clamp(getHealth(entity) / max, 0F, 1F) : 0F;
 	}
 
 	static boolean hasItem(Entity entity, Predicate<ItemStack> ingredient) {
