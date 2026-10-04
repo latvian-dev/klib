@@ -72,7 +72,10 @@ public record FileChecksum(Checksum checksum, long size, Instant lastModified, I
 
 	public static FileChecksum loadAndSave(ChecksumType<?> type, Path path, @Nullable LongConsumer progress) throws IOException {
 		var attributes = Files.readAttributes(path, BasicFileAttributes.class);
+		return loadAndSave(type, path, attributes, progress);
+	}
 
+	public static FileChecksum loadAndSave(ChecksumType<?> type, Path path, BasicFileAttributes attributes, @Nullable LongConsumer progress) throws IOException {
 		var meta = load(type, new FileInfo(path, "", attributes.size()), progress);
 
 		if (meta.changed()) {
