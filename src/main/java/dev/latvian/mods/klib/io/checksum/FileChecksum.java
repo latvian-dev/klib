@@ -1,9 +1,5 @@
 package dev.latvian.mods.klib.io.checksum;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.io.FileInfo;
 import dev.latvian.mods.klib.io.IOUtils;
 import dev.latvian.mods.klib.io.bytes.ByteInput;
@@ -13,29 +9,26 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.function.LongConsumer;
 
-public record FileChecksum(Checksum checksum, long size, Instant lastModified, boolean changed) {
-	public static final Codec<FileChecksum> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		Checksum.CODEC.fieldOf("checksum").forGetter(FileChecksum::checksum),
-		Codec.LONG.fieldOf("size").forGetter(FileChecksum::size),
-		KLibCodecs.INSTANT.fieldOf("last_modified").forGetter(FileChecksum::lastModified),
-		MapCodec.unit(false).forGetter(FileChecksum::changed)
-	).apply(instance, FileChecksum::new));
+public record FileChecksum(Checksum checksum, long size, Instant lastModified, Instant lastWritten, boolean changed) {
+	public static final Duration REFRESH_TIME = Duration.ofDays(3L);
 
 	public static FileChecksum read(ChecksumType<?> type, ByteInput data) throws IOException {
 		var checksum = type.read(data);
 		var size = data.readVarLong();
 		var lastModified = data.readExactTime();
-		return new FileChecksum(checksum, size, lastModified, false);
+		var lastWritten = data.readExactTime();
+		return new FileChecksum(checksum, size, lastModified, lastWritten, false);
 	}
 
 	@Nullable
-	public static FileChecksum loadExisting(ChecksumType<?> type, FileInfo fileInfo) {
+	public static FileChecksum loadExisting(ChecksumType<?> type, Path path) {
 		try {
-			var attribute = IOUtils.getAttributeBytes(fileInfo.path(), "latviandev-file-" + type.name);
+			var attribute = IOUtils.getAttributeBytes(path, type.attribute);
 
 			if (attribute != null) {
 				var data = ByteInput.of(attribute);
@@ -49,16 +42,18 @@ public record FileChecksum(Checksum checksum, long size, Instant lastModified, b
 	}
 
 	public static FileChecksum load(ChecksumType<?> type, FileInfo fileInfo, @Nullable LongConsumer progress) throws IOException {
-		var existing = loadExisting(type, fileInfo);
+		var now = Instant.now();
+		var existing = loadExisting(type, fileInfo.path());
 		var lastModified = IOUtils.getLastModifiedTime(fileInfo.path());
 
-		if (existing == null || fileInfo.size() != existing.size || lastModified == null || lastModified.isAfter(existing.lastModified)) {
+		if (existing == null || fileInfo.size() != existing.size || lastModified == null || lastModified.isAfter(existing.lastModified) || Duration.between(existing.lastWritten, now).compareTo(REFRESH_TIME) > 0) {
 			var checksum = type.digest(fileInfo.path(), 0L, fileInfo.size(), progress);
 
 			return new FileChecksum(
 				checksum,
 				fileInfo.size(),
 				lastModified,
+				now,
 				true
 			);
 		} else if (progress != null) {
@@ -72,25 +67,26 @@ public record FileChecksum(Checksum checksum, long size, Instant lastModified, b
 		var data = ByteOutput.ofByteBuilder();
 		data.writeUByte(0);
 		metadata.write(data);
-		IOUtils.setAttributeBytes(file, "latviandev-file-" + type.name, data.toByteArray());
+		IOUtils.setAttributeBytes(file, type.attribute, data.toByteArray());
 	}
 
-	@Nullable
-	public static FileChecksum loadChanged(ChecksumType<?> type, FileInfo fileInfo, @Nullable LongConsumer progress) throws IOException {
-		var meta = load(type, fileInfo, progress);
+	public static FileChecksum loadAndSave(ChecksumType<?> type, Path path, @Nullable LongConsumer progress) throws IOException {
+		var attributes = Files.readAttributes(path, BasicFileAttributes.class);
+
+		var meta = load(type, new FileInfo(path, "", attributes.size()), progress);
 
 		if (meta.changed()) {
-			save(type, fileInfo.path(), meta);
-			Files.setLastModifiedTime(fileInfo.path(), FileTime.from(meta.lastModified()));
-			return meta;
+			save(type, path, meta);
+			Files.setLastModifiedTime(path, attributes.lastModifiedTime());
 		}
 
-		return null;
+		return meta;
 	}
 
 	public void write(ByteOutput data) throws IOException {
 		checksum.write(data);
 		data.writeVarLong(size);
 		data.writeExactTime(lastModified);
+		data.writeExactTime(lastWritten);
 	}
 }

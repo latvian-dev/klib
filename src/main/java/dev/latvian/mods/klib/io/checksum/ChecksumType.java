@@ -23,6 +23,7 @@ import java.util.function.LongConsumer;
 public class ChecksumType<C extends Checksum> {
 	public final int id;
 	public final String name;
+	public final String attribute;
 	public final String algorithm;
 	public final C nil;
 	public final int size;
@@ -40,6 +41,7 @@ public class ChecksumType<C extends Checksum> {
 	) {
 		this.id = id;
 		this.name = name;
+		this.attribute = "latviandev_file_" + name.replaceAll("\\W", "_");
 		this.algorithm = algorithm;
 		this.nil = nil;
 		this.size = size;

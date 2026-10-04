@@ -253,22 +253,27 @@ public interface IOUtils {
 		return buffer == null ? null : buffer.array();
 	}
 
-	static boolean setAttributeBuffer(Path file, String attribute, ByteBuffer value) throws IOException {
+	static boolean setAttributeBuffer(Path file, String attribute, @Nullable ByteBuffer value) throws IOException {
 		var attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
 
 		if (attributes != null) {
-			return attributes.write(attribute, value) > 0;
+			if (value != null) {
+				return attributes.write(attribute, value) > 0;
+			} else {
+				attributes.delete(attribute);
+				return true;
+			}
 		}
 
 		return false;
 	}
 
-	static boolean setAttribute(Path file, String attribute, String value) throws IOException {
-		return setAttributeBuffer(file, attribute, Charset.defaultCharset().encode(value));
+	static boolean setAttribute(Path file, String attribute, @Nullable String value) throws IOException {
+		return setAttributeBuffer(file, attribute, value == null ? null : Charset.defaultCharset().encode(value));
 	}
 
-	static boolean setAttributeBytes(Path file, String attribute, byte[] value) throws IOException {
-		return setAttributeBuffer(file, attribute, ByteBuffer.wrap(value));
+	static boolean setAttributeBytes(Path file, String attribute, byte @Nullable [] value) throws IOException {
+		return setAttributeBuffer(file, attribute, value == null ? null : ByteBuffer.wrap(value));
 	}
 
 	static Predicate<Path> pathEndsWith(String suffix) {
