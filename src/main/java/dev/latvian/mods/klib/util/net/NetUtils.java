@@ -29,9 +29,9 @@ public interface NetUtils {
 		.build();
 
 	Lazy<HttpRequest.Builder> HTTP_REQUEST_BASE = Lazy.of(() -> HttpRequest.newBuilder()
-		.header("Accept-Language", "en-US,en;q=0.5")
-		.header("User-Agent", "KLib/" + KLib.VERSION)
-		.header("Accept-Encoding", "zstd, gzip, deflate, br")
+		.setHeader("Accept-Language", "en-US,en;q=0.5")
+		.setHeader("User-Agent", "KLib/" + KLib.VERSION)
+		.setHeader("Accept-Encoding", "zstd, gzip, deflate, br")
 	);
 
 	static HttpRequest.Builder newRequest() {
