@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.util.net;
 
 import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.io.CompressionMethod;
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.util.FastBufferedInputStream;
 
@@ -30,7 +31,7 @@ public interface NetUtils {
 
 	Lazy<HttpRequest.Builder> HTTP_REQUEST_BASE = Lazy.of(() -> HttpRequest.newBuilder()
 		.setHeader("Accept-Language", "en-US,en;q=0.5")
-		.setHeader("User-Agent", "KLib/" + KLib.VERSION)
+		.setHeader("User-Agent", "KLib/" + KLib.VERSION + " (" + PlatformHelper.CURRENT.getPlatform().getSerializedName() + ")")
 		.setHeader("Accept-Encoding", "zstd, gzip, deflate, br")
 	);
 
