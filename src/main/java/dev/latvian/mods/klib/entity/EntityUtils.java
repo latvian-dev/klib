@@ -1,7 +1,10 @@
 package dev.latvian.mods.klib.entity;
 
+import dev.latvian.mods.klib.entity.filter.EntityTypeFilter;
 import dev.latvian.mods.klib.math.Rotation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,9 +12,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface EntityUtils {
@@ -132,7 +137,56 @@ public interface EntityUtils {
 		};
 	}
 
-	private static Vec3 getLeashOffset(Entity entity, float delta) {
+	static Vec3 getLeashOffset(Entity entity, float delta) {
 		return entity instanceof Leashable leashable ? leashable.getLeashOffset(delta) : new Vec3(0D, entity.getEyeHeight(), entity.getBbWidth() * 0.4F);
+	}
+
+	default <T extends Entity> T summon(Level level, EntityType<T> type, EntityType.EntityFactory<T> factory, Consumer<T> callback) {
+		var entity = factory.create(type, level);
+
+		if (entity != null && !level.isClientSide()) {
+			callback.accept(entity);
+			level.addFreshEntity(entity);
+		}
+
+		return entity;
+	}
+
+	default <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
+		return summon(level, type, type.factory, callback);
+	}
+
+	static int discardAll(ServerLevel level, Predicate<Entity> filter) {
+		int count = 0;
+
+		for (var entity : level.getAllEntities()) {
+			if (filter.test(entity)) {
+				entity.discard();
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	static int discardAll(ServerLevel level, EntityType<?> type) {
+		return discardAll(level, new EntityTypeFilter(type));
+	}
+
+	static int killAll(ServerLevel level, Predicate<Entity> filter) {
+		int count = 0;
+
+		for (var entity : level.getAllEntities()) {
+			if (filter.test(entity)) {
+				entity.kill(level);
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	static int killAll(ServerLevel level, EntityType<?> type) {
+		return killAll(level, new EntityTypeFilter(type));
 	}
 }

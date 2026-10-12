@@ -65,7 +65,11 @@ public interface StringUtils {
 	}
 
 	static String clock(long seconds) {
-		return "%02d:%02d:%02d ".formatted(seconds / 3600L, (seconds / 60L) % 60L, seconds % 60L);
+		if (seconds >= 3600L) {
+			return "%02d:%02d:%02d".formatted(seconds / 3600L, (seconds / 60L) % 60L, seconds % 60L);
+		} else {
+			return "%02d:%02d".formatted((seconds / 60L) % 60L, seconds % 60L);
+		}
 	}
 
 	@Nullable
@@ -130,6 +134,22 @@ public interface StringUtils {
 
 	static String uuidToString(UUID value) {
 		return value.toString().replace("-", "");
+	}
+
+	static boolean isHex(char c) {
+		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F';
+	}
+
+	static boolean isHex(String string) {
+		int len = string.length();
+
+		for (int i = 0; i < len; i += 2) {
+			if (!isHex(string.charAt(i))) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	static String toHex(byte[] array) {

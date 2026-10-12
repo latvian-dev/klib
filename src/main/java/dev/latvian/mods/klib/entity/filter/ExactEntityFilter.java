@@ -30,6 +30,6 @@ public record ExactEntityFilter(IntOrUUID entityId) implements EntityFilter {
 	@Override
 	@Nullable
 	public Entity getFirst(Level level) {
-		return level.klib$getEntity(entityId);
+		return entityId.getEntity(level);
 	}
 }

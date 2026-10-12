@@ -38,10 +38,26 @@ public record Hex32(int raw) {
 
 		return DataResult.error(() -> "Invalid hex ID '" + id + "'");
 	}, Hex32::toString);
+
+	public static final Codec<Hex32> LENIENT_STRING_CODEC = Codec.STRING.comapFlatMap(id -> {
+		if (id.isEmpty()) {
+			return DataResult.success(NONE);
+		} else if (id.length() == 8) {
+			try {
+				return DataResult.success(of(Integer.parseUnsignedInt(id, 16)));
+			} catch (Exception ignored) {
+			}
+		}
+
+		return DataResult.error(() -> "Invalid hex ID '" + id + "'");
+	}, Hex32::toLenientString);
+
 	public static final Codec<Hex32> INT_CODEC = Codec.INT.xmap(Hex32::of, Hex32::raw);
 	public static final Codec<Hex32> CODEC = KLibCodecs.or(STRING_CODEC, INT_CODEC);
+	public static final Codec<Hex32> LENIENT_CODEC = KLibCodecs.or(LENIENT_STRING_CODEC, INT_CODEC);
 	public static final StreamCodec<ByteBuf, Hex32> STREAM_CODEC = ByteBufCodecs.INT.map(Hex32::of, Hex32::raw);
 	public static final DataType<Hex32> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	public static final DataType<Hex32> LENIENT_DATA_TYPE = DataType.of(LENIENT_CODEC, STREAM_CODEC);
 
 	public static Hex32 crc32(Path file, @Nullable LongConsumer callback) throws IOException {
 		var crc32 = new CRC32();
@@ -77,5 +93,13 @@ public record Hex32(int raw) {
 	@Override
 	public @NotNull String toString() {
 		return "%08X".formatted(raw);
+	}
+
+	public @NotNull String toLenientString() {
+		return raw == 0L ? "" : "%08X".formatted(raw);
+	}
+
+	public boolean is(int flag) {
+		return (raw & flag) != 0;
 	}
 }

@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public interface ID {
+	Identifier EMPTY = Identifier.withDefaultNamespace("empty");
 	Identifier EMPTY_JAVA_ID = Identifier.fromNamespaceAndPath("java", "empty");
 	Identifier EMPTY_KLIB_ID = Identifier.fromNamespaceAndPath(KLib.ID, "empty");
 	Identifier EMPTY_VIDLIB_ID = Identifier.fromNamespaceAndPath("vidlib", "empty");

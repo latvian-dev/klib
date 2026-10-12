@@ -1,8 +1,14 @@
 package dev.latvian.mods.klib.io;
 
+import dev.latvian.mods.klib.KLib;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -12,12 +18,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,11 +32,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.LongConsumer;
 import java.util.function.Predicate;
 
 public interface IOUtils {
 	UUID NIL_UUID = new UUID(0L, 0L);
+	ReentrantLock FS_LOCK = new ReentrantLock();
+	ReentrantLock ZIP_FS_LOCK = new ReentrantLock();
+	Set<StandardOpenOption> READ_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.READ);
 	Set<StandardOpenOption> WRITE_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	Set<StandardOpenOption> APPEND_OPEN_OPTIONS = EnumSet.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 	byte[] EMPTY_BYTE_ARRAY = new byte[0];
@@ -79,7 +91,7 @@ public interface IOUtils {
 		var time = Files.getLastModifiedTime(path);
 
 		try {
-			operation.run(path);
+			operation.accept(path);
 		} finally {
 			Files.setLastModifiedTime(path, time);
 		}
@@ -101,18 +113,68 @@ public interface IOUtils {
 		}
 	}
 
-	static byte[] toByteArray(ByteBuf buf, boolean release) {
-		int size = buf.readableBytes();
+	static void copyDirectory(Path from, Path to, boolean excludeLocks, @Nullable LongConsumer totalSize, @Nullable LongConsumer progress) throws IOException {
+		List<Path> allPaths;
 
-		if (size == 0) {
-			if (release) {
-				buf.release();
-			}
-
-			return EMPTY_BYTE_ARRAY;
+		try (var stream = Files.walk(from)) {
+			allPaths = new ArrayList<>(stream.filter(p -> {
+				if (!excludeLocks) {
+					return true;
+				} else {
+					var n = p.getFileName().toString().toLowerCase(Locale.ROOT);
+					return !(n.endsWith(".lock") || n.equals("lock"));
+				}
+			}).sorted().toList());
 		}
 
-		var bytes = new byte[size];
+		long totalSizeNum = 0L;
+
+		for (var src : allPaths) {
+			if (Files.isDirectory(src)) {
+				var dst = to.resolve(from.relativize(src).toString());
+
+				try {
+					var attributes = Files.readAttributes(src, BasicFileAttributes.class);
+					Files.createDirectory(dst);
+					Files.getFileAttributeView(dst, BasicFileAttributeView.class).setTimes(attributes.lastModifiedTime(), attributes.lastAccessTime(), attributes.creationTime());
+				} catch (Exception ex) {
+					throw new RuntimeException("Error creating directory " + dst, ex);
+				}
+			} else if (totalSize != null && Files.isRegularFile(src)) {
+				totalSizeNum += Files.size(src);
+			}
+		}
+
+		if (totalSize != null) {
+			totalSize.accept(totalSizeNum);
+		}
+
+		var list = new ArrayList<CompletableFuture<Void>>();
+
+		for (var src : allPaths) {
+			if (Files.isRegularFile(src) && Files.isReadable(src)) {
+				var relativePath = from.relativize(src);
+				var dst = to.resolve(relativePath);
+
+				list.add(CompletableFuture.runAsync(() -> {
+					try {
+						Files.copy(src, dst, StandardCopyOption.COPY_ATTRIBUTES);
+
+						if (progress != null) {
+							progress.accept(Files.size(dst));
+						}
+					} catch (Exception ex) {
+						KLib.LOGGER.error("Error copying " + relativePath, ex);
+					}
+				}, Util.ioPool()));
+			}
+		}
+
+		CompletableFuture.allOf(list.toArray(new CompletableFuture[0])).join();
+	}
+
+	static byte[] toByteArray(ByteBuf buf, boolean release) {
+		var bytes = new byte[buf.readableBytes()];
 		buf.getBytes(buf.readerIndex(), bytes);
 
 		if (release) {
@@ -159,44 +221,11 @@ public interface IOUtils {
 	}
 
 	static ByteBuffer allocateTempBuffer(int maxBufferSize, long fileSize) {
-		return ByteBuffer.allocate(Math.min(maxBufferSize, (int) Math.min(Integer.MAX_VALUE, fileSize)));
+		return ByteBuffer.allocateDirect((int) Math.min(maxBufferSize, fileSize));
 	}
 
 	static ByteBuffer allocateTempBuffer(Path file) throws IOException {
-		return allocateTempBuffer(4096, Files.size(file));
-	}
-
-	static MessageDigest md(String algorithm) {
-		try {
-			return MessageDigest.getInstance(algorithm);
-		} catch (NoSuchAlgorithmException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	static MessageDigest md5() {
-		return md("MD5");
-	}
-
-	static byte[] digest(String algorithm, Path file, long size, @Nullable LongConsumer callback) throws IOException {
-		var md = md(algorithm);
-
-		try (var channel = Files.newByteChannel(file)) {
-			var buf = allocateTempBuffer(4096, size);
-			int len;
-
-			while ((len = channel.read(buf)) != -1) {
-				buf.flip();
-				md.update(buf);
-				buf.clear();
-
-				if (callback != null) {
-					callback.accept(len);
-				}
-			}
-
-			return md.digest();
-		}
+		return allocateTempBuffer(16384, Files.size(file));
 	}
 
 	@Nullable
@@ -224,22 +253,27 @@ public interface IOUtils {
 		return buffer == null ? null : buffer.array();
 	}
 
-	static boolean setAttributeBuffer(Path file, String attribute, ByteBuffer value) throws IOException {
+	static boolean setAttributeBuffer(Path file, String attribute, @Nullable ByteBuffer value) throws IOException {
 		var attributes = Files.getFileAttributeView(file, UserDefinedFileAttributeView.class);
 
 		if (attributes != null) {
-			return attributes.write(attribute, value) > 0;
+			if (value != null) {
+				return attributes.write(attribute, value) > 0;
+			} else {
+				attributes.delete(attribute);
+				return true;
+			}
 		}
 
 		return false;
 	}
 
-	static boolean setAttribute(Path file, String attribute, String value) throws IOException {
-		return setAttributeBuffer(file, attribute, Charset.defaultCharset().encode(value));
+	static boolean setAttribute(Path file, String attribute, @Nullable String value) throws IOException {
+		return setAttributeBuffer(file, attribute, value == null ? null : Charset.defaultCharset().encode(value));
 	}
 
-	static boolean setAttributeBytes(Path file, String attribute, byte[] value) throws IOException {
-		return setAttributeBuffer(file, attribute, ByteBuffer.wrap(value));
+	static boolean setAttributeBytes(Path file, String attribute, byte @Nullable [] value) throws IOException {
+		return setAttributeBuffer(file, attribute, value == null ? null : ByteBuffer.wrap(value));
 	}
 
 	static Predicate<Path> pathEndsWith(String suffix) {
@@ -276,5 +310,61 @@ public interface IOUtils {
 		var directBuffer = ByteBuffer.allocateDirect(buffer.remaining());
 		directBuffer.put(buffer);
 		return directBuffer;
+	}
+
+	static BufferedImage resize(BufferedImage image, int width, int height) {
+		int w0 = image.getWidth();
+		int h0 = image.getHeight();
+
+		if (w0 == width && h0 == height) {
+			return image;
+		}
+
+		double ratio;
+
+		if (w0 > h0) {
+			ratio = width / (float) w0;
+		} else {
+			ratio = height / (float) h0;
+		}
+
+		int w1 = Math.clamp(Mth.ceil(w0 * ratio), 1, width);
+		int h1 = Math.clamp(Mth.ceil(h0 * ratio), 1, height);
+
+		// App.info("Resizing image from " + w0 + "x" + h0 + " to " + w1 + "x" + h1 + " with ratio " + ratio + " and target size " + width + "x" + height);
+
+		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = resized.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.drawImage(image, (width - w1) / 2, (height - h1) / 2, w1, h1, null);
+		g.dispose();
+		return resized;
+	}
+
+	static void readFile(Path path, long offset, long size, @Nullable LongConsumer progressConsumer, IOConsumer<ByteBuffer> dataConsumer) throws IOException {
+		try (var channel = Files.newByteChannel(path, READ_OPEN_OPTIONS)) {
+			channel.position(offset);
+
+			var buf = allocateTempBuffer(16384, size);
+
+			do {
+				int len = (int) Math.min(size, buf.capacity());
+
+				if (progressConsumer != null) {
+					progressConsumer.accept(len);
+				}
+
+				buf.clear().limit(len);
+
+				if (channel.read(buf) == -1) {
+					break;
+				}
+
+				buf.flip();
+
+				size -= len;
+				dataConsumer.accept(buf);
+			} while (size > 0L);
+		}
 	}
 }

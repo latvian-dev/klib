@@ -47,7 +47,7 @@ public enum CompressionMethod {
 	),
 
 	LZ4(3, "lz4",
-		in -> LZ4BlockInputStream.newBuilder().build(in),
+		LZ4BlockInputStream::new,
 		LZ4BlockOutputStream::new
 	),
 

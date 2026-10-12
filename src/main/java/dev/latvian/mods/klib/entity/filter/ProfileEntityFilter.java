@@ -32,7 +32,7 @@ public record ProfileEntityFilter(GameProfile profile) implements EntityFilter {
 	@Override
 	@Nullable
 	public Entity getFirst(Level level) {
-		var entity = level.klib$getEntityByUUID(profile.id());
+		var entity = level.getEntity(profile.id());
 
 		if (entity != null) {
 			return entity;

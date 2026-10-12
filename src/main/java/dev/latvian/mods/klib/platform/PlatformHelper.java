@@ -18,19 +18,28 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.util.BlockUtils;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Side;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class PlatformHelper {
 	public static PlatformHelper CURRENT = new PlatformHelper();
@@ -87,6 +96,9 @@ public class PlatformHelper {
 		return RegistryFriendlyByteBuf.decorator(access);
 	}
 
+	public void load(Class<? extends Annotation> annotation, Set<ElementType> elementTypes, ScannedAnnotationCallback callback) {
+	}
+
 	@Nullable
 	public Path findFile(String... path) {
 		throw new UnsupportedOperationException("Not supported on bukkit");
@@ -108,6 +120,22 @@ public class PlatformHelper {
 
 	public boolean isModLoaded(String modId) {
 		return false;
+	}
+
+	public Level getLevel(CommandSourceStack source) {
+		return source.getLevel();
+	}
+
+	public boolean isLocalServer(Level level) {
+		return level instanceof ServerLevel serverLevel && serverLevel.getServer().isSingleplayer();
+	}
+
+	public Stream<LevelChunk> getChunks(Level level) {
+		if (level instanceof ServerLevel serverLevel) {
+			return BlockUtils.getServerLevelChunks(serverLevel);
+		}
+
+		return Stream.empty();
 	}
 
 	public void collectCustomRegistries(CustomRegistryCollector registry) {

@@ -30,10 +30,26 @@ public record Hex64(long raw) {
 
 		return DataResult.error(() -> "Invalid hex ID '" + id + "'");
 	}, Hex64::toString);
+
+	public static final Codec<Hex64> LENIENT_STRING_CODEC = Codec.STRING.comapFlatMap(id -> {
+		if (id.isEmpty()) {
+			return DataResult.success(NONE);
+		} else if (id.length() == 16) {
+			try {
+				return DataResult.success(of(Long.parseUnsignedLong(id, 16)));
+			} catch (Exception ignored) {
+			}
+		}
+
+		return DataResult.error(() -> "Invalid hex ID '" + id + "'");
+	}, Hex64::toLenientString);
+
 	public static final Codec<Hex64> LONG_CODEC = Codec.LONG.xmap(Hex64::of, Hex64::raw);
 	public static final Codec<Hex64> CODEC = KLibCodecs.or(STRING_CODEC, LONG_CODEC);
+	public static final Codec<Hex64> LENIENT_CODEC = KLibCodecs.or(LENIENT_STRING_CODEC, LONG_CODEC);
 	public static final StreamCodec<ByteBuf, Hex64> STREAM_CODEC = ByteBufCodecs.LONG.map(Hex64::of, Hex64::raw);
 	public static final DataType<Hex64> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	public static final DataType<Hex64> LENIENT_DATA_TYPE = DataType.of(LENIENT_CODEC, STREAM_CODEC);
 
 	@Override
 	public int hashCode() {
@@ -50,11 +66,19 @@ public record Hex64(long raw) {
 		return "%016X".formatted(raw);
 	}
 
+	public @NotNull String toLenientString() {
+		return raw == 0L ? "" : "%016X".formatted(raw);
+	}
+
 	public int getMostSignificantBits() {
 		return (int) ((raw >> 32L) & 0xFFFFFFFFL);
 	}
 
 	public int getLeastSignificantBits() {
 		return (int) (raw & 0xFFFFFFFFL);
+	}
+
+	public boolean is(long flag) {
+		return (raw & flag) != 0L;
 	}
 }
