@@ -8,8 +8,8 @@ version = "${version}"
 displayName = "KLib"
 description = "Lat's random utility and math stuff library"
 authors = "latvian.dev"
-logoFile = "klib_logo.png"
-logoBlur = false
+iconFile = "klib_logo.png"
+iconBlur = false
 
 [[dependencies.klib]]
 modId = "neoforge"
