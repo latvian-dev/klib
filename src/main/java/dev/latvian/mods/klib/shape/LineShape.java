@@ -3,7 +3,8 @@ package dev.latvian.mods.klib.shape;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
@@ -51,12 +52,12 @@ public record LineShape(Vec3f vector) implements Shape {
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		callback.line(x, y, z, x + vector.x(), y + vector.y(), z + vector.z());
+	public void buildLines(LineVertexCallback callback) {
+		callback.line(0F, 0F, 0F, vector.x(), vector.y(), vector.z());
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 	}
 
 	@Override

@@ -1,11 +1,11 @@
 package dev.latvian.mods.klib.gl;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -45,7 +45,7 @@ public record StaticBuffers(VertexFormat format, int vertexCount, int indexCount
 
 	public void setIndexBuffer(RenderPass renderPass, RenderPipeline pipeline) {
 		if (indexBuffer == null) {
-			var buf = IndexBuffer.of(pipeline.getVertexFormatMode(), vertexCount);
+			var buf = IndexBuffer.of(pipeline.getPrimitiveTopology(), vertexCount);
 			renderPass.setIndexBuffer(buf.buffer(), buf.type());
 		} else {
 			renderPass.setIndexBuffer(indexBuffer.buffer(), indexBuffer.type());

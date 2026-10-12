@@ -4,7 +4,8 @@ import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
@@ -39,19 +40,19 @@ public record CuboidShape(Vec3f size) implements Shape {
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
+	public void buildLines(LineVertexCallback callback) {
 		float sx = size.x() / 2F;
 		float sy = size.y() / 2F;
 		float sz = size.z() / 2F;
-		CuboidBuilder.lines(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
+		callback.cuboidLines(-sx, -sy, -sz, sx, sy, sz);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 		float sx = size.x() / 2F;
 		float sy = size.y() / 2F;
 		float sz = size.z() / 2F;
-		CuboidBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
+		callback.cuboidQuads(-sx, -sy, -sz, sx, sy, sz);
 	}
 
 	@Override

@@ -1,10 +1,10 @@
 package dev.latvian.mods.klib.core;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.latvian.mods.klib.entity.PlayerInput;
 import dev.latvian.mods.klib.math.Line;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import org.lwjgl.glfw.GLFW;
 
 public interface KLibLocalPlayer extends KLibPlayer {
 	@Override
@@ -14,22 +14,23 @@ public interface KLibLocalPlayer extends KLibPlayer {
 
 	@Override
 	default Line klib$ray(double distance, float delta) {
-		return Minecraft.getInstance().gameRenderer.getMainCamera().klib$ray(distance);
+		return Minecraft.getInstance().gameRenderer.mainCamera().klib$ray(distance);
 	}
 
-	static PlayerInput fromInput(long windowId, LocalPlayer player, boolean mouse) {
+	static PlayerInput fromInput(Minecraft mc, LocalPlayer player, boolean mouse) {
 		var in = player.input.keyPresses;
+
 		// Modifiers
-		boolean shift = Minecraft.getInstance().hasShiftDown();
-		boolean control = Minecraft.getInstance().hasControlDown();
-		boolean alt = Minecraft.getInstance().hasAltDown();
-		boolean tab = GLFW.glfwGetKey(windowId, GLFW.GLFW_KEY_TAB) == GLFW.GLFW_PRESS;
+		boolean shift = mc.hasShiftDown();
+		boolean control = mc.hasControlDown();
+		boolean alt = mc.hasAltDown();
+		boolean tab = InputConstants.isKeyDown(InputConstants.KEY_TAB);
 		// Mouse
-		boolean mouseLeft = mouse && GLFW.glfwGetMouseButton(windowId, 0) == GLFW.GLFW_PRESS;
-		boolean mouseRight = mouse && GLFW.glfwGetMouseButton(windowId, 1) == GLFW.GLFW_PRESS;
-		boolean mouseMiddle = mouse && GLFW.glfwGetMouseButton(windowId, 2) == GLFW.GLFW_PRESS;
-		boolean mouseBack = mouse && GLFW.glfwGetMouseButton(windowId, 3) == GLFW.GLFW_PRESS;
-		boolean mouseNext = mouse && GLFW.glfwGetMouseButton(windowId, 4) == GLFW.GLFW_PRESS;
+		boolean mouseLeft = mouse && mc.options.keyAttack.isDown();
+		boolean mouseRight = mouse && mc.options.keyUse.isDown();
+		boolean mouseMiddle = mouse && mc.options.keyPickItem.isDown();
+		boolean mouseBack = false; // mouse && GLFW.glfwGetMouseButton(windowId, 3) == GLFW.GLFW_PRESS;
+		boolean mouseNext = false; // mouse && GLFW.glfwGetMouseButton(windowId, 4) == GLFW.GLFW_PRESS;
 
 		return PlayerInput.of(
 			// Movement

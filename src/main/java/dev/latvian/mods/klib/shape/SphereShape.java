@@ -3,7 +3,8 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
@@ -27,13 +28,13 @@ public record SphereShape(float size) implements Shape {
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildLines(x, y, z, size, callback);
+	public void buildLines(LineVertexCallback callback) {
+		SpherePoints.M.buildLines(size, callback);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildQuads(x, y, z, size, callback);
+	public void buildQuads(QuadVertexCallback callback) {
+		SpherePoints.M.buildQuads(size, callback);
 	}
 
 	@Override

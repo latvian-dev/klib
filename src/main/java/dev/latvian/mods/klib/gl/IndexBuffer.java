@@ -1,20 +1,21 @@
 package dev.latvian.mods.klib.gl;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.pipeline.IndexType;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import org.jetbrains.annotations.Nullable;
 
 public interface IndexBuffer extends AutoCloseable {
-	static IndexBuffer of(VertexFormat.Mode mode, int vertices) {
+	static IndexBuffer of(PrimitiveTopology mode, int vertices) {
 		var sequentialBuffer = RenderSystem.getSequentialBuffer(mode);
 		int indices = mode.indexCount(vertices);
 		return new SharedIndexBuffer(sequentialBuffer, vertices, indices);
 	}
 
 	static IndexBuffer of(MeshData meshData) {
-		var mode = meshData.drawState().mode();
+		var mode = meshData.drawState().primitiveTopology();
 		int vertices = meshData.drawState().vertexCount();
 		var indexBuffer = meshData.indexBuffer();
 
@@ -31,7 +32,7 @@ public interface IndexBuffer extends AutoCloseable {
 
 	GpuBuffer buffer();
 
-	VertexFormat.IndexType type();
+	IndexType type();
 
 	@Override
 	default void close() {

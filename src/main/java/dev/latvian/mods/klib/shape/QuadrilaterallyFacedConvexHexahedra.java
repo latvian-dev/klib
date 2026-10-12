@@ -10,12 +10,12 @@ import dev.latvian.mods.klib.math.Face;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Line3f;
 import dev.latvian.mods.klib.registry.DynamicType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -203,7 +203,7 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		callback.accept(npp);
 	}
 
-	public void forEachFace(VertexCallback callback) {
+	public void forEachFace(QuadVertexCallback callback) {
 		for (var face : faces) {
 			face.forEachVertex(callback);
 		}
@@ -224,20 +224,16 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		if (x == 0F && y == 0F && z == 0F) {
-			forEachEdge(callback::line);
-		} else {
-			forEachEdge(callback.withTransformedPositions(new Matrix4f().translate(x, y, z))::line);
+	public void buildLines(LineVertexCallback callback) {
+		for (var edge : edges) {
+			callback.line(edge);
 		}
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		if (x == 0F && y == 0F && z == 0F) {
-			forEachFace(callback);
-		} else {
-			forEachFace(callback.withTransformedPositions(new Matrix4f().translate(x, y, z)));
+	public void buildQuads(QuadVertexCallback callback) {
+		for (var face : faces) {
+			face.forEachVertex(callback);
 		}
 	}
 

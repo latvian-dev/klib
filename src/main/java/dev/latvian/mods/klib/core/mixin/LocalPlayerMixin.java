@@ -16,6 +16,6 @@ public abstract class LocalPlayerMixin implements KLibLocalPlayer {
 
 	@Override
 	public Line klib$ray(double distance, float delta) {
-		return minecraft.gameRenderer.getMainCamera().klib$ray(distance);
+		return minecraft.gameRenderer.mainCamera().klib$ray(distance);
 	}
 }

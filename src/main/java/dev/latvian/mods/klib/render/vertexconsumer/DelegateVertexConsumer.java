@@ -37,6 +37,11 @@ public interface DelegateVertexConsumer extends VertexConsumer {
 	}
 
 	@Override
+	default VertexConsumer setUv3(float u, float v) {
+		return this;
+	}
+
+	@Override
 	default VertexConsumer setNormal(float nx, float ny, float nz) {
 		return this;
 	}

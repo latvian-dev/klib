@@ -3,7 +3,8 @@ package dev.latvian.mods.klib.shape;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
@@ -38,69 +39,18 @@ public record CircleShape(float size) implements Shape {
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		buildLines(x, y, z, callback, size, 96);
-	}
-
-	public static void buildLines(float x, float y, float z, VertexCallback callback, float size, int detail) {
-		float r = Math.max(size / 2F, 0F);
-		double rs = Math.PI * 2D / (double) detail;
-
-		for (int i = 0; i < detail; i++) {
-			float cx = (float) (Math.cos(i * rs) * r);
-			float cz = (float) (Math.sin(i * rs) * r);
-			float nx = (float) (Math.cos((i + 1D) * rs) * r);
-			float nz = (float) (Math.sin((i + 1D) * rs) * r);
-
-			callback.line(x + cx, y, z + cz, x + nx, y, z + nz);
-		}
+	public void buildLines(LineVertexCallback callback) {
+		callback.circleLines(size, 96);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		buildTopQuads(x, y, z, callback, size, 96);
-	}
-
-	public static void buildTopQuads(float x, float y, float z, VertexCallback callback, float size, int detail) {
-		float r = Math.max(size / 2F, 0F);
-		double rs = Math.PI * 2D / (double) detail;
-
-		for (int i = 0; i < detail; i += 2) {
-			float cx = (float) Math.cos(i * rs);
-			float cz = (float) Math.sin(i * rs);
-			float nx = (float) Math.cos((i + 1D) * rs);
-			float nz = (float) Math.sin((i + 1D) * rs);
-			float nnx = (float) Math.cos((i + 2D) * rs);
-			float nnz = (float) Math.sin((i + 2D) * rs);
-
-			callback.quad(x, y, z, 0.5F, 0.5F, 0F, 1F, 0F);
-			callback.quad(x + nnx * r, y, z + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
-			callback.quad(x + nx * r, y, z + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
-			callback.quad(x + cx * r, y, z + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
-		}
-	}
-
-	public static void buildBottomQuads(float x, float y, float z, VertexCallback callback, float size, int detail) {
-		float r = Math.max(size / 2F, 0F);
-		double rs = Math.PI * 2D / (double) detail;
-
-		for (int i = 0; i < detail; i += 2) {
-			float cx = (float) Math.cos(i * rs);
-			float cz = (float) Math.sin(i * rs);
-			float nx = (float) Math.cos((i + 1D) * rs);
-			float nz = (float) Math.sin((i + 1D) * rs);
-			float nnx = (float) Math.cos((i + 2D) * rs);
-			float nnz = (float) Math.sin((i + 2D) * rs);
-
-			callback.quad(x, y, z, 0.5F, 0.5F, 0F, -1F, 0F);
-			callback.quad(x + cx * r, y, z + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, -1F, 0F);
-			callback.quad(x + nx * r, y, z + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, -1F, 0F);
-			callback.quad(x + nnx * r, y, z + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, -1F, 0F);
-		}
+	public void buildQuads(QuadVertexCallback callback) {
+		callback.topCircleQuads(size, 96);
+		callback.bottomCircleQuads(size, 96);
 	}
 
 	@Override
 	public boolean contains(Vector3fc p) {
-		return p.y() == 0F && p.lengthSquared() <= Mth.square(size / 2F);
+		return Math.abs(p.y()) <= 0.0001F && p.lengthSquared() <= Mth.square(size / 2F);
 	}
 }

@@ -27,7 +27,7 @@ public record ProjectedCoordinates(
 	public static ProjectedCoordinates of(Minecraft mc, Vec3 cameraPos) {
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
-		var state = mc.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+		var state = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
 		var worldMatrix = new Matrix4f(state.projectionMatrix);
 		worldMatrix.mul(state.viewRotationMatrix);
 
@@ -36,7 +36,7 @@ public record ProjectedCoordinates(
 			cameraPos,
 			width,
 			height,
-			mc.screen == null ? new Vector2d(
+			mc.gui.screen() == null ? new Vector2d(
 				width * 0.5D,
 				height * 0.5D
 			) : new Vector2d(

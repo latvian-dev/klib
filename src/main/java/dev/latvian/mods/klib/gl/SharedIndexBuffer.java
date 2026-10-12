@@ -1,8 +1,8 @@
 package dev.latvian.mods.klib.gl;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.pipeline.IndexType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +33,7 @@ public class SharedIndexBuffer implements IndexBuffer {
 	}
 
 	@Override
-	public VertexFormat.IndexType type() {
+	public IndexType type() {
 		return cached().type();
 	}
 
