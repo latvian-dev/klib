@@ -14,7 +14,7 @@ iconBlur = false
 [[dependencies.klib]]
 modId = "neoforge"
 type = "required"
-versionRange = "[26.1.2,)"
+versionRange = "[26.3,)"
 ordering = "NONE"
 side = "BOTH"
 
