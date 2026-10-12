@@ -1,9 +1,9 @@
-name: Java CI (Main)
+name: Java CI (26.1)
 
 on:
   push:
     branches:
-      - 'main'
+      - '2601'
 
 jobs:
   build:
