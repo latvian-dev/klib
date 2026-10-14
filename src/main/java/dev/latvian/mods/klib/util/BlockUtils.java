@@ -123,7 +123,7 @@ public interface BlockUtils {
 
 	static String toString(BlockState state) {
 		var sb = new StringBuilder();
-		sb.append(state.getBlock().builtInRegistryHolder().getKey().identifier());
+		sb.append(state.getBlock().builtInRegistryHolder().key().identifier());
 		boolean first = true;
 
 		for (var prop : state.getProperties()) {
@@ -267,7 +267,7 @@ public interface BlockUtils {
 	}
 
 	static Stream<LevelChunk> getServerLevelChunks(ServerLevel level) {
-		return StreamSupport.stream(level.getChunkSource().chunkMap.updatingChunkMap.values().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
+		return StreamSupport.stream(level.getChunkSource().chunkMap.visibleChunkMap.values().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
 	}
 
 	static Stream<LevelChunk> getChunks(Level level) {

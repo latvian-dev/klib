@@ -71,7 +71,7 @@ public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<Reg
 	}
 
 	CustomRegistry<RegistryFriendlyByteBuf, EntityFilter> REGISTRY = CustomRegistry.<RegistryFriendlyByteBuf, EntityFilter>builder("entity_filter")
-		.customCodec(direct -> KLibCodecs.or(List.of(
+		.customCodec(directCodec -> KLibCodecs.or(List.of(
 			Codec.BOOL.flatComapMap(EntityFilter::of, filter -> {
 				if (filter == of(true)) {
 					return DataResult.success(true);
@@ -89,7 +89,7 @@ public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<Reg
 				}
 			}),
 			PREFIX_LIST.codec(),
-			direct
+			directCodec
 		)))
 		.build();
 

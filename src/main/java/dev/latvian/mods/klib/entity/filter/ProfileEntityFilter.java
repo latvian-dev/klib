@@ -6,6 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +27,7 @@ public record ProfileEntityFilter(GameProfile profile) implements EntityFilter {
 
 	@Override
 	public boolean test(Entity entity) {
-		return entity.getUUID().equals(profile.id()) || entity.getScoreboardName().equalsIgnoreCase(profile.name());
+		return entity.getUUID().equals(profile.id()) || (entity instanceof Player && entity.getScoreboardName().equalsIgnoreCase(profile.name()));
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public record ProfileEntityFilter(GameProfile profile) implements EntityFilter {
 		}
 
 		for (var e : level.klib$allEntities()) {
-			if (e.getScoreboardName().equalsIgnoreCase(profile.name())) {
+			if (e instanceof Player && e.getScoreboardName().equalsIgnoreCase(profile.name())) {
 				return e;
 			}
 		}

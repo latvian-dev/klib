@@ -53,7 +53,7 @@ public class KLibCommands {
 
 		return Commands.literal(registry.registryId())
 			.then(Commands.literal("list")
-				.executes(ctx -> list(ctx.getSource().getPlayerOrException(), registry, ops))
+				.executes(ctx -> list(ctx.getSource(), registry, ops))
 			)
 			.then(Commands.literal("parse")
 				.then(Commands.argument("value", registry.dataType().argument(context))
@@ -62,9 +62,9 @@ public class KLibCommands {
 			);
 	}
 
-	private static <T> int list(ServerPlayer player, CustomRegistry<?, T> registry, DynamicOps<JsonElement> ops) {
-		var body = new ArrayList<DialogBody>();
-		body.add(new PlainMessage(Component.literal("Types:").withStyle(ChatFormatting.GRAY), 350));
+	private static <T> int list(CommandSourceStack source, CustomRegistry<?, T> registry, DynamicOps<JsonElement> ops) {
+		var text = new ArrayList<Component>();
+		text.add(Component.literal("Types:").withStyle(ChatFormatting.GRAY));
 		var typesComponent = Component.empty().withStyle(ChatFormatting.GOLD);
 
 		boolean first = true;
@@ -94,8 +94,8 @@ public class KLibCommands {
 			}
 		}
 
-		body.add(new PlainMessage(typesComponent, 350));
-		body.add(new PlainMessage(Component.literal("Values:").withStyle(ChatFormatting.GRAY), 350));
+		text.add(typesComponent);
+		text.add(Component.literal("Values:").withStyle(ChatFormatting.GRAY));
 
 		var valuesComponent = Component.empty();
 
@@ -112,7 +112,7 @@ public class KLibCommands {
 			int bytes = 0;
 
 			try {
-				var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), player.registryAccess());
+				var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), source.registryAccess());
 				registry.streamCodec().encode(Cast.to(buf), ref);
 				bytes = buf.readableBytes();
 				buf.release();
@@ -129,20 +129,32 @@ public class KLibCommands {
 			);
 		}
 
-		body.add(new PlainMessage(valuesComponent, 350));
+		text.add(valuesComponent);
 
-		player.openDialog(Holder.direct(new NoticeDialog(
-			new CommonDialogData(
-				Component.literal(registry.registryId()),
-				Optional.empty(),
-				true,
-				true,
-				DialogAction.CLOSE,
-				body,
-				List.of()
-			),
-			new ActionButton(new CommonButtonData(Component.literal("Close"), 150), Optional.empty())
-		)));
+		if (source.getEntity() instanceof ServerPlayer player) {
+			var body = new ArrayList<DialogBody>();
+
+			for (var component : text) {
+				body.add(new PlainMessage(component, 350));
+			}
+
+			player.openDialog(Holder.direct(new NoticeDialog(
+				new CommonDialogData(
+					Component.literal(registry.registryId()),
+					Optional.empty(),
+					true,
+					true,
+					DialogAction.CLOSE,
+					body,
+					List.of()
+				),
+				new ActionButton(new CommonButtonData(Component.literal("Close"), 150), Optional.empty())
+			)));
+		} else {
+			for (var component : text) {
+				source.sendSuccess(() -> component, false);
+			}
+		}
 
 		return 1;
 	}

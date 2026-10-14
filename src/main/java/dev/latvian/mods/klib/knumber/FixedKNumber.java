@@ -6,8 +6,8 @@ import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 public record FixedKNumber(@Nullable UnitType<RegistryFriendlyByteBuf, KNumber> typeOverride, Double number) implements KNumber {
 	public static final DynamicType<RegistryFriendlyByteBuf, KNumber> TYPE = DynamicType.create(
@@ -52,7 +52,7 @@ public record FixedKNumber(@Nullable UnitType<RegistryFriendlyByteBuf, KNumber> 
 	}
 
 	@Override
-	public @NonNull String toString() {
+	public @NotNull String toString() {
 		return number.toString();
 	}
 }

@@ -2,8 +2,8 @@ package dev.latvian.mods.klib.knumber;
 
 import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.util.function.Function;
 
@@ -14,7 +14,7 @@ public record SimpleKNumber(UnitType<RegistryFriendlyByteBuf, KNumber> type, Fun
 	}
 
 	@Override
-	public @NonNull String toString() {
+	public @NotNull String toString() {
 		return type.key();
 	}
 }
