@@ -17,6 +17,11 @@ public interface DelegateVertexConsumer extends VertexConsumer {
 	}
 
 	@Override
+	default VertexConsumer setColor(int color) {
+		return this;
+	}
+
+	@Override
 	default VertexConsumer setUv(float u, float v) {
 		return this;
 	}

@@ -106,7 +106,7 @@ public enum CompressionMethod {
 
 	public static final Codec<CompressionMethod> CODEC = KLibCodecs.anyEnum(values());
 	public static final StreamCodec<ByteBuf, CompressionMethod> STREAM_CODEC = ByteBufCodecs.idMapper(CompressionMethod::of, m -> m.id);
-	public static final DataType<CompressionMethod> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, CompressionMethod.class);
+	public static final DataType<CompressionMethod> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public final int id;
 	public final String name;

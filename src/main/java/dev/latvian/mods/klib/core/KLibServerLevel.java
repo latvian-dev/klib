@@ -1,14 +1,14 @@
 package dev.latvian.mods.klib.core;
 
-import net.minecraft.server.level.ChunkHolder;
+import dev.latvian.mods.klib.entity.EntityUtils;
+import dev.latvian.mods.klib.util.BlockUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public interface KLibServerLevel extends KLibLevel {
 	@Override
@@ -21,41 +21,25 @@ public interface KLibServerLevel extends KLibLevel {
 		return klib$self().getEntities().getAll();
 	}
 
-	@Override
-	default void klib$discardAll(Predicate<Entity> filter) {
-		var level = klib$self();
-
-		for (var entity : level.getAllEntities()) {
-			if (filter.test(entity)) {
-				entity.discard();
-			}
-		}
+	default int klib$discardAll(Predicate<Entity> filter) {
+		return EntityUtils.discardAll(klib$self(), filter);
 	}
 
-	@Override
-	default void klib$killAll(Predicate<Entity> filter) {
-		var level = klib$self();
-
-		for (var entity : level.getAllEntities()) {
-			if (filter.test(entity)) {
-				entity.kill(level);
-			}
-		}
+	default int klib$discardAll(EntityType<?> type) {
+		return EntityUtils.discardAll(klib$self(), type);
 	}
 
-	@Override
-	default boolean klib$getTickDayTime() {
-		return klib$self().getGameRules().getBoolean(GameRules.RULE_DAYLIGHT);
+	default int klib$killAll(Predicate<Entity> filter) {
+		return EntityUtils.killAll(klib$self(), filter);
+	}
+
+	default int klib$killAll(EntityType<?> type) {
+		return EntityUtils.killAll(klib$self(), type);
 	}
 
 	@Override
 	default Stream<LevelChunk> klib$getChunks() {
-		return StreamSupport.stream(klib$self().getChunkSource().chunkMap.getChunks().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
-	}
-
-	@Override
-	default void klib$setDayTime(long time) {
-		klib$self().setDayTime(time);
+		return BlockUtils.getServerLevelChunks(klib$self());
 	}
 
 	@Override

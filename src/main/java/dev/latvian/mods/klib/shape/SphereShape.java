@@ -1,41 +1,49 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import org.joml.Vector3fc;
 
-public record SphereShape(float radius) implements Shape {
-	public static final SphereShape UNIT = new SphereShape(0.5F);
+public record SphereShape(float size) implements Shape {
+	public static final UnitType<ByteBuf, Shape> UNIT_SPHERE = UnitType.create("unit_sphere", new SphereShape(1F));
 
-	public static final MapCodec<SphereShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("radius").forGetter(SphereShape::radius)
-	).apply(instance, SphereShape::new));
-
-	public static final StreamCodec<ByteBuf, SphereShape> STREAM_CODEC = ByteBufCodecs.FLOAT.map(SphereShape::new, SphereShape::radius);
-	public static final ShapeType TYPE = new ShapeType("sphere", CODEC, STREAM_CODEC);
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"sphere",
+		"size",
+		Codec.FLOAT,
+		ByteBufCodecs.FLOAT,
+		SphereShape::new,
+		SphereShape::size
+	);
 
 	@Override
-	public ShapeType type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildLines(x, y, z, radius * 2F, callback);
+	public void buildLines(LineVertexCallback callback) {
+		SpherePoints.M.buildLines(size, callback);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
-		SpherePoints.M.buildQuads(x, y, z, radius * 2F, callback);
+	public void buildQuads(QuadVertexCallback callback) {
+		SpherePoints.M.buildQuads(size, callback);
 	}
 
 	@Override
 	public boolean contains(Vector3fc p) {
-		return p.lengthSquared() <= radius * radius;
+		return p.lengthSquared() <= Mth.square(size / 2F);
+	}
+
+	@Override
+	public Shape optimize() {
+		return size == 1F ? UNIT_SPHERE.value() : this;
 	}
 }

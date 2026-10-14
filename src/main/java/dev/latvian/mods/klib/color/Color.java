@@ -2,10 +2,13 @@ package dev.latvian.mods.klib.color;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.backport.EasingType;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.interpolation.Interpolation;
-import dev.latvian.mods.klib.interpolation.LinearInterpolation;
+import dev.latvian.mods.klib.gradient.CompoundGradient;
+import dev.latvian.mods.klib.gradient.FlatColorGradient;
+import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.gradient.LinearGradient;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 
-public record Color(int argb) implements Gradient {
+public record Color(int argb) {
 	public static final Color[] EMPTY_ARRAY = new Color[0];
 
 	public static final Color TRANSPARENT = new Color(0x00000000);
@@ -111,8 +114,8 @@ public record Color(int argb) implements Gradient {
 		}
 	};
 
-	public static final DataType<Color> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Color.class);
-	public static final DataType<Color> SOLID_DATA_TYPE = DataType.of(SOLID_CODEC, SOLID_STREAM_CODEC, Color.class);
+	public static final DataType<Color> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	public static final DataType<Color> SOLID_DATA_TYPE = DataType.of(SOLID_CODEC, SOLID_STREAM_CODEC);
 
 	public static Color hsb(float hue, float saturation, float brightness, int alpha) {
 		if (saturation <= 0F) {
@@ -276,11 +279,6 @@ public record Color(int argb) implements Gradient {
 		}
 	}
 
-	@Override
-	public Color get(float delta) {
-		return this;
-	}
-
 	public boolean isTransparent() {
 		return alpha() == 0;
 	}
@@ -424,22 +422,16 @@ public record Color(int argb) implements Gradient {
 		return hsb;
 	}
 
-	@Override
-	public Color optimize() {
-		return this;
-	}
-
-	@Override
-	public List<PositionedColor> getPositionedColors() {
-		return List.of(new PositionedColor(0F, this));
+	public Gradient toGradient() {
+		return argb == 0 ? Gradient.EMPTY.value() : new FlatColorGradient(this);
 	}
 
 	public Gradient gradient(Color other) {
-		return gradient(other, LinearInterpolation.INSTANCE);
+		return gradient(other, EasingType.LINEAR);
 	}
 
-	public Gradient gradient(Color other, Interpolation interpolation) {
-		return interpolation.isLinear() ? new LinearPairGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, interpolation), new PositionedColor(1F, other)));
+	public Gradient gradient(Color other, EasingType ease) {
+		return equals(other) ? toGradient() : ease == EasingType.LINEAR ? new LinearGradient(this, other) : new CompoundGradient(List.of(new PositionedColor(0F, this, ease), new PositionedColor(1F, other)));
 	}
 
 	public Color mix(Color color, int mixAlpha) {

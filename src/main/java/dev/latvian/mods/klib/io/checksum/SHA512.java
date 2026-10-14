@@ -38,7 +38,7 @@ public record SHA512(long a, long b, long c, long d, long e, long f, long g, lon
 	public static final ChecksumType<SHA512> TYPE = new ChecksumType<>(6, "sha512", "SHA-512", NIL, 64, SHA512::of);
 	public static final Codec<SHA512> CODEC = TYPE.codec;
 	public static final StreamCodec<ByteBuf, SHA512> STREAM_CODEC = TYPE.streamCodec;
-	public static final DataType<SHA512> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, SHA512.class);
+	public static final DataType<SHA512> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public ChecksumType<SHA512> type() {

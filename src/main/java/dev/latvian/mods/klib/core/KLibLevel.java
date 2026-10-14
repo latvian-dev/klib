@@ -4,7 +4,6 @@ import com.mojang.brigadier.context.CommandContext;
 import dev.latvian.mods.klib.entity.EntityUtils;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -14,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public interface KLibLevel {
@@ -78,30 +76,8 @@ public interface KLibLevel {
 		return (List) klib$self().getEntities(ignoredEntity, box, EntityUtils::isDamageable);
 	}
 
-	default void klib$discardAll(Predicate<Entity> filter) {
-	}
-
-	default void klib$discardAll(EntityType<?> type) {
-		klib$discardAll(entity -> entity.getType() == type);
-	}
-
-	default void klib$killAll(Predicate<Entity> filter) {
-	}
-
-	default void klib$killAll(EntityType<?> type) {
-		klib$killAll(entity -> entity.getType() == type);
-	}
-
 	default Stream<LevelChunk> klib$getChunks() {
 		return Stream.empty();
-	}
-
-	default boolean klib$getTickDayTime() {
-		return true;
-	}
-
-	default void klib$setDayTime(long time) {
-		throw new NoMixinException(this);
 	}
 
 	default boolean klib$isLocalServer() {

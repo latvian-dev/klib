@@ -1,35 +1,32 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.Vec3f;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public record LineShape(Vec3f vector) implements Shape {
-	public static final LineShape DOWN_UNIT = new LineShape(Vec3f.DOWN);
-	public static final LineShape UP_UNIT = new LineShape(Vec3f.UP);
-	public static final LineShape NORTH_UNIT = new LineShape(Vec3f.NORTH);
-	public static final LineShape SOUTH_UNIT = new LineShape(Vec3f.SOUTH);
-	public static final LineShape WEST_UNIT = new LineShape(Vec3f.WEST);
-	public static final LineShape EAST_UNIT = new LineShape(Vec3f.EAST);
+	public static final UnitType<ByteBuf, Shape> UNIT_DOWN_LINE = UnitType.create("unit_down_line", new LineShape(Vec3f.DOWN));
+	public static final UnitType<ByteBuf, Shape> UNIT_UP_LINE = UnitType.create("unit_up_line", new LineShape(Vec3f.UP));
+	public static final UnitType<ByteBuf, Shape> UNIT_NORTH_LINE = UnitType.create("unit_north_line", new LineShape(Vec3f.NORTH));
+	public static final UnitType<ByteBuf, Shape> UNIT_SOUTH_LINE = UnitType.create("unit_south_line", new LineShape(Vec3f.SOUTH));
+	public static final UnitType<ByteBuf, Shape> UNIT_WEST_LINE = UnitType.create("unit_west_line", new LineShape(Vec3f.WEST));
+	public static final UnitType<ByteBuf, Shape> UNIT_EAST_LINE = UnitType.create("unit_east_line", new LineShape(Vec3f.EAST));
 
-	public static final MapCodec<LineShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Vec3f.CODEC.fieldOf("vector").forGetter(LineShape::vector)
-	).apply(instance, LineShape::new));
-
-	public static final StreamCodec<ByteBuf, LineShape> STREAM_CODEC = CompositeStreamCodec.of(
-		Vec3f.STREAM_CODEC, LineShape::vector,
-		LineShape::new
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"line",
+		"vector",
+		Vec3f.CODEC,
+		Vec3f.STREAM_CODEC,
+		LineShape::new,
+		LineShape::vector
 	);
 
-	public static final ShapeType TYPE = new ShapeType("line", CODEC, STREAM_CODEC);
-
 	@Override
-	public ShapeType type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 
@@ -37,18 +34,30 @@ public record LineShape(Vec3f vector) implements Shape {
 	public Shape optimize() {
 		if (vector.lengthSq() <= 0F) {
 			return EmptyShape.INSTANCE;
+		} else if (vector == Vec3f.DOWN) {
+			return UNIT_DOWN_LINE.value();
+		} else if (vector == Vec3f.UP) {
+			return UNIT_UP_LINE.value();
+		} else if (vector == Vec3f.NORTH) {
+			return UNIT_NORTH_LINE.value();
+		} else if (vector == Vec3f.SOUTH) {
+			return UNIT_SOUTH_LINE.value();
+		} else if (vector == Vec3f.WEST) {
+			return UNIT_WEST_LINE.value();
+		} else if (vector == Vec3f.EAST) {
+			return UNIT_EAST_LINE.value();
+		} else {
+			return this;
 		}
-
-		return this;
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
-		callback.line(x, y, z, x + vector.x(), y + vector.y(), z + vector.z());
+	public void buildLines(LineVertexCallback callback) {
+		callback.line(0F, 0F, 0F, vector.x(), vector.y(), vector.z());
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 	}
 
 	@Override

@@ -24,7 +24,7 @@ public record Line(Vec3 start, Vec3 end) {
 		Line::new
 	);
 
-	public static final DataType<Line> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Line.class);
+	public static final DataType<Line> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public double dx() {
 		return end.x() - start.x();

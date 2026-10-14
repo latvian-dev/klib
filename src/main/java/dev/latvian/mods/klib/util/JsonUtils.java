@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.Strictness;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public interface JsonUtils {
-	Gson GSON = new GsonBuilder().setLenient().disableHtmlEscaping().serializeNulls().create();
+	Gson GSON = new GsonBuilder().setStrictness(Strictness.LENIENT).disableHtmlEscaping().serializeNulls().create();
 
 	static JsonElement parse(String string) {
 		return GSON.fromJson(string, JsonElement.class);

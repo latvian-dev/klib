@@ -32,7 +32,7 @@ public record MD5(long a, long b) implements Checksum {
 	public static final ChecksumType<MD5> TYPE = new ChecksumType<>(2, "md5", "MD5", NIL, 16, MD5::of);
 	public static final Codec<MD5> CODEC = TYPE.codec;
 	public static final StreamCodec<ByteBuf, MD5> STREAM_CODEC = TYPE.streamCodec;
-	public static final DataType<MD5> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, MD5.class);
+	public static final DataType<MD5> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public ChecksumType<MD5> type() {

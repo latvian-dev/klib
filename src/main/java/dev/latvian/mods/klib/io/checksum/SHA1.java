@@ -33,7 +33,7 @@ public record SHA1(long a, long b, int c) implements Checksum {
 	public static final ChecksumType<SHA1> TYPE = new ChecksumType<>(3, "sha1", "SHA-1", NIL, 20, SHA1::of);
 	public static final Codec<SHA1> CODEC = TYPE.codec;
 	public static final StreamCodec<ByteBuf, SHA1> STREAM_CODEC = TYPE.streamCodec;
-	public static final DataType<SHA1> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, SHA1.class);
+	public static final DataType<SHA1> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public ChecksumType<SHA1> type() {

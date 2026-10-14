@@ -42,11 +42,6 @@ public interface KLibClientLevel extends KLibLevel {
 	}
 
 	@Override
-	default void klib$setDayTime(long time) {
-		klib$self().getLevelData().setDayTime(time);
-	}
-
-	@Override
 	default boolean klib$isLocalServer() {
 		var mc = Minecraft.getInstance();
 		return mc.isLocalServer();

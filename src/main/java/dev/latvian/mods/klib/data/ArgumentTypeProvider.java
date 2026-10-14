@@ -5,14 +5,14 @@ import net.minecraft.commands.CommandBuildContext;
 
 @FunctionalInterface
 public interface ArgumentTypeProvider<T> {
-	ArgumentType<?> create(RegisteredDataType<T> self, CommandBuildContext ctx);
+	ArgumentType<?> create(DataTypeCommandInfo<T> self, CommandBuildContext ctx);
 
 	@FunctionalInterface
 	interface NS<T> extends ArgumentTypeProvider<T> {
 		ArgumentType<?> create(CommandBuildContext ctx);
 
 		@Override
-		default ArgumentType<?> create(RegisteredDataType<T> self, CommandBuildContext ctx) {
+		default ArgumentType<?> create(DataTypeCommandInfo<T> self, CommandBuildContext ctx) {
 			return create(ctx);
 		}
 	}
@@ -22,7 +22,7 @@ public interface ArgumentTypeProvider<T> {
 		ArgumentType<?> create();
 
 		@Override
-		default ArgumentType<?> create(RegisteredDataType<T> self, CommandBuildContext ctx) {
+		default ArgumentType<?> create(DataTypeCommandInfo<T> self, CommandBuildContext ctx) {
 			return create();
 		}
 	}

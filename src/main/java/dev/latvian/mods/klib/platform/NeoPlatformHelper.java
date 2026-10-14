@@ -1,5 +1,32 @@
 package dev.latvian.mods.klib.platform;
 
+import dev.latvian.mods.klib.block.BlockStatePalette;
+import dev.latvian.mods.klib.block.BlockStatePaletteTypeRegistryEvent;
+import dev.latvian.mods.klib.block.collection.BlockCollection;
+import dev.latvian.mods.klib.block.collection.BlockCollectionTypeRegistryEvent;
+import dev.latvian.mods.klib.block.filter.BlockFilter;
+import dev.latvian.mods.klib.block.filter.BlockFilterTypeRegistryEvent;
+import dev.latvian.mods.klib.command.CustomRegistryRegistryEvent;
+import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistryEvent;
+import dev.latvian.mods.klib.data.DataTypeRegistryEvent;
+import dev.latvian.mods.klib.entity.filter.EntityFilter;
+import dev.latvian.mods.klib.entity.filter.EntityFilterTypeRegistryEvent;
+import dev.latvian.mods.klib.entity.number.EntityNumber;
+import dev.latvian.mods.klib.entity.number.EntityNumberTypeRegistryEvent;
+import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.gradient.GradientTypeRegistryEvent;
+import dev.latvian.mods.klib.interpolation.Interpolation;
+import dev.latvian.mods.klib.interpolation.InterpolationTypeRegistryEvent;
+import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.knumber.KNumberTypeRegistryEvent;
+import dev.latvian.mods.klib.kvector.KVector;
+import dev.latvian.mods.klib.kvector.KVectorTypeRegistryEvent;
+import dev.latvian.mods.klib.registry.CustomRegistryCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.shape.ShapeTypeRegistryEvent;
 import dev.latvian.mods.klib.util.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
@@ -10,6 +37,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.network.connection.ConnectionType;
@@ -91,6 +119,7 @@ public class NeoPlatformHelper extends PlatformHelper {
 	@Override
 	public void load(Class<? extends Annotation> annotation, Set<ElementType> elementTypes, ScannedAnnotationCallback callback) {
 		var annotationType = Type.getType(annotation);
+		var gameLayer = FMLLoader.getGameLayer();
 
 		for (var mod : ModList.get().getMods()) {
 			var owningFile = mod.getOwningFile();
@@ -105,7 +134,7 @@ public class NeoPlatformHelper extends PlatformHelper {
 						if (elementTypes.contains(ad.targetType()) && ad.annotationType().equals(annotationType)) {
 							try {
 								if (classLoader == null) {
-									classLoader = FMLLoader.getGameLayer().findLoader(owningFile.moduleName());
+									classLoader = gameLayer.findLoader(owningFile.moduleName());
 								}
 
 								callback.accept(mod.getModId(), classLoader, new ScannedAnnotation(ad.annotationType(), ad.targetType(), ad.clazz(), ad.memberName(), ad.annotationData()));
@@ -165,5 +194,83 @@ public class NeoPlatformHelper extends PlatformHelper {
 	@Override
 	public Stream<LevelChunk> getChunks(Level level) {
 		return level.klib$getChunks();
+	}
+
+	@Override
+	public void collectCustomRegistries(CustomRegistryCollector registry) {
+		super.collectCustomRegistries(registry);
+		ModLoader.postEvent(new CustomRegistryRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectDataTypes(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
+		super.collectDataTypes(registry);
+		ModLoader.postEvent(new DataTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectDataTypeCommandInfos(DataTypeCommandInfoRegistry registry) {
+		super.collectDataTypeCommandInfos(registry);
+		ModLoader.postEvent(new DataTypeCommandInfoRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectInterpolationTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
+		super.collectInterpolationTypes(registry);
+		ModLoader.postEvent(new InterpolationTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectShapeTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
+		super.collectShapeTypes(registry);
+		ModLoader.postEvent(new ShapeTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectGradientTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
+		super.collectGradientTypes(registry);
+		ModLoader.postEvent(new GradientTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBlockStatePaletteTypes(CustomRegistryTypeCollector<ByteBuf, BlockStatePalette> registry) {
+		super.collectBlockStatePaletteTypes(registry);
+		ModLoader.postEvent(new BlockStatePaletteTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBlockCollectionTypes(CustomRegistryTypeCollector<ByteBuf, BlockCollection> registry) {
+		super.collectBlockCollectionTypes(registry);
+		ModLoader.postEvent(new BlockCollectionTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBlockFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BlockFilter> registry) {
+		super.collectBlockFilterTypes(registry);
+		ModLoader.postEvent(new BlockFilterTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectEntityFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityFilter> registry) {
+		super.collectEntityFilterTypes(registry);
+		ModLoader.postEvent(new EntityFilterTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectEntityNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityNumber> registry) {
+		super.collectEntityNumberTypes(registry);
+		ModLoader.postEvent(new EntityNumberTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectKNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KNumber> registry) {
+		super.collectKNumberTypes(registry);
+		ModLoader.postEvent(new KNumberTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectKVectorTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KVector> registry) {
+		super.collectKVectorTypes(registry);
+		ModLoader.postEvent(new KVectorTypeRegistryEvent(registry));
 	}
 }

@@ -21,7 +21,7 @@ import java.util.UUID;
 public sealed interface IntOrUUID permits IntOrUUID.IntImpl, IntOrUUID.UUIDImpl {
 	Codec<IntOrUUID> CODEC = Codec.either(ExtraCodecs.NON_NEGATIVE_INT, KLibCodecs.UUID).xmap(e -> e.map(IntImpl::new, UUIDImpl::new), IntOrUUID::either);
 	StreamCodec<ByteBuf, IntOrUUID> STREAM_CODEC = ByteBufCodecs.either(ByteBufCodecs.VAR_INT, KLibStreamCodecs.UUID).map(e -> e.map(IntImpl::new, UUIDImpl::new), IntOrUUID::either);
-	DataType<IntOrUUID> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, IntOrUUID.class);
+	DataType<IntOrUUID> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	static IntOrUUID of(int value) {
 		return new IntImpl(value);

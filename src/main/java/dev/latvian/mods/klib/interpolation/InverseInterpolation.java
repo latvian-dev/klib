@@ -1,37 +1,28 @@
 package dev.latvian.mods.klib.interpolation;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
-public record InverseInterpolation(Interpolation interpolation) implements Interpolation {
-	public static final MapCodec<InverseInterpolation> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Interpolation.CODEC.fieldOf("interpolation").forGetter(InverseInterpolation::interpolation)
-	).apply(instance, InverseInterpolation::new));
-
-	public static final StreamCodec<ByteBuf, InverseInterpolation> STREAM_CODEC = CompositeStreamCodec.of(
-		Interpolation.STREAM_CODEC, InverseInterpolation::interpolation,
-		InverseInterpolation::new
+public record InverseInterpolation(Ref<Interpolation> interpolation) implements Interpolation {
+	public static final DynamicType<ByteBuf, Interpolation> TYPE = DynamicType.create(
+		"inverse",
+		"interpolation",
+		Interpolation.CODEC,
+		Interpolation.STREAM_CODEC,
+		InverseInterpolation::new,
+		InverseInterpolation::interpolation
 	);
 
-	public static final InterpolationType<InverseInterpolation> TYPE = InterpolationType.of("inverse", MAP_CODEC, STREAM_CODEC);
-
 	@Override
-	public InterpolationType<?> type() {
+	public DynamicType<ByteBuf, Interpolation> type() {
 		return TYPE;
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return 1D - interpolation.interpolate(1D - t);
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return 1F - interpolation.interpolate(1F - t);
+	public float interpolate(float x) {
+		return 1F - interpolation.value().interpolate(1F - x);
 	}
 
 	@Override

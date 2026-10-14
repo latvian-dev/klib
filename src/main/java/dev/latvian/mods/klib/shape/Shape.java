@@ -1,43 +1,58 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.color.Gradient;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.FrustumCheck;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryValue;
+import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
-import java.util.function.Function;
+public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
+	UnitType<ByteBuf, Shape> EMPTY = UnitType.create("empty", EmptyShape.INSTANCE);
+	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.create("shape", EMPTY);
+	Codec<Ref<Shape>> CODEC = REGISTRY.codec();
+	StreamCodec<ByteBuf, Ref<Shape>> STREAM_CODEC = REGISTRY.streamCodec();
+	DataType<Ref<Shape>> DATA_TYPE = REGISTRY.dataType();
 
-public interface Shape {
-	Codec<Shape> DIRECT_CODEC = ShapeType.CODEC.dispatch("type", Shape::type, ShapeType::codec);
-	Codec<Shape> UNIT_OR_DIRECT_CODEC = Codec.either(UnitShape.CODEC, DIRECT_CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), s -> {
-		if (s instanceof UnitShape us) {
-			return Either.left(us);
-		} else if (UnitShape.REF_MAP.get(s) instanceof UnitShape us) {
-			return Either.left(us);
-		} else {
-			return Either.right(s);
-		}
-	});
-	Codec<Shape> CODEC = UNIT_OR_DIRECT_CODEC.xmap(Shape::optimize, Function.identity());
-	StreamCodec<ByteBuf, Shape> DIRECT_STREAM_CODEC = ShapeType.STREAM_CODEC.dispatch(Shape::type, ShapeType::streamCodec);
-	StreamCodec<ByteBuf, Shape> STREAM_CODEC = ByteBufCodecs.either(UnitShape.STREAM_CODEC, DIRECT_STREAM_CODEC).map(e -> e.map(Function.identity(), Function.identity()), s -> s instanceof UnitShape u ? Either.left(u) : Either.right(s));
-	DataType<Shape> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Shape.class);
+	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
+		registry.register(CubeShape.TYPE);
+		registry.register(CuboidShape.TYPE);
+		registry.register(CircleShape.TYPE);
+		registry.register(SphereShape.TYPE);
+		registry.register(CylinderShape.TYPE);
+		registry.register(LineShape.TYPE);
+		registry.register(QuadrilaterallyFacedConvexHexahedra.TYPE);
+		registry.register(RotatedShape.TYPE);
+		registry.register(VoxelShapeBox.TYPE);
 
-	ShapeType type();
-
-	default Shape optimize() {
-		return this;
+		registry.register(CubeShape.UNIT_CUBE);
+		registry.register(CuboidShape.UNIT_SQUARE);
+		registry.register(SphereShape.UNIT_SPHERE);
+		registry.register(CylinderShape.UNIT_CYLINDER);
+		registry.register(CircleShape.UNIT_CIRCLE);
+		registry.register(LineShape.UNIT_DOWN_LINE);
+		registry.register(LineShape.UNIT_UP_LINE);
+		registry.register(LineShape.UNIT_NORTH_LINE);
+		registry.register(LineShape.UNIT_SOUTH_LINE);
+		registry.register(LineShape.UNIT_WEST_LINE);
+		registry.register(LineShape.UNIT_EAST_LINE);
 	}
 
-	void buildLines(float x, float y, float z, VertexCallback callback);
+	@Override
+	default CustomRegistry<ByteBuf, Shape> getRegistry() {
+		return REGISTRY;
+	}
 
-	void buildQuads(float x, float y, float z, VertexCallback callback);
+	void buildLines(LineVertexCallback callback);
+
+	void buildQuads(QuadVertexCallback callback);
 
 	default boolean contains(Vector3fc p) {
 		return false;
@@ -45,17 +60,5 @@ public interface Shape {
 
 	default boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
 		return true;
-	}
-
-	default ColoredShape colored(Gradient quads, Gradient lines) {
-		return ColoredShape.of(this, quads, lines);
-	}
-
-	default ColoredShape quads(Gradient color) {
-		return ColoredShape.quads(this, color);
-	}
-
-	default ColoredShape lines(Gradient color) {
-		return ColoredShape.lines(this, color);
 	}
 }

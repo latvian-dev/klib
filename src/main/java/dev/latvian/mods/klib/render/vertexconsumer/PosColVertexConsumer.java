@@ -8,4 +8,10 @@ public record PosColVertexConsumer(VertexConsumer delegate) implements DelegateV
 		delegate.setColor(red, green, blue, alpha);
 		return this;
 	}
+
+	@Override
+	public VertexConsumer setColor(int color) {
+		delegate.setColor(color);
+		return this;
+	}
 }

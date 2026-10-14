@@ -1,38 +1,28 @@
 package dev.latvian.mods.klib.shape;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.latvian.mods.klib.codec.CompositeStreamCodec;
-import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.math.FrustumCheck;
-import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.math.Vec3f;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
-	public static final CuboidShape SQUARE_UNIT = new CuboidShape(new Vec3f(1F, 0F, 1F), Rotation.NONE);
+public record CuboidShape(Vec3f size) implements Shape {
+	public static final UnitType<ByteBuf, Shape> UNIT_SQUARE = UnitType.create("unit_square", new CuboidShape(new Vec3f(1F, 0F, 1F)));
 
-	public static final MapCodec<CuboidShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Vec3f.CODEC.fieldOf("size").forGetter(CuboidShape::size),
-		Rotation.CODEC.optionalFieldOf("rotation", Rotation.NONE).forGetter(CuboidShape::rotation)
-	).apply(instance, CuboidShape::new));
-
-	public static final StreamCodec<ByteBuf, CuboidShape> STREAM_CODEC = CompositeStreamCodec.of(
-		Vec3f.STREAM_CODEC, CuboidShape::size,
-		KLibStreamCodecs.optional(Rotation.STREAM_CODEC, Rotation.NONE), CuboidShape::rotation,
-		CuboidShape::new
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"cuboid",
+		"size",
+		Vec3f.CODEC,
+		Vec3f.STREAM_CODEC,
+		CuboidShape::new,
+		CuboidShape::size
 	);
 
-	public static final ShapeType TYPE = new ShapeType("cuboid", CODEC, STREAM_CODEC);
-
 	@Override
-	public ShapeType type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 
@@ -40,43 +30,29 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 	public Shape optimize() {
 		if (size.x() <= 0F && size.y() <= 0F && size.z() <= 0F) {
 			return EmptyShape.INSTANCE;
-		} else if (size.x() == size.y() && size.x() == size.z() && rotation.isNone()) {
-			return new CubeShape(size.x());
+		} else if (size.x() == size.y() && size.x() == size.z()) {
+			return new CubeShape(size.x()).optimize();
+		} else if (size.x() == 1F && size.y() == 0F && size.z() == 1F) {
+			return UNIT_SQUARE.value();
 		}
 
 		return this;
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
+	public void buildLines(LineVertexCallback callback) {
 		float sx = size.x() / 2F;
 		float sy = size.y() / 2F;
 		float sz = size.z() / 2F;
-
-		if (!rotation.isNone()) {
-			callback = callback.withTransformedPositionsAndNormals(rotation.rotateYXZ(new Matrix4f()), rotation.rotateYXZ(new Matrix3f()), true);
-		}
-
-		CuboidBuilder.lines(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
+		callback.cuboidLines(-sx, -sy, -sz, sx, sy, sz);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 		float sx = size.x() / 2F;
 		float sy = size.y() / 2F;
 		float sz = size.z() / 2F;
-
-		if (!rotation.isNone()) {
-			var mat4 = new Matrix4f();
-			var mat3 = new Matrix3f();
-			mat4.translate(x, y, z);
-			rotation.rotateYXZ(mat4);
-			rotation.rotateYXZ(mat3);
-			callback = callback.withTransformedPositionsAndNormals(mat4, mat3, true);
-			CuboidBuilder.quads(-sx, -sy, -sz, sx, sy, sz, callback);
-		} else {
-			CuboidBuilder.quads(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz, callback);
-		}
+		callback.cuboidQuads(-sx, -sy, -sz, sx, sy, sz);
 	}
 
 	@Override
@@ -84,14 +60,6 @@ public record CuboidShape(Vec3f size, Rotation rotation) implements Shape {
 		float sx = size.x() / 2F;
 		float sy = size.y() / 2F;
 		float sz = size.z() / 2F;
-
-		if (!rotation.isNone()) {
-			var mat = new Matrix3f();
-			rotation.rotateYXZ(mat);
-			var vec = new Vector3f(p.x() - sx, p.y() - sy, p.z() - sz).mul(mat);
-			return vec.x() >= -sx && vec.x() <= sx && vec.y() >= -sy && vec.y() <= sy && vec.z() >= -sz && vec.z() <= sz;
-		}
-
 		return p.x() >= -sx && p.x() <= sx && p.y() >= -sy && p.y() <= sy && p.z() >= -sz && p.z() <= sz;
 	}
 

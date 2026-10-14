@@ -1,12 +1,31 @@
 package dev.latvian.mods.klib.platform;
 
+import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.block.BlockStatePalette;
+import dev.latvian.mods.klib.block.collection.BlockCollection;
+import dev.latvian.mods.klib.block.filter.BlockFilter;
+import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
+import dev.latvian.mods.klib.data.DataTypes;
+import dev.latvian.mods.klib.data.JOMLDataTypes;
+import dev.latvian.mods.klib.entity.filter.EntityFilter;
+import dev.latvian.mods.klib.entity.number.EntityNumber;
+import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.interpolation.Interpolation;
+import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.kvector.KVector;
+import dev.latvian.mods.klib.registry.CustomRegistry;
+import dev.latvian.mods.klib.registry.CustomRegistryCollector;
+import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
+import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.util.BlockUtils;
+import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +40,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class PlatformHelper {
 	public static PlatformHelper CURRENT = new PlatformHelper();
@@ -39,7 +57,7 @@ public class PlatformHelper {
 	}
 
 	public Path getGameDirectory() {
-		return Path.of("");
+		return Path.of(".");
 	}
 
 	public Path getConfigDirectory() {
@@ -83,7 +101,7 @@ public class PlatformHelper {
 
 	@Nullable
 	public Path findFile(String... path) {
-		throw new UnsupportedOperationException("Not supported on " + getPlatform().getSerializedName());
+		throw new UnsupportedOperationException("Not supported on bukkit");
 	}
 
 	@Nullable
@@ -101,12 +119,6 @@ public class PlatformHelper {
 	}
 
 	public boolean isModLoaded(String modId) {
-		for (var mod : getModList()) {
-			if (mod.id().equals(modId)) {
-				return true;
-			}
-		}
-
 		return false;
 	}
 
@@ -120,9 +132,74 @@ public class PlatformHelper {
 
 	public Stream<LevelChunk> getChunks(Level level) {
 		if (level instanceof ServerLevel serverLevel) {
-			return StreamSupport.stream(serverLevel.getChunkSource().chunkMap.getChunks().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
+			return BlockUtils.getServerLevelChunks(serverLevel);
 		}
 
 		return Stream.empty();
+	}
+
+	public void collectCustomRegistries(CustomRegistryCollector registry) {
+		KLib.builtInRegistries(registry);
+	}
+
+	public void collectDataTypes(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
+		for (var reg : CustomRegistry.ALL.values()) {
+			registry.register("custom_registry/" + reg.registryId(), reg.dataType());
+		}
+
+		DataTypes.register(registry);
+		JOMLDataTypes.register(registry);
+	}
+
+	private static <T> void register(DataTypeCommandInfoRegistry registry, CustomRegistry<?, T> customRegistry) {
+		registry.register(customRegistry.dataType(), customRegistry::createArgument, null);
+	}
+
+	public void collectDataTypeCommandInfos(DataTypeCommandInfoRegistry registry) {
+		for (var customRegistry : CustomRegistry.ALL.values()) {
+			register(registry, Cast.to(customRegistry));
+		}
+
+		DataTypes.registerCommandInfos(registry);
+	}
+
+	public void collectInterpolationTypes(CustomRegistryTypeCollector<ByteBuf, Interpolation> registry) {
+		Interpolation.builtInTypes(registry);
+	}
+
+	public void collectShapeTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
+		Shape.builtInTypes(registry);
+	}
+
+	public void collectGradientTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
+		Gradient.builtInTypes(registry);
+	}
+
+	public void collectBlockStatePaletteTypes(CustomRegistryTypeCollector<ByteBuf, BlockStatePalette> registry) {
+		BlockStatePalette.builtInTypes(registry);
+	}
+
+	public void collectBlockCollectionTypes(CustomRegistryTypeCollector<ByteBuf, BlockCollection> registry) {
+		BlockCollection.builtInTypes(registry);
+	}
+
+	public void collectBlockFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BlockFilter> registry) {
+		BlockFilter.builtInTypes(registry);
+	}
+
+	public void collectEntityFilterTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityFilter> registry) {
+		EntityFilter.builtInTypes(registry);
+	}
+
+	public void collectEntityNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, EntityNumber> registry) {
+		EntityNumber.builtInTypes(registry);
+	}
+
+	public void collectKNumberTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KNumber> registry) {
+		KNumber.builtInTypes(registry);
+	}
+
+	public void collectKVectorTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KVector> registry) {
+		KVector.builtInTypes(registry);
 	}
 }

@@ -58,7 +58,7 @@ public record CRC32(int a) implements Checksum {
 
 	public static final Codec<CRC32> CODEC = TYPE.codec;
 	public static final StreamCodec<ByteBuf, CRC32> STREAM_CODEC = TYPE.streamCodec;
-	public static final DataType<CRC32> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, CRC32.class);
+	public static final DataType<CRC32> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public ChecksumType<CRC32> type() {

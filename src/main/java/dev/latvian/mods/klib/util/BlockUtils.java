@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.util;
 
 import dev.latvian.mods.klib.block.ConnectedBlock;
 import dev.latvian.mods.klib.block.PositionedBlock;
+import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.block.filter.SimpleBlockPredicate;
 import dev.latvian.mods.klib.core.KLibBlockState;
 import dev.latvian.mods.klib.platform.PlatformHelper;
@@ -12,6 +13,8 @@ import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -48,6 +51,7 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public interface BlockUtils {
 	Reference2FloatMap<BlockState> DENSITY = new Reference2FloatOpenHashMap<>();
@@ -147,6 +151,10 @@ public interface BlockUtils {
 	}
 
 	static void walkBlocks(LevelReader level, ConnectedBlock.WalkType walkType, BlockPos start, @Nullable SimpleBlockPredicate filter, boolean onlyExposed, int maxDistance, Predicate<ConnectedBlock> callback) {
+		if (filter == BlockFilter.ANY.value()) {
+			filter = null;
+		}
+
 		var traversed = new LongOpenHashSet();
 		var queue = new ArrayDeque<ConnectedBlock>();
 		var partialCache = new Long2IntOpenHashMap();
@@ -256,6 +264,10 @@ public interface BlockUtils {
 
 	static void setBlockFast(Level level, BlockPos pos, Block block) {
 		setBlockFast(level, pos, block.defaultBlockState());
+	}
+
+	static Stream<LevelChunk> getServerLevelChunks(ServerLevel level) {
+		return StreamSupport.stream(level.getChunkSource().chunkMap.getChunks().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
 	}
 
 	static Stream<LevelChunk> getChunks(Level level) {

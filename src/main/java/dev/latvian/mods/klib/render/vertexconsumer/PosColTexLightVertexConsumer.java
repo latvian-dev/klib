@@ -10,6 +10,12 @@ public record PosColTexLightVertexConsumer(VertexConsumer delegate) implements D
 	}
 
 	@Override
+	public VertexConsumer setColor(int color) {
+		delegate.setColor(color);
+		return this;
+	}
+
+	@Override
 	public VertexConsumer setUv(float u, float v) {
 		delegate.setUv(u, v);
 		return this;

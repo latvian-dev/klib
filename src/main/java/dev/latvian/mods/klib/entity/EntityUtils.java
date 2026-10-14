@@ -1,6 +1,8 @@
 package dev.latvian.mods.klib.entity;
 
+import dev.latvian.mods.klib.entity.filter.EntityTypeFilter;
 import dev.latvian.mods.klib.math.Rotation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -66,8 +68,7 @@ public interface EntityUtils {
 	}
 
 	static float getRelativeHealth(Entity entity) {
-		float max = getMaxHealth(entity);
-		return max > 0F ? Math.clamp(getHealth(entity) / max, 0F, 1F) : 0F;
+		return Math.clamp(getHealth(entity) / getMaxHealth(entity), 0F, 1F);
 	}
 
 	static boolean hasItem(Entity entity, Predicate<ItemStack> ingredient) {
@@ -153,5 +154,39 @@ public interface EntityUtils {
 
 	default <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
 		return summon(level, type, type.factory, callback);
+	}
+
+	static int discardAll(ServerLevel level, Predicate<Entity> filter) {
+		int count = 0;
+
+		for (var entity : level.getAllEntities()) {
+			if (filter.test(entity)) {
+				entity.discard();
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	static int discardAll(ServerLevel level, EntityType<?> type) {
+		return discardAll(level, new EntityTypeFilter(type));
+	}
+
+	static int killAll(ServerLevel level, Predicate<Entity> filter) {
+		int count = 0;
+
+		for (var entity : level.getAllEntities()) {
+			if (filter.test(entity)) {
+				entity.kill(level);
+				count++;
+			}
+		}
+
+		return count;
+	}
+
+	static int killAll(ServerLevel level, EntityType<?> type) {
+		return killAll(level, new EntityTypeFilter(type));
 	}
 }

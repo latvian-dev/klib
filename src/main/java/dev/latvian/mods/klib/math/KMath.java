@@ -73,6 +73,7 @@ public interface KMath {
 	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
 	Vec3 CENTER_VEC3 = new Vec3(0.5D, 0.5D, 0.5D);
 	Vec3 ONE_VEC3 = new Vec3(1D, 1D, 1D);
+	Vec3 NAN_VEC3 = new Vec3(Double.NaN, Double.NaN, Double.NaN);
 
 	double SQRT_2 = Math.sqrt(2D);
 	double TWO_PI = Math.PI * 2D;
@@ -233,6 +234,10 @@ public interface KMath {
 
 	static float lerp(float delta, float range) {
 		return delta * range * 2F - range;
+	}
+
+	static Vec3 lerp(double delta, Vec3 min, Vec3 max) {
+		return delta == 0D ? min : delta == 1D ? max : min.lerp(max, delta);
 	}
 
 	static double clerp(double value, double min, double max) {
@@ -456,5 +461,9 @@ public interface KMath {
 
 	static AABB infiniteAABB() {
 		return INFINITE;
+	}
+
+	static boolean isNaN(Vec3 vec) {
+		return Double.isNaN(vec.x) || Double.isNaN(vec.y) || Double.isNaN(vec.z);
 	}
 }

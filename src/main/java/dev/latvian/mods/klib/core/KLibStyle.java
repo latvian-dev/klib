@@ -35,7 +35,7 @@ public interface KLibStyle {
 	}
 
 	default Style withCopyString(String string) {
-		return withClickToCopyToClipboard(string).withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to Copy")));
+		return withClickToCopyToClipboard(string).withHoverText("Click to Copy");
 	}
 
 	default Style withClickToOpen(Path path) {

@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.codec;
 
 import com.mojang.authlib.GameProfile;
+import dev.latvian.mods.klib.backport.EasingType;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
 import io.netty.buffer.ByteBuf;
@@ -116,6 +117,8 @@ public interface MCStreamCodecs {
 		ByteBufCodecs.STRING_UTF8, GameProfile::getName,
 		GameProfile::new
 	);
+
+	StreamCodec<ByteBuf, EasingType> EASING_TYPE = ByteBufCodecs.fromCodecTrusted(EasingType.CODEC);
 
 	StreamCodec<ByteBuf, Reference2IntMap<BlockState>> STATE_TO_INT_MAP = new StreamCodec<>() {
 		@Override

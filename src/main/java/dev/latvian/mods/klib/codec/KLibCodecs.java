@@ -15,7 +15,6 @@ import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
@@ -26,13 +25,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface KLibCodecs {
@@ -40,9 +39,27 @@ public interface KLibCodecs {
 		return Codec.either(elementCodec, elementCodec.listOf()).xmap(either -> either.map(List::of, Function.identity()), list -> list.size() == 1 ? Either.left(list.getFirst()) : Either.right(list));
 	}
 
-	Function<?, String> DEFAULT_NAME_GETTER = o -> o instanceof StringRepresentable s ? s.getSerializedName() : o instanceof Enum<?> e ? e.name().toLowerCase(Locale.ROOT) : o.toString().toLowerCase(Locale.ROOT);
-
 	Codec<Unit> UNIT = Codec.unit(Unit.INSTANCE);
+	Codec<String> INTERN_STRING = Codec.STRING.xmap(String::intern, Function.identity());
+
+	Codec<String> INTERN_PATH = INTERN_STRING.validate(s -> {
+		if (ResourceLocation.isValidPath(s)) {
+			return DataResult.success(s);
+		} else {
+			return DataResult.error(() -> "Non [a-z0-9/._-] character in path " + s);
+		}
+	});
+
+	static String readInternPath(StringReader reader) {
+		int start = reader.getCursor();
+
+		while (reader.canRead() && ResourceLocation.isAllowedInResourceLocation(reader.peek())) {
+			reader.skip();
+		}
+
+		return reader.getString().substring(start, reader.getCursor()).intern();
+	}
+
 	Codec<UUID> UUID = Codec.STRING.comapFlatMap(s -> {
 		try {
 			return DataResult.success(UndashedUuid.fromStringLenient(s));
@@ -134,7 +151,7 @@ public interface KLibCodecs {
 
 	Codec<URI> URI = Codec.STRING.flatXmap(string -> {
 		try {
-			return DataResult.success(new java.net.URI(string));
+			return DataResult.success(new URI(string));
 		} catch (Exception ex) {
 			return DataResult.error(() -> "Invalid URI: " + string);
 		}
@@ -176,9 +193,9 @@ public interface KLibCodecs {
 			var map = mapGetter.get();
 
 			if (map == null) {
-				return DataResult.error(() -> "Map is null");
+				return KLibCodecErrors.mapIsNull();
 			} else if (map.isEmpty()) {
-				return DataResult.error(() -> "Map is empty");
+				return KLibCodecErrors.mapIsEmpty();
 			} else {
 				var value = map.get(k);
 				return value == null ? DataResult.error(() -> "No value for key " + k) : DataResult.success(value);
@@ -191,7 +208,7 @@ public interface KLibCodecs {
 
 		return keyCodec.flatXmap(k -> {
 			if (map.isEmpty()) {
-				return DataResult.error(() -> "Map is empty");
+				return KLibCodecErrors.mapIsEmpty();
 			} else {
 				var value = map.get(k);
 				return value == null ? DataResult.error(() -> "No value for key " + k) : DataResult.success(value);
@@ -211,7 +228,7 @@ public interface KLibCodecs {
 
 		return keyCodec.flatXmap(k -> {
 			if (map.isEmpty()) {
-				return DataResult.error(() -> "Map is empty");
+				return KLibCodecErrors.mapIsEmpty();
 			} else {
 				var value = map.get(k);
 				return value == null ? DataResult.error(() -> "No value for key " + k) : DataResult.success(value);
@@ -283,6 +300,32 @@ public interface KLibCodecs {
 			var id = key.location();
 			return id.getNamespace().equals(commonIdentifier.getNamespace()) ? id.getPath() : id.toString();
 		});
+	}
+
+	static <V, T> Codec<T> unit(V unitValue, T resultValue, Predicate<T> isUnit) {
+		return Codec.unit(unitValue).flatXmap(value -> {
+			if (unitValue.equals(value)) {
+				return DataResult.success(resultValue);
+			} else {
+				return DataResult.error(() -> "Not unit");
+			}
+		}, value -> {
+			if (isUnit.test(value)) {
+				return DataResult.success(unitValue);
+			} else {
+				return DataResult.error(() -> "Not empty value");
+			}
+		});
+	}
+
+	static <K, V> Codec<Map.Entry<K, V>> mapEntry(Codec<K> keyCodec, Codec<V> valueCodec) {
+		return Codec.unboundedMap(keyCodec, valueCodec).comapFlatMap(map -> {
+			if (map.size() == 1) {
+				return DataResult.success(map.entrySet().iterator().next());
+			} else {
+				return DataResult.error(() -> "Map must have exactly one entry");
+			}
+		}, entry -> Map.of(entry.getKey(), entry.getValue()));
 	}
 
 	static Codec<URI> relativeURI(URI base) {

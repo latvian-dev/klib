@@ -48,8 +48,8 @@ public record Hex64(long raw) {
 	public static final Codec<Hex64> CODEC = KLibCodecs.or(STRING_CODEC, LONG_CODEC);
 	public static final Codec<Hex64> LENIENT_CODEC = KLibCodecs.or(LENIENT_STRING_CODEC, LONG_CODEC);
 	public static final StreamCodec<ByteBuf, Hex64> STREAM_CODEC = ByteBufCodecs.LONG.map(Hex64::of, Hex64::raw);
-	public static final DataType<Hex64> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Hex64.class);
-	public static final DataType<Hex64> LENIENT_DATA_TYPE = DataType.of(LENIENT_CODEC, STREAM_CODEC, Hex64.class);
+	public static final DataType<Hex64> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
+	public static final DataType<Hex64> LENIENT_DATA_TYPE = DataType.of(LENIENT_CODEC, STREAM_CODEC);
 
 	@Override
 	public int hashCode() {

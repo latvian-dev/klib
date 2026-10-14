@@ -89,7 +89,7 @@ public interface Checksum {
 		}
 	};
 
-	DataType<Checksum> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Checksum.class);
+	DataType<Checksum> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	ChecksumType<?> type();
 

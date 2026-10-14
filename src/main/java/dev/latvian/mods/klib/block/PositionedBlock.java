@@ -10,6 +10,7 @@ import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.util.BlockUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -35,8 +36,14 @@ public record PositionedBlock(BlockPos pos, BlockState state) implements BlockCo
 
 	public static final StreamCodec<ByteBuf, List<PositionedBlock>> LIST_STREAM_CODEC = KLibStreamCodecs.listOf(STREAM_CODEC);
 
-	public static final DataType<PositionedBlock> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, PositionedBlock.class);
+	public static final DataType<PositionedBlock> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 	public static final DataType<List<PositionedBlock>> LIST_DATA_TYPE = DATA_TYPE.listOf();
+
+	public static final DynamicType<ByteBuf, BlockCollection> TYPE = DynamicType.create(
+		"block",
+		MAP_CODEC,
+		STREAM_CODEC
+	);
 
 	@Override
 	public String toString() {

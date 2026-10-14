@@ -20,7 +20,7 @@ public record InterpolatedDouble(long start, long end, double from, double to) {
 		ByteBufCodecs.DOUBLE, InterpolatedDouble::from,
 		ByteBufCodecs.DOUBLE, InterpolatedDouble::to,
 		InterpolatedDouble::new
-	), InterpolatedDouble.class);
+	));
 
 	public double get(long now, double delta) {
 		if (now > end) {

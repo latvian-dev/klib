@@ -32,10 +32,10 @@ public interface ID {
 
 	Codec<ResourceLocation> CODEC = KLibCodecs.commonIdentifier("minecraft");
 	StreamCodec<ByteBuf, ResourceLocation> STREAM_CODEC = KLibStreamCodecs.commonIdentifier("minecraft");
-	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, ResourceLocation.class);
+	DataType<ResourceLocation> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	static ResourceLocation mc(String path) {
-		return EMPTY.withPath(path);
+		return ResourceLocation.withDefaultNamespace(path);
 	}
 
 	static ResourceLocation java(String path) {
@@ -59,7 +59,7 @@ public interface ID {
 	}
 
 	static ResourceLocation idFromString(String string) {
-		return ResourceLocation.tryParse(string);
+		return string.indexOf(':') == -1 ? ResourceLocation.withDefaultNamespace(string) : ResourceLocation.parse(string);
 	}
 
 	static String idToString(ResourceLocation id) {

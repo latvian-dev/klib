@@ -36,7 +36,7 @@ public record SHA384(long a, long b, long c, long d, long e, long f) implements 
 	public static final ChecksumType<SHA384> TYPE = new ChecksumType<>(5, "sha384", "SHA-384", NIL, 48, SHA384::of);
 	public static final Codec<SHA384> CODEC = TYPE.codec;
 	public static final StreamCodec<ByteBuf, SHA384> STREAM_CODEC = TYPE.streamCodec;
-	public static final DataType<SHA384> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, SHA384.class);
+	public static final DataType<SHA384> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public ChecksumType<SHA384> type() {

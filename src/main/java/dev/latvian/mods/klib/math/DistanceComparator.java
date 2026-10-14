@@ -4,7 +4,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 
-public record DistanceComparator<T>(Vec3 origin, PositionGetter<T> position) implements Comparator<T> {
+public record DistanceComparator<T>(Vec3 origin, PositionProvider<T> position) implements Comparator<T> {
 	@Override
 	public int compare(T a, T b) {
 		var aDist = origin.distanceToSqr(position.get(a));

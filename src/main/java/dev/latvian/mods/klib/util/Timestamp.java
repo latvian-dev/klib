@@ -5,8 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.data.DataType;
-import dev.latvian.mods.klib.io.bytes.ByteInput;
-import dev.latvian.mods.klib.io.bytes.ByteOutput;
+import dev.latvian.mods.klib.io.ByteInput;
+import dev.latvian.mods.klib.io.ByteOutput;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,9 +34,9 @@ public record Timestamp(long utc, long tick) {
 		return of(Math.floorDiv(System.currentTimeMillis(), 1000L), tick);
 	}
 
-	public static Timestamp read(ByteInput data) throws IOException {
-		long utc = inflateUTC(data.readVarInt());
-		long tick = data.readVarLong();
+	public static Timestamp read(ByteInput in) throws IOException {
+		long utc = inflateUTC(in.readVarInt());
+		long tick = in.readVarLong();
 		return of(utc, tick);
 	}
 
@@ -53,7 +53,7 @@ public record Timestamp(long utc, long tick) {
 		(utc, tick) -> of(inflateUTC(utc), tick)
 	);
 
-	public static final DataType<Timestamp> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Timestamp.class);
+	public static final DataType<Timestamp> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public void write(ByteOutput out) throws IOException {
 		out.writeVarLong(deflateUTC(utc));

@@ -27,7 +27,7 @@ public record Range(float min, float max) implements SampledFloat {
 		Range::new
 	);
 
-	public static final DataType<Range> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, Range.class);
+	public static final DataType<Range> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public Range(float min, float max) {
 		this.min = Math.min(min, max);

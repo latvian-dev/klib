@@ -1,40 +1,42 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.math.FrustumCheck;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
 
 public record CubeShape(float size) implements Shape {
-	public static final CubeShape UNIT = new CubeShape(1F);
+	public static final UnitType<ByteBuf, Shape> UNIT_CUBE = UnitType.create("unit_cube", new CubeShape(1F));
 
-	public static final MapCodec<CubeShape> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Codec.FLOAT.fieldOf("size").forGetter(CubeShape::size)
-	).apply(instance, CubeShape::new));
-
-	public static final StreamCodec<ByteBuf, CubeShape> STREAM_CODEC = ByteBufCodecs.FLOAT.map(CubeShape::new, CubeShape::size);
-	public static final ShapeType TYPE = new ShapeType("cube", CODEC, STREAM_CODEC);
+	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
+		"cube",
+		"size",
+		Codec.FLOAT,
+		ByteBufCodecs.FLOAT,
+		CubeShape::new,
+		CubeShape::size
+	);
 
 	@Override
-	public ShapeType type() {
+	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
+	public void buildLines(LineVertexCallback callback) {
 		float r = size / 2F;
-		CuboidBuilder.lines(x - r, y - r, z - r, x + r, y + r, z + r, callback);
+		callback.cuboidLines(-r, -r, -r, r, r, r);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 		float r = size / 2F;
-		CuboidBuilder.quads(x - r, y - r, z - r, x + r, y + r, z + r, callback);
+		callback.cuboidQuads(-r, -r, -r, r, r, r);
 	}
 
 	@Override
@@ -47,5 +49,10 @@ public record CubeShape(float size) implements Shape {
 	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
 		double r = size / 2D;
 		return frustum.isVisible(x - r, y - r, z - r, x + r, y + r, z + r);
+	}
+
+	@Override
+	public Shape optimize() {
+		return size == 1F ? UNIT_CUBE.value() : this;
 	}
 }

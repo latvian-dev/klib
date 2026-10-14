@@ -34,7 +34,7 @@ public record SHA256(long a, long b, long c, long d) implements Checksum {
 	public static final ChecksumType<SHA256> TYPE = new ChecksumType<>(4, "sha256", "SHA-256", NIL, 32, SHA256::of);
 	public static final Codec<SHA256> CODEC = TYPE.codec;
 	public static final StreamCodec<ByteBuf, SHA256> STREAM_CODEC = TYPE.streamCodec;
-	public static final DataType<SHA256> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC, SHA256.class);
+	public static final DataType<SHA256> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	@Override
 	public ChecksumType<SHA256> type() {
