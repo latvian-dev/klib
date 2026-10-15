@@ -11,24 +11,27 @@ import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.StringPrefixList;
 import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.util.CommandEvaluable;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
 
-public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KNumber> {
-	DataResult<Double> ERROR_NOT_A_NUMBER = KLibCodecErrors.error("Not a number");
+public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KNumber>, CommandEvaluable {
 	StringPrefixList<KNumber> PREFIX_LIST = new StringPrefixList<>(KNumber::isStringLiteral);
 
 	CustomRegistry<RegistryFriendlyByteBuf, KNumber> REGISTRY = CustomRegistry.<RegistryFriendlyByteBuf, KNumber>builder("knumber")
 		.customCodec(directCodec -> KLibCodecs.or(List.of(
-			Codec.DOUBLE.flatComapMap(KNumber::of, knum -> {
-				if (knum instanceof FixedKNumber num) {
-					return DataResult.success(num.number());
+			Codec.DOUBLE.flatComapMap(KNumber::of, val -> {
+				if (val instanceof FixedKNumber fixed) {
+					return DataResult.success(fixed.number());
 				} else {
-					return ERROR_NOT_A_NUMBER;
+					return KLibCodecErrors.NOT_A_DOUBLE;
 				}
 			}),
 			PREFIX_LIST.codec(),
@@ -94,7 +97,10 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 		registry.register(SinKNumber.TYPE);
 		registry.register(CosKNumber.TYPE);
 		registry.register(Atan2KNumber.TYPE);
+		registry.register(MinKNumber.TYPE);
+		registry.register(MaxKNumber.TYPE);
 		registry.register(ClampedKNumber.TYPE);
+		registry.register(AbsKNumber.TYPE);
 
 		PREFIX_LIST.addSimple("#", VariableKNumber::new);
 	}
@@ -126,5 +132,20 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 
 	default KNumber scale(KNumber other) {
 		return new ScaledKNumber(ref(), other.ref());
+	}
+
+	@Override
+	default Component evaluate(CommandSourceStack source) {
+		var ctx = new KNumberContext();
+		ctx.updateCommandData(source);
+		var eval = get(ctx);
+
+		if (eval == null) {
+			return Component.literal("null").withStyle(ChatFormatting.RED);
+		} else if (Double.isNaN(eval)) {
+			return Component.literal("NaN").withStyle(ChatFormatting.YELLOW);
+		} else {
+			return Component.literal(eval.toString()).withStyle(ChatFormatting.GREEN);
+		}
 	}
 }

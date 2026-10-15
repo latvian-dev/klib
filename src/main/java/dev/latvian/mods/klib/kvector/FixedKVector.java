@@ -5,13 +5,14 @@ import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.knumber.KNumberContext;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.PrefersDirectCodec;
 import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record FixedKVector(@Nullable UnitType<RegistryFriendlyByteBuf, KVector> typeOverride, Vec3 vec) implements KVector {
+public record FixedKVector(@Nullable UnitType<RegistryFriendlyByteBuf, KVector> typeOverride, Vec3 vec) implements KVector, PrefersDirectCodec {
 	public static final DynamicType<RegistryFriendlyByteBuf, KVector> TYPE = DynamicType.create(
 		"fixed",
 		"vec",

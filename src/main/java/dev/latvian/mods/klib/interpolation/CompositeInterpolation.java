@@ -64,13 +64,8 @@ public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> o
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return (t < 0.5D ? in.value().interpolate(t * 2D) : (1D + out.value().interpolate(t * 2D - 1D))) / 2D;
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return (t < 0.5F ? in.value().interpolate(t * 2F) : (1F + out.value().interpolate(t * 2F - 1F))) / 2F;
+	public float interpolate(float x) {
+		return (x < 0.5F ? in.value().interpolate(x * 2F) : (1F + out.value().interpolate(x * 2F - 1F))) / 2F;
 	}
 
 	@Override

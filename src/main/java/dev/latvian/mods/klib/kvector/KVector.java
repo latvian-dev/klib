@@ -19,10 +19,14 @@ import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.StringPrefixList;
 import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.util.CommandEvaluable;
 import dev.latvian.mods.klib.util.IntOrUUID;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -33,18 +37,16 @@ import org.joml.Vector3fc;
 import java.util.List;
 import java.util.function.Function;
 
-public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KVector> {
-	DataResult<Vec3> ERROR_NOT_A_VECTOR = KLibCodecErrors.error("Not a vector");
-	DataResult<Ref<KNumber>> ERROR_NOT_A_NUMBER = KLibCodecErrors.error("Not a number");
+public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KVector>, CommandEvaluable {
 	StringPrefixList<KVector> PREFIX_LIST = new StringPrefixList<>(KVector::isStringLiteral);
 
 	CustomRegistry<RegistryFriendlyByteBuf, KVector> REGISTRY = CustomRegistry.<RegistryFriendlyByteBuf, KVector>builder("kvector")
 		.customCodec(directCodec -> KLibCodecs.or(List.of(
-			MCCodecs.VEC3.<KVector>flatComapMap(KVector::of, kvec -> {
-				if (kvec instanceof FixedKVector v) {
-					return DataResult.success(v.vec());
+			MCCodecs.VEC3.<KVector>flatComapMap(KVector::of, val -> {
+				if (val instanceof FixedKVector fixed) {
+					return DataResult.success(fixed.vec());
 				} else {
-					return ERROR_NOT_A_VECTOR;
+					return KLibCodecErrors.NOT_A_VEC3;
 				}
 			}),
 			PREFIX_LIST.codec(),
@@ -53,7 +55,7 @@ public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KV
 				if (kvec instanceof ScalarKVector v) {
 					return DataResult.success(v.number());
 				} else {
-					return ERROR_NOT_A_NUMBER;
+					return KLibCodecErrors.NOT_A_KNUMBER;
 				}
 			})
 		)))
@@ -168,5 +170,20 @@ public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KV
 
 	default KVector scale(KVector other) {
 		return new ScaledKVector(ref(), other.ref());
+	}
+
+	@Override
+	default Component evaluate(CommandSourceStack source) {
+		var ctx = new KNumberContext();
+		ctx.updateCommandData(source);
+		var eval = get(ctx);
+
+		if (eval == null) {
+			return Component.literal("null").withStyle(ChatFormatting.RED);
+		} else if (KMath.isNaN(eval)) {
+			return Component.literal(eval.toString()).withStyle(ChatFormatting.YELLOW);
+		} else {
+			return Component.literal(eval.toString()).withStyle(ChatFormatting.GREEN);
+		}
 	}
 }

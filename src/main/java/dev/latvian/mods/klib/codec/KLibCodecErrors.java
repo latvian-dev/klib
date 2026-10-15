@@ -1,7 +1,10 @@
 package dev.latvian.mods.klib.codec;
 
 import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
+import net.minecraft.world.phys.Vec3;
 
 public interface KLibCodecErrors {
 	static <T> DataResult<T> error(String message) {
@@ -18,6 +21,12 @@ public interface KLibCodecErrors {
 	DataResult<?> LIST_IS_EMPTY = error("List is empty");
 	DataResult<?> MAP_IS_NULL = error("Map is null");
 	DataResult<?> MAP_IS_EMPTY = error("Map is empty");
+	DataResult<Boolean> NOT_A_BOOLEAN = KLibCodecErrors.error("Not a boolean");
+	DataResult<String> NOT_A_STRING = KLibCodecErrors.error("Not a string");
+	DataResult<Double> NOT_A_DOUBLE = KLibCodecErrors.error("Not a number");
+	DataResult<Float> NOT_A_FLOAT = KLibCodecErrors.error("Not a number");
+	DataResult<Vec3> NOT_A_VEC3 = KLibCodecErrors.error("Not a vector");
+	DataResult<Ref<KNumber>> NOT_A_KNUMBER = KLibCodecErrors.error("Not a number");
 
 	static <T> DataResult<T> valueIsNull() {
 		return Cast.to(VALUE_IS_NULL);

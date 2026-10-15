@@ -14,13 +14,8 @@ public enum LinearInterpolation implements Interpolation {
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return t;
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return t;
+	public float interpolate(float x) {
+		return x;
 	}
 
 	@Override

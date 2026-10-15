@@ -76,6 +76,10 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 
 	@Override
 	public DataResult<String> unitKeyResult() {
+		if (instance instanceof PrefersDirectCodec p && p.getPrefersDirectCodec()) {
+			return PrefersDirectCodec.ERROR;
+		}
+
 		return unitKeyResult;
 	}
 }

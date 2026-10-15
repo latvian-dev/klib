@@ -21,13 +21,8 @@ public record InverseInterpolation(Ref<Interpolation> interpolation) implements 
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return 1D - interpolation.value().interpolate(1D - t);
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return 1F - interpolation.value().interpolate(1F - t);
+	public float interpolate(float x) {
+		return 1F - interpolation.value().interpolate(1F - x);
 	}
 
 	@Override

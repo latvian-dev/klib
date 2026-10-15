@@ -12,9 +12,13 @@ import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.StringPrefixList;
 import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.util.CommandEvaluable;
 import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.ParsedEntitySelector;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<RegistryFriendlyByteBuf, EntityFilter> {
+public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<RegistryFriendlyByteBuf, EntityFilter>, CommandEvaluable {
 	StringPrefixList<EntityFilter> PREFIX_LIST = new StringPrefixList<>(EntityFilter::isStringLiteral);
 
 	static UnitType<RegistryFriendlyByteBuf, EntityFilter> simple(String name, Predicate<Entity> predicate) {
@@ -223,5 +227,19 @@ public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<Reg
 
 	default boolean isStringLiteral() {
 		return false;
+	}
+
+	@Override
+	@Nullable
+	default Component evaluate(CommandSourceStack source) {
+		if (source.getEntity() == null) {
+			return null;
+		}
+
+		if (test(source.getEntity())) {
+			return Component.literal("true").withStyle(ChatFormatting.GREEN);
+		} else {
+			return Component.literal("false").withStyle(ChatFormatting.RED);
+		}
 	}
 }

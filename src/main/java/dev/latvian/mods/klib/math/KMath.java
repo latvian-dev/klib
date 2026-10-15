@@ -235,6 +235,10 @@ public interface KMath {
 		return delta * range * 2F - range;
 	}
 
+	static Vec3 lerp(double delta, Vec3 min, Vec3 max) {
+		return delta == 0D ? min : delta == 1D ? max : min.lerp(max, delta);
+	}
+
 	static double clerp(double value, double min, double max) {
 		return value < 0D ? min : value > 1D ? max : (min + value * (max - min));
 	}
@@ -456,5 +460,9 @@ public interface KMath {
 
 	static AABB infiniteAABB() {
 		return INFINITE;
+	}
+
+	static boolean isNaN(Vec3 vec) {
+		return Double.isNaN(vec.x) || Double.isNaN(vec.y) || Double.isNaN(vec.z);
 	}
 }

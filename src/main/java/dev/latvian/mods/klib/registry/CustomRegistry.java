@@ -700,6 +700,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
+	public int getTypeIndex(@Nullable CustomRegistryType<B, V> value) {
+		return syncValues && value != null ? txTypeMap.getInt(value) : 0;
+	}
+
 	public int getValueIndex(String key) {
 		return syncValues ? txValueMap.getInt(key.intern()) : 0;
 	}
