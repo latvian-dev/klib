@@ -110,6 +110,9 @@ public sealed interface Ref<V> extends WithKey, WithRef<V>, WithValue<V> permits
 	}
 
 	@Override
+	boolean equals(Object object);
+
+	@Override
 	default Ref<V> ref() {
 		return this;
 	}

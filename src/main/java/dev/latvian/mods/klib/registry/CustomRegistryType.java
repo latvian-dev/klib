@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract sealed class CustomRegistryType<B extends ByteBuf, V> implements WithKey, CustomRegistryOwnTypeProvider<B, V> permits UnitType, DynamicType {
 	protected final String key;
-	protected MapCodec<V> codec;
+	protected MapCodec<V> mapCodec;
 	protected StreamCodec<? super B, V> streamCodec;
 	protected int version;
 
@@ -31,8 +31,8 @@ public abstract sealed class CustomRegistryType<B extends ByteBuf, V> implements
 		return key;
 	}
 
-	public MapCodec<V> codec() {
-		return codec;
+	public MapCodec<V> mapCodec() {
+		return mapCodec;
 	}
 
 	public StreamCodec<? super B, V> streamCodec() {
