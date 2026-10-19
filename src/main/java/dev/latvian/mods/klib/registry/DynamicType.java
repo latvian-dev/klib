@@ -18,9 +18,9 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 		return create(id, RecordCodecBuilder.mapCodec(instance -> instance.group(codec.fieldOf(fieldName).forGetter(getter)).apply(instance, factory)), streamCodec.map(factory, getter));
 	}
 
-	DynamicType(String key, MapCodec<V> codec, StreamCodec<? super B, V> streamCodec) {
+	DynamicType(String key, MapCodec<V> mapCodec, StreamCodec<? super B, V> streamCodec) {
 		super(key);
-		this.codec = codec;
+		this.mapCodec = mapCodec;
 		this.streamCodec = streamCodec;
 	}
 

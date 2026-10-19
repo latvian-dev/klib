@@ -243,7 +243,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.typeCodec = KLibCodecs.map(typeMap, KLibCodecs.INTERN_PATH, CustomRegistryType::key);
 		var unitCodec = KLibCodecs.INTERN_PATH.flatXmap(this::resolveUnitRef, Ref::unitKeyResult);
 		var typeField = this.defaultType instanceof DynamicType<?, ?> ? typeCodec.optionalFieldOf("type", this.defaultType) : typeCodec.fieldOf("type");
-		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::codec));
+		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::mapCodec));
 		this.codec = KLibCodecs.or(unitCodec, this.directCodec.xmap(this::resolveValueRef, Ref::value));
 		this.streamCodec = new ValueStreamCodec<>(this);
 		this.dataType = DataType.of(codec, Cast.to(streamCodec));

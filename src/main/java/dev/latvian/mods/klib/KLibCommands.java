@@ -77,7 +77,7 @@ public class KLibCommands {
 			if (type.unit() == null) {
 				typesComponent.append(Component.literal("\n"));
 
-				var keys1 = type.codec().keys(ops).map(JsonElement::getAsString).distinct().toList();
+				var keys1 = type.mapCodec().keys(ops).map(JsonElement::getAsString).distinct().toList();
 
 				var component1 = Component.empty();
 				component1.append(typesFormat.formatted(registry.syncValues() ? registry.getTypeIndex(Cast.to(type)) : "-"));

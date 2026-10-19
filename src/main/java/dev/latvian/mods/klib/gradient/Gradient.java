@@ -16,15 +16,15 @@ import net.minecraft.util.RandomSource;
 import java.util.List;
 
 public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
-	UnitType<ByteBuf, Gradient> EMPTY = UnitType.create("empty", new FlatColorGradient(Color.TRANSPARENT));
-	UnitType<ByteBuf, Gradient> WHITE = UnitType.create("white", new FlatColorGradient(Color.WHITE));
-	UnitType<ByteBuf, Gradient> BLACK = UnitType.create("black", new FlatColorGradient(Color.BLACK));
-	UnitType<ByteBuf, Gradient> RED = UnitType.create("red", new FlatColorGradient(Color.RED));
-	UnitType<ByteBuf, Gradient> GREEN = UnitType.create("green", new FlatColorGradient(Color.GREEN));
-	UnitType<ByteBuf, Gradient> BLUE = UnitType.create("blue", new FlatColorGradient(Color.BLUE));
-	UnitType<ByteBuf, Gradient> YELLOW = UnitType.create("yellow", new FlatColorGradient(Color.YELLOW));
-	UnitType<ByteBuf, Gradient> MAGENTA = UnitType.create("magenta", new FlatColorGradient(Color.MAGENTA));
-	UnitType<ByteBuf, Gradient> CYAN = UnitType.create("cyan", new FlatColorGradient(Color.CYAN));
+	UnitType<ByteBuf, Gradient> EMPTY = UnitType.create("empty", FlatColorGradient.EMPTY);
+	UnitType<ByteBuf, Gradient> WHITE = UnitType.create("white", FlatColorGradient.WHITE);
+	UnitType<ByteBuf, Gradient> BLACK = UnitType.create("black", FlatColorGradient.BLACK);
+	UnitType<ByteBuf, Gradient> RED = UnitType.create("red", FlatColorGradient.RED);
+	UnitType<ByteBuf, Gradient> GREEN = UnitType.create("green", FlatColorGradient.GREEN);
+	UnitType<ByteBuf, Gradient> BLUE = UnitType.create("blue", FlatColorGradient.BLUE);
+	UnitType<ByteBuf, Gradient> YELLOW = UnitType.create("yellow", FlatColorGradient.YELLOW);
+	UnitType<ByteBuf, Gradient> MAGENTA = UnitType.create("magenta", FlatColorGradient.MAGENTA);
+	UnitType<ByteBuf, Gradient> CYAN = UnitType.create("cyan", FlatColorGradient.CYAN);
 
 	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.create("gradient", EMPTY);
 	Codec<Ref<Gradient>> CODEC = REGISTRY.codec();
