@@ -79,22 +79,25 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public static void syncAll(ServerPlayer player) {
+	public static void syncAll(ServerPlayer player, Consumer<Packet<? super ClientGamePacketListener>> callback) {
 		var registryAccess = player.registryAccess();
 		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
-		var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
 		var metaList = new ArrayList<CustomRegistryMetaInfo>();
 
 		for (var registry : CustomRegistry.ALL.values()) {
 			metaList.add(registry.writeMeta());
 		}
 
-		packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryMetaPayload(metaList)));
+		callback.accept(new ClientboundCustomPayloadPacket(new SyncCustomRegistryMetaPayload(metaList)));
 
 		for (var registry : CustomRegistry.ALL.values()) {
-			packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
+			callback.accept(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
 		}
+	}
 
+	public static void syncAll(ServerPlayer player) {
+		var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
+		syncAll(player, packets::add);
 		player.connection.send(new ClientboundBundlePacket(packets));
 	}
 
