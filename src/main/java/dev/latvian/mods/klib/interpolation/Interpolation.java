@@ -1,6 +1,9 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
+import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.math.Vec3f;
@@ -13,8 +16,23 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.EasingType;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
+
 public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolation> {
-	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.create("interpolation", LinearInterpolation.TYPE);
+	CustomRegistry<ByteBuf, Interpolation> REGISTRY = CustomRegistry.<ByteBuf, Interpolation>builder("interpolation")
+		.defaultType(LinearInterpolation.TYPE)
+		.customCodec(directCodec -> KLibCodecs.or(List.of(
+			Codec.FLOAT.<Interpolation>flatComapMap(FixedInterpolation::of, val -> {
+				if (val instanceof FixedInterpolation fixed) {
+					return DataResult.success(fixed.value());
+				} else {
+					return KLibCodecErrors.NOT_A_FLOAT;
+				}
+			}),
+			directCodec
+		)))
+		.build();
+
 	Codec<Ref<Interpolation>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Interpolation>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Interpolation>> DATA_TYPE = REGISTRY.dataType();
@@ -51,43 +69,31 @@ public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolatio
 		return REGISTRY;
 	}
 
-	double interpolate(double t);
+	float interpolate(float x);
 
-	default float interpolate(float t) {
-		return (float) interpolate((double) t);
+	default float interpolateClamped(float x) {
+		return interpolate(Math.clamp(x, 0F, 1F));
 	}
 
-	default double interpolateClamped(double t) {
-		return interpolate(Math.clamp(t, 0D, 1D));
+	default float interpolate(float x, float a, float b) {
+		return KMath.lerp(interpolate(x), a, b);
 	}
 
-	default float interpolateClamped(float t) {
-		return interpolate(Math.clamp(t, 0F, 1F));
-	}
-
-	default double interpolate(double t, double a, double b) {
-		return KMath.lerp(interpolate(t), a, b);
-	}
-
-	default float interpolate(float t, float a, float b) {
-		return KMath.lerp(interpolate(t), a, b);
-	}
-
-	default Vec3 interpolate(double t, Vec3 a, Vec3 b) {
-		var e = interpolate(t);
+	default Vec3 interpolate(float x, Vec3 a, Vec3 b) {
+		var e = interpolate(x);
 		return new Vec3(KMath.lerp(e, a.x, b.x), KMath.lerp(e, a.y, b.y), KMath.lerp(e, a.z, b.z));
 	}
 
-	default Vec3f interpolate(float t, Vec3f a, Vec3f b) {
-		var e = interpolate(t);
+	default Vec3f interpolate(float x, Vec3f a, Vec3f b) {
+		var e = interpolate(x);
 		return Vec3f.of(KMath.lerp(e, a.x(), b.x()), KMath.lerp(e, a.y(), b.y()), KMath.lerp(e, a.z(), b.z()));
 	}
 
-	default double interpolateMirrored(double x, Interpolation end) {
-		return x < 0.5D ? interpolate(x * 2D) : 1D - end.interpolate((x - 0.5D) * 2D);
+	default float interpolateMirrored(float x, Interpolation end) {
+		return x < 0.5F ? interpolate(x * 2F) : 1F - end.interpolate((x - 0.5F) * 2F);
 	}
 
-	default double interpolateMirrored(double x) {
+	default float interpolateMirrored(float x) {
 		return interpolateMirrored(x, this);
 	}
 

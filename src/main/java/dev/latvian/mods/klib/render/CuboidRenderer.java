@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.color.Color;
-import dev.latvian.mods.klib.shape.CuboidBuilder;
 import dev.latvian.mods.klib.shape.VoxelShapeBox;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec3;
@@ -10,13 +9,13 @@ import net.minecraft.world.phys.Vec3;
 public interface CuboidRenderer {
 	static void quads(PoseStack ms, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, MultiBufferSource buffers, BufferSupplier type, boolean cull, Color color) {
 		if (!color.isTransparent()) {
-			CuboidBuilder.quads(minX, minY, minZ, maxX, maxY, maxZ, ms.last().transform(type.quads(buffers, cull)).withColor(color));
+			ms.last().transform(type.quads(buffers, cull)).withColor(color).cuboidQuads(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 	}
 
 	static void lines(PoseStack ms, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, MultiBufferSource buffers, BufferSupplier type, Color color) {
 		if (!color.isTransparent()) {
-			CuboidBuilder.lines(minX, minY, minZ, maxX, maxY, maxZ, ms.last().transform(type.lines(buffers)).withColor(color));
+			ms.last().transform(type.lines(buffers)).withColor(color).cuboidLines(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 	}
 
@@ -37,11 +36,11 @@ public interface CuboidRenderer {
 
 	static void frame(PoseStack ms, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, MultiBufferSource buffers, BufferSupplier type, boolean cull, Color color, Color lineColor, float cornerSize, float edgeSize) {
 		if (!lineColor.isTransparent()) {
-			CuboidBuilder.frameLines(minX, minY, minZ, maxX, maxY, maxZ, cornerSize, edgeSize, ms.last().transform(type.lines(buffers)).withColor(lineColor));
+			ms.last().transform(type.lines(buffers)).withColor(lineColor).frameLines(minX, minY, minZ, maxX, maxY, maxZ, cornerSize, edgeSize);
 		}
 
 		if (!color.isTransparent()) {
-			CuboidBuilder.frameQuads(minX, minY, minZ, maxX, maxY, maxZ, cornerSize, edgeSize, ms.last().transform(type.quads(buffers, cull)).withColor(color));
+			ms.last().transform(type.quads(buffers, cull)).withColor(color).frameQuads(minX, minY, minZ, maxX, maxY, maxZ, cornerSize, edgeSize);
 		}
 	}
 }

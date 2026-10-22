@@ -27,13 +27,8 @@ public record JoinedInterpolation(Ref<Interpolation> left, Ref<Interpolation> ri
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return t < 0.5D ? left.value().interpolate(t * 2D) : (right.value().interpolate(t * 2D - 1D));
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return t < 0.5F ? left.value().interpolate(t * 2F) : (right.value().interpolate(t * 2F - 1F));
+	public float interpolate(float x) {
+		return x < 0.5F ? left.value().interpolate(x * 2F) : (right.value().interpolate(x * 2F - 1F));
 	}
 
 	@Override

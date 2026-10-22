@@ -21,13 +21,8 @@ public record FlipYInterpolation(Ref<Interpolation> interpolation) implements In
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return 1D - interpolation.value().interpolate(t);
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return 1F - interpolation.value().interpolate(t);
+	public float interpolate(float x) {
+		return 1F - interpolation.value().interpolate(x);
 	}
 
 	@Override

@@ -30,13 +30,8 @@ public record BezierInterpolation(Vector2fc a, Vector2fc b) implements Interpola
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return KMath.linearizedBezierY((float) t, a.x(), a.y(), b.x(), b.y());
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return KMath.linearizedBezierY(t, a.x(), a.y(), b.x(), b.y());
+	public float interpolate(float x) {
+		return KMath.linearizedBezierY(x, a.x(), a.y(), b.x(), b.y());
 	}
 
 	@Override

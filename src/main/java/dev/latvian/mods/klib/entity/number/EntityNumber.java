@@ -1,21 +1,41 @@
 package dev.latvian.mods.klib.entity.number;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
+import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.entity.EntityUtils;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
+import dev.latvian.mods.klib.util.CommandEvaluable;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.ToDoubleFunction;
 
-public interface EntityNumber extends ToDoubleFunction<Entity>, CustomRegistryValue<RegistryFriendlyByteBuf, EntityNumber> {
-	CustomRegistry<RegistryFriendlyByteBuf, EntityNumber> REGISTRY = CustomRegistry.create("entity_number");
+public interface EntityNumber extends ToDoubleFunction<Entity>, CustomRegistryValue<RegistryFriendlyByteBuf, EntityNumber>, CommandEvaluable {
+	CustomRegistry<RegistryFriendlyByteBuf, EntityNumber> REGISTRY = CustomRegistry.<RegistryFriendlyByteBuf, EntityNumber>builder("entity_number")
+		.customCodec(directCodec -> KLibCodecs.or(List.of(
+			Codec.DOUBLE.flatComapMap(EntityNumber::of, val -> {
+				if (val instanceof FixedEntityNumber fixed) {
+					return DataResult.success(fixed.number());
+				} else {
+					return KLibCodecErrors.NOT_A_DOUBLE;
+				}
+			}),
+			directCodec
+		)))
+		.build();
 
 	UnitType<RegistryFriendlyByteBuf, EntityNumber> ZERO = UnitType.create("zero", type -> new FixedEntityNumber(type, 0D));
 	UnitType<RegistryFriendlyByteBuf, EntityNumber> ONE = UnitType.create("one", type -> new FixedEntityNumber(type, 1D));
@@ -78,5 +98,21 @@ public interface EntityNumber extends ToDoubleFunction<Entity>, CustomRegistryVa
 	@Override
 	default CustomRegistry<RegistryFriendlyByteBuf, EntityNumber> getRegistry() {
 		return REGISTRY;
+	}
+
+	@Override
+	@Nullable
+	default Component evaluate(CommandSourceStack source) {
+		if (source.getEntity() == null) {
+			return null;
+		}
+
+		var eval = applyAsDouble(source.getEntity());
+
+		if (Double.isNaN(eval)) {
+			return Component.literal("NaN").withStyle(ChatFormatting.YELLOW);
+		} else {
+			return Component.literal(Double.toString(eval)).withStyle(ChatFormatting.GREEN);
+		}
 	}
 }

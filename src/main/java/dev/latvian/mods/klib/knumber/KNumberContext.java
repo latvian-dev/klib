@@ -1,7 +1,9 @@
 package dev.latvian.mods.klib.knumber;
 
 import dev.latvian.mods.klib.kvector.KVector;
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.Ref;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -88,6 +90,12 @@ public class KNumberContext {
 			this.gameDay = null;
 			this.clock = null;
 		}
+	}
+
+	public void updateCommandData(CommandSourceStack source) {
+		updateLevelData(PlatformHelper.CURRENT.getLevel(source));
+		entity = source.getEntity();
+		originPos = source.getPosition();
 	}
 
 	@Nullable

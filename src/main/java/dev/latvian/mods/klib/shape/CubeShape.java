@@ -4,7 +4,8 @@ import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import org.joml.Vector3fc;
@@ -27,15 +28,15 @@ public record CubeShape(float size) implements Shape {
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
+	public void buildLines(LineVertexCallback callback) {
 		float r = size / 2F;
-		CuboidBuilder.lines(x - r, y - r, z - r, x + r, y + r, z + r, callback);
+		callback.cuboidLines(-r, -r, -r, r, r, r);
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 		float r = size / 2F;
-		CuboidBuilder.quads(x - r, y - r, z - r, x + r, y + r, z + r, callback);
+		callback.cuboidQuads(-r, -r, -r, r, r, r);
 	}
 
 	@Override

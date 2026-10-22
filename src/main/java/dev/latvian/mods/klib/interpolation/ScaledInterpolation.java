@@ -38,13 +38,8 @@ public record ScaledInterpolation(float scale) implements Interpolation {
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return t * scale;
-	}
-
-	@Override
-	public float interpolate(float t) {
-		return t * scale;
+	public float interpolate(float x) {
+		return x * scale;
 	}
 
 	@Override

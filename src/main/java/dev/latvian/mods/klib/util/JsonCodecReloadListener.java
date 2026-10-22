@@ -7,7 +7,6 @@ import dev.latvian.mods.klib.KLib;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.Util;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
@@ -94,7 +93,7 @@ public abstract class JsonCodecReloadListener<T> extends JsonReloadListener {
 					} else {
 						return finalize(decoded.result().orElseThrow());
 					}
-				}, Util.backgroundExecutor()));
+				}, Async.EXECUTOR));
 			} catch (Exception ex) {
 				KLib.LOGGER.error("Error while parsing " + id.withPath(p -> rootPath + "/" + p), ex);
 			}

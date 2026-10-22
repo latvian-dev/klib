@@ -3,13 +3,14 @@ package dev.latvian.mods.klib.entity.number;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.PrefersDirectCodec;
 import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-public record FixedEntityNumber(@Nullable UnitType<RegistryFriendlyByteBuf, EntityNumber> typeOverride, double number) implements EntityNumber {
+public record FixedEntityNumber(@Nullable UnitType<RegistryFriendlyByteBuf, EntityNumber> typeOverride, double number) implements EntityNumber, PrefersDirectCodec {
 	public static final DynamicType<RegistryFriendlyByteBuf, EntityNumber> TYPE = DynamicType.create(
 		"fixed",
 		"number",

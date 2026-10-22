@@ -8,6 +8,8 @@ import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.math.AABBs;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.phys.AABB;
@@ -133,7 +135,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 		return TYPE;
 	}
 
-	public void buildQuads(Vec3 offset, VertexCallback callback) {
+	public void buildQuads(Vec3 offset, QuadVertexCallback callback) {
 		for (var box : boxes) {
 			float minX = (float) (box.minX + offset.x);
 			float minY = (float) (box.minY + offset.y);
@@ -141,7 +143,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 			float maxX = (float) (box.maxX + offset.x);
 			float maxY = (float) (box.maxY + offset.y);
 			float maxZ = (float) (box.maxZ + offset.z);
-			CuboidBuilder.quads(minX, minY, minZ, maxX, maxY, maxZ, callback);
+			callback.cuboidQuads(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 	}
 
@@ -222,29 +224,29 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 	}
 
 	@Override
-	public void buildLines(float x, float y, float z, VertexCallback callback) {
+	public void buildLines(LineVertexCallback callback) {
 		for (var edge : edges) {
 			callback.line(
-				(float) (x + edge.start().x),
-				(float) (y + edge.start().y),
-				(float) (z + edge.start().z),
-				(float) (x + edge.end().x),
-				(float) (y + edge.end().y),
-				(float) (z + edge.end().z)
+				(float) edge.start().x,
+				(float) edge.start().y,
+				(float) edge.start().z,
+				(float) edge.end().x,
+				(float) edge.end().y,
+				(float) edge.end().z
 			);
 		}
 	}
 
 	@Override
-	public void buildQuads(float x, float y, float z, VertexCallback callback) {
+	public void buildQuads(QuadVertexCallback callback) {
 		for (var box : boxes) {
-			float minX = (float) (box.minX + x);
-			float minY = (float) (box.minY + y);
-			float minZ = (float) (box.minZ + z);
-			float maxX = (float) (box.maxX + x);
-			float maxY = (float) (box.maxY + y);
-			float maxZ = (float) (box.maxZ + z);
-			CuboidBuilder.quads(minX, minY, minZ, maxX, maxY, maxZ, callback);
+			float minX = (float) box.minX;
+			float minY = (float) box.minY;
+			float minZ = (float) box.minZ;
+			float maxX = (float) box.maxX;
+			float maxY = (float) box.maxY;
+			float maxZ = (float) box.maxZ;
+			callback.cuboidQuads(minX, minY, minZ, maxX, maxY, maxZ);
 		}
 	}
 }

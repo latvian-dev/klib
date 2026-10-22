@@ -3,35 +3,35 @@ package dev.latvian.mods.klib.interpolation;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.EasingType;
 import net.minecraft.util.StringRepresentable;
 
 /**
  * <a href="https://easings.net/">Source</a>
  */
 public enum EaseIn implements Interpolation, StringRepresentable {
-	SINE("sine", x -> 1D - Math.cos(x * Math.PI / 2D)),
-	QUAD("quad", x -> x * x),
-	CUBIC("cubic", x -> x * x * x),
-	QUART("quart", x -> x * x * x * x),
-	QUINT("quint", x -> x * x * x * x * x),
-	EXPO("expo", x -> x == 0D ? 0D : Math.pow(2D, 10D * x - 10D)),
-	CIRC("circ", x -> 1D - Math.sqrt(1D - x * x)),
-	BACK("back", x -> x * x * (2.70158D * x - 1.70158D)),
-	ELASTIC("elastic", x -> Math.sin(13D * Math.PI / 2D * x) * Math.pow(2D, 10D * x - 10D)),
-	BOUNCE("bounce", x -> 1D - EaseOut.BOUNCE.interpolate(1D - x));
+	SINE("sine", EasingType.IN_SINE),
+	QUAD("quad", EasingType.IN_QUAD),
+	CUBIC("cubic", EasingType.IN_CUBIC),
+	QUART("quart", EasingType.IN_QUART),
+	QUINT("quint", EasingType.IN_QUINT),
+	EXPO("expo", EasingType.IN_EXPO),
+	CIRC("circ", EasingType.IN_CIRC),
+	BACK("back", EasingType.IN_BACK),
+	ELASTIC("elastic", EasingType.IN_ELASTIC),
+	BOUNCE("bounce", EasingType.IN_BOUNCE);
 
 	public static final EaseIn[] VALUES = values();
 	public static final Codec<EaseIn> CODEC = StringRepresentable.fromEnum(() -> VALUES);
 	public static final StreamCodec<ByteBuf, EaseIn> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> VALUES[i], EaseIn::ordinal);
 
 	public final String name;
-	public final Double2DoubleFunction function;
+	public final EasingType function;
 	public final UnitType<ByteBuf, Interpolation> type;
 
-	EaseIn(String name, Double2DoubleFunction function) {
+	EaseIn(String name, EasingType function) {
 		this.name = name;
 		this.function = function;
 		this.type = UnitType.create(name + "_in", this);
@@ -43,8 +43,8 @@ public enum EaseIn implements Interpolation, StringRepresentable {
 	}
 
 	@Override
-	public double interpolate(double x) {
-		return function.applyAsDouble(x);
+	public float interpolate(float x) {
+		return function.apply(x);
 	}
 
 	@Override

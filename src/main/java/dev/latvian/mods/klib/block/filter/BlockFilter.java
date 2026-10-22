@@ -35,7 +35,7 @@ public interface BlockFilter extends BlockPredicate, CustomRegistryValue<Registr
 	}
 
 	CustomRegistry<RegistryFriendlyByteBuf, BlockFilter> REGISTRY = CustomRegistry.<RegistryFriendlyByteBuf, BlockFilter>builder("block_filter")
-		.customCodec(direct -> KLibCodecs.or(List.of(
+		.customCodec(directCodec -> KLibCodecs.or(List.of(
 			Codec.BOOL.flatComapMap(BlockFilter::of, filter -> {
 				if (filter == of(true)) {
 					return DataResult.success(true);
@@ -62,10 +62,10 @@ public interface BlockFilter extends BlockPredicate, CustomRegistryValue<Registr
 				return DataResult.error(() -> "Invalid blockstate format: " + s);
 			}, filter -> switch (filter) {
 				case BlockStateFilter f -> DataResult.success(BlockUtils.toString(f.blockState()) + (f.blockState() == f.blockState().getBlock().defaultBlockState() ? "[]" : ""));
-				case BlockIdFilter f -> DataResult.success(f.block().builtInRegistryHolder().getKey().identifier().toString());
+				case BlockIdFilter f -> DataResult.success(f.block().builtInRegistryHolder().key().identifier().toString());
 				case null, default -> DataResult.error(() -> "");
 			}),
-			direct
+			directCodec
 		)))
 		.build();
 

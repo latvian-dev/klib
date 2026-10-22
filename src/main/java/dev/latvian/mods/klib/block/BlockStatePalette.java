@@ -68,7 +68,7 @@ public record BlockStatePalette(
 
 	public static final CustomRegistry<ByteBuf, BlockStatePalette> REGISTRY = CustomRegistry.<ByteBuf, BlockStatePalette>builder("block_state_palette")
 		.defaultType(TYPE)
-		.customCodec(_ -> KLibCodecs.or(List.of(
+		.customCodec(directCodec -> KLibCodecs.or(List.of(
 			MCCodecs.BLOCK_STATE.flatComapMap(BlockStatePalette::new, palette -> {
 				if (palette.map.size() == 1) {
 					return DataResult.success(palette.map.reference2IntEntrySet().iterator().next().getKey());
@@ -76,7 +76,8 @@ public record BlockStatePalette(
 					return NOT_SINGLE_BLOCK;
 				}
 			}),
-			MCCodecs.STATE_TO_INT_MAP.flatComapMap(BlockStatePalette::new, palette -> DataResult.success(palette.map))
+			MCCodecs.STATE_TO_INT_MAP.flatComapMap(BlockStatePalette::new, palette -> DataResult.success(palette.map)),
+			directCodec
 		)))
 		.build();
 

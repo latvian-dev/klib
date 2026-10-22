@@ -11,6 +11,7 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.util.Cast;
+import dev.latvian.mods.klib.util.CommandEvaluable;
 import dev.latvian.mods.klib.util.StringUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.ChatFormatting;
@@ -53,7 +54,7 @@ public class KLibCommands {
 
 		return Commands.literal(registry.registryId())
 			.then(Commands.literal("list")
-				.executes(ctx -> list(ctx.getSource().getPlayerOrException(), registry, ops))
+				.executes(ctx -> list(ctx.getSource(), registry, ops))
 			)
 			.then(Commands.literal("parse")
 				.then(Commands.argument("value", registry.dataType().argument(context))
@@ -62,24 +63,26 @@ public class KLibCommands {
 			);
 	}
 
-	private static <T> int list(ServerPlayer player, CustomRegistry<?, T> registry, DynamicOps<JsonElement> ops) {
-		var body = new ArrayList<DialogBody>();
-		body.add(new PlainMessage(Component.literal("Types:").withStyle(ChatFormatting.GRAY), 350));
-		var typesComponent = Component.empty().withStyle(ChatFormatting.GOLD);
+	private static <T> int list(CommandSourceStack source, CustomRegistry<?, T> registry, DynamicOps<JsonElement> ops) {
+		var text = new ArrayList<Component>();
+		text.add(Component.literal("Types:").withStyle(ChatFormatting.GRAY));
+		var typesComponent = Component.empty();
+		var typesFormat = "%0" + String.valueOf(registry.typeList().size() + 2).length() + "d ";
 
-		boolean first = true;
+		typesComponent.append(typesFormat.formatted(0)).append(Component.literal("null").withStyle(ChatFormatting.GRAY));
+		typesComponent.append(Component.literal("\n"));
+		typesComponent.append(typesFormat.formatted(1)).append(Component.literal("direct").withStyle(ChatFormatting.GRAY));
 
 		for (var type : registry.typeList()) {
 			if (type.unit() == null) {
-				if (first) {
-					first = false;
-				} else {
-					typesComponent.append(Component.literal("\n"));
-				}
+				typesComponent.append(Component.literal("\n"));
 
-				var keys1 = type.codec().keys(ops).map(String::valueOf).distinct().toList();
+				var keys1 = type.mapCodec().keys(ops).map(JsonElement::getAsString).distinct().toList();
 
-				var component1 = Component.literal(type.key() + "[");
+				var component1 = Component.empty();
+				component1.append(typesFormat.formatted(registry.syncValues() ? registry.getTypeIndex(Cast.to(type)) : "-"));
+				component1.append(Component.literal(type.key()).withStyle(ChatFormatting.GOLD));
+				component1.append("(");
 
 				for (int i = 0; i < keys1.size(); ++i) {
 					if (i > 0) {
@@ -89,21 +92,20 @@ public class KLibCommands {
 					component1.append(Component.literal(keys1.get(i)).withStyle(ChatFormatting.GREEN));
 				}
 
-				component1.append("]");
+				component1.append(")");
 				typesComponent.append(component1);
 			}
 		}
 
-		body.add(new PlainMessage(typesComponent, 350));
-		body.add(new PlainMessage(Component.literal("Values:").withStyle(ChatFormatting.GRAY), 350));
+		text.add(typesComponent);
+		text.add(Component.literal("Values:").withStyle(ChatFormatting.GRAY));
 
 		var valuesComponent = Component.empty();
+		var valuesFormat = registry.syncValues() ? ("%0" + String.valueOf(registry.values().size() + 2).length() + "d ") : "%s ";
 
-		var format = registry.syncValues() ? ("%0" + String.valueOf(registry.values().size()).length() + "d ") : "%s ";
-
-		valuesComponent.append(format.formatted(0)).append(Component.literal("null").withStyle(ChatFormatting.GRAY));
+		valuesComponent.append(valuesFormat.formatted(0)).append(Component.literal("null").withStyle(ChatFormatting.GRAY));
 		valuesComponent.append(Component.literal("\n"));
-		valuesComponent.append(format.formatted(1)).append(Component.literal("custom").withStyle(ChatFormatting.GRAY));
+		valuesComponent.append(valuesFormat.formatted(1)).append(Component.literal("custom").withStyle(ChatFormatting.GRAY));
 
 		for (var ref : registry.values()) {
 			valuesComponent.append(Component.literal("\n"));
@@ -112,7 +114,7 @@ public class KLibCommands {
 			int bytes = 0;
 
 			try {
-				var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), player.registryAccess());
+				var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), source.registryAccess());
 				registry.streamCodec().encode(Cast.to(buf), ref);
 				bytes = buf.readableBytes();
 				buf.release();
@@ -121,7 +123,7 @@ public class KLibCommands {
 			}
 
 			valuesComponent.append(Component.empty()
-				.append(format.formatted(registry.syncValues() ? registry.getValueIndex(ref.key()) : "-"))
+				.append(valuesFormat.formatted(registry.syncValues() ? registry.getValueIndex(ref.key()) : "-"))
 				.append(Component.literal(ref.key()).withStyle(ChatFormatting.YELLOW))
 				.append(": ")
 				.append(Component.literal(String.valueOf(ref.value())).withStyle(color))
@@ -129,25 +131,39 @@ public class KLibCommands {
 			);
 		}
 
-		body.add(new PlainMessage(valuesComponent, 350));
+		text.add(valuesComponent);
 
-		player.openDialog(Holder.direct(new NoticeDialog(
-			new CommonDialogData(
-				Component.literal(registry.registryId()),
-				Optional.empty(),
-				true,
-				true,
-				DialogAction.CLOSE,
-				body,
-				List.of()
-			),
-			new ActionButton(new CommonButtonData(Component.literal("Close"), 150), Optional.empty())
-		)));
+		if (source.getEntity() instanceof ServerPlayer player) {
+			var body = new ArrayList<DialogBody>();
+
+			for (var component : text) {
+				body.add(new PlainMessage(component, 350));
+			}
+
+			player.openDialog(Holder.direct(new NoticeDialog(
+				new CommonDialogData(
+					Component.literal(registry.registryId()),
+					Optional.empty(),
+					true,
+					true,
+					DialogAction.CLOSE,
+					body,
+					List.of()
+				),
+				new ActionButton(new CommonButtonData(Component.literal("Close"), 150), Optional.empty())
+			)));
+		} else {
+			for (var component : text) {
+				source.sendSuccess(() -> component, false);
+			}
+		}
 
 		return 1;
 	}
 
 	private static <T> int parse(CommandSourceStack source, CustomRegistry<?, T> registry, Ref<T> value) {
+		source.sendSuccess(() -> Component.literal("==="), false);
+
 		source.sendSuccess(() -> {
 			var component = Component.literal("Value: ");
 
@@ -191,8 +207,16 @@ public class KLibCommands {
 				return netComponent;
 			}, false);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			KLib.LOGGER.error("Error writing bytes of " + value, ex);
 			source.sendSuccess(() -> Component.literal("Network: Error " + ex), false);
+		}
+
+		if (value.value() instanceof CommandEvaluable val) {
+			var component = val.evaluate(source);
+
+			if (component != null) {
+				source.sendSuccess(() -> Component.literal("Evaluated: ").append(component), false);
+			}
 		}
 
 		return 1;

@@ -3,13 +3,14 @@ package dev.latvian.mods.klib.knumber;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.PrefersDirectCodec;
 import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
-public record FixedKNumber(@Nullable UnitType<RegistryFriendlyByteBuf, KNumber> typeOverride, Double number) implements KNumber {
+public record FixedKNumber(@Nullable UnitType<RegistryFriendlyByteBuf, KNumber> typeOverride, Double number) implements KNumber, PrefersDirectCodec {
 	public static final DynamicType<RegistryFriendlyByteBuf, KNumber> TYPE = DynamicType.create(
 		"fixed",
 		"number",
@@ -52,7 +53,7 @@ public record FixedKNumber(@Nullable UnitType<RegistryFriendlyByteBuf, KNumber> 
 	}
 
 	@Override
-	public @NonNull String toString() {
+	public @NotNull String toString() {
 		return number.toString();
 	}
 }

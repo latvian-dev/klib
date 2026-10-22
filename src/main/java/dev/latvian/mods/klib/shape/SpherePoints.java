@@ -1,6 +1,9 @@
 package dev.latvian.mods.klib.shape;
 
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.joml.Vector3f;
 
 public class SpherePoints {
@@ -8,9 +11,10 @@ public class SpherePoints {
 	public static final SpherePoints M = new SpherePoints(24, 9);
 	public static final SpherePoints H = new SpherePoints(36, 16);
 	public static final SpherePoints X = new SpherePoints(108, 27);
+	public static final Int2ObjectMap<SpherePoints> CACHE = new Int2ObjectOpenHashMap<>();
 
 	public static SpherePoints get(int hd, int vd) {
-		if (hd == 9 && vd == 7) { // 1.29
+		if (hd <= 9 && vd <= 7) { // 1.29
 			return L;
 		} else if (hd == 24 && vd == 9) { // 2.67
 			return M;
@@ -19,7 +23,7 @@ public class SpherePoints {
 		} else if (hd == 108 && vd == 27) { // 4.00
 			return X;
 		} else {
-			return new SpherePoints(hd, vd);
+			return CACHE.computeIfAbsent((Math.clamp(hd, 9, 511) << 9) | Math.clamp(vd, 7, 511), key -> new SpherePoints((key >> 9) & 511, key & 511));
 		}
 	}
 
@@ -89,7 +93,7 @@ public class SpherePoints {
 		 */
 	}
 
-	public void buildQuads(float x, float y, float z, float s, VertexCallback callback) {
+	public void buildQuads(float s, QuadVertexCallback callback) {
 		for (int r = 0; r < rows.length - 1; r++) {
 			for (int c = 0; c < cols.length - 1; c++) {
 				var cr = rows[r];
@@ -103,18 +107,18 @@ public class SpherePoints {
 				var u1l = nc.u();
 				var v1l = nr.v();
 
-				var ny = y + nr.y() * s;
-				var cy = y + cr.y() * s;
+				var ny = nr.y() * s;
+				var cy = cr.y() * s;
 
-				callback.quad(x + cc.x() * nr.m() * s, ny, z + cc.z() * nr.m() * s, u0l, v1l, nv.x, nv.y, nv.z);
-				callback.quad(x + cc.x() * cr.m() * s, cy, z + cc.z() * cr.m() * s, u0l, v0l, nv.x, nv.y, nv.z);
-				callback.quad(x + nc.x() * cr.m() * s, cy, z + nc.z() * cr.m() * s, u1l, v0l, nv.x, nv.y, nv.z);
-				callback.quad(x + nc.x() * nr.m() * s, ny, z + nc.z() * nr.m() * s, u1l, v1l, nv.x, nv.y, nv.z);
+				callback.quadVertex(cc.x() * nr.m() * s, ny, cc.z() * nr.m() * s, u0l, v1l, nv.x, nv.y, nv.z);
+				callback.quadVertex(cc.x() * cr.m() * s, cy, cc.z() * cr.m() * s, u0l, v0l, nv.x, nv.y, nv.z);
+				callback.quadVertex(nc.x() * cr.m() * s, cy, nc.z() * cr.m() * s, u1l, v0l, nv.x, nv.y, nv.z);
+				callback.quadVertex(nc.x() * nr.m() * s, ny, nc.z() * nr.m() * s, u1l, v1l, nv.x, nv.y, nv.z);
 			}
 		}
 	}
 
-	public void buildLines(float x, float y, float z, float s, VertexCallback callback) {
+	public void buildLines(float s, LineVertexCallback callback) {
 		for (int r = 0; r < rows.length - 1; r++) {
 			for (int c = 0; c < cols.length - 1; c++) {
 				var cr = rows[r];
@@ -122,12 +126,12 @@ public class SpherePoints {
 				var cc = cols[c];
 				var nc = cols[c + 1];
 
-				var cx = x + cc.x() * cr.m() * s;
-				var cy = y + cr.y() * s;
-				var cz = z + cc.z() * cr.m() * s;
+				var cx = cc.x() * cr.m() * s;
+				var cy = cr.y() * s;
+				var cz = cc.z() * cr.m() * s;
 
-				callback.line(x + cc.x() * nr.m() * s, y + nr.y() * s, z + cc.z() * nr.m() * s, cx, cy, cz);
-				callback.line(cx, cy, cz, x + nc.x() * cr.m() * s, cy, z + nc.z() * cr.m() * s);
+				callback.line(cc.x() * nr.m() * s, nr.y() * s, cc.z() * nr.m() * s, cx, cy, cz);
+				callback.line(cx, cy, cz, nc.x() * cr.m() * s, cy, nc.z() * cr.m() * s);
 			}
 		}
 	}

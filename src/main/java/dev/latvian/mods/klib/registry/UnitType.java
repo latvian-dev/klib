@@ -22,7 +22,7 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 	UnitType(String key, Function<UnitType<B, V>, V> factory) {
 		super(key);
 		this.instance = factory.apply(this);
-		this.codec = MapCodec.unit(instance);
+		this.mapCodec = MapCodec.unit(instance);
 		this.streamCodec = StreamCodec.unit(instance);
 		this.unitKeyResult = DataResult.success(key);
 	}
@@ -76,6 +76,10 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 
 	@Override
 	public DataResult<String> unitKeyResult() {
+		if (instance instanceof PrefersDirectCodec p && p.getPrefersDirectCodec()) {
+			return PrefersDirectCodec.ERROR;
+		}
+
 		return unitKeyResult;
 	}
 }

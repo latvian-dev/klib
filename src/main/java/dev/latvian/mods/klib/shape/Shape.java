@@ -8,7 +8,8 @@ import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.VertexCallback;
+import dev.latvian.mods.klib.vertex.LineVertexCallback;
+import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.joml.Vector3fc;
@@ -49,9 +50,9 @@ public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 		return REGISTRY;
 	}
 
-	void buildLines(float x, float y, float z, VertexCallback callback);
+	void buildLines(LineVertexCallback callback);
 
-	void buildQuads(float x, float y, float z, VertexCallback callback);
+	void buildQuads(QuadVertexCallback callback);
 
 	default boolean contains(Vector3fc p) {
 		return false;

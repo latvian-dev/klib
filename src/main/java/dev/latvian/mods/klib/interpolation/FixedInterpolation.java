@@ -2,11 +2,12 @@ package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.PrefersDirectCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import org.jetbrains.annotations.NotNull;
 
-public record FixedInterpolation(float value) implements Interpolation {
+public record FixedInterpolation(float value) implements Interpolation, PrefersDirectCodec {
 	public static final FixedInterpolation MIN = new FixedInterpolation(0F);
 	public static final FixedInterpolation MAX = new FixedInterpolation(1F);
 	public static final FixedInterpolation MIDDLE = new FixedInterpolation(0.5F);
@@ -38,12 +39,7 @@ public record FixedInterpolation(float value) implements Interpolation {
 	}
 
 	@Override
-	public double interpolate(double t) {
-		return value;
-	}
-
-	@Override
-	public float interpolate(float t) {
+	public float interpolate(float x) {
 		return value;
 	}
 

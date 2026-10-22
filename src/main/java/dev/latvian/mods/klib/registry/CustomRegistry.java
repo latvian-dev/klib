@@ -36,8 +36,8 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,22 +79,25 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public static void syncAll(ServerPlayer player) {
+	public static void syncAll(ServerPlayer player, Consumer<Packet<? super ClientGamePacketListener>> callback) {
 		var registryAccess = player.registryAccess();
 		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
-		var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
 		var metaList = new ArrayList<CustomRegistryMetaInfo>();
 
 		for (var registry : CustomRegistry.ALL.values()) {
 			metaList.add(registry.writeMeta());
 		}
 
-		packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryMetaPayload(metaList)));
+		callback.accept(new ClientboundCustomPayloadPacket(new SyncCustomRegistryMetaPayload(metaList)));
 
 		for (var registry : CustomRegistry.ALL.values()) {
-			packets.add(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
+			callback.accept(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
 		}
+	}
 
+	public static void syncAll(ServerPlayer player) {
+		var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
+		syncAll(player, packets::add);
 		player.connection.send(new ClientboundBundlePacket(packets));
 	}
 
@@ -243,7 +246,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.typeCodec = KLibCodecs.map(typeMap, KLibCodecs.INTERN_PATH, CustomRegistryType::key);
 		var unitCodec = KLibCodecs.INTERN_PATH.flatXmap(this::resolveUnitRef, Ref::unitKeyResult);
 		var typeField = this.defaultType instanceof DynamicType<?, ?> ? typeCodec.optionalFieldOf("type", this.defaultType) : typeCodec.fieldOf("type");
-		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::codec));
+		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::mapCodec));
 		this.codec = KLibCodecs.or(unitCodec, this.directCodec.xmap(this::resolveValueRef, Ref::value));
 		this.streamCodec = new ValueStreamCodec<>(this);
 		this.dataType = DataType.of(codec, Cast.to(streamCodec));
@@ -664,7 +667,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	@Override
-	public @NonNull Iterator<Ref<V>> iterator() {
+	public @NotNull Iterator<Ref<V>> iterator() {
 		return valueList.iterator();
 	}
 
@@ -698,6 +701,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 			return ref;
 		}
+	}
+
+	public int getTypeIndex(@Nullable CustomRegistryType<B, V> value) {
+		return syncValues && value != null ? txTypeMap.getInt(value) : 0;
 	}
 
 	public int getValueIndex(String key) {
