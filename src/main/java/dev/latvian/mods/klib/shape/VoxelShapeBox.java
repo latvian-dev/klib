@@ -10,7 +10,6 @@ import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
-import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -135,7 +134,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 		return TYPE;
 	}
 
-	public void buildQuads(Vec3 offset, VertexCallback callback) {
+	public void buildQuads(Vec3 offset, QuadVertexCallback callback) {
 		for (var box : boxes) {
 			float minX = (float) (box.minX + offset.x);
 			float minY = (float) (box.minY + offset.y);
@@ -147,7 +146,7 @@ public record VoxelShapeBox(List<Line> edges, List<AABB> boxes, boolean singleBo
 		}
 	}
 
-	public void buildLines(Vec3 offset, VertexCallback callback) {
+	public void buildLines(Vec3 offset, LineVertexCallback callback) {
 		for (var edge : edges) {
 			float minX = (float) (edge.start().x + offset.x);
 			float minY = (float) (edge.start().y + offset.y);
