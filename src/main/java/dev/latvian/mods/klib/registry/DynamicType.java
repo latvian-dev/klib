@@ -10,8 +10,8 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.function.Function;
 
 public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<B, V> {
-	public static <B extends ByteBuf, V, D extends V> DynamicType<B, V> create(String id, MapCodec<D> codec, StreamCodec<? super B, D> streamCodec) {
-		return new DynamicType<>(id.intern(), Cast.to(codec), Cast.to(streamCodec));
+	public static <B extends ByteBuf, V, D extends V> DynamicType<B, V> create(String id, MapCodec<D> mapCodec, StreamCodec<? super B, D> streamCodec) {
+		return new DynamicType<>(id.intern(), Cast.to(mapCodec), Cast.to(streamCodec));
 	}
 
 	public static <B extends ByteBuf, V, D extends V, T> DynamicType<B, V> create(String id, String fieldName, Codec<T> codec, StreamCodec<? super B, T> streamCodec, Function<T, D> factory, Function<D, T> getter) {
