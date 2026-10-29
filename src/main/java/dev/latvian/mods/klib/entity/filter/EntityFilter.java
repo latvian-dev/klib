@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.entity.filter;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JavaOps;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.entity.EntityUtils;
@@ -146,7 +145,7 @@ public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<Reg
 		registry.register(InDimensionEntityFilter.TYPE);
 		registry.register(IfEntityFilter.TYPE);
 
-		PREFIX_LIST.add("@", input -> ParsedEntitySelector.CODEC.parse(JavaOps.INSTANCE, input).map(MatchEntityFilter::new));
+		PREFIX_LIST.add("@", ParsedEntitySelector.CODEC, MatchEntityFilter::new);
 	}
 
 	@Override

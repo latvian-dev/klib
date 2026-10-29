@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.registry;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JavaOps;
 import dev.latvian.mods.klib.codec.KLibCodecErrors;
 
 import java.util.ArrayList;
@@ -38,6 +39,10 @@ public class StringPrefixList<T> {
 
 	public void add(String prefix, Function<String, DataResult<T>> function) {
 		handlers.add(Map.entry(prefix, function));
+	}
+
+	public <R> void add(String prefix, Codec<R> codec, Function<R, T> factory) {
+		handlers.add(Map.entry(prefix, input -> codec.parse(JavaOps.INSTANCE, input).map(factory)));
 	}
 
 	public void addSimple(String prefix, Function<String, T> function) {
