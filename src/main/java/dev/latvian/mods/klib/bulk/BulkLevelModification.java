@@ -7,16 +7,15 @@ import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
-import net.minecraft.core.SectionPos;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
-import java.util.Set;
 
 public interface BulkLevelModification extends CustomRegistryValue<RegistryFriendlyByteBuf, BulkLevelModification> {
-	UnitType<RegistryFriendlyByteBuf, BulkLevelModification> NONE = UnitType.create("none", new BulkLevelModificationBundle(List.of()));
+	UnitType<RegistryFriendlyByteBuf, BulkLevelModification> NONE = UnitType.create("none", NoneLevelModification.INSTANCE);
 
 	CustomRegistry<RegistryFriendlyByteBuf, BulkLevelModification> REGISTRY = CustomRegistry.create("bulk_level_modification", NONE);
 
@@ -42,7 +41,7 @@ public interface BulkLevelModification extends CustomRegistryValue<RegistryFrien
 		return REGISTRY;
 	}
 
-	void collectSections(Level level, Set<SectionPos> sections);
+	void collectSections(Level level, LongSet sections);
 
 	void apply(BlockModificationConsumer blocks);
 }

@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.bulk;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public record BulkLevelModificationBundle(List<Ref<BulkLevelModification>> list) implements BulkLevelModification, BlockModificationConsumer {
 	public static final DynamicType<RegistryFriendlyByteBuf, BulkLevelModification> TYPE = DynamicType.create(
@@ -54,7 +54,7 @@ public record BulkLevelModificationBundle(List<Ref<BulkLevelModification>> list)
 	}
 
 	@Override
-	public void collectSections(Level level, Set<SectionPos> sections) {
+	public void collectSections(Level level, LongSet sections) {
 		for (var modification : list) {
 			modification.value().collectSections(level, sections);
 		}

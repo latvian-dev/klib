@@ -6,13 +6,12 @@ import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Set;
 
 public record ReplaceCuboidBlocks(BlockPos start, BlockPos end, BlockState state) implements BulkLevelModification {
 	public static final DynamicType<RegistryFriendlyByteBuf, BulkLevelModification> TYPE = DynamicType.create(
@@ -36,7 +35,7 @@ public record ReplaceCuboidBlocks(BlockPos start, BlockPos end, BlockState state
 	}
 
 	@Override
-	public void collectSections(Level level, Set<SectionPos> sections) {
+	public void collectSections(Level level, LongSet sections) {
 		int sminX = SectionPos.blockToSectionCoord(Math.min(start.getX(), end.getX()));
 		int sminY = SectionPos.blockToSectionCoord(Math.min(start.getY(), end.getY()));
 		int sminZ = SectionPos.blockToSectionCoord(Math.min(start.getZ(), end.getZ()));
@@ -47,7 +46,7 @@ public record ReplaceCuboidBlocks(BlockPos start, BlockPos end, BlockState state
 		for (int x = sminX; x <= smaxX; x++) {
 			for (int y = sminY; y <= smaxY; y++) {
 				for (int z = sminZ; z <= smaxZ; z++) {
-					sections.add(SectionPos.of(x, y, z));
+					sections.add(SectionPos.asLong(x, y, z));
 				}
 			}
 		}

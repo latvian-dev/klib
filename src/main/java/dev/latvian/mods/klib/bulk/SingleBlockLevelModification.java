@@ -6,13 +6,12 @@ import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.util.BlockUtils;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Set;
 
 public record SingleBlockLevelModification(BlockPos pos, BlockState state) implements BulkLevelModification {
 	public static final DynamicType<RegistryFriendlyByteBuf, BulkLevelModification> TYPE = DynamicType.create(
@@ -34,8 +33,8 @@ public record SingleBlockLevelModification(BlockPos pos, BlockState state) imple
 	}
 
 	@Override
-	public void collectSections(Level level, Set<SectionPos> sections) {
-		sections.add(SectionPos.of(pos));
+	public void collectSections(Level level, LongSet sections) {
+		sections.add(SectionPos.asLong(pos));
 	}
 
 	@Override

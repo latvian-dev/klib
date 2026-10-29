@@ -6,15 +6,13 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.registry.DynamicType;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Set;
 
 public record ReplaceSphereBlocks(BlockPos start, BlockPos end, Vec3 center, double radius, BlockState state) implements BulkLevelModification {
 	public static final DynamicType<RegistryFriendlyByteBuf, BulkLevelModification> TYPE = DynamicType.create(
@@ -42,10 +40,12 @@ public record ReplaceSphereBlocks(BlockPos start, BlockPos end, Vec3 center, dou
 	}
 
 	@Override
-	public void collectSections(Level level, Set<SectionPos> sections) {
+	public void collectSections(Level level, LongSet sections) {
+		// FIXME
 	}
 
 	@Override
 	public void apply(BlockModificationConsumer blocks) {
+		// FIXME
 	}
 }
