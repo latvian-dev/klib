@@ -1,23 +1,22 @@
 package dev.latvian.mods.klib.entity.filter;
 
-import com.mojang.authlib.GameProfile;
+import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.registry.DynamicType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public record ProfileEntityFilter(GameProfile profile) implements EntityFilter {
+public record PlayerProfileEntityFilter(NameAndId profile) implements EntityFilter {
 	public static DynamicType<RegistryFriendlyByteBuf, EntityFilter> TYPE = DynamicType.create(
+		"player_profile",
 		"profile",
-		"profile",
-		ExtraCodecs.AUTHLIB_GAME_PROFILE,
-		ByteBufCodecs.GAME_PROFILE,
-		ProfileEntityFilter::new,
-		ProfileEntityFilter::profile
+		NameAndId.CODEC,
+		MCStreamCodecs.NAME_AND_ID,
+		PlayerProfileEntityFilter::new,
+		PlayerProfileEntityFilter::profile
 	);
 
 	@Override

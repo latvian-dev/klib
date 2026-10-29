@@ -140,7 +140,7 @@ public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<Reg
 		registry.register(EntityTypeTagFilter.TYPE);
 		registry.register(MatchEntityFilter.TYPE);
 		registry.register(HasEffectEntityFilter.TYPE);
-		registry.register(ProfileEntityFilter.TYPE);
+		registry.register(PlayerProfileEntityFilter.TYPE);
 		registry.register(HasItemEntityFilter.TYPE);
 		registry.register(InDimensionEntityFilter.TYPE);
 		registry.register(IfEntityFilter.TYPE);
