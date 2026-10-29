@@ -36,12 +36,15 @@ import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.util.ColorBlendMode;
+import dev.latvian.mods.klib.util.GeometryRenderLayer;
 import dev.latvian.mods.klib.util.Hex32;
 import dev.latvian.mods.klib.util.Hex64;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.util.IntOrUUID;
 import dev.latvian.mods.klib.util.ParsedEntitySelector;
 import dev.latvian.mods.klib.util.ScreenCorner;
+import dev.latvian.mods.klib.util.SkinTexture;
+import dev.latvian.mods.klib.util.SpreadType;
 import dev.latvian.mods.klib.util.Timestamp;
 import dev.latvian.mods.klib.util.UInt64;
 import io.netty.buffer.ByteBuf;
@@ -253,6 +256,11 @@ public interface DataTypes {
 		registry.register("player_input", PlayerInput.DATA_TYPE);
 		registry.register("color_blend_mode", ColorBlendMode.DATA_TYPE);
 		registry.register("computed_transformation", ComputedTransformation.DATA_TYPE);
+		registry.register("spread_type", SpreadType.DATA_TYPE);
+		registry.register("skin_texture", SkinTexture.DATA_TYPE);
+		registry.register("skin_texture_list", SkinTexture.LIST_DATA_TYPE);
+		registry.register("skin_texture_set", SkinTexture.SET_DATA_TYPE);
+		registry.register("geometry_render_layer", GeometryRenderLayer.DATA_TYPE);
 	}
 
 	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {

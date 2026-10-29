@@ -4,6 +4,7 @@ import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.block.BlockStatePalette;
 import dev.latvian.mods.klib.block.collection.BlockCollection;
 import dev.latvian.mods.klib.block.filter.BlockFilter;
+import dev.latvian.mods.klib.bulk.BulkLevelModification;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.data.DataTypes;
@@ -206,5 +207,9 @@ public class PlatformHelper {
 
 	public void collectIconTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
 		Icon.builtInTypes(registry);
+	}
+
+	public void collectBulkLevelModificationTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BulkLevelModification> registry) {
+		BulkLevelModification.builtInTypes(registry);
 	}
 }

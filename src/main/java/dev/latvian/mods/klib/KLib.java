@@ -3,6 +3,7 @@ package dev.latvian.mods.klib;
 import dev.latvian.mods.klib.block.BlockStatePalette;
 import dev.latvian.mods.klib.block.collection.BlockCollection;
 import dev.latvian.mods.klib.block.filter.BlockFilter;
+import dev.latvian.mods.klib.bulk.BulkLevelModification;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.entity.filter.EntityFilter;
@@ -48,5 +49,6 @@ public class KLib {
 		registry.register(KNumber.REGISTRY, platform::collectKNumberTypes);
 		registry.register(KVector.REGISTRY, platform::collectKVectorTypes);
 		registry.register(Icon.REGISTRY, platform::collectIconTypes);
+		registry.register(BulkLevelModification.REGISTRY, platform::collectBulkLevelModificationTypes);
 	}
 }

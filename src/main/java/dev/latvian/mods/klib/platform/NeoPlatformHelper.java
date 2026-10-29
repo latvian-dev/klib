@@ -6,6 +6,8 @@ import dev.latvian.mods.klib.block.collection.BlockCollection;
 import dev.latvian.mods.klib.block.collection.BlockCollectionTypeRegistryEvent;
 import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.block.filter.BlockFilterTypeRegistryEvent;
+import dev.latvian.mods.klib.bulk.BulkLevelModification;
+import dev.latvian.mods.klib.bulk.BulkLevelModificationRegistryEvent;
 import dev.latvian.mods.klib.command.CustomRegistryRegistryEvent;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
@@ -279,5 +281,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	public void collectIconTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
 		super.collectIconTypes(registry);
 		ModLoader.postEvent(new IconTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectBulkLevelModificationTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BulkLevelModification> registry) {
+		super.collectBulkLevelModificationTypes(registry);
+		ModLoader.postEvent(new BulkLevelModificationRegistryEvent(registry));
 	}
 }
