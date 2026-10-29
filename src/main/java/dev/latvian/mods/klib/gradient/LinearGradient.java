@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
@@ -34,8 +35,8 @@ public record LinearGradient(Color start, Color end) implements Gradient {
 	}
 
 	@Override
-	public Gradient optimize() {
-		return start.equals(end) ? start.toGradient() : this;
+	public Ref<Gradient> optimize(Ref<Gradient> self) {
+		return start.equals(end) ? start.toGradient().ref() : self;
 	}
 
 	@Override

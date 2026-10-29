@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
@@ -43,7 +44,7 @@ public record SphereShape(float size) implements Shape {
 	}
 
 	@Override
-	public Shape optimize() {
-		return size == 1F ? UNIT_SPHERE.value() : this;
+	public Ref<Shape> optimize(Ref<Shape> self) {
+		return size == 1F ? UNIT_SPHERE : self;
 	}
 }

@@ -53,6 +53,11 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 	}
 
 	@Override
+	public Ref<V> optimizedRef() {
+		return this;
+	}
+
+	@Override
 	public String toString() {
 		return key;
 	}

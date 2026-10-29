@@ -8,6 +8,7 @@ import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.entity.filter.EntityFilter;
 import dev.latvian.mods.klib.entity.number.EntityNumber;
 import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.icon.Icon;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.kvector.KVector;
@@ -46,5 +47,6 @@ public class KLib {
 		registry.register(EntityNumber.REGISTRY, platform::collectEntityNumberTypes);
 		registry.register(KNumber.REGISTRY, platform::collectKNumberTypes);
 		registry.register(KVector.REGISTRY, platform::collectKVectorTypes);
+		registry.register(Icon.REGISTRY, platform::collectIconTypes);
 	}
 }

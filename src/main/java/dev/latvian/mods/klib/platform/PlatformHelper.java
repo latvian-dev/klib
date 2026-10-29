@@ -11,6 +11,7 @@ import dev.latvian.mods.klib.data.JOMLDataTypes;
 import dev.latvian.mods.klib.entity.filter.EntityFilter;
 import dev.latvian.mods.klib.entity.number.EntityNumber;
 import dev.latvian.mods.klib.gradient.Gradient;
+import dev.latvian.mods.klib.icon.Icon;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.kvector.KVector;
@@ -201,5 +202,9 @@ public class PlatformHelper {
 
 	public void collectKVectorTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KVector> registry) {
 		KVector.builtInTypes(registry);
+	}
+
+	public void collectIconTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
+		Icon.builtInTypes(registry);
 	}
 }

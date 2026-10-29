@@ -32,8 +32,8 @@ public record RotatedShape(Ref<Shape> shape, Rotation rotation) implements Shape
 	}
 
 	@Override
-	public Shape optimize() {
-		return rotation.isNone() ? shape.value() : this;
+	public Ref<Shape> optimize(Ref<Shape> self) {
+		return rotation.isNone() ? shape.optimizedRef() : self;
 	}
 
 	@Override

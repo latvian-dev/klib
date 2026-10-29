@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.util;
 
 import dev.latvian.mods.klib.math.KMath;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,7 @@ public interface StringUtils {
 	DecimalFormat BYTE_SIZE_FORMAT = new DecimalFormat("#,##0.#");
 	String[] BINARY_BYTE_SIZE_UNITS = new String[]{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
 	String[] SI_BYTE_SIZE_UNITS = new String[]{"B", "KB", "MB", "GB", "TB", "PB", "EB"};
+	char[] POWER = {'K', 'M', 'B', 'T'};
 
 	static String snakeCaseToTitleCase(String string) {
 		StringJoiner joiner = new StringJoiner(" ");
@@ -197,5 +199,26 @@ public interface StringUtils {
 
 		int digitGroups = (int) (Math.log10(size) / KMath.LOG_10_OF_1000);
 		return BYTE_SIZE_FORMAT.format(size / Math.pow(1000D, digitGroups)) + " " + SI_BYTE_SIZE_UNITS[digitGroups];
+	}
+
+	static String formatPower(int value) {
+		if (Minecraft.getInstance().hasAltDown()) {
+			return String.format("%,d", value);
+		}
+
+		int index = 0;
+
+		if (value > 9999) {
+			while (value / 1000 != 0) {
+				value /= 1000;
+				index++;
+			}
+		}
+
+		if (index > 0) {
+			return value + String.valueOf(POWER[index - 1]);
+		} else {
+			return String.valueOf(value);
+		}
 	}
 }

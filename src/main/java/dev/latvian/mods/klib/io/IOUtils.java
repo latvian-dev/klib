@@ -97,6 +97,19 @@ public interface IOUtils {
 		}
 	}
 
+	static Path createDir(Path path) {
+		if (Files.notExists(path)) {
+			try {
+				return Files.createDirectories(path);
+			} catch (Exception ex) {
+				KLib.LOGGER.error("Failed to create directory " + path.toAbsolutePath());
+				throw new RuntimeException(ex);
+			}
+		}
+
+		return path;
+	}
+
 	static void deleteRecursively(Path dir) throws IOException {
 		try (var stream = Files.walk(dir)) {
 			stream.sorted(Comparator.reverseOrder())

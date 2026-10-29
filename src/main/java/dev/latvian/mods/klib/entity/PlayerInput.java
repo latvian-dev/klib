@@ -15,7 +15,7 @@ public record PlayerInput(
 	int flags,
 	// Movement
 	boolean forward,
-	boolean back,
+	boolean backward,
 	boolean left,
 	boolean right,
 	boolean jumping,
@@ -27,11 +27,11 @@ public record PlayerInput(
 	boolean alt,
 	boolean tab,
 	// Mouse
-	boolean mouseLeft,
-	boolean mouseRight,
-	boolean mouseMiddle,
-	boolean mouseBack,
-	boolean mouseNext
+	boolean attack,
+	boolean use,
+	boolean pick,
+	boolean decrease,
+	boolean increase
 ) {
 	public static final PlayerInput NONE = new PlayerInput(0);
 
@@ -54,11 +54,11 @@ public record PlayerInput(
 		boolean alt,
 		boolean tab,
 		// Mouse
-		boolean mouseLeft,
-		boolean mouseRight,
-		boolean mouseMiddle,
-		boolean mouseBack,
-		boolean mouseNext
+		boolean attack,
+		boolean use,
+		boolean pick,
+		boolean decrease,
+		boolean increase
 	) {
 		var flags = 0;
 
@@ -77,11 +77,11 @@ public record PlayerInput(
 		if (alt) flags |= 1 << 9;
 		if (tab) flags |= 1 << 10;
 		// Mouse
-		if (mouseLeft) flags |= 1 << 11;
-		if (mouseRight) flags |= 1 << 12;
-		if (mouseMiddle) flags |= 1 << 13;
-		if (mouseBack) flags |= 1 << 14;
-		if (mouseNext) flags |= 1 << 15;
+		if (attack) flags |= 1 << 11;
+		if (use) flags |= 1 << 12;
+		if (pick) flags |= 1 << 13;
+		if (decrease) flags |= 1 << 14;
+		if (increase) flags |= 1 << 15;
 		//@formatter:on
 
 		return new PlayerInput(
@@ -100,18 +100,18 @@ public record PlayerInput(
 			alt,
 			tab,
 			// Mouse
-			mouseLeft,
-			mouseRight,
-			mouseMiddle,
-			mouseBack,
-			mouseNext
+			attack,
+			use,
+			pick,
+			decrease,
+			increase
 		);
 	}
 
 	public static final MapCodec<PlayerInput> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		// Movement
 		Codec.BOOL.optionalFieldOf("forward", false).forGetter(PlayerInput::forward),
-		Codec.BOOL.optionalFieldOf("back", false).forGetter(PlayerInput::back),
+		Codec.BOOL.optionalFieldOf("backward", false).forGetter(PlayerInput::backward),
 		Codec.BOOL.optionalFieldOf("left", false).forGetter(PlayerInput::left),
 		Codec.BOOL.optionalFieldOf("right", false).forGetter(PlayerInput::right),
 		Codec.BOOL.optionalFieldOf("jumping", false).forGetter(PlayerInput::jumping),
@@ -123,11 +123,11 @@ public record PlayerInput(
 		Codec.BOOL.optionalFieldOf("alt", false).forGetter(PlayerInput::alt),
 		Codec.BOOL.optionalFieldOf("tab", false).forGetter(PlayerInput::tab),
 		// Mouse
-		Codec.BOOL.optionalFieldOf("mouse_left", false).forGetter(PlayerInput::mouseLeft),
-		Codec.BOOL.optionalFieldOf("mouse_right", false).forGetter(PlayerInput::mouseRight),
-		Codec.BOOL.optionalFieldOf("mouse_middle", false).forGetter(PlayerInput::mouseMiddle),
-		Codec.BOOL.optionalFieldOf("mouse_back", false).forGetter(PlayerInput::mouseBack),
-		Codec.BOOL.optionalFieldOf("mouse_next", false).forGetter(PlayerInput::mouseNext)
+		Codec.BOOL.optionalFieldOf("attack", false).forGetter(PlayerInput::attack),
+		Codec.BOOL.optionalFieldOf("use", false).forGetter(PlayerInput::use),
+		Codec.BOOL.optionalFieldOf("pick", false).forGetter(PlayerInput::pick),
+		Codec.BOOL.optionalFieldOf("decrease", false).forGetter(PlayerInput::decrease),
+		Codec.BOOL.optionalFieldOf("increase", false).forGetter(PlayerInput::increase)
 	).apply(instance, PlayerInput::of));
 
 	public static final Codec<PlayerInput> CODEC = MAP_CODEC.codec();
@@ -173,7 +173,7 @@ public record PlayerInput(
 	}
 
 	public int movementZ() {
-		return (back ? 1 : 0) - (forward ? 1 : 0);
+		return (backward ? 1 : 0) - (forward ? 1 : 0);
 	}
 
 	public Vec3 movement() {
@@ -215,14 +215,10 @@ public record PlayerInput(
 	}
 
 	public boolean isMoving() {
-		return forward || back || left || right || jumping;
+		return forward || backward || left || right || jumping;
 	}
 
 	public boolean isMovingOrCrouching() {
 		return crouching || isMoving();
-	}
-
-	public boolean isAnyMouseButtonDown() {
-		return mouseLeft || mouseRight || mouseMiddle || mouseBack || mouseNext;
 	}
 }

@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Util;
@@ -34,4 +35,5 @@ public interface MCCodecs {
 	Codec<BlockState> BLOCK_STATE = Codec.either(BlockState.CODEC, BuiltInRegistries.BLOCK.byNameCodec()).xmap(either -> either.map(Function.identity(), Block::defaultBlockState), state -> state == state.getBlock().defaultBlockState() ? Either.right(state.getBlock()) : Either.left(state));
 	Codec<FluidState> FLUID_STATE = Codec.either(FluidState.CODEC, BuiltInRegistries.FLUID.byNameCodec()).xmap(either -> either.map(Function.identity(), Fluid::defaultFluidState), state -> state == state.getType().defaultFluidState() ? Either.right(state.getType()) : Either.left(state));
 	Codec<Reference2IntMap<BlockState>> STATE_TO_INT_MAP = Codec.unboundedMap(MCCodecs.BLOCK_STATE, Codec.INT).xmap(Reference2IntLinkedOpenHashMap::new, Function.identity());
+	Codec<AtlasSprite> ATLAS_SPRITE = AtlasSprite.MAP_CODEC.codec();
 }

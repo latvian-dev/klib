@@ -1,7 +1,9 @@
 package dev.latvian.mods.klib.codec;
 
+import com.mojang.math.Transformation;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
+import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Reference2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -9,6 +11,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.VarInt;
+import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
@@ -145,4 +148,18 @@ public interface MCStreamCodecs {
 			}
 		}
 	};
+
+	StreamCodec<ByteBuf, AtlasSprite> ATLAS_SPRITE = CompositeStreamCodec.of(
+		KLibStreamCodecs.optional(ID.STREAM_CODEC, AtlasSprite.DEFAULT_ATLAS), AtlasSprite::atlas,
+		ID.STREAM_CODEC, AtlasSprite::sprite,
+		AtlasSprite::new
+	);
+
+	StreamCodec<ByteBuf, Transformation> TRANSFORMATION = CompositeStreamCodec.of(
+		JOMLStreamCodecs.VEC3C, Transformation::translation,
+		JOMLStreamCodecs.QUATERNIONC, Transformation::leftRotation,
+		JOMLStreamCodecs.VEC3C, Transformation::scale,
+		JOMLStreamCodecs.QUATERNIONC, Transformation::rightRotation,
+		Transformation::new
+	);
 }

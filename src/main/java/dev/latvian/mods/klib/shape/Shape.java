@@ -16,12 +16,15 @@ import org.joml.Vector3fc;
 
 public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 	UnitType<ByteBuf, Shape> EMPTY = UnitType.create("empty", EmptyShape.INSTANCE);
+	UnitType<ByteBuf, Shape> UNIVERSE = UnitType.create("universe", UniverseShape.INSTANCE);
 	CustomRegistry<ByteBuf, Shape> REGISTRY = CustomRegistry.create("shape", EMPTY);
 	Codec<Ref<Shape>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Shape>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Shape>> DATA_TYPE = REGISTRY.dataType();
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Shape> registry) {
+		registry.register(UNIVERSE);
+
 		registry.register(CubeShape.TYPE);
 		registry.register(CuboidShape.TYPE);
 		registry.register(CircleShape.TYPE);
@@ -31,6 +34,7 @@ public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 		registry.register(QuadrilaterallyFacedConvexHexahedra.TYPE);
 		registry.register(RotatedShape.TYPE);
 		registry.register(VoxelShapeBox.TYPE);
+		registry.register(TransformedShape.TYPE);
 
 		registry.register(CubeShape.UNIT_CUBE);
 		registry.register(CuboidShape.UNIT_SQUARE);

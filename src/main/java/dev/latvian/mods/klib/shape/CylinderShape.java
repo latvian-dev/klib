@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
@@ -34,13 +35,13 @@ public record CylinderShape(float width, float height) implements Shape {
 	}
 
 	@Override
-	public Shape optimize() {
+	public Ref<Shape> optimize(Ref<Shape> self) {
 		if (width <= 0F && height <= 0F) {
-			return EmptyShape.INSTANCE;
+			return EMPTY;
 		} else if (width == 1F && height == 1F) {
-			return UNIT_CYLINDER.value();
+			return UNIT_CYLINDER;
 		} else {
-			return this;
+			return self;
 		}
 	}
 

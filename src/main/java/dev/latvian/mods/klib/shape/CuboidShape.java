@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.shape;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
@@ -27,16 +28,18 @@ public record CuboidShape(Vec3f size) implements Shape {
 	}
 
 	@Override
-	public Shape optimize() {
+	public Ref<Shape> optimize(Ref<Shape> self) {
 		if (size.x() <= 0F && size.y() <= 0F && size.z() <= 0F) {
-			return EmptyShape.INSTANCE;
+			return EMPTY;
+		} else if (size.x() == 1F && size.y() == 1F && size.z() == 1F) {
+			return CubeShape.UNIT_CUBE;
 		} else if (size.x() == size.y() && size.x() == size.z()) {
-			return new CubeShape(size.x()).optimize();
+			return new CubeShape(size.x()).ref();
 		} else if (size.x() == 1F && size.y() == 0F && size.z() == 1F) {
-			return UNIT_SQUARE.value();
+			return UNIT_SQUARE;
 		}
 
-		return this;
+		return self;
 	}
 
 	@Override

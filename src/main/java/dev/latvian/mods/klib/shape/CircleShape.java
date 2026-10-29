@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
@@ -28,13 +29,13 @@ public record CircleShape(float size) implements Shape {
 	}
 
 	@Override
-	public Shape optimize() {
+	public Ref<Shape> optimize(Ref<Shape> self) {
 		if (size <= 0F) {
-			return EmptyShape.INSTANCE;
+			return EMPTY;
 		} else if (size == 1F) {
-			return UNIT_CIRCLE.value();
+			return UNIT_CIRCLE;
 		} else {
-			return this;
+			return self;
 		}
 	}
 

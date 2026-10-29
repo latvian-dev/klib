@@ -4,6 +4,7 @@ import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.EasingType;
 
@@ -78,15 +79,15 @@ public final class CompoundGradient implements Gradient {
 	}
 
 	@Override
-	public Gradient optimize() {
+	public Ref<Gradient> optimize(Ref<Gradient> self) {
 		if (sorted.length == 0) {
-			return Gradient.EMPTY.value();
+			return Gradient.EMPTY;
 		} else if (sorted.length == 2 && sorted[0].ease() == EasingType.LINEAR) {
-			return new LinearGradient(sorted[0].color(), sorted[sorted.length - 1].color()).optimize();
+			return new LinearGradient(sorted[0].color(), sorted[sorted.length - 1].color()).optimizedRef();
 		} else if (sorted.length == 1) {
-			return sorted[0].color().toGradient();
+			return sorted[0].color().toGradient().ref();
 		} else {
-			return this;
+			return self;
 		}
 	}
 

@@ -283,11 +283,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	private Ref<V> resolveValueRef(V value) {
-		if (value instanceof RefOptimizer<?> o) {
-			value = (V) o.optimize();
-		}
-
-		return ref(value);
+		return ref(value).optimizedRef();
 	}
 
 	public Ref<V> ref(String key) {

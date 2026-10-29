@@ -12,7 +12,7 @@ public enum EmptyShape implements Shape {
 
 	@Override
 	public UnitType<ByteBuf, Shape> type() {
-		return Shape.EMPTY;
+		return EMPTY;
 	}
 
 	@Override

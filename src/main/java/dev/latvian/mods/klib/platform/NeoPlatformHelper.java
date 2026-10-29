@@ -17,6 +17,8 @@ import dev.latvian.mods.klib.entity.number.EntityNumber;
 import dev.latvian.mods.klib.entity.number.EntityNumberTypeRegistryEvent;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.gradient.GradientTypeRegistryEvent;
+import dev.latvian.mods.klib.icon.Icon;
+import dev.latvian.mods.klib.icon.IconTypeRegistryEvent;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.interpolation.InterpolationTypeRegistryEvent;
 import dev.latvian.mods.klib.knumber.KNumber;
@@ -271,5 +273,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	public void collectKVectorTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, KVector> registry) {
 		super.collectKVectorTypes(registry);
 		ModLoader.postEvent(new KVectorTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectIconTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
+		super.collectIconTypes(registry);
+		ModLoader.postEvent(new IconTypeRegistryEvent(registry));
 	}
 }

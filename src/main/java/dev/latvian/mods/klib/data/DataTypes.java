@@ -7,6 +7,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.block.PositionedBlock;
@@ -15,16 +16,18 @@ import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
+import dev.latvian.mods.klib.entity.PlayerInput;
 import dev.latvian.mods.klib.entity.PositionType;
-import dev.latvian.mods.klib.gradient.Gradient;
-import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.io.CompressionMethod;
 import dev.latvian.mods.klib.io.checksum.CRC32;
 import dev.latvian.mods.klib.io.checksum.Checksum;
 import dev.latvian.mods.klib.io.checksum.MD5;
 import dev.latvian.mods.klib.io.checksum.SHA1;
 import dev.latvian.mods.klib.io.checksum.SHA256;
+import dev.latvian.mods.klib.io.checksum.SHA384;
+import dev.latvian.mods.klib.io.checksum.SHA512;
 import dev.latvian.mods.klib.math.ClipPosition;
+import dev.latvian.mods.klib.math.ComputedTransformation;
 import dev.latvian.mods.klib.math.InterpolatedDouble;
 import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
@@ -32,7 +35,7 @@ import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
-import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.util.ColorBlendMode;
 import dev.latvian.mods.klib.util.Hex32;
 import dev.latvian.mods.klib.util.Hex64;
 import dev.latvian.mods.klib.util.ID;
@@ -65,6 +68,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -160,6 +164,8 @@ public interface DataTypes {
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM);
 	DataType<ClientAsset.ResourceTexture> RESOURCE_TEXTURE = DataType.of(ClientAsset.ResourceTexture.CODEC, ClientAsset.ResourceTexture.STREAM_CODEC);
 	DataType<EasingType> EASING_TYPE = DataType.of(EasingType.CODEC, MCStreamCodecs.EASING_TYPE);
+	DataType<AtlasSprite> ATLAS_SPRITE = DataType.of(MCCodecs.ATLAS_SPRITE, MCStreamCodecs.ATLAS_SPRITE);
+	DataType<Transformation> TRANSFORMATION = DataType.of(Transformation.CODEC, MCStreamCodecs.TRANSFORMATION);
 
 	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
 		registry.register("data_type", DataType.DATA_TYPE);
@@ -205,11 +211,11 @@ public interface DataTypes {
 		registry.register("platform", PLATFORM);
 		registry.register("resource_texture", RESOURCE_TEXTURE);
 		registry.register("easing_type", EASING_TYPE);
+		registry.register("atlas_sprite", ATLAS_SPRITE);
+		registry.register("transformation", TRANSFORMATION);
 
 		registry.register("color", Color.DATA_TYPE);
 		registry.register("solid_color", Color.SOLID_DATA_TYPE);
-		registry.register("gradient", Gradient.DATA_TYPE);
-		registry.register("shape", Shape.DATA_TYPE);
 		registry.register("rotation", dev.latvian.mods.klib.math.Rotation.DATA_TYPE);
 		registry.register("rotation_with_roll", dev.latvian.mods.klib.math.Rotation.DATA_TYPE_WITH_ROLL);
 		registry.register("movement_type", MovementType.DATA_TYPE);
@@ -219,7 +225,6 @@ public interface DataTypes {
 		registry.register("entity_selector/entities", ParsedEntitySelector.ENTITIES_DATA_TYPE);
 		registry.register("entity_selector/players", ParsedEntitySelector.PLAYERS_DATA_TYPE);
 		registry.register("entity_selector", ParsedEntitySelector.DATA_TYPE);
-		registry.register("interpolation", Interpolation.DATA_TYPE);
 		registry.register("int_or_uuid", IntOrUUID.DATA_TYPE);
 		registry.register("line", Line.DATA_TYPE);
 		registry.register("interpolated_float", InterpolatedFloat.DATA_TYPE);
@@ -232,6 +237,8 @@ public interface DataTypes {
 		registry.register("md5", MD5.DATA_TYPE);
 		registry.register("sha1", SHA1.DATA_TYPE);
 		registry.register("sha256", SHA256.DATA_TYPE);
+		registry.register("sha384", SHA384.DATA_TYPE);
+		registry.register("sha512", SHA512.DATA_TYPE);
 		registry.register("hex32", Hex32.DATA_TYPE);
 		registry.register("lenient_hex32", Hex32.LENIENT_DATA_TYPE);
 		registry.register("hex64", Hex64.DATA_TYPE);
@@ -243,6 +250,9 @@ public interface DataTypes {
 		registry.register("positioned_block", PositionedBlock.DATA_TYPE);
 		registry.register("positioned_block_list", PositionedBlock.LIST_DATA_TYPE);
 		registry.register("position_type", PositionType.DATA_TYPE);
+		registry.register("player_input", PlayerInput.DATA_TYPE);
+		registry.register("color_blend_mode", ColorBlendMode.DATA_TYPE);
+		registry.register("computed_transformation", ComputedTransformation.DATA_TYPE);
 	}
 
 	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {

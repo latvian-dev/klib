@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.util.net;
 
+import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.io.CompressionMethod;
 import dev.latvian.mods.klib.platform.PlatformHelper;
@@ -8,6 +9,7 @@ import net.minecraft.util.FastBufferedInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -100,5 +102,21 @@ public interface NetUtils {
 		}
 
 		return response;
+	}
+
+	static DataResult<byte[]> fetch(URI uri) {
+		HttpResponseData response = null;
+
+		try {
+			response = send(newRequest().uri(uri).GET().build(), true);
+			return DataResult.success(response.data);
+		} catch (Exception ex) {
+			if (response != null) {
+				var res = response;
+				return DataResult.error(() -> "Error " + res.code + ": " + ex);
+			} else {
+				return DataResult.error(ex::toString);
+			}
+		}
 	}
 }

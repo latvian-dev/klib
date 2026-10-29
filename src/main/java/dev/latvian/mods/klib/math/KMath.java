@@ -302,16 +302,11 @@ public interface KMath {
 	}
 
 	static boolean isIdentity(Matrix3fc m) {
-		return m.m00() == 1F && m.m01() == 0F && m.m02() == 0F &&
-			m.m10() == 0F && m.m11() == 1F && m.m12() == 0F &&
-			m.m20() == 0F && m.m21() == 0F && m.m22() == 1F;
+		return !(m.m00() != 1F || m.m01() != 0F || m.m02() != 0F || m.m10() != 0F || m.m11() != 1F || m.m12() != 0F || m.m20() != 0F || m.m21() != 0F || m.m22() != 1F);
 	}
 
 	static boolean isIdentity(Matrix4fc m) {
-		return m.m00() == 1F && m.m01() == 0F && m.m02() == 0F && m.m03() == 0F &&
-			m.m10() == 0F && m.m11() == 1F && m.m12() == 0F && m.m13() == 0F &&
-			m.m20() == 0F && m.m21() == 0F && m.m22() == 1F && m.m23() == 0F &&
-			m.m30() == 0F && m.m31() == 0F && m.m32() == 0F && m.m33() == 1F;
+		return (m.properties() & Matrix4fc.PROPERTY_IDENTITY) != 0;
 	}
 
 	static double dist(double x0, double y0, double z0, double x1, double y1, double z1) {

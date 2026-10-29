@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.DynamicType;
+import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
@@ -31,23 +32,23 @@ public record LineShape(Vec3f vector) implements Shape {
 	}
 
 	@Override
-	public Shape optimize() {
+	public Ref<Shape> optimize(Ref<Shape> self) {
 		if (vector.lengthSq() <= 0F) {
-			return EmptyShape.INSTANCE;
+			return EMPTY;
 		} else if (vector == Vec3f.DOWN) {
-			return UNIT_DOWN_LINE.value();
+			return UNIT_DOWN_LINE;
 		} else if (vector == Vec3f.UP) {
-			return UNIT_UP_LINE.value();
+			return UNIT_UP_LINE;
 		} else if (vector == Vec3f.NORTH) {
-			return UNIT_NORTH_LINE.value();
+			return UNIT_NORTH_LINE;
 		} else if (vector == Vec3f.SOUTH) {
-			return UNIT_SOUTH_LINE.value();
+			return UNIT_SOUTH_LINE;
 		} else if (vector == Vec3f.WEST) {
-			return UNIT_WEST_LINE.value();
+			return UNIT_WEST_LINE;
 		} else if (vector == Vec3f.EAST) {
-			return UNIT_EAST_LINE.value();
+			return UNIT_EAST_LINE;
 		} else {
-			return this;
+			return self;
 		}
 	}
 

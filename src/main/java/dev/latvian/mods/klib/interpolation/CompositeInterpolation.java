@@ -74,29 +74,29 @@ public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> o
 	}
 
 	@Override
-	public Interpolation optimize() {
+	public Ref<Interpolation> optimize(Ref<Interpolation> self) {
 		if (in == EaseIn.SINE.type && out == EaseOut.SINE.type) {
-			return SINE.value();
+			return SINE;
 		} else if (in == EaseIn.QUAD.type && out == EaseOut.QUAD.type) {
-			return QUAD.value();
+			return QUAD;
 		} else if (in == EaseIn.CUBIC.type && out == EaseOut.CUBIC.type) {
-			return CUBIC.value();
+			return CUBIC;
 		} else if (in == EaseIn.QUART.type && out == EaseOut.QUART.type) {
-			return QUART.value();
+			return QUART;
 		} else if (in == EaseIn.QUINT.type && out == EaseOut.QUINT.type) {
-			return QUINT.value();
+			return QUINT;
 		} else if (in == EaseIn.EXPO.type && out == EaseOut.EXPO.type) {
-			return EXPO.value();
+			return EXPO;
 		} else if (in == EaseIn.CIRC.type && out == EaseOut.CIRC.type) {
-			return CIRC.value();
+			return CIRC;
 		} else if (in == EaseIn.BACK.type && out == EaseOut.BACK.type) {
-			return BACK.value();
+			return BACK;
 		} else if (in == EaseIn.ELASTIC.type && out == EaseOut.ELASTIC.type) {
-			return ELASTIC.value();
+			return ELASTIC;
 		} else if (in == EaseIn.BOUNCE.type && out == EaseOut.BOUNCE.type) {
-			return BOUNCE.value();
+			return BOUNCE;
 		} else {
-			return this;
+			return self;
 		}
 	}
 }
