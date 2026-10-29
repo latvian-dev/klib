@@ -46,5 +46,8 @@
 	],
 	"net/minecraft/network/chat/Style": [
 		"dev/latvian/mods/klib/core/KLibStyle"
+	],
+	"net/minecraft/client/renderer/culling/Frustum": [
+		"dev/latvian/mods/klib/core/KLibFrustum"
 	]
 }
