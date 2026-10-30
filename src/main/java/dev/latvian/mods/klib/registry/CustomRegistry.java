@@ -10,6 +10,7 @@ import dev.latvian.mods.klib.command.CustomRegistryArgument;
 import dev.latvian.mods.klib.core.KLibFriendlyByteBuf;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.io.IOUtils;
+import dev.latvian.mods.klib.net.S2CPacketConsumer;
 import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
 import dev.latvian.mods.klib.platform.PlatformHelper;
@@ -79,7 +80,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public static void syncAll(ServerPlayer player, Consumer<Packet<? super ClientGamePacketListener>> callback) {
+	public static void syncAll(ServerPlayer player, S2CPacketConsumer callback) {
 		var registryAccess = player.registryAccess();
 		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
 		var metaList = new ArrayList<CustomRegistryMetaInfo>();
@@ -88,10 +89,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			metaList.add(registry.writeMeta());
 		}
 
-		callback.accept(new ClientboundCustomPayloadPacket(new SyncCustomRegistryMetaPayload(metaList)));
+		callback.s2c(new SyncCustomRegistryMetaPayload(metaList));
 
 		for (var registry : CustomRegistry.ALL.values()) {
-			callback.accept(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType))));
+			callback.s2c(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType)));
 		}
 	}
 
