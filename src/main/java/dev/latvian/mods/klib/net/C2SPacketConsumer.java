@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import org.jetbrains.annotations.Nullable;
 
+@FunctionalInterface
 public interface C2SPacketConsumer {
 	void c2s(@Nullable Packet<? super ServerGamePacketListener> packet);
 
