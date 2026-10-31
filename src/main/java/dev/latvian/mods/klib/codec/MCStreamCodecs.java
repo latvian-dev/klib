@@ -20,6 +20,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.util.EasingType;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -182,4 +184,12 @@ public interface MCStreamCodecs {
 			throw new IllegalArgumentException("Invalid texture type " + texture);
 		}
 	});
+
+	StreamCodec<ByteBuf, PlayerSkin> SECURE_PLAYER_SKIN = CompositeStreamCodec.of(
+		MCStreamCodecs.TEXTURE, PlayerSkin::body,
+		KLibStreamCodecs.nullable(MCStreamCodecs.TEXTURE), PlayerSkin::cape,
+		KLibStreamCodecs.nullable(MCStreamCodecs.TEXTURE), PlayerSkin::elytra,
+		PlayerModelType.STREAM_CODEC, PlayerSkin::model,
+		(body, cape, elytra, model) -> new PlayerSkin(body, cape, elytra, model, true)
+	);
 }

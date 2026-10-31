@@ -16,6 +16,8 @@ import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +27,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -55,4 +58,17 @@ public interface MCCodecs {
 			return DataResult.error(() -> "Invalid texture type " + texture);
 		}
 	});
+
+	Codec<PlayerSkin> SECURE_PLAYER_SKIN = RecordCodecBuilder.create(instance -> instance.group(
+		MCCodecs.TEXTURE.fieldOf("texture").forGetter(PlayerSkin::body),
+		MCCodecs.TEXTURE.optionalFieldOf("cape").forGetter(s -> Optional.ofNullable(s.cape())),
+		MCCodecs.TEXTURE.optionalFieldOf("elytra").forGetter(s -> Optional.ofNullable(s.elytra())),
+		PlayerModelType.CODEC.optionalFieldOf("model", PlayerModelType.WIDE).forGetter(PlayerSkin::model)
+	).apply(instance, (texture, cape, elytra, model) -> new PlayerSkin(
+		texture,
+		cape.orElse(null),
+		elytra.orElse(null),
+		model,
+		true
+	)));
 }
