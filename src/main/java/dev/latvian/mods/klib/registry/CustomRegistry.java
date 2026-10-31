@@ -10,6 +10,7 @@ import dev.latvian.mods.klib.command.CustomRegistryArgument;
 import dev.latvian.mods.klib.core.KLibFriendlyByteBuf;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.io.IOUtils;
+import dev.latvian.mods.klib.net.S2CPacketBundleBuilder;
 import dev.latvian.mods.klib.net.S2CPacketConsumer;
 import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
@@ -31,11 +32,9 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +79,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public static void syncAll(ServerPlayer player, S2CPacketConsumer callback) {
+	public static void syncAll(Player player, S2CPacketConsumer callback) {
 		var registryAccess = player.registryAccess();
 		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
 		var metaList = new ArrayList<CustomRegistryMetaInfo>();
@@ -97,9 +96,9 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	public static void syncAll(ServerPlayer player) {
-		var packets = new ArrayList<Packet<? super ClientGamePacketListener>>();
-		syncAll(player, packets::add);
-		player.connection.send(new ClientboundBundlePacket(packets));
+		var packets = new S2CPacketBundleBuilder();
+		syncAll(player, packets);
+		packets.send(player.connection::send);
 	}
 
 	private record CustomRegistryTypeCollectorImpl<B extends ByteBuf, V>(CustomRegistry<B, V> registry, List<CustomRegistryType<B, V>> list) implements CustomRegistryTypeCollector<B, V> {

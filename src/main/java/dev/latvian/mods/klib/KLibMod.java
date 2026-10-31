@@ -8,6 +8,7 @@ import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryMetaInfo;
 import dev.latvian.mods.klib.util.Cast;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -42,12 +43,12 @@ public class KLibMod {
 		KLibCommands.register(event.getDispatcher(), event.getBuildContext());
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void serverStarting(ServerStartingEvent event) {
 		CustomRegistry.buildAllMeta();
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void syncDataPacks(OnDatapackSyncEvent event) {
 		event.getRelevantPlayers().forEach(CustomRegistry::syncAll);
 	}

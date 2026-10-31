@@ -4,11 +4,10 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface S2CPacketConsumer {
-	void s2c(@Nullable Packet<? super ClientGamePacketListener> packet);
+	void s2c(Packet<? super ClientGamePacketListener> packet);
 
 	default void s2c(CustomPacketPayload packet) {
 		s2c(new ClientboundCustomPayloadPacket(packet));
