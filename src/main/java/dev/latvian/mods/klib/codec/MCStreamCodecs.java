@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.codec;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.math.Transformation;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.Empty;
@@ -7,6 +8,7 @@ import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Reference2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +27,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.function.Function;
 
 public interface MCStreamCodecs {
 	StreamCodec<ByteBuf, Util.OS> PLATFORM = KLibStreamCodecs.anyEnum(Util.OS.values());
@@ -162,4 +166,20 @@ public interface MCStreamCodecs {
 		JOMLStreamCodecs.QUATERNIONC, Transformation::rightRotation,
 		Transformation::new
 	);
+
+	StreamCodec<ByteBuf, ClientAsset.DownloadedTexture> DOWNLOADED_TEXTURE = CompositeStreamCodec.of(
+		ID.STREAM_CODEC, ClientAsset.DownloadedTexture::texturePath,
+		ByteBufCodecs.STRING_UTF8, ClientAsset.DownloadedTexture::url,
+		ClientAsset.DownloadedTexture::new
+	);
+
+	StreamCodec<ByteBuf, ClientAsset.Texture> TEXTURE = ByteBufCodecs.either(ClientAsset.ResourceTexture.STREAM_CODEC, DOWNLOADED_TEXTURE).map(either -> either.map(Function.identity(), Function.identity()), texture -> {
+		if (texture instanceof ClientAsset.ResourceTexture tex) {
+			return Either.left(tex);
+		} else if (texture instanceof ClientAsset.DownloadedTexture tex) {
+			return Either.right(tex);
+		} else {
+			throw new IllegalArgumentException("Invalid texture type " + texture);
+		}
+	});
 }

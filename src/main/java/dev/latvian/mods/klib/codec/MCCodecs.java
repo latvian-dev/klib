@@ -2,9 +2,13 @@ package dev.latvian.mods.klib.codec;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.math.KMath;
+import dev.latvian.mods.klib.util.ID;
 import it.unimi.dsi.fastutil.objects.Reference2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -36,4 +40,19 @@ public interface MCCodecs {
 	Codec<FluidState> FLUID_STATE = Codec.either(FluidState.CODEC, BuiltInRegistries.FLUID.byNameCodec()).xmap(either -> either.map(Function.identity(), Fluid::defaultFluidState), state -> state == state.getType().defaultFluidState() ? Either.right(state.getType()) : Either.left(state));
 	Codec<Reference2IntMap<BlockState>> STATE_TO_INT_MAP = Codec.unboundedMap(MCCodecs.BLOCK_STATE, Codec.INT).xmap(Reference2IntLinkedOpenHashMap::new, Function.identity());
 	Codec<AtlasSprite> ATLAS_SPRITE = AtlasSprite.MAP_CODEC.codec();
+
+	Codec<ClientAsset.DownloadedTexture> DOWNLOADED_TEXTURE = RecordCodecBuilder.create(i -> i.group(
+		ID.CODEC.fieldOf("texture").forGetter(ClientAsset.DownloadedTexture::texturePath),
+		Codec.STRING.fieldOf("url").forGetter(ClientAsset.DownloadedTexture::url)
+	).apply(i, ClientAsset.DownloadedTexture::new));
+
+	Codec<ClientAsset.Texture> TEXTURE = Codec.either(ClientAsset.ResourceTexture.CODEC, DOWNLOADED_TEXTURE).flatComapMap(either -> either.map(Function.identity(), Function.identity()), texture -> {
+		if (texture instanceof ClientAsset.ResourceTexture tex) {
+			return DataResult.success(Either.left(tex));
+		} else if (texture instanceof ClientAsset.DownloadedTexture tex) {
+			return DataResult.success(Either.right(tex));
+		} else {
+			return DataResult.error(() -> "Invalid texture type " + texture);
+		}
+	});
 }

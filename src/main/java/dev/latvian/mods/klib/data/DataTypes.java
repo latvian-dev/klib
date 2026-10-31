@@ -169,6 +169,8 @@ public interface DataTypes {
 	DataType<ResourceKey<Level>> DIMENSION = DataType.of(MCCodecs.DIMENSION, MCStreamCodecs.DIMENSION);
 	DataType<Util.OS> PLATFORM = DataType.of(MCCodecs.PLATFORM, MCStreamCodecs.PLATFORM);
 	DataType<ClientAsset.ResourceTexture> RESOURCE_TEXTURE = DataType.of(ClientAsset.ResourceTexture.CODEC, ClientAsset.ResourceTexture.STREAM_CODEC);
+	DataType<ClientAsset.DownloadedTexture> DOWNLOADED_TEXTURE = DataType.of(MCCodecs.DOWNLOADED_TEXTURE, MCStreamCodecs.DOWNLOADED_TEXTURE);
+	DataType<ClientAsset.Texture> TEXTURE = DataType.of(MCCodecs.TEXTURE, MCStreamCodecs.TEXTURE);
 	DataType<EasingType> EASING_TYPE = DataType.of(EasingType.CODEC, MCStreamCodecs.EASING_TYPE);
 	DataType<AtlasSprite> ATLAS_SPRITE = DataType.of(MCCodecs.ATLAS_SPRITE, MCStreamCodecs.ATLAS_SPRITE);
 	DataType<Transformation> TRANSFORMATION = DataType.of(Transformation.CODEC, MCStreamCodecs.TRANSFORMATION);
@@ -216,6 +218,8 @@ public interface DataTypes {
 		registry.register("dimension", DIMENSION);
 		registry.register("platform", PLATFORM);
 		registry.register("resource_texture", RESOURCE_TEXTURE);
+		registry.register("downloaded_texture", DOWNLOADED_TEXTURE);
+		registry.register("texture", TEXTURE);
 		registry.register("easing_type", EASING_TYPE);
 		registry.register("atlas_sprite", ATLAS_SPRITE);
 		registry.register("transformation", TRANSFORMATION);

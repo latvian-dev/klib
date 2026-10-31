@@ -3,6 +3,8 @@ package dev.latvian.mods.klib.util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.codec.MCCodecs;
+import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.ClientAsset;
@@ -11,8 +13,9 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
-public record SkinTexture(ClientAsset.ResourceTexture asset, boolean slim) {
+public record SkinTexture(ClientAsset.Texture asset, boolean slim) {
 	public static final SkinTexture WIDE_STEVE = new SkinTexture("entity/player/wide/steve", false);
 	public static final SkinTexture WIDE_ALEX = new SkinTexture("entity/player/wide/alex", false);
 	public static final SkinTexture WIDE_ARI = new SkinTexture("entity/player/wide/ari", false);
@@ -23,7 +26,7 @@ public record SkinTexture(ClientAsset.ResourceTexture asset, boolean slim) {
 	public static final SkinTexture WIDE_SUNNY = new SkinTexture("entity/player/wide/sunny", false);
 	public static final SkinTexture WIDE_ZURI = new SkinTexture("entity/player/wide/zuri", false);
 
-	public static final SkinTexture[] DEFAULT_WIDE = {
+	public static final List<SkinTexture> DEFAULT_WIDE = List.of(
 		WIDE_STEVE,
 		WIDE_ALEX,
 		WIDE_ARI,
@@ -33,7 +36,7 @@ public record SkinTexture(ClientAsset.ResourceTexture asset, boolean slim) {
 		WIDE_NOOR,
 		WIDE_SUNNY,
 		WIDE_ZURI
-	};
+	);
 
 	public static final SkinTexture SLIM_STEVE = new SkinTexture("entity/player/slim/steve", true);
 	public static final SkinTexture SLIM_ALEX = new SkinTexture("entity/player/slim/alex", true);
@@ -45,7 +48,7 @@ public record SkinTexture(ClientAsset.ResourceTexture asset, boolean slim) {
 	public static final SkinTexture SLIM_SUNNY = new SkinTexture("entity/player/slim/sunny", true);
 	public static final SkinTexture SLIM_ZURI = new SkinTexture("entity/player/slim/zuri", true);
 
-	public static final SkinTexture[] DEFAULT_SLIM = {
+	public static final List<SkinTexture> DEFAULT_SLIM = List.of(
 		SLIM_STEVE,
 		SLIM_ALEX,
 		SLIM_ARI,
@@ -55,15 +58,17 @@ public record SkinTexture(ClientAsset.ResourceTexture asset, boolean slim) {
 		SLIM_NOOR,
 		SLIM_SUNNY,
 		SLIM_ZURI
-	};
+	);
+
+	public static final List<SkinTexture> DEFAULT = List.copyOf(Stream.concat(DEFAULT_WIDE.stream(), DEFAULT_SLIM.stream()).toList());
 
 	public static final Codec<SkinTexture> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		ClientAsset.ResourceTexture.CODEC.fieldOf("texture").forGetter(SkinTexture::asset),
+		MCCodecs.TEXTURE.fieldOf("texture").forGetter(SkinTexture::asset),
 		Codec.BOOL.optionalFieldOf("slim", false).forGetter(SkinTexture::slim)
 	).apply(instance, SkinTexture::new));
 
 	public static final StreamCodec<ByteBuf, SkinTexture> STREAM_CODEC = CompositeStreamCodec.of(
-		ClientAsset.ResourceTexture.STREAM_CODEC, SkinTexture::asset,
+		MCStreamCodecs.TEXTURE, SkinTexture::asset,
 		ByteBufCodecs.BOOL, SkinTexture::slim,
 		SkinTexture::new
 	);
@@ -72,7 +77,7 @@ public record SkinTexture(ClientAsset.ResourceTexture asset, boolean slim) {
 	public static final DataType<List<SkinTexture>> LIST_DATA_TYPE = DATA_TYPE.listOf();
 	public static final DataType<Set<SkinTexture>> SET_DATA_TYPE = DATA_TYPE.setOf();
 
-	public SkinTexture(String path, boolean slim) {
+	private SkinTexture(String path, boolean slim) {
 		this(new ClientAsset.ResourceTexture(ID.mc(path)), slim);
 	}
 }
