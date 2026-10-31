@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
-import dev.latvian.mods.klib.codec.KLibStreamCodecs;
+import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.util.ID;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -170,6 +170,7 @@ public final class SpriteKey {
 
 	public static final Codec<SpriteKey> PREFER_SPECIAL_CODEC = KLibCodecs.or(SPECIAL_CODEC, CODEC);
 	public static final Codec<SpriteKey> PREFER_BLOCK_CODEC = KLibCodecs.or(BLOCK_CODEC, CODEC);
+	public static final Codec<SpriteKey> PREFER_ITEM_CODEC = KLibCodecs.or(ITEM_CODEC, CODEC);
 
 	public static final StreamCodec<ByteBuf, SpriteKey> STREAM_CODEC = new StreamCodec<>() {
 		@Override
@@ -210,7 +211,7 @@ public final class SpriteKey {
 		}
 	};
 
-	public static final StreamCodec<ByteBuf, SpriteKey> OPTIONAL_STREAM_CODEC = KLibStreamCodecs.optional(STREAM_CODEC, EMPTY);
+	public static final DataType<SpriteKey> DATA_TYPE = DataType.of(PREFER_SPECIAL_CODEC, STREAM_CODEC);
 
 	private final int atlasType;
 	private final Identifier atlas;

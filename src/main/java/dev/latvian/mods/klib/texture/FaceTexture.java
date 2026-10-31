@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
+import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -33,6 +34,8 @@ public record FaceTexture(SpriteKey sprite, boolean cull, Color tint, float uvSc
 	);
 
 	public static final StreamCodec<ByteBuf, Optional<FaceTexture>> OPTIONAL_STREAM_CODEC = ByteBufCodecs.optional(STREAM_CODEC);
+
+	public static final DataType<FaceTexture> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 
 	public FaceTexture(SpriteKey sprite, boolean cull) {
 		this(sprite, cull, Color.WHITE, 1F, 0D);

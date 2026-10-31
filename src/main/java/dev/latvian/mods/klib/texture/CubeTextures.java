@@ -3,8 +3,8 @@ package dev.latvian.mods.klib.texture;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Optional;
@@ -41,5 +41,5 @@ public record CubeTextures(
 		CubeTextures::new
 	);
 
-	public static final StreamCodec<ByteBuf, Optional<CubeTextures>> OPTIONAL_STREAM_CODEC = ByteBufCodecs.optional(STREAM_CODEC);
+	public static final DataType<CubeTextures> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
 }
