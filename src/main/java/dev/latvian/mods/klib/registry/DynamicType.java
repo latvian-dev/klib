@@ -5,7 +5,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.util.Cast;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -17,6 +20,8 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 	public static <B extends ByteBuf, V, D extends V, T> DynamicType<B, V> create(String id, String fieldName, Codec<T> codec, StreamCodec<? super B, T> streamCodec, Function<T, D> factory, Function<D, T> getter) {
 		return create(id, RecordCodecBuilder.mapCodec(instance -> instance.group(codec.fieldOf(fieldName).forGetter(getter)).apply(instance, factory)), streamCodec.map(factory, getter));
 	}
+
+	private Int2ObjectMap<Object> properties;
 
 	DynamicType(String key, MapCodec<V> mapCodec, StreamCodec<? super B, V> streamCodec) {
 		super(key);
@@ -36,5 +41,28 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 	@Override
 	public DynamicType<B, V> type() {
 		return this;
+	}
+
+	public void setProperty(int key, @Nullable Object value) {
+		if (value == null) {
+			if (properties != null) {
+				properties.remove(key);
+
+				if (properties.isEmpty()) {
+					properties = null;
+				}
+			}
+		} else {
+			if (properties == null) {
+				properties = new Int2ObjectArrayMap<>(3);
+			}
+
+			properties.put(key, value);
+		}
+	}
+
+	@Nullable
+	public Object getProperty(int key) {
+		return properties == null ? null : properties.get(key);
 	}
 }

@@ -20,7 +20,7 @@ public class SimpleColorIconRenderState extends IconRenderState<SimpleColorIcon>
 
 	@Override
 	public void submit(WorldContext ctx) {
-		ctx.submitNodeCollector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.whiteCull(color.alpha() < 255), (pose, buffer) -> {
+		ctx.collector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.whiteCull(color.alpha() < 255), (pose, buffer) -> {
 			int colR = color.red();
 			int colG = color.green();
 			int colB = color.blue();

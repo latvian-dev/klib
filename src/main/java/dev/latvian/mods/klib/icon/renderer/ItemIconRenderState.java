@@ -33,7 +33,7 @@ public class ItemIconRenderState extends IconRenderState<ItemIcon> {
 		ms.pushPose();
 		ms.translate(0F, -0.25F, 0F);
 		ms.scale(1.75F, 1.75F, 1.75F);
-		stackRenderState.submit(ms, ctx.submitNodeCollector(), ctx.light(), ctx.overlay(), 0);
+		stackRenderState.submit(ms, ctx.collector(), ctx.light(), ctx.overlay(), 0);
 		ms.popPose();
 	}
 }

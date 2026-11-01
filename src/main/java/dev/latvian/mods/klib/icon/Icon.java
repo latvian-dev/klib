@@ -18,6 +18,8 @@ public interface Icon extends CustomRegistryValue<RegistryFriendlyByteBuf, Icon>
 	StreamCodec<RegistryFriendlyByteBuf, Ref<Icon>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Icon>> DATA_TYPE = REGISTRY.dataType();
 
+	int PROPERTY_RENDER_STATE_FACTORY = 0;
+
 	static void builtInTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
 		registry.register(SimpleColorIcon.TYPE);
 		registry.register(TextureIcon.TYPE);

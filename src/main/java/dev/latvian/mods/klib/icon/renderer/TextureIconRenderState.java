@@ -29,7 +29,7 @@ public class TextureIconRenderState extends IconRenderState<TextureIcon> {
 
 	@Override
 	public void submit(WorldContext ctx) {
-		ctx.submitNodeCollector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.textureCull(texture, color.alpha() < 255 || translucent), (pose, buffer) -> {
+		ctx.collector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.textureCull(texture, color.alpha() < 255 || translucent), (pose, buffer) -> {
 			int colR = color.red();
 			int colG = color.green();
 			int colB = color.blue();

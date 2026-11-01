@@ -27,7 +27,7 @@ public class AtlasSpriteIconRenderState extends IconRenderState<AtlasSpriteIcon>
 
 	@Override
 	public void submit(WorldContext ctx) {
-		ctx.submitNodeCollector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.texture(sprite.atlasLocation(), tint.alpha() < 255 || translucent), (pose, buffer) -> {
+		ctx.collector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.texture(sprite.atlasLocation(), tint.alpha() < 255 || translucent), (pose, buffer) -> {
 			int colR = tint.red();
 			int colG = tint.green();
 			int colB = tint.blue();

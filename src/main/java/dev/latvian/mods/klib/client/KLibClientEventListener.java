@@ -27,10 +27,10 @@ public class KLibClientEventListener {
 
 	@SubscribeEvent
 	public static void registerIconRenderStates(IconRenderStateRegistryEvent event) {
-		event.register(SimpleColorIcon.class, SimpleColorIconRenderState::new);
-		event.register(TextureIcon.class, TextureIconRenderState::new);
-		event.register(ItemIcon.class, ItemIconRenderState::new);
-		event.register(AtlasSpriteIcon.class, AtlasSpriteIconRenderState::new);
+		event.register(SimpleColorIcon.TYPE, SimpleColorIconRenderState::new);
+		event.register(TextureIcon.TYPE, TextureIconRenderState::new);
+		event.register(ItemIcon.TYPE, ItemIconRenderState::new);
+		event.register(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::new);
 	}
 
 	@SubscribeEvent
