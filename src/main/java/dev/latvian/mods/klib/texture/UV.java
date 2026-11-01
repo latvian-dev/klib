@@ -2,10 +2,10 @@ package dev.latvian.mods.klib.texture;
 
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.math.KMath;
-import dev.latvian.mods.klib.math.Vec3f;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Vector3fc;
 
 import java.util.List;
 
@@ -73,7 +73,7 @@ public record UV(float u0, float v0, float u1, float v1) {
 		this(all, all, all, all);
 	}
 
-	public UV uvsByFace(Vec3f from, Vec3f to, Direction face) {
+	public UV uvsByFace(Vector3fc from, Vector3fc to, Direction face) {
 		return switch (face) {
 			case DOWN -> new UV(from.x(), 1F - to.z(), to.x(), 1F - from.z());
 			case UP -> new UV(from.x(), from.z(), to.x(), to.z());

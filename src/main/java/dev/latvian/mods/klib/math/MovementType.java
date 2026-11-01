@@ -4,6 +4,7 @@ import dev.latvian.mods.klib.data.DataType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
+import org.joml.Vector3f;
 
 public enum MovementType implements StringRepresentable {
 	ANGLED("angled"),
@@ -26,9 +27,9 @@ public enum MovementType implements StringRepresentable {
 		return name;
 	}
 
-	public Vec3f delta(RandomSource random, float radius, float deviate, Rotation rotation) {
+	public Vector3f delta(RandomSource random, float radius, float deviate, Rotation rotation) {
 		if (this == SQUARE || this == CUBIC) {
-			return new Vec3f(
+			return new Vector3f(
 				Mth.lerp(random.nextFloat(), -radius, radius),
 				this == SQUARE ? 0F : Mth.lerp(random.nextFloat(), -radius, radius),
 				Mth.lerp(random.nextFloat(), -radius, radius)
@@ -43,6 +44,6 @@ public enum MovementType implements StringRepresentable {
 			pitch += random.nextFloat() * deviate - deviate / 2F;
 		}
 
-		return Rotation.deg(yaw, pitch).lookVec3f(radius);
+		return Rotation.deg(yaw, pitch).lookVector3f(radius);
 	}
 }

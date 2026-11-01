@@ -1,5 +1,8 @@
 package dev.latvian.mods.klib.shape;
 
+import dev.latvian.mods.klib.codec.JOMLCodecs;
+import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
@@ -9,7 +12,7 @@ import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
-public record LineShape(Vec3f vector) implements Shape {
+public record LineShape(Vector3fc vector, AAFBB box) implements Shape {
 	public static final UnitType<ByteBuf, Shape> UNIT_DOWN_LINE = UnitType.create("unit_down_line", new LineShape(Vec3f.DOWN));
 	public static final UnitType<ByteBuf, Shape> UNIT_UP_LINE = UnitType.create("unit_up_line", new LineShape(Vec3f.UP));
 	public static final UnitType<ByteBuf, Shape> UNIT_NORTH_LINE = UnitType.create("unit_north_line", new LineShape(Vec3f.NORTH));
@@ -20,11 +23,15 @@ public record LineShape(Vec3f vector) implements Shape {
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
 		"line",
 		"vector",
-		Vec3f.CODEC,
-		Vec3f.STREAM_CODEC,
+		JOMLCodecs.VEC3C,
+		JOMLStreamCodecs.VEC3C,
 		LineShape::new,
 		LineShape::vector
 	);
+
+	public LineShape(Vector3fc vector) {
+		this(vector, AAFBB.between(Vec3f.ZERO, vector));
+	}
 
 	@Override
 	public DynamicType<ByteBuf, Shape> type() {
@@ -33,7 +40,7 @@ public record LineShape(Vec3f vector) implements Shape {
 
 	@Override
 	public Ref<Shape> optimize(Ref<Shape> self) {
-		if (vector.lengthSq() <= 0F) {
+		if (vector.lengthSquared() <= 0F) {
 			return EMPTY;
 		} else if (vector == Vec3f.DOWN) {
 			return UNIT_DOWN_LINE;
@@ -58,22 +65,26 @@ public record LineShape(Vec3f vector) implements Shape {
 	}
 
 	@Override
+	public void buildOuterLines(LineVertexCallback callback) {
+		callback.cuboidLines(box);
+	}
+
+	@Override
 	public void buildQuads(QuadVertexCallback callback) {
 	}
 
 	@Override
-	public boolean contains(Vector3fc p) {
-		// check if point is inside vector
-		float len = vector.lengthSq();
+	public boolean contains(float x, float y, float z) {
+		float len = vector.lengthSquared();
 
 		if (len <= 0F) {
-			return p.lengthSquared() <= 0F;
+			return Math.abs(x) <= 0.00001F && Math.abs(y) <= 0.00001F && Math.abs(z) <= 0.00001F;
 		}
 
-		var dx = p.x() - vector.x();
-		var dy = p.y() - vector.y();
-		var dz = p.z() - vector.z();
+		var dx = x - vector.x();
+		var dy = y - vector.y();
+		var dz = z - vector.z();
 		var d = dx * vector.x() + dy * vector.y() + dz * vector.z();
-		return d >= 0F && d <= len && dx * dx + dy * dy + dz * dz - d * d / len <= 0.0001F;
+		return d >= 0F && d <= len && dx * dx + dy * dy + dz * dz - d * d / len <= 0.00001F;
 	}
 }

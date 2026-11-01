@@ -1,17 +1,14 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.math.FrustumCheck;
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.LineVertexCallback;
-import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
-import org.joml.Vector3fc;
 
-public record CubeShape(float size) implements Shape {
+public record CubeShape(float size, AAFBB box) implements Shape {
 	public static final UnitType<ByteBuf, Shape> UNIT_CUBE = UnitType.create("unit_cube", new CubeShape(1F));
 
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
@@ -23,33 +20,13 @@ public record CubeShape(float size) implements Shape {
 		CubeShape::size
 	);
 
+	public CubeShape(float size) {
+		this(size, AAFBB.centered(size));
+	}
+
 	@Override
 	public DynamicType<ByteBuf, Shape> type() {
 		return TYPE;
-	}
-
-	@Override
-	public void buildLines(LineVertexCallback callback) {
-		float r = size / 2F;
-		callback.cuboidLines(-r, -r, -r, r, r, r);
-	}
-
-	@Override
-	public void buildQuads(QuadVertexCallback callback) {
-		float r = size / 2F;
-		callback.cuboidQuads(-r, -r, -r, r, r, r);
-	}
-
-	@Override
-	public boolean contains(Vector3fc p) {
-		var r = size / 2F;
-		return p.x() >= -r && p.x() <= r && p.y() >= -r && p.y() <= r && p.z() >= -r && p.z() <= r;
-	}
-
-	@Override
-	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
-		double r = size / 2D;
-		return frustum.isVisible(x - r, y - r, z - r, x + r, y + r, z + r);
 	}
 
 	@Override

@@ -35,7 +35,7 @@ public record Range(float min, float max) implements SampledFloat {
 	}
 
 	public static Range of(float min, float max) {
-		return min == 0F && max == 0F ? ZERO : min == 1F && max == 1F ? ONE : Math.abs(max - min) < 0.0001F ? new Range(min, min) : new Range(Math.min(min, max), Math.max(min, max));
+		return min == 0F && max == 0F ? ZERO : min == 1F && max == 1F ? ONE : Math.abs(max - min) < 0.00001F ? new Range(min, min) : new Range(Math.min(min, max), Math.max(min, max));
 	}
 
 	public static Range of(float value) {

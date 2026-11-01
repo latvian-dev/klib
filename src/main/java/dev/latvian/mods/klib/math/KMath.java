@@ -56,10 +56,6 @@ public interface KMath {
 			return String.format("%s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()));
 		}
 
-		public String format(Vec3f pos) {
-			return String.format("%s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()));
-		}
-
 		public String format(Vector3fc pos) {
 			return String.format("%s, %s, %s", format(pos.x()), format(pos.y()), format(pos.z()));
 		}

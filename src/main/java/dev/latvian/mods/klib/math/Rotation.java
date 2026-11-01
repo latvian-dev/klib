@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -206,14 +207,14 @@ public record Rotation(float yaw, float pitch, float roll, Type type) {
 		return new Vec3(ys * pc * dist, -ps * dist, yc * pc * dist);
 	}
 
-	public Vec3f lookVec3f(float dist) {
+	public Vector3f lookVector3f(float dist) {
 		float p = pitchRad();
 		float y = -yawRad();
 		float yc = Mth.cos(y);
 		float ys = Mth.sin(y);
 		float pc = Mth.cos(p);
 		float ps = Mth.sin(p);
-		return new Vec3f(ys * pc * dist, -ps * dist, yc * pc * dist);
+		return new Vector3f(ys * pc * dist, -ps * dist, yc * pc * dist);
 	}
 
 	@Override

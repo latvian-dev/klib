@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.vertex;
 
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.Line3f;
 import org.joml.Vector3fc;
 
@@ -79,6 +80,10 @@ public interface LineVertexCallback {
 			line(maxX, minY, maxZ, maxX, maxY, maxZ, 0F, 1F, 0F);
 			line(maxX, maxY, minZ, maxX, maxY, maxZ, 0F, 0F, 1F);
 		}
+	}
+
+	default void cuboidLines(AAFBB box) {
+		cuboidLines(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
 	}
 
 	default void frameLines(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize) {

@@ -76,6 +76,10 @@ public final class SpriteKey {
 		return INTERN_ATLAS.computeIfAbsent(atlas, Function.identity());
 	}
 
+	public static ClientAsset.ResourceTexture assetFromPNG(Identifier png) {
+		return new ClientAsset.ResourceTexture(png.withPath(png.getPath().substring(9, png.getPath().length() - 4)));
+	}
+
 	public static final SpriteKey WHITE = special(ID.mc("misc/white"));
 
 	public static SpriteKey of(Identifier atlas, Identifier sprite) {
@@ -197,7 +201,7 @@ public final class SpriteKey {
 
 		@Override
 		public void encode(ByteBuf buf, SpriteKey value) {
-			if (value == EMPTY || value.isMissing() && value.sprite.equals(EMPTY.sprite)) {
+			if (value.isEmpty()) {
 				VarInt.write(buf, 1);
 			} else {
 				VarInt.write(buf, value.atlasType);
@@ -216,6 +220,7 @@ public final class SpriteKey {
 	private final int atlasType;
 	private final Identifier atlas;
 	private final Identifier sprite;
+	private ClientAsset.ResourceTexture texture;
 
 	private SpriteKey(int atlasType, Identifier atlas, Identifier sprite) {
 		this.atlasType = atlasType;
@@ -257,6 +262,10 @@ public final class SpriteKey {
 		return atlas.hashCode() ^ sprite.hashCode();
 	}
 
+	public boolean isEmpty() {
+		return this == EMPTY;
+	}
+
 	public boolean isMissing() {
 		return atlas == MISSING_ATLAS;
 	}
@@ -281,7 +290,19 @@ public final class SpriteKey {
 		return atlas == AtlasIds.PARTICLES;
 	}
 
-	public Identifier getTexture() {
-		return isSpecial() ? sprite : atlas.withPath("textures/atlas/" + atlas.getPath() + ".png");
+	public ClientAsset.ResourceTexture getTexture() {
+		var tex = texture;
+
+		if (tex == null) {
+			if (isSpecial()) {
+				tex = assetFromPNG(sprite);
+			} else {
+				tex = new ClientAsset.ResourceTexture(atlas.withPath("atlas/" + atlas.getPath()));
+			}
+
+			texture = tex;
+		}
+
+		return tex;
 	}
 }

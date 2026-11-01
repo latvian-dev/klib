@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.JOMLCodecs;
 import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.Directions;
 import dev.latvian.mods.klib.math.Face;
 import dev.latvian.mods.klib.math.KMath;
@@ -74,12 +75,7 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		STREAM_CODEC
 	);
 
-	public final float minX;
-	public final float minY;
-	public final float minZ;
-	public final float maxX;
-	public final float maxY;
-	public final float maxZ;
+	public final AAFBB box;
 	public final Vector3f nnn;
 	public final Vector3f pnn;
 	public final Vector3f pnp;
@@ -92,25 +88,19 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	private final Line3f[] edges;
 
 	public QuadrilaterallyFacedConvexHexahedra(float mxs) {
-		this(-mxs, -mxs, -mxs, mxs, mxs, mxs);
+		this(AAFBB.centered(mxs * 2F));
 	}
 
-	public QuadrilaterallyFacedConvexHexahedra(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-		this.minX = minX;
-		this.minY = minY;
-		this.minZ = minZ;
-		this.maxX = maxX;
-		this.maxY = maxY;
-		this.maxZ = maxZ;
-
-		this.nnn = new Vector3f(minX, minY, minZ);
-		this.pnn = new Vector3f(maxX, minY, minZ);
-		this.pnp = new Vector3f(maxX, minY, maxZ);
-		this.nnp = new Vector3f(minX, minY, maxZ);
-		this.npn = new Vector3f(minX, maxY, minZ);
-		this.ppn = new Vector3f(maxX, maxY, minZ);
-		this.ppp = new Vector3f(maxX, maxY, maxZ);
-		this.npp = new Vector3f(minX, maxY, maxZ);
+	public QuadrilaterallyFacedConvexHexahedra(AAFBB box) {
+		this.box = box;
+		this.nnn = box.nnn();
+		this.pnn = box.pnn();
+		this.pnp = box.pnp();
+		this.nnp = box.nnp();
+		this.npn = box.npn();
+		this.ppn = box.ppn();
+		this.ppp = box.ppp();
+		this.npp = box.npp();
 
 		this.faces = new Face[]{
 			new Face(nnp, nnn, pnn, pnp, Directions.ALL[0].getUnitVec3f()), // down
@@ -144,15 +134,20 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		return TYPE;
 	}
 
+	@Override
+	public AAFBB box() {
+		return box;
+	}
+
 	public void identity() {
-		nnn.set(minX, minY, minZ);
-		pnn.set(maxX, minY, minZ);
-		pnp.set(maxX, minY, maxZ);
-		nnp.set(minX, minY, maxZ);
-		npn.set(minX, maxY, minZ);
-		ppn.set(maxX, maxY, minZ);
-		ppp.set(maxX, maxY, maxZ);
-		npp.set(minX, maxY, maxZ);
+		nnn.set(box.minX(), box.minY(), box.minZ());
+		pnn.set(box.maxX(), box.minY(), box.minZ());
+		pnp.set(box.maxX(), box.minY(), box.maxZ());
+		nnp.set(box.minX(), box.minY(), box.maxZ());
+		npn.set(box.minX(), box.maxY(), box.minZ());
+		ppn.set(box.maxX(), box.maxY(), box.minZ());
+		ppp.set(box.maxX(), box.maxY(), box.maxZ());
+		npp.set(box.minX(), box.maxY(), box.maxZ());
 	}
 
 	@Override
@@ -231,6 +226,11 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	}
 
 	@Override
+	public void buildOuterLines(LineVertexCallback callback) {
+		callback.cuboidLines(box);
+	}
+
+	@Override
 	public void buildQuads(QuadVertexCallback callback) {
 		for (var face : faces) {
 			face.forEachVertex(callback);
@@ -238,7 +238,8 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	}
 
 	@Override
-	public boolean contains(Vector3fc p) {
+	public boolean contains(float x, float y, float z) {
+		var p = new Vector3f(x, y, z);
 		var ab = new Vector3f();
 		var ac = new Vector3f();
 		var normal = new Vector3f();

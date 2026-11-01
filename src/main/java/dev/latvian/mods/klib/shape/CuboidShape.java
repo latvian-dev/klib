@@ -1,26 +1,30 @@
 package dev.latvian.mods.klib.shape;
 
-import dev.latvian.mods.klib.math.FrustumCheck;
+import dev.latvian.mods.klib.codec.JOMLCodecs;
+import dev.latvian.mods.klib.codec.JOMLStreamCodecs;
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.vertex.LineVertexCallback;
-import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3fc;
 
-public record CuboidShape(Vec3f size) implements Shape {
-	public static final UnitType<ByteBuf, Shape> UNIT_SQUARE = UnitType.create("unit_square", new CuboidShape(new Vec3f(1F, 0F, 1F)));
+public record CuboidShape(Vector3fc size, AAFBB box) implements Shape {
+	public static final UnitType<ByteBuf, Shape> UNIT_SQUARE = UnitType.create("unit_square", new CuboidShape(Vec3f.of(1F, 0F, 1F)));
 
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
 		"cuboid",
 		"size",
-		Vec3f.CODEC,
-		Vec3f.STREAM_CODEC,
+		JOMLCodecs.VEC3C,
+		JOMLStreamCodecs.VEC3C,
 		CuboidShape::new,
 		CuboidShape::size
 	);
+
+	public CuboidShape(Vector3fc size) {
+		this(size, AAFBB.centered(size.x(), size.y(), size.z()));
+	}
 
 	@Override
 	public DynamicType<ByteBuf, Shape> type() {
@@ -40,37 +44,5 @@ public record CuboidShape(Vec3f size) implements Shape {
 		}
 
 		return self;
-	}
-
-	@Override
-	public void buildLines(LineVertexCallback callback) {
-		float sx = size.x() / 2F;
-		float sy = size.y() / 2F;
-		float sz = size.z() / 2F;
-		callback.cuboidLines(-sx, -sy, -sz, sx, sy, sz);
-	}
-
-	@Override
-	public void buildQuads(QuadVertexCallback callback) {
-		float sx = size.x() / 2F;
-		float sy = size.y() / 2F;
-		float sz = size.z() / 2F;
-		callback.cuboidQuads(-sx, -sy, -sz, sx, sy, sz);
-	}
-
-	@Override
-	public boolean contains(Vector3fc p) {
-		float sx = size.x() / 2F;
-		float sy = size.y() / 2F;
-		float sz = size.z() / 2F;
-		return p.x() >= -sx && p.x() <= sx && p.y() >= -sy && p.y() <= sy && p.z() >= -sz && p.z() <= sz;
-	}
-
-	@Override
-	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
-		double sx = size.x() / 2D;
-		double sy = size.y() / 2D;
-		double sz = size.z() / 2D;
-		return frustum.isVisible(x - sx, y - sy, z - sz, x + sx, y + sy, z + sz);
 	}
 }

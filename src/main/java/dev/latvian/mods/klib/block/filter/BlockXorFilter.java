@@ -2,7 +2,6 @@ package dev.latvian.mods.klib.block.filter;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import net.minecraft.core.BlockPos;
@@ -26,7 +25,7 @@ public record BlockXorFilter(Ref<BlockFilter> a, Ref<BlockFilter> b) implements 
 	);
 
 	@Override
-	public CustomRegistryType<RegistryFriendlyByteBuf, BlockFilter> type() {
+	public DynamicType<RegistryFriendlyByteBuf, BlockFilter> type() {
 		return TYPE;
 	}
 

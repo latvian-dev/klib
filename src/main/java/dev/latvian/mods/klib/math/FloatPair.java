@@ -29,7 +29,7 @@ public record FloatPair(float a, float b) {
 	);
 
 	public static FloatPair of(float a, float b) {
-		return a == 0F && b == 0F ? ZERO : a == 1F && b == 1F ? ONE : Math.abs(a - b) < 0.0001F ? new FloatPair(a, a) : new FloatPair(a, b);
+		return a == 0F && b == 0F ? ZERO : a == 1F && b == 1F ? ONE : Math.abs(a - b) < 0.00001F ? new FloatPair(a, a) : new FloatPair(a, b);
 	}
 
 	public static FloatPair of(float value) {

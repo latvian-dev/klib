@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
@@ -12,7 +13,6 @@ import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import org.joml.Vector3fc;
 
 public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 	UnitType<ByteBuf, Shape> EMPTY = UnitType.create("empty", EmptyShape.INSTANCE);
@@ -27,20 +27,18 @@ public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 
 		registry.register(CubeShape.TYPE);
 		registry.register(CuboidShape.TYPE);
-		registry.register(CircleShape.TYPE);
 		registry.register(SphereShape.TYPE);
 		registry.register(CylinderShape.TYPE);
 		registry.register(LineShape.TYPE);
-		registry.register(QuadrilaterallyFacedConvexHexahedra.TYPE);
-		registry.register(RotatedShape.TYPE);
-		registry.register(VoxelShapeBox.TYPE);
 		registry.register(TransformedShape.TYPE);
+		registry.register(VoxelShapeBox.TYPE);
+		registry.register(QuadrilaterallyFacedConvexHexahedra.TYPE);
 
 		registry.register(CubeShape.UNIT_CUBE);
 		registry.register(CuboidShape.UNIT_SQUARE);
 		registry.register(SphereShape.UNIT_SPHERE);
 		registry.register(CylinderShape.UNIT_CYLINDER);
-		registry.register(CircleShape.UNIT_CIRCLE);
+		registry.register(CylinderShape.UNIT_CIRCLE);
 		registry.register(LineShape.UNIT_DOWN_LINE);
 		registry.register(LineShape.UNIT_UP_LINE);
 		registry.register(LineShape.UNIT_NORTH_LINE);
@@ -54,15 +52,29 @@ public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 		return REGISTRY;
 	}
 
-	void buildLines(LineVertexCallback callback);
+	AAFBB box();
 
-	void buildQuads(QuadVertexCallback callback);
+	default void buildLines(LineVertexCallback callback) {
+		callback.cuboidLines(box());
+	}
 
-	default boolean contains(Vector3fc p) {
-		return false;
+	default void buildOuterLines(LineVertexCallback callback) {
+	}
+
+	default void buildQuads(QuadVertexCallback callback) {
+		callback.cuboidQuads(box());
+	}
+
+	default boolean contains(float x, float y, float z) {
+		return box().contains(x, y, z);
+	}
+
+	default float intersects(float x0, float y0, float z0, float x1, float y1, float z1) {
+		return box().intersects(x0, y0, z0, x1, y1, z1);
 	}
 
 	default boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
-		return true;
+		var box = box();
+		return frustum.isVisible(x + box.minX(), y + box.minY(), z + box.minZ(), x + box.maxX(), y + box.maxY(), z + box.maxZ());
 	}
 }

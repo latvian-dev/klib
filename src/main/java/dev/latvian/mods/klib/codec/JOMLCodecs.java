@@ -2,6 +2,8 @@ package dev.latvian.mods.klib.codec;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.math.Vec3f;
+import net.minecraft.core.Direction;
 import org.joml.Matrix2d;
 import org.joml.Matrix2dc;
 import org.joml.Matrix2f;
@@ -156,4 +158,26 @@ public interface JOMLCodecs {
 	Codec<Vector2ic> IVEC2SC = IVEC2S.xmap(Function.identity(), v -> v instanceof Vector2i c ? c : new Vector2i(v));
 	Codec<Vector3ic> IVEC3SC = IVEC3S.xmap(Function.identity(), v -> v instanceof Vector3i c ? c : new Vector3i(v));
 	Codec<Vector4ic> IVEC4SC = IVEC4S.xmap(Function.identity(), v -> v instanceof Vector4i c ? c : new Vector4i(v));
+
+	Codec<Vector3fc> DIRECTION_VEC3C = Codec.either(Direction.CODEC, JOMLCodecs.VEC3C).xmap(either -> either.map(dir -> Vec3f.DIRECTIONS[dir.get3DDataValue()], Function.identity()), v -> {
+		float x = v.x();
+		float y = v.y();
+		float z = v.z();
+
+		if (x == 0F && y == -1F && z == 0F) {
+			return Either.left(Direction.DOWN);
+		} else if (x == 0F && y == 1F && z == 0F) {
+			return Either.left(Direction.UP);
+		} else if (x == 0F && y == 0F && z == -1F) {
+			return Either.left(Direction.NORTH);
+		} else if (x == 0F && y == 0F && z == 1F) {
+			return Either.left(Direction.SOUTH);
+		} else if (x == -1F && y == 0F && z == 0F) {
+			return Either.left(Direction.WEST);
+		} else if (x == 1F && y == 0F && z == 0F) {
+			return Either.left(Direction.EAST);
+		} else {
+			return Either.right(v);
+		}
+	});
 }

@@ -2,17 +2,16 @@ package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.ComputedTransformation;
-import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
 
-public record TransformedShape(Ref<Shape> shape, ComputedTransformation transformation) implements Shape {
+public record TransformedShape(Ref<Shape> shape, ComputedTransformation transformation, AAFBB box) implements Shape {
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
 		"transformed",
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -25,6 +24,10 @@ public record TransformedShape(Ref<Shape> shape, ComputedTransformation transfor
 			TransformedShape::new
 		)
 	);
+
+	public TransformedShape(Ref<Shape> shape, ComputedTransformation transformation) {
+		this(shape, transformation, AAFBB.FULL); // FIXME
+	}
 
 	@Override
 	public DynamicType<ByteBuf, Shape> type() {
@@ -46,17 +49,19 @@ public record TransformedShape(Ref<Shape> shape, ComputedTransformation transfor
 	}
 
 	@Override
+	public void buildOuterLines(LineVertexCallback callback) {
+		callback.cuboidLines(box);
+	}
+
+	@Override
 	public void buildQuads(QuadVertexCallback callback) {
 		shape.value().buildQuads(transformation.transformQuads(callback));
 	}
 
 	@Override
-	public boolean contains(Vector3fc p) {
-		return shape.value().contains(p.mulPosition(transformation.matrix(), new Vector3f()));
-	}
-
-	@Override
-	public boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
-		return shape.value().isVisible(x + transformation.origin().x(), y + transformation.origin().y(), z + transformation.origin().z(), frustum);
+	public boolean contains(float x, float y, float z) {
+		var vec = new Vector3f(x, y, z);
+		vec.mulPosition(transformation.matrix());
+		return shape.value().contains(vec.x, vec.y, vec.z);
 	}
 }

@@ -1,5 +1,7 @@
 package dev.latvian.mods.klib.vertex;
 
+import dev.latvian.mods.klib.math.AAFBB;
+
 @FunctionalInterface
 public interface QuadVertexCallback {
 	void quadVertex(float x, float y, float z, float u, float v, float nx, float ny, float nz);
@@ -77,6 +79,10 @@ public interface QuadVertexCallback {
 		southQuad(maxZ, minX, minY, maxX, maxY);
 		westQuad(minX, minY, minZ, maxY, maxZ);
 		eastQuad(maxX, minY, minZ, maxY, maxZ);
+	}
+
+	default void cuboidQuads(AAFBB box) {
+		cuboidQuads(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
 	}
 
 	default void frameQuads(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float cornerSize, float edgeSize) {

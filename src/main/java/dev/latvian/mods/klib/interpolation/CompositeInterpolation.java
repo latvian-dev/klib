@@ -2,19 +2,21 @@ package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> out, @Nullable UnitType<ByteBuf, Interpolation> unitType) implements Interpolation {
+public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> out) implements Interpolation {
+	public static CompositeInterpolation of(Ref<Interpolation> inRef, Ref<Interpolation> outRef) {
+		return new CompositeInterpolation(inRef, outRef);
+	}
+
 	private static UnitType<ByteBuf, Interpolation> inOut(String id, EaseIn in, EaseOut out) {
-		return UnitType.create(id, type -> new CompositeInterpolation(in.type.unit(), out.type.unit(), type));
+		return UnitType.create(id, new CompositeInterpolation(in.type.unit(), out.type.unit()));
 	}
 
 	public static final UnitType<ByteBuf, Interpolation> SINE = inOut("sine_in_out", EaseIn.SINE, EaseOut.SINE);
@@ -27,10 +29,6 @@ public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> o
 	public static final UnitType<ByteBuf, Interpolation> BACK = inOut("back_in_out", EaseIn.BACK, EaseOut.BACK);
 	public static final UnitType<ByteBuf, Interpolation> ELASTIC = inOut("elastic_in_out", EaseIn.ELASTIC, EaseOut.ELASTIC);
 	public static final UnitType<ByteBuf, Interpolation> BOUNCE = inOut("bounce_in_out", EaseIn.BOUNCE, EaseOut.BOUNCE);
-
-	public static CompositeInterpolation of(Ref<Interpolation> inRef, Ref<Interpolation> outRef) {
-		return new CompositeInterpolation(inRef, outRef, null);
-	}
 
 	public static final List<UnitType<ByteBuf, Interpolation>> EASING = List.of(
 		SINE,
@@ -59,8 +57,8 @@ public record CompositeInterpolation(Ref<Interpolation> in, Ref<Interpolation> o
 	);
 
 	@Override
-	public CustomRegistryType<ByteBuf, Interpolation> type() {
-		return unitType == null ? TYPE : unitType;
+	public DynamicType<ByteBuf, Interpolation> type() {
+		return TYPE;
 	}
 
 	@Override

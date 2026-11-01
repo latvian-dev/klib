@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 public record PositionedColoredShape(Vec3 position, ColoredShape shape) {
 	public static final Codec<PositionedColoredShape> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		MCCodecs.VEC3.fieldOf("position").forGetter(PositionedColoredShape::position),
-		ColoredShape.CODEC.fieldOf("shape").forGetter(PositionedColoredShape::shape)
+		ColoredShape.MAP_CODEC.forGetter(PositionedColoredShape::shape)
 	).apply(instance, PositionedColoredShape::new));
 
 	public static final StreamCodec<ByteBuf, PositionedColoredShape> STREAM_CODEC = CompositeStreamCodec.of(

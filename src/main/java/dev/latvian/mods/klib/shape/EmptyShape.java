@@ -1,11 +1,11 @@
 package dev.latvian.mods.klib.shape;
 
+import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
-import org.joml.Vector3fc;
 
 public enum EmptyShape implements Shape {
 	INSTANCE;
@@ -13,6 +13,11 @@ public enum EmptyShape implements Shape {
 	@Override
 	public UnitType<ByteBuf, Shape> type() {
 		return EMPTY;
+	}
+
+	@Override
+	public AAFBB box() {
+		return AAFBB.EMPTY;
 	}
 
 	@Override
@@ -24,8 +29,13 @@ public enum EmptyShape implements Shape {
 	}
 
 	@Override
-	public boolean contains(Vector3fc p) {
+	public boolean contains(float x, float y, float z) {
 		return false;
+	}
+
+	@Override
+	public float intersects(float x0, float y0, float z0, float x1, float y1, float z1) {
+		return Float.NaN;
 	}
 
 	@Override

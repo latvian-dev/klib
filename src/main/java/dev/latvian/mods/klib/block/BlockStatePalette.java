@@ -8,7 +8,6 @@ import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.registry.CustomRegistry;
-import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.DynamicType;
@@ -103,7 +102,7 @@ public record BlockStatePalette(
 	}
 
 	@Override
-	public CustomRegistryType<ByteBuf, BlockStatePalette> type() {
+	public DynamicType<ByteBuf, BlockStatePalette> type() {
 		return TYPE;
 	}
 

@@ -33,7 +33,6 @@ import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
-import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.texture.CubeTextures;
 import dev.latvian.mods.klib.texture.FaceTexture;
@@ -258,8 +257,6 @@ public interface DataTypes {
 		registry.register("lenient_hex64", Hex64.LENIENT_DATA_TYPE);
 		registry.register("uint64", UInt64.DATA_TYPE);
 		registry.register("compression_method", CompressionMethod.DATA_TYPE);
-		registry.register("vec3f", Vec3f.DATA_TYPE);
-		registry.register("direction_vec3f", Vec3f.DIRECTION_DATA_TYPE);
 		registry.register("positioned_block", PositionedBlock.DATA_TYPE);
 		registry.register("positioned_block_list", PositionedBlock.LIST_DATA_TYPE);
 		registry.register("position_type", PositionType.DATA_TYPE);

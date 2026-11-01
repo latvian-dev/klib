@@ -43,10 +43,10 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 		return UnitType.create(id, type -> new SimpleKNumber(type, factory));
 	}
 
-	UnitType<RegistryFriendlyByteBuf, KNumber> ZERO = UnitType.create("zero", type -> new FixedKNumber(type, 0D));
-	UnitType<RegistryFriendlyByteBuf, KNumber> ONE = UnitType.create("one", type -> new FixedKNumber(type, 1D));
-	UnitType<RegistryFriendlyByteBuf, KNumber> HALF = UnitType.create("half", type -> new FixedKNumber(type, 0.5));
-	UnitType<RegistryFriendlyByteBuf, KNumber> TWO = UnitType.create("two", type -> new FixedKNumber(type, 2D));
+	UnitType<RegistryFriendlyByteBuf, KNumber> ZERO = UnitType.create("zero", new FixedKNumber(0D));
+	UnitType<RegistryFriendlyByteBuf, KNumber> ONE = UnitType.create("one", new FixedKNumber(1D));
+	UnitType<RegistryFriendlyByteBuf, KNumber> HALF = UnitType.create("half", new FixedKNumber(0.5));
+	UnitType<RegistryFriendlyByteBuf, KNumber> TWO = UnitType.create("two", new FixedKNumber(2D));
 	UnitType<RegistryFriendlyByteBuf, KNumber> PROGRESS = simple("progress", ctx -> ctx.progress);
 	UnitType<RegistryFriendlyByteBuf, KNumber> TICK = simple("tick", ctx -> ctx.tick);
 	UnitType<RegistryFriendlyByteBuf, KNumber> MAX_TICK = simple("max_tick", ctx -> ctx.maxTick);

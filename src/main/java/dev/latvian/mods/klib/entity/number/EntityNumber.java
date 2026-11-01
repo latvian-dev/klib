@@ -37,8 +37,8 @@ public interface EntityNumber extends ToDoubleFunction<Entity>, CustomRegistryVa
 		)))
 		.build();
 
-	UnitType<RegistryFriendlyByteBuf, EntityNumber> ZERO = UnitType.create("zero", type -> new FixedEntityNumber(type, 0D));
-	UnitType<RegistryFriendlyByteBuf, EntityNumber> ONE = UnitType.create("one", type -> new FixedEntityNumber(type, 1D));
+	UnitType<RegistryFriendlyByteBuf, EntityNumber> ZERO = UnitType.create("zero", new FixedEntityNumber(0D));
+	UnitType<RegistryFriendlyByteBuf, EntityNumber> ONE = UnitType.create("one", new FixedEntityNumber(1D));
 
 	static UnitType<RegistryFriendlyByteBuf, EntityNumber> simple(String name, ToDoubleFunction<Entity> function) {
 		return UnitType.create(name, type -> new SimpleEntityNumber(type, function));
@@ -64,7 +64,7 @@ public interface EntityNumber extends ToDoubleFunction<Entity>, CustomRegistryVa
 	UnitType<RegistryFriendlyByteBuf, EntityNumber> RELATIVE_HEALTH = simple("relative_health", EntityUtils::getRelativeHealth);
 
 	static EntityNumber of(double value) {
-		return value == 0D ? ZERO.value() : value == 1D ? ONE.value() : new FixedEntityNumber(null, value);
+		return value == 0D ? ZERO.value() : value == 1D ? ONE.value() : new FixedEntityNumber(value);
 	}
 
 	Codec<Ref<EntityNumber>> CODEC = REGISTRY.codec();

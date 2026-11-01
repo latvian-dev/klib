@@ -6,7 +6,6 @@ import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.KMath;
-import dev.latvian.mods.klib.math.Vec3f;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
@@ -15,6 +14,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.EasingType;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.List;
 
@@ -83,8 +84,8 @@ public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolatio
 		return KMath.lerp(interpolate(x), a, b);
 	}
 
-	default Vec3f interpolate(float x, Vec3f a, Vec3f b) {
-		return a.lerp(interpolate(x), b);
+	default Vector3f interpolate(float x, Vector3fc a, Vector3fc b) {
+		return a.lerp(b, interpolate(x), new Vector3f());
 	}
 
 	default double interpolateMirrored(float x, Interpolation end) {

@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.shape;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.gradient.Gradient;
@@ -12,11 +13,13 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3dc;
 
 public record ColoredShape(Ref<Shape> shape, Ref<Gradient> quads, Ref<Gradient> lines) {
-	public static final Codec<ColoredShape> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	public static final MapCodec<ColoredShape> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Shape.CODEC.fieldOf("shape").forGetter(ColoredShape::shape),
 		Gradient.CODEC.optionalFieldOf("quads", Gradient.EMPTY).forGetter(ColoredShape::quads),
 		Gradient.CODEC.optionalFieldOf("lines", Gradient.EMPTY).forGetter(ColoredShape::lines)
 	).apply(instance, ColoredShape::new));
+
+	public static final Codec<ColoredShape> CODEC = MAP_CODEC.codec();
 
 	public static final StreamCodec<ByteBuf, ColoredShape> STREAM_CODEC = CompositeStreamCodec.of(
 		Shape.STREAM_CODEC, ColoredShape::shape,
