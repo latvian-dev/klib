@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<B, V> {
@@ -19,6 +20,12 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 
 	public static <B extends ByteBuf, V, D extends V, T> DynamicType<B, V> create(String id, String fieldName, Codec<T> codec, StreamCodec<? super B, T> streamCodec, Function<T, D> factory, Function<D, T> getter) {
 		return create(id, RecordCodecBuilder.mapCodec(instance -> instance.group(codec.fieldOf(fieldName).forGetter(getter)).apply(instance, factory)), streamCodec.map(factory, getter));
+	}
+
+	private static final AtomicInteger PROPERTY_ID_FACTORY = new AtomicInteger(0);
+
+	public static int newPropertyId() {
+		return PROPERTY_ID_FACTORY.incrementAndGet();
 	}
 
 	private Int2ObjectMap<Object> properties;

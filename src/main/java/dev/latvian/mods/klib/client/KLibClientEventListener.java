@@ -7,7 +7,7 @@ import dev.latvian.mods.klib.icon.ItemIcon;
 import dev.latvian.mods.klib.icon.SimpleColorIcon;
 import dev.latvian.mods.klib.icon.TextureIcon;
 import dev.latvian.mods.klib.icon.renderer.AtlasSpriteIconRenderState;
-import dev.latvian.mods.klib.icon.renderer.IconRenderStateRegistryEvent;
+import dev.latvian.mods.klib.icon.renderer.IconRenderingRegistryEvent;
 import dev.latvian.mods.klib.icon.renderer.ItemIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.SimpleColorIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.TextureIconRenderState;
@@ -26,11 +26,16 @@ public class KLibClientEventListener {
 	}
 
 	@SubscribeEvent
-	public static void registerIconRenderStates(IconRenderStateRegistryEvent event) {
-		event.register(SimpleColorIcon.TYPE, SimpleColorIconRenderState::new);
-		event.register(TextureIcon.TYPE, TextureIconRenderState::new);
-		event.register(ItemIcon.TYPE, ItemIconRenderState::new);
-		event.register(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::new);
+	public static void registerIconRendering(IconRenderingRegistryEvent event) {
+		event.registerGui(SimpleColorIcon.TYPE, SimpleColorIconRenderState::draw);
+		event.registerGui(TextureIcon.TYPE, TextureIconRenderState::draw);
+		event.registerGui(ItemIcon.TYPE, ItemIconRenderState::draw);
+		event.registerGui(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::draw);
+
+		event.registerWorld(SimpleColorIcon.TYPE, SimpleColorIconRenderState::new);
+		event.registerWorld(TextureIcon.TYPE, TextureIconRenderState::new);
+		event.registerWorld(ItemIcon.TYPE, ItemIconRenderState::new);
+		event.registerWorld(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::new);
 	}
 
 	@SubscribeEvent

@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
+import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -18,7 +19,8 @@ public interface Icon extends CustomRegistryValue<RegistryFriendlyByteBuf, Icon>
 	StreamCodec<RegistryFriendlyByteBuf, Ref<Icon>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Icon>> DATA_TYPE = REGISTRY.dataType();
 
-	int PROPERTY_RENDER_STATE_FACTORY = 0;
+	int PROPERTY_GUI_RENDERER = DynamicType.newPropertyId();
+	int PROPERTY_RENDER_STATE_FACTORY = DynamicType.newPropertyId();
 
 	static void builtInTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
 		registry.register(SimpleColorIcon.TYPE);

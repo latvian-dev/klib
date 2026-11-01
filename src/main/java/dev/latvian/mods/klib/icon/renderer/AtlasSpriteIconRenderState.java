@@ -1,44 +1,48 @@
 package dev.latvian.mods.klib.icon.renderer;
 
-import dev.latvian.mods.klib.color.Color;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.icon.AtlasSpriteIcon;
+import dev.latvian.mods.klib.texture.UV;
 import dev.latvian.mods.klib.util.client.EntityRenderTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 public class AtlasSpriteIconRenderState extends IconRenderState<AtlasSpriteIcon> {
-	public SpriteId sprite;
+	public static void draw(AtlasSpriteIcon icon, GuiExtractContext ctx) {
+		var uv = Minecraft.getInstance().getAtlasManager().get(new SpriteId(icon.sprite().atlas(), icon.sprite().sprite()));
+		var color = icon.tint().mixAlpha(ctx.alpha()).argb();
+		ctx.graphics().blitSprite(RenderPipelines.GUI_TEXTURED, uv, ctx.x() - 8, ctx.y() - 8, 16, 16, color);
+	}
+
+	public Identifier texture;
+	public UV uv;
+	public int argb;
 	public boolean translucent;
-	public Color tint;
 
 	@Override
-	public void extract(AtlasSpriteIcon icon, float delta) {
-		sprite = new SpriteId(icon.sprite().atlas(), icon.sprite().sprite());
-		translucent = icon.translucent();
-		tint = icon.tint();
+	public void extract(AtlasSpriteIcon icon, WorldExactContext ctx) {
+		var sprite = Minecraft.getInstance().getAtlasManager().get(new SpriteId(icon.sprite().atlas(), icon.sprite().sprite()));
+		texture = sprite.atlasLocation();
+		uv = new UV(sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1());
+		argb = icon.tint().mixAlpha(ctx.alpha()).argb();
+		translucent = ARGB.alpha(argb) < 255 || icon.translucent();
 	}
 
 	@Override
-	public void draw(GuiContext ctx) {
-		var color = tint.mixAlpha(ctx.alpha()).argb();
-		var uv = ctx.mc().getAtlasManager().get(sprite);
-		ctx.graphics().blitSprite(RenderPipelines.GUI_TEXTURED, uv, -8, -8, 16, 16, color);
-	}
+	public void submit(PoseStack poseStack, SubmitNodeCollector collector) {
+		if (ARGB.alpha(argb) == 0) {
+			return;
+		}
 
-	@Override
-	public void submit(WorldContext ctx) {
-		ctx.collector().submitCustomGeometry(ctx.poseStack(), EntityRenderTypes.texture(sprite.atlasLocation(), tint.alpha() < 255 || translucent), (pose, buffer) -> {
-			int colR = tint.red();
-			int colG = tint.green();
-			int colB = tint.blue();
-			int colA = tint.alpha();
-
-			var uv = ctx.mc().getAtlasManager().get(sprite);
-
-			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(colR, colG, colB, colA).setUv(uv.getU0(), uv.getV1()).setLight(ctx.light()).setOverlay(ctx.overlay()).setNormal(0F, 1F, 0F);
-			buffer.addVertex(pose, 0.5F, -0.5F, 0F).setColor(colR, colG, colB, colA).setUv(uv.getU1(), uv.getV1()).setLight(ctx.light()).setOverlay(ctx.overlay()).setNormal(0F, 1F, 0F);
-			buffer.addVertex(pose, 0.5F, 0.5F, 0F).setColor(colR, colG, colB, colA).setUv(uv.getU1(), uv.getV0()).setLight(ctx.light()).setOverlay(ctx.overlay()).setNormal(0F, 1F, 0F);
-			buffer.addVertex(pose, -0.5F, 0.5F, 0F).setColor(colR, colG, colB, colA).setUv(uv.getU0(), uv.getV0()).setLight(ctx.light()).setOverlay(ctx.overlay()).setNormal(0F, 1F, 0F);
+		collector.submitCustomGeometry(poseStack, EntityRenderTypes.texture(texture, translucent), (pose, buffer) -> {
+			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(argb).setUv(uv.u0(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(0F, 1F, 0F);
+			buffer.addVertex(pose, 0.5F, -0.5F, 0F).setColor(argb).setUv(uv.u1(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(0F, 1F, 0F);
+			buffer.addVertex(pose, 0.5F, 0.5F, 0F).setColor(argb).setUv(uv.u1(), uv.v0()).setLight(light).setOverlay(overlay).setNormal(0F, 1F, 0F);
+			buffer.addVertex(pose, -0.5F, 0.5F, 0F).setColor(argb).setUv(uv.u0(), uv.v0()).setLight(light).setOverlay(overlay).setNormal(0F, 1F, 0F);
 		});
 	}
 }
