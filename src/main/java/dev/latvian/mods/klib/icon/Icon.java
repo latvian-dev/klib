@@ -19,8 +19,7 @@ public interface Icon extends CustomRegistryValue<RegistryFriendlyByteBuf, Icon>
 	StreamCodec<RegistryFriendlyByteBuf, Ref<Icon>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Icon>> DATA_TYPE = REGISTRY.dataType();
 
-	int PROPERTY_GUI_RENDERER = DynamicType.newPropertyId();
-	int PROPERTY_RENDER_STATE_FACTORY = DynamicType.newPropertyId();
+	int PROPERTY_RENDERER = DynamicType.newPropertyId();
 
 	static void builtInTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Icon> registry) {
 		registry.register(SimpleColorIcon.TYPE);

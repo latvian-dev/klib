@@ -27,15 +27,10 @@ public class KLibClientEventListener {
 
 	@SubscribeEvent
 	public static void registerIconRendering(IconRenderingRegistryEvent event) {
-		event.registerGui(SimpleColorIcon.TYPE, SimpleColorIconRenderState::draw);
-		event.registerGui(TextureIcon.TYPE, TextureIconRenderState::draw);
-		event.registerGui(ItemIcon.TYPE, ItemIconRenderState::draw);
-		event.registerGui(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::draw);
-
-		event.registerWorld(SimpleColorIcon.TYPE, SimpleColorIconRenderState::new);
-		event.registerWorld(TextureIcon.TYPE, TextureIconRenderState::new);
-		event.registerWorld(ItemIcon.TYPE, ItemIconRenderState::new);
-		event.registerWorld(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::new);
+		event.register(SimpleColorIcon.TYPE, SimpleColorIconRenderState::new, SimpleColorIconRenderState::extract, SimpleColorIconRenderState::draw);
+		event.register(TextureIcon.TYPE, TextureIconRenderState::new, TextureIconRenderState::extract, TextureIconRenderState::draw);
+		event.register(ItemIcon.TYPE, ItemIconRenderState::new, ItemIconRenderState::extract, ItemIconRenderState::draw);
+		event.register(AtlasSpriteIcon.TYPE, AtlasSpriteIconRenderState::new, AtlasSpriteIconRenderState::extract, AtlasSpriteIconRenderState::draw);
 	}
 
 	@SubscribeEvent

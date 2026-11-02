@@ -6,11 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.neoforged.bus.api.Event;
 
 public class IconRenderingRegistryEvent extends Event {
-	public <T extends Icon> void registerGui(DynamicType<RegistryFriendlyByteBuf, Icon> type, IconGuiRenderer<T> renderer) {
-		type.setProperty(Icon.PROPERTY_GUI_RENDERER, renderer);
-	}
-
-	public <T extends Icon> void registerWorld(DynamicType<RegistryFriendlyByteBuf, Icon> type, IconRenderState.Factory<T> factory) {
-		type.setProperty(Icon.PROPERTY_RENDER_STATE_FACTORY, factory);
+	public <I extends Icon, S extends IconRenderState> void register(DynamicType<RegistryFriendlyByteBuf, Icon> type, IconRenderer.StateFactory<S> stateFactory, IconRenderer.StateExtractor<I, S> stateExtractor, IconRenderer.GuiExtractor<I> guiExtractor) {
+		type.setProperty(Icon.PROPERTY_RENDERER, new IconRenderer<>(stateFactory, stateExtractor, guiExtractor));
 	}
 }
