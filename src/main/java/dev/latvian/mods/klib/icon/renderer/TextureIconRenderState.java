@@ -1,11 +1,10 @@
 package dev.latvian.mods.klib.icon.renderer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.icon.TextureIcon;
+import dev.latvian.mods.klib.render.SubmitContext;
 import dev.latvian.mods.klib.texture.UV;
 import dev.latvian.mods.klib.util.client.EntityRenderTypes;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
@@ -44,8 +43,8 @@ public class TextureIconRenderState extends IconRenderState {
 	}
 
 	@Override
-	public void submit(PoseStack poseStack, SubmitNodeCollector collector) {
-		collector.submitCustomGeometry(poseStack, EntityRenderTypes.textureCull(texture, translucent), (pose, buffer) -> {
+	public void submit(SubmitContext ctx) {
+		ctx.submit(EntityRenderTypes.textureCull(texture, translucent), (pose, buffer) -> {
 			var n = pose.transformNormal(0F, 1F, 0F, new Vector3f());
 			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(color).setUv(uv.u0(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
 			buffer.addVertex(pose, 0.5F, -0.5F, 0F).setColor(color).setUv(uv.u1(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);

@@ -1,8 +1,7 @@
 package dev.latvian.mods.klib.icon.renderer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.icon.ItemIcon;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import dev.latvian.mods.klib.render.SubmitContext;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.jetbrains.annotations.Nullable;
@@ -36,11 +35,12 @@ public class ItemIconRenderState extends IconRenderState {
 	}
 
 	@Override
-	public void submit(PoseStack poseStack, SubmitNodeCollector collector) {
+	public void submit(SubmitContext ctx) {
+		var poseStack = ctx.poseStack();
 		poseStack.pushPose();
 		poseStack.translate(0F, -0.25F, 0F);
 		poseStack.scale(1.75F, 1.75F, 1.75F);
-		stackRenderState.submit(poseStack, collector, light, overlay, outlineColor);
+		stackRenderState.submit(poseStack, ctx.collector(), light, overlay, outlineColor);
 		poseStack.popPose();
 	}
 }
