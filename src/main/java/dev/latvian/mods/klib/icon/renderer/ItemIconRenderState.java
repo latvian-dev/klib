@@ -36,11 +36,10 @@ public class ItemIconRenderState extends IconRenderState {
 
 	@Override
 	public void submit(SubmitContext ctx) {
-		var poseStack = ctx.poseStack();
-		poseStack.pushPose();
-		poseStack.translate(0F, -0.25F, 0F);
-		poseStack.scale(1.75F, 1.75F, 1.75F);
-		stackRenderState.submit(poseStack, ctx.collector(), light, overlay, outlineColor);
-		poseStack.popPose();
+		ctx.push(x, y - 0.25D, z);
+		ctx.poseStack().rotate(rotation);
+		ctx.poseStack().scale(1.75F, 1.75F, 1.75F);
+		stackRenderState.submit(ctx.poseStack(), ctx.collector(), light, overlay, outlineColor);
+		ctx.pop();
 	}
 }

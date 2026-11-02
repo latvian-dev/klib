@@ -35,6 +35,9 @@ public class SimpleColorIconRenderState extends IconRenderState {
 
 	@Override
 	public void submit(SubmitContext ctx) {
+		ctx.push(x, y, z);
+		ctx.poseStack().rotate(rotation);
+
 		ctx.submit(EntityRenderTypes.whiteCull(translucent), (pose, buffer) -> {
 			var n = pose.transformNormal(0F, 1F, 0F, new Vector3f());
 			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(argb).setUv(0F, 1F).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
@@ -42,5 +45,7 @@ public class SimpleColorIconRenderState extends IconRenderState {
 			buffer.addVertex(pose, 0.5F, 0.5F, 0F).setColor(argb).setUv(1F, 0F).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
 			buffer.addVertex(pose, -0.5F, 0.5F, 0F).setColor(argb).setUv(0F, 0F).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
 		});
+
+		ctx.pop();
 	}
 }
