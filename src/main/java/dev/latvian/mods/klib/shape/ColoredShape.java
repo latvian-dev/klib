@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.gradient.Gradient;
-import dev.latvian.mods.klib.math.KMath;
+import dev.latvian.mods.klib.kvector.KVector;
 import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -40,15 +40,19 @@ public record ColoredShape(Ref<Shape> shape, Ref<Gradient> quads, Ref<Gradient> 
 		return new ColoredShape(shape, Gradient.EMPTY, color);
 	}
 
-	public PositionedColoredShape at(Vec3 pos) {
+	public PositionedColoredShape at(Ref<KVector> pos) {
 		return new PositionedColoredShape(pos, this);
 	}
 
-	public PositionedColoredShape at(Vector3dc pos) {
-		return new PositionedColoredShape(KMath.vec3(pos.x(), pos.y(), pos.z()), this);
+	public PositionedColoredShape at(double x, double y, double z) {
+		return at(KVector.of(x, y, z).ref());
 	}
 
-	public PositionedColoredShape at(double x, double y, double z) {
-		return new PositionedColoredShape(KMath.vec3(x, y, z), this);
+	public PositionedColoredShape at(Vec3 pos) {
+		return at(KVector.of(pos).ref());
+	}
+
+	public PositionedColoredShape at(Vector3dc pos) {
+		return at(KVector.of(pos.x(), pos.y(), pos.z()).ref());
 	}
 }

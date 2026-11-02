@@ -32,6 +32,8 @@ import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.shape.ShapeTypeRegistryEvent;
 import dev.latvian.mods.klib.util.Side;
+import dev.latvian.mods.klib.visual.Visual;
+import dev.latvian.mods.klib.visual.VisualTypeRegistryEvent;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
@@ -287,5 +289,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	public void collectBulkLevelModificationTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BulkLevelModification> registry) {
 		super.collectBulkLevelModificationTypes(registry);
 		ModLoader.postEvent(new BulkLevelModificationRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectVisualTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Visual> registry) {
+		super.collectVisualTypes(registry);
+		ModLoader.postEvent(new VisualTypeRegistryEvent(registry));
 	}
 }

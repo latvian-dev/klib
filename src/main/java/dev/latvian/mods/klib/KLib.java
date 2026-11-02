@@ -17,6 +17,7 @@ import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.visual.Visual;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,5 +51,6 @@ public class KLib {
 		registry.register(KVector.REGISTRY, platform::collectKVectorTypes);
 		registry.register(Icon.REGISTRY, platform::collectIconTypes);
 		registry.register(BulkLevelModification.REGISTRY, platform::collectBulkLevelModificationTypes);
+		registry.register(Visual.REGISTRY, platform::collectVisualTypes);
 	}
 }

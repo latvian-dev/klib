@@ -23,6 +23,7 @@ import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.util.BlockUtils;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Side;
+import dev.latvian.mods.klib.visual.Visual;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
@@ -211,5 +212,9 @@ public class PlatformHelper {
 
 	public void collectBulkLevelModificationTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, BulkLevelModification> registry) {
 		BulkLevelModification.builtInTypes(registry);
+	}
+
+	public void collectVisualTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Visual> registry) {
+		Visual.builtInTypes(registry);
 	}
 }

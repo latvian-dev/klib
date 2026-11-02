@@ -19,7 +19,6 @@
 		"PlayerMixin",
 		"RandomSourceMixin",
 		"ServerLevelMixin",
-		"StreamCodecMixin",
 		"StyleMixin"
 	],
 	"client": [
