@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.color.Color;
+import dev.latvian.mods.klib.math.Identity;
 import dev.latvian.mods.klib.shape.Shape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -11,6 +12,7 @@ import net.minecraft.core.Position;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionfc;
 import org.joml.Vector3dc;
 
 public record SubmitContext(
@@ -47,6 +49,18 @@ public record SubmitContext(
 
 	public void pop() {
 		poseStack.popPose();
+	}
+
+	public void rotate(Quaternionfc rotation) {
+		if (rotation != Identity.QUATERNION) {
+			poseStack.rotate(rotation);
+		}
+	}
+
+	public void scale(float scale) {
+		if (scale != 1F) {
+			poseStack.scale(scale, scale, scale);
+		}
 	}
 
 	public void submit(RenderType renderType, SubmitNodeCollector.CustomGeometryRenderer renderer) {

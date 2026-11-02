@@ -41,7 +41,8 @@ public class AtlasSpriteIconRenderState extends IconRenderState {
 	@Override
 	public void submit(SubmitContext ctx) {
 		ctx.push(x, y, z);
-		ctx.poseStack().rotate(rotation);
+		ctx.rotate(rotation);
+		ctx.scale(scale);
 
 		ctx.submit(EntityRenderTypes.texture(texture, translucent), (pose, buffer) -> {
 			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(argb).setUv(uv.u0(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(0F, 1F, 0F);

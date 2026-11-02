@@ -45,7 +45,8 @@ public class TextureIconRenderState extends IconRenderState {
 	@Override
 	public void submit(SubmitContext ctx) {
 		ctx.push(x, y, z);
-		ctx.poseStack().rotate(rotation);
+		ctx.rotate(rotation);
+		ctx.scale(scale);
 
 		ctx.submit(EntityRenderTypes.textureCull(texture, translucent), (pose, buffer) -> {
 			var n = pose.transformNormal(0F, 1F, 0F, new Vector3f());

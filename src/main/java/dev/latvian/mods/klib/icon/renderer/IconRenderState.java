@@ -11,6 +11,7 @@ public abstract class IconRenderState implements Submittable {
 	public double y;
 	public double z;
 	public Quaternionfc rotation = Identity.QUATERNION;
+	public float scale = 1F;
 	public int light = LightCoordsUtil.FULL_BRIGHT;
 	public int overlay = OverlayTexture.NO_OVERLAY;
 }
