@@ -1,19 +1,18 @@
 package dev.latvian.mods.klib.math;
 
-import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class RotatedQuadData {
 	public final Vector3f tl, bl, br, tr;
-	private AABB clipBox;
+	private AAFBB clipBox;
 
 	public RotatedQuadData() {
 		this.tl = new Vector3f();
 		this.bl = new Vector3f();
 		this.br = new Vector3f();
 		this.tr = new Vector3f();
-		this.clipBox = AABBs.INFINITE;
+		this.clipBox = AAFBB.INFINITE;
 	}
 
 	public void update(Matrix4f bbMat, float width, float height) {
@@ -24,12 +23,12 @@ public class RotatedQuadData {
 		bl.set(-w2, -h2, 0F).mulPosition(bbMat);
 		br.set(w2, -h2, 0F).mulPosition(bbMat);
 		tr.set(w2, h2, 0F).mulPosition(bbMat);
-		clipBox = AABBs.INFINITE;
+		clipBox = AAFBB.INFINITE;
 	}
 
-	public AABB getClipBox() {
-		if (clipBox == AABBs.INFINITE) {
-			clipBox = new AABB(
+	public AAFBB getClipBox() {
+		if (clipBox == AAFBB.INFINITE) {
+			clipBox = new AAFBB(
 				Math.min(Math.min(tl.x, bl.x), Math.min(br.x, tr.x)) - 0.05F,
 				Math.min(Math.min(tl.y, bl.y), Math.min(br.y, tr.y)) - 0.05F,
 				Math.min(Math.min(tl.z, bl.z), Math.min(br.z, tr.z)) - 0.05F,

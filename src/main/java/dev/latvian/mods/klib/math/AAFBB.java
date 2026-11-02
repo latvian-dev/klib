@@ -159,6 +159,18 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		return new Vector3f(maxX, maxY, maxZ);
 	}
 
+	public float sizeX() {
+		return maxX - minX;
+	}
+
+	public float sizeY() {
+		return maxY - minY;
+	}
+
+	public float sizeZ() {
+		return maxZ - minZ;
+	}
+
 	public AABB aabb() {
 		return new AABB(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
 	}
