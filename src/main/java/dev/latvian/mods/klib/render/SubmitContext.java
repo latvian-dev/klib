@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Position;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
@@ -18,18 +19,32 @@ import org.joml.Vector3dc;
 public record SubmitContext(
 	Minecraft mc,
 	@Nullable SubmitCustomGeometryEvent event,
+	SubmitNodeCollector collector,
+	CameraRenderState cameraState,
 	Vec3 cameraPos,
 	PoseStack poseStack,
-	SubmitNodeCollector collector,
 	float lineWidth
 ) {
 	public SubmitContext(Minecraft mc, SubmitCustomGeometryEvent event) {
 		this(
 			mc,
 			event,
+			event.getSubmitNodeCollector(),
+			event.getLevelRenderState().cameraRenderState,
 			event.getLevelRenderState().cameraRenderState.pos,
 			event.getPoseStack(),
-			event.getSubmitNodeCollector(),
+			mc.gameRenderer.gameRenderState().windowRenderState.appropriateLineWidth
+		);
+	}
+
+	public SubmitContext(Minecraft mc, SubmitNodeCollector collector, CameraRenderState cameraRenderState) {
+		this(
+			mc,
+			null,
+			collector,
+			cameraRenderState,
+			cameraRenderState.pos,
+			new PoseStack(),
 			mc.gameRenderer.gameRenderState().windowRenderState.appropriateLineWidth
 		);
 	}
