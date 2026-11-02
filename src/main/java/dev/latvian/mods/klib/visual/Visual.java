@@ -25,6 +25,7 @@ public interface Visual extends CustomRegistryValue<RegistryFriendlyByteBuf, Vis
 
 	static void builtInTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Visual> registry) {
 		registry.register(ShapeVisual.TYPE);
+		registry.register(TexturedCubeVisual.TYPE);
 	}
 
 	@Override

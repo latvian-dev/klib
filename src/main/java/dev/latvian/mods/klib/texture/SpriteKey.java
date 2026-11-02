@@ -8,6 +8,7 @@ import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.util.client.ImageUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -74,10 +75,6 @@ public final class SpriteKey {
 
 	public static Identifier internAtlas(Identifier atlas) {
 		return INTERN_ATLAS.computeIfAbsent(atlas, Function.identity());
-	}
-
-	public static ClientAsset.ResourceTexture assetFromPNG(Identifier png) {
-		return new ClientAsset.ResourceTexture(png.withPath(png.getPath().substring(9, png.getPath().length() - 4)));
 	}
 
 	public static final SpriteKey WHITE = special(ID.mc("misc/white"));
@@ -295,7 +292,7 @@ public final class SpriteKey {
 
 		if (tex == null) {
 			if (isSpecial()) {
-				tex = assetFromPNG(sprite);
+				tex = ImageUtils.assetFromPNG(sprite);
 			} else {
 				tex = new ClientAsset.ResourceTexture(atlas.withPath("atlas/" + atlas.getPath()));
 			}

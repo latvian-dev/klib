@@ -1,11 +1,10 @@
 package dev.latvian.mods.klib.icon.renderer;
 
+import dev.latvian.mods.klib.color.TransparencyLevel;
 import dev.latvian.mods.klib.icon.TextureIcon;
 import dev.latvian.mods.klib.render.SubmitContext;
-import dev.latvian.mods.klib.texture.UV;
-import dev.latvian.mods.klib.util.client.EntityRenderTypes;
+import dev.latvian.mods.klib.texture.SpriteRenderState;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.core.ClientAsset;
 import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -24,9 +23,7 @@ public class TextureIconRenderState extends IconRenderState {
 	}
 
 	public int color = 0xFFFFFFFF;
-	public ClientAsset.ResourceTexture texture;
-	public UV uv;
-	public boolean translucent;
+	public SpriteRenderState sprite = new SpriteRenderState();
 
 	@Nullable
 	public static IconRenderState extract(TextureIcon icon, TextureIconRenderState state, IconWorldExactContext ctx) {
@@ -36,9 +33,13 @@ public class TextureIconRenderState extends IconRenderState {
 			return null;
 		}
 
-		state.texture = icon.texture();
-		state.uv = icon.uv();
-		state.translucent = ARGB.alpha(state.color) < 255 || icon.translucent();
+		state.sprite.extract(icon.texture().texturePath());
+		state.sprite.uv = icon.uv();
+
+		if (icon.translucent()) {
+			state.sprite.transparency = TransparencyLevel.TRANSLUCENT;
+		}
+
 		return state;
 	}
 
@@ -48,12 +49,12 @@ public class TextureIconRenderState extends IconRenderState {
 		ctx.rotate(rotation);
 		ctx.scale(scale);
 
-		ctx.submit(EntityRenderTypes.textureCull(texture, translucent), (pose, buffer) -> {
+		ctx.submit(sprite.getEntityRenderType(true, ARGB.alpha(color)), (pose, buffer) -> {
 			var n = pose.transformNormal(0F, 1F, 0F, new Vector3f());
-			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(color).setUv(uv.u0(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
-			buffer.addVertex(pose, 0.5F, -0.5F, 0F).setColor(color).setUv(uv.u1(), uv.v1()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
-			buffer.addVertex(pose, 0.5F, 0.5F, 0F).setColor(color).setUv(uv.u1(), uv.v0()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
-			buffer.addVertex(pose, -0.5F, 0.5F, 0F).setColor(color).setUv(uv.u0(), uv.v0()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
+			buffer.addVertex(pose, -0.5F, -0.5F, 0F).setColor(color).setUv(sprite.uv.u0(), sprite.uv.v1()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
+			buffer.addVertex(pose, 0.5F, -0.5F, 0F).setColor(color).setUv(sprite.uv.u1(), sprite.uv.v1()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
+			buffer.addVertex(pose, 0.5F, 0.5F, 0F).setColor(color).setUv(sprite.uv.u1(), sprite.uv.v0()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
+			buffer.addVertex(pose, -0.5F, 0.5F, 0F).setColor(color).setUv(sprite.uv.u0(), sprite.uv.v0()).setLight(light).setOverlay(overlay).setNormal(n.x, n.y, n.z);
 		});
 
 		ctx.pop();

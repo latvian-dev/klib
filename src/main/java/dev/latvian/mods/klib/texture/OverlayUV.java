@@ -1,14 +1,33 @@
 package dev.latvian.mods.klib.texture;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.KLibCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
+
+import java.util.Map;
 
 public record OverlayUV(int packed, int u, int v) implements PackedUV {
 	public static final OverlayUV NORMAL = new OverlayUV(0xA0000);
 	public static final OverlayUV HURT = new OverlayUV(0x30000);
 	public static final OverlayUV WHITE = new OverlayUV(0xA00F0);
 	public static final OverlayUV WHITE_HURT = new OverlayUV(0x300F0);
+
+	public static final Codec<OverlayUV> CODEC = KLibCodecs.or(
+		KLibCodecs.partialMap(Map.of(
+			"normal", NORMAL,
+			"hurt", HURT,
+			"white", WHITE,
+			"white_hurt", WHITE_HURT
+		), Codec.STRING, false),
+		RecordCodecBuilder.create(i -> i.group(
+			ExtraCodecs.intRange(0, 0xF0).fieldOf("u").forGetter(OverlayUV::u),
+			ExtraCodecs.intRange(0, 0xF0).fieldOf("v").forGetter(OverlayUV::v)
+		).apply(i, OverlayUV::new))
+	);
 
 	public static final StreamCodec<ByteBuf, OverlayUV> STREAM_CODEC = new StreamCodec<>() {
 		@Override

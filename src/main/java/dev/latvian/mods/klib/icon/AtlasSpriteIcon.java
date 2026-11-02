@@ -12,17 +12,17 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.network.codec.ByteBufCodecs;
 
-public record AtlasSpriteIcon(AtlasSprite sprite, boolean translucent, Color tint) implements Icon {
+public record AtlasSpriteIcon(AtlasSprite sprite, boolean cull, Color tint) implements Icon {
 	public static final DynamicType<RegistryFriendlyByteBuf, Icon> TYPE = DynamicType.create(
 		"atlas_sprite",
 		RecordCodecBuilder.mapCodec(i -> i.group(
 			MCCodecs.ATLAS_SPRITE.fieldOf("sprite").forGetter(AtlasSpriteIcon::sprite),
-			Codec.BOOL.optionalFieldOf("translucent", false).forGetter(AtlasSpriteIcon::translucent),
+			Codec.BOOL.optionalFieldOf("cull", true).forGetter(AtlasSpriteIcon::cull),
 			Color.CODEC.optionalFieldOf("tint", Color.WHITE).forGetter(AtlasSpriteIcon::tint)
 		).apply(i, AtlasSpriteIcon::new)),
 		CompositeStreamCodec.of(
 			MCStreamCodecs.ATLAS_SPRITE, AtlasSpriteIcon::sprite,
-			ByteBufCodecs.BOOL, AtlasSpriteIcon::translucent,
+			ByteBufCodecs.BOOL, AtlasSpriteIcon::cull,
 			KLibStreamCodecs.optional(Color.STREAM_CODEC, Color.WHITE), AtlasSpriteIcon::tint,
 			AtlasSpriteIcon::new
 		)

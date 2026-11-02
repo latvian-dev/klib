@@ -16,6 +16,7 @@ import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.color.Color;
+import dev.latvian.mods.klib.color.TransparencyLevel;
 import dev.latvian.mods.klib.entity.PlayerInput;
 import dev.latvian.mods.klib.entity.PositionType;
 import dev.latvian.mods.klib.io.CompressionMethod;
@@ -275,6 +276,7 @@ public interface DataTypes {
 		registry.register("sprite_key", SpriteKey.DATA_TYPE);
 		registry.register("face_texture", FaceTexture.DATA_TYPE);
 		registry.register("cube_textures", CubeTextures.DATA_TYPE);
+		registry.register("transparency_level", TransparencyLevel.DATA_TYPE);
 	}
 
 	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {

@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.icon.renderer;
 
+import dev.latvian.mods.klib.color.TransparencyLevel;
 import dev.latvian.mods.klib.icon.SimpleColorIcon;
 import dev.latvian.mods.klib.render.SubmitContext;
 import dev.latvian.mods.klib.util.client.EntityRenderTypes;
@@ -19,7 +20,7 @@ public class SimpleColorIconRenderState extends IconRenderState {
 	}
 
 	public int argb;
-	public boolean translucent;
+	public TransparencyLevel translucent;
 
 	@Nullable
 	public static IconRenderState extract(SimpleColorIcon icon, SimpleColorIconRenderState state, IconWorldExactContext ctx) {
@@ -29,7 +30,7 @@ public class SimpleColorIconRenderState extends IconRenderState {
 			return null;
 		}
 
-		state.translucent = ARGB.alpha(state.argb) < 255;
+		state.translucent = ARGB.alpha(state.argb) < 255 ? TransparencyLevel.TRANSLUCENT : TransparencyLevel.SOLID;
 		return state;
 	}
 

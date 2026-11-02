@@ -464,4 +464,9 @@ public record Color(int argb) {
 	public Color mix(Color color) {
 		return mix(color, color.alpha());
 	}
+
+	public TransparencyLevel getTransparencyLevel() {
+		int a = alpha();
+		return a == 255 ? TransparencyLevel.SOLID : a == 0 ? TransparencyLevel.TRANSPARENT : TransparencyLevel.TRANSLUCENT;
+	}
 }
