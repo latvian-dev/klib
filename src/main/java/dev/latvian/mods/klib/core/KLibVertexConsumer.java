@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.core;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 
 public interface KLibVertexConsumer extends VertexCallback {
@@ -19,6 +20,18 @@ public interface KLibVertexConsumer extends VertexCallback {
 	@Override
 	default VertexCallback acceptCol(float r, float g, float b, float a) {
 		((VertexConsumer) this).setColor(r, g, b, a);
+		return this;
+	}
+
+	@Override
+	default VertexCallback acceptCol(Color color) {
+		((VertexConsumer) this).setColor(color.argb());
+		return this;
+	}
+
+	@Override
+	default VertexCallback acceptCol(int argb) {
+		((VertexConsumer) this).setColor(argb);
 		return this;
 	}
 

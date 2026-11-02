@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
+import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.kvector.KVector;
 import dev.latvian.mods.klib.registry.Ref;
@@ -25,11 +26,11 @@ public record PositionedColoredShape(Ref<KVector> position, ColoredShape shape) 
 		PositionedColoredShape::new
 	);
 
-	public ShapeVisual asVisual(boolean outerLines, Ref<KNumber> progress) {
+	public ShapeVisual asVisual(Ref<Gradient> outerLines, Ref<KNumber> progress) {
 		return new ShapeVisual(this, outerLines, progress);
 	}
 
 	public ShapeVisual asVisual() {
-		return asVisual(false, KNumber.PROGRESS);
+		return asVisual(Gradient.EMPTY, KNumber.PROGRESS);
 	}
 }

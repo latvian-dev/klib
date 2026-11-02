@@ -17,9 +17,9 @@ public class ShapeVisualRenderState implements VisualRenderState {
 
 	@Nullable
 	public static VisualRenderState extract(ShapeVisual visual, ShapeVisualRenderState state, VisualExactContext ctx) {
-		var shape = visual.shape().shape().shape().value();
+		state.shape = visual.shape().shape().shape().value();
 
-		if (shape == EmptyShape.INSTANCE) {
+		if (state.shape == EmptyShape.INSTANCE) {
 			return null;
 		}
 
@@ -30,17 +30,14 @@ public class ShapeVisualRenderState implements VisualRenderState {
 		}
 
 		float progress = (float) visual.progress().value().getOr(ctx.numberContext(), 1D);
-		var quadColor = visual.shape().shape().quads().value().get(progress);
-		var lineColor = visual.shape().shape().lines().value().get(progress);
+		state.quadColor = visual.shape().shape().quads().value().get(progress);
+		state.lineColor = visual.shape().shape().lines().value().get(progress);
+		state.outerLineColor = visual.outerLines().value().get(progress);
 
-		if (quadColor.isTransparent() && lineColor.isTransparent()) {
+		if (state.quadColor.isTransparent() && state.lineColor.isTransparent() && state.outerLineColor.isTransparent()) {
 			return null;
 		}
 
-		state.shape = shape;
-		state.quadColor = quadColor;
-		state.lineColor = lineColor;
-		state.outerLineColor = visual.outerLines() ? state.lineColor : Color.TRANSPARENT;
 		return state;
 	}
 

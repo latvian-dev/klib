@@ -12,8 +12,10 @@ import dev.latvian.mods.klib.icon.renderer.ItemIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.SimpleColorIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.TextureIconRenderState;
 import dev.latvian.mods.klib.util.ID;
+import dev.latvian.mods.klib.visual.LineVisual;
 import dev.latvian.mods.klib.visual.ShapeVisual;
 import dev.latvian.mods.klib.visual.TexturedCubeVisual;
+import dev.latvian.mods.klib.visual.renderer.LineVisualRenderState;
 import dev.latvian.mods.klib.visual.renderer.ShapeVisualRenderState;
 import dev.latvian.mods.klib.visual.renderer.TexturedCubeVisualRenderState;
 import dev.latvian.mods.klib.visual.renderer.VisualRenderingRegistryEvent;
@@ -55,5 +57,6 @@ public class KLibClientEventListener {
 	public static void registerVisualRendering(VisualRenderingRegistryEvent event) {
 		event.register(ShapeVisual.TYPE, ShapeVisualRenderState::new, ShapeVisualRenderState::extract);
 		event.register(TexturedCubeVisual.TYPE, TexturedCubeVisualRenderState::new, TexturedCubeVisualRenderState::extract);
+		event.register(LineVisual.TYPE, LineVisualRenderState::new, LineVisualRenderState::extract);
 	}
 }

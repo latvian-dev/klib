@@ -20,6 +20,14 @@ public interface VertexCallback extends QuadVertexCallback, LineVertexCallback {
 		return this;
 	}
 
+	default VertexCallback acceptCol(Color color) {
+		return acceptCol(color.redf(), color.greenf(), color.bluef(), color.alphaf());
+	}
+
+	default VertexCallback acceptCol(int argb) {
+		return acceptCol(Color.of(argb));
+	}
+
 	default VertexCallback acceptNormal(float nx, float ny, float nz) {
 		return this;
 	}
