@@ -83,14 +83,20 @@ public record SubmitContext(
 	}
 
 	public void submitQuads(Shape shape, Color color) {
-		submit(RenderTypes.debugFilledBox(), (pose, buffer) -> shape.buildQuads(pose.transform(buffer).withColor(color)));
+		if (!color.isTransparent()) {
+			submit(RenderTypes.debugFilledBox(), (pose, buffer) -> shape.buildQuads(pose.transform(buffer).withColor(color)));
+		}
 	}
 
 	public void submitLines(Shape shape, Color color) {
-		submit(RenderTypes.lines(), (pose, buffer) -> shape.buildLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+		if (!color.isTransparent()) {
+			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+		}
 	}
 
 	public void submitOuterLines(Shape shape, Color color) {
-		submit(RenderTypes.lines(), (pose, buffer) -> shape.buildOuterLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+		if (!color.isTransparent()) {
+			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildOuterLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+		}
 	}
 }
