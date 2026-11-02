@@ -85,6 +85,7 @@ import net.minecraft.util.EasingType;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -128,6 +129,7 @@ public interface DataTypes {
 	DataType<InteractionHand> HAND = DataType.of(InteractionHand.values());
 	DataType<Holder<SoundEvent>> SOUND_EVENT = DataType.of(SoundEvent.CODEC, SoundEvent.STREAM_CODEC);
 	DataType<SoundSource> SOUND_SOURCE = DataType.of(SoundSource.values());
+	DataType<Pose> POSE = DataType.of(Pose.values());
 
 	DataType<ItemStack> ITEM_STACK = DataType.of(ItemStack.OPTIONAL_CODEC, new StreamCodec<>() {
 		@Override
@@ -176,6 +178,7 @@ public interface DataTypes {
 	DataType<Transformation> TRANSFORMATION = DataType.of(Transformation.CODEC, MCStreamCodecs.TRANSFORMATION);
 	DataType<PlayerSkin> SECURE_PLAYER_SKIN = DataType.of(MCCodecs.SECURE_PLAYER_SKIN, MCStreamCodecs.SECURE_PLAYER_SKIN);
 
+
 	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
 		registry.register("data_type", DataType.DATA_TYPE);
 
@@ -205,6 +208,7 @@ public interface DataTypes {
 		registry.register("hand", HAND);
 		registry.register("sound_event", SOUND_EVENT);
 		registry.register("sound_source", SOUND_SOURCE);
+		registry.register("pose", POSE);
 		registry.register("item_stack", ITEM_STACK);
 		registry.register("item_stack_list", ITEM_STACK_LIST);
 		registry.register("particle_options", PARTICLE_OPTIONS);
