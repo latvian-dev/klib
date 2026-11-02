@@ -5,9 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.knumber.KNumber;
+import dev.latvian.mods.klib.kvector.BlockPosKVector;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.shape.PositionedColoredShape;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 
@@ -30,5 +32,10 @@ public record ShapeVisual(PositionedColoredShape shape, boolean outerLines, Ref<
 	@Override
 	public DynamicType<RegistryFriendlyByteBuf, Visual> type() {
 		return TYPE;
+	}
+
+	@Override
+	public boolean containsBlock(Vec3i block) {
+		return shape.position().value() instanceof BlockPosKVector vec && vec.pos().equals(block);
 	}
 }

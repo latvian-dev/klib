@@ -24,6 +24,7 @@ public interface Visual extends CustomRegistryValue<RegistryFriendlyByteBuf, Vis
 	int PROPERTY_RENDERER = DynamicType.newPropertyId();
 
 	static void builtInTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Visual> registry) {
+		registry.register(ShapeVisual.TYPE);
 	}
 
 	@Override
@@ -31,7 +32,7 @@ public interface Visual extends CustomRegistryValue<RegistryFriendlyByteBuf, Vis
 		return REGISTRY;
 	}
 
-	default boolean containsBlock(Vec3i pos) {
+	default boolean containsBlock(Vec3i block) {
 		return false;
 	}
 }

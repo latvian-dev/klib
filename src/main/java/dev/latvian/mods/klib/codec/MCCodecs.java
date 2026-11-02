@@ -8,6 +8,7 @@ import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.util.ID;
 import it.unimi.dsi.fastutil.objects.Reference2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -71,4 +72,6 @@ public interface MCCodecs {
 		model,
 		true
 	)));
+
+	Codec<BlockPos> EXPLICIT_BLOCK_POS = KLibCodecs.EXPLICIT_INT_STREAM.comapFlatMap(input -> Util.fixedSize(input, 3).map(ints -> new BlockPos(ints[0], ints[1], ints[2])), pos -> IntStream.of(pos.getX(), pos.getY(), pos.getZ())).stable();
 }

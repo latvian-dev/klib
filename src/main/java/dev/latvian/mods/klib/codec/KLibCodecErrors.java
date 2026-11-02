@@ -4,6 +4,7 @@ import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 public interface KLibCodecErrors {
@@ -26,6 +27,7 @@ public interface KLibCodecErrors {
 	DataResult<Double> NOT_A_DOUBLE = KLibCodecErrors.error("Not a number");
 	DataResult<Float> NOT_A_FLOAT = KLibCodecErrors.error("Not a number");
 	DataResult<Vec3> NOT_A_VEC3 = KLibCodecErrors.error("Not a vector");
+	DataResult<BlockPos> NOT_A_BLOCK_POS = KLibCodecErrors.error("Not a block position");
 	DataResult<Ref<KNumber>> NOT_A_KNUMBER = KLibCodecErrors.error("Not a number");
 
 	static <T> DataResult<T> valueIsNull() {

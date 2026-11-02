@@ -23,6 +23,7 @@ import dev.latvian.mods.klib.util.CommandEvaluable;
 import dev.latvian.mods.klib.util.IntOrUUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -42,6 +43,13 @@ public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KV
 
 	CustomRegistry<RegistryFriendlyByteBuf, KVector> REGISTRY = CustomRegistry.<RegistryFriendlyByteBuf, KVector>builder("kvector")
 		.customCodec(directCodec -> KLibCodecs.or(List.of(
+			MCCodecs.EXPLICIT_BLOCK_POS.flatComapMap(KVector::of, val -> {
+				if (val instanceof BlockPosKVector v) {
+					return DataResult.success(v.pos());
+				} else {
+					return KLibCodecErrors.NOT_A_BLOCK_POS;
+				}
+			}),
 			MCCodecs.VEC3.<KVector>flatComapMap(KVector::of, val -> {
 				if (val instanceof FixedKVector fixed) {
 					return DataResult.success(fixed.vec());
@@ -93,8 +101,12 @@ public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KV
 		return of(KMath.vec3(x, y, z));
 	}
 
+	static KVector of(BlockPos pos) {
+		return new BlockPosKVector(pos);
+	}
+
 	static KVector of(Vec3i pos) {
-		return of(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
+		return of(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
 	}
 
 	static KVector of(Vector3dc pos) {
@@ -113,6 +125,7 @@ public interface KVector extends CustomRegistryValue<RegistryFriendlyByteBuf, KV
 		registry.register(TARGET);
 
 		registry.register(FixedKVector.TYPE);
+		registry.register(BlockPosKVector.TYPE);
 		registry.register(InterpolatedKVector.TYPE);
 		registry.register(DynamicKVector.TYPE);
 		registry.register(ScalarKVector.TYPE);

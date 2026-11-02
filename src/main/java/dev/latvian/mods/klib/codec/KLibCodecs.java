@@ -5,7 +5,9 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.util.UndashedUuid;
 import dev.latvian.mods.klib.util.NameProvider;
 import dev.latvian.mods.klib.util.StringUtils;
@@ -34,6 +36,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 public interface KLibCodecs {
 	static <T> Codec<List<T>> listOrSelf(Codec<T> elementCodec) {
@@ -163,6 +167,84 @@ public interface KLibCodecs {
 			return DataResult.error(() -> "Invalid URI: " + uri);
 		}
 	});
+
+	PrimitiveCodec<IntStream> EXPLICIT_INT_STREAM = new PrimitiveCodec<>() {
+		@Override
+		public <T> DataResult<IntStream> read(final DynamicOps<T> ops, final T input) {
+			return ops.getStream(input).flatMap(stream -> {
+				final List<T> list = stream.toList();
+				int[] ints = new int[list.size()];
+
+				for (int i = 0; i < ints.length; i++) {
+					var num = ops.getNumberValue(list.get(i));
+
+					if (!num.isSuccess()) {
+						return DataResult.error(() -> "Some elements are not ints: " + input);
+					}
+
+					var numValue = num.getOrThrow();
+
+					if (numValue instanceof Integer integer) {
+						ints[i] = integer;
+					} else {
+						return DataResult.error(() -> "Some elements are not ints: " + input);
+					}
+				}
+
+				return DataResult.success(IntStream.of(ints));
+			});
+		}
+
+		@Override
+		public <T> T write(final DynamicOps<T> ops, final IntStream value) {
+			return ops.createIntList(value);
+		}
+
+		@Override
+		public String toString() {
+			return "IntStream";
+		}
+	};
+
+	PrimitiveCodec<LongStream> EXPLICIT_LONG_STREAM = new PrimitiveCodec<>() {
+		@Override
+		public <T> DataResult<LongStream> read(final DynamicOps<T> ops, final T input) {
+			return ops.getStream(input).flatMap(stream -> {
+				final List<T> list = stream.toList();
+				long[] longs = new long[list.size()];
+
+				for (int i = 0; i < longs.length; i++) {
+					var num = ops.getNumberValue(list.get(i));
+
+					if (!num.isSuccess()) {
+						return DataResult.error(() -> "Some elements are not longs: " + input);
+					}
+
+					var numValue = num.getOrThrow();
+
+					if (numValue instanceof Long boxed) {
+						longs[i] = boxed;
+					} else if (numValue instanceof Integer boxed) {
+						longs[i] = boxed.longValue();
+					} else {
+						return DataResult.error(() -> "Some elements are not longs: " + input);
+					}
+				}
+
+				return DataResult.success(LongStream.of(longs));
+			});
+		}
+
+		@Override
+		public <T> T write(final DynamicOps<T> ops, final LongStream value) {
+			return ops.createLongList(value);
+		}
+
+		@Override
+		public String toString() {
+			return "LongStream";
+		}
+	};
 
 	static <E> Codec<E> anyEnum(E[] enumValues, @Nullable NameProvider<E> nameProvider) {
 		var map0 = new HashMap<String, E>(enumValues.length);
