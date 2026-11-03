@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.math;
 
 import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.FloatTag;
@@ -17,6 +18,7 @@ import org.joml.Vector2i;
 import org.joml.Vector2ic;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
+import org.jspecify.annotations.Nullable;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -455,5 +457,83 @@ public interface KMath {
 
 	static boolean isNaN(Vec3 vec) {
 		return Double.isNaN(vec.x) || Double.isNaN(vec.y) || Double.isNaN(vec.z);
+	}
+
+	static @Nullable Direction getDirection(
+		float minX,
+		float minY,
+		float minZ,
+		float maxX,
+		float maxY,
+		float maxZ,
+		float fromX,
+		float fromY,
+		float fromZ,
+		float[] scaleReference,
+		@Nullable Direction direction,
+		float dx,
+		float dy,
+		float dz
+	) {
+		if (dx > 1.0E-7) {
+			direction = clipPoint(scaleReference, direction, dx, dy, dz, minX, minY, maxY, minZ, maxZ, Direction.WEST, fromX, fromY, fromZ);
+		} else if (dx < -1.0E-7) {
+			direction = clipPoint(scaleReference, direction, dx, dy, dz, maxX, minY, maxY, minZ, maxZ, Direction.EAST, fromX, fromY, fromZ);
+		}
+
+		if (dy > 1.0E-7) {
+			direction = clipPoint(scaleReference, direction, dy, dz, dx, minY, minZ, maxZ, minX, maxX, Direction.DOWN, fromY, fromZ, fromX);
+		} else if (dy < -1.0E-7) {
+			direction = clipPoint(scaleReference, direction, dy, dz, dx, maxY, minZ, maxZ, minX, maxX, Direction.UP, fromY, fromZ, fromX);
+		}
+
+		if (dz > 1.0E-7) {
+			direction = clipPoint(scaleReference, direction, dz, dx, dy, minZ, minX, maxX, minY, maxY, Direction.NORTH, fromZ, fromX, fromY);
+		} else if (dz < -1.0E-7) {
+			direction = clipPoint(scaleReference, direction, dz, dx, dy, maxZ, minX, maxX, minY, maxY, Direction.SOUTH, fromZ, fromX, fromY);
+		}
+
+		return direction;
+	}
+
+	static @Nullable Direction clipPoint(
+		float[] scaleReference,
+		@Nullable Direction direction,
+		float da,
+		float db,
+		float dc,
+		float point,
+		float minB,
+		float maxB,
+		float minC,
+		float maxC,
+		Direction newDirection,
+		float fromA,
+		float fromB,
+		float fromC
+	) {
+		float s = (point - fromA) / da;
+		float pb = fromB + s * db;
+		float pc = fromC + s * dc;
+		if (0D < s && s < scaleReference[0] && minB - 0.0000001F < pb && pb < maxB + 0.0000001F && minC - 0.0000001F < pc && pc < maxC + 0.0000001F) {
+			scaleReference[0] = s;
+			return newDirection;
+		} else {
+			return direction;
+		}
+	}
+
+	static float clip(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, float fromX, float fromY, float fromZ, float toX, float toY, float toZ) {
+		var scaleReference = new float[]{1F};
+		float dx = toX - fromX;
+		float dy = toY - fromY;
+		float dz = toZ - fromZ;
+		var direction = getDirection(minX, minY, minZ, maxX, maxY, maxZ, fromX, fromY, fromZ, scaleReference, null, dx, dy, dz);
+
+		if (direction == null) {
+			return Float.NaN;
+		}
+
+		return scaleReference[0];
 	}
 }

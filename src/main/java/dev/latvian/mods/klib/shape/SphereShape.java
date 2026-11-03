@@ -58,7 +58,7 @@ public record SphereShape(float size, AAFBB box) implements Shape {
 	}
 
 	@Override
-	public float intersects(float x0, float y0, float z0, float x1, float y1, float z1) {
+	public float clip(float x0, float y0, float z0, float x1, float y1, float z1) {
 		float dx = x1 - x0;
 		float dy = y1 - y0;
 		float dz = z1 - z0;

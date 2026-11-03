@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.math;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -183,8 +184,31 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		return List.of(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 
+	public boolean intersects(AAFBB aabb) {
+		return intersects(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
+	}
+
+	public boolean intersects(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+		return this.minX < maxX && this.maxX > minX && this.minY < maxY && this.maxY > minY && this.minZ < maxZ && this.maxZ > minZ;
+	}
+
+	public boolean intersects(Vector3fc min, Vector3fc max) {
+		return intersects(
+			Math.min(min.x(), max.x()),
+			Math.min(min.y(), max.y()),
+			Math.min(min.z(), max.z()),
+			Math.max(min.x(), max.x()),
+			Math.max(min.y(), max.y()),
+			Math.max(min.z(), max.z())
+		);
+	}
+
+	public boolean contains(Vector3fc vec) {
+		return contains(vec.x(), vec.y(), vec.z());
+	}
+
 	public boolean contains(float x, float y, float z) {
-		return x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
+		return x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
 	}
 
 	public boolean isEmpty() {
@@ -199,7 +223,7 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		return this == INFINITE || Float.isInfinite(minX) && Float.isInfinite(minY) && Float.isInfinite(minZ) && Float.isInfinite(maxX) && Float.isInfinite(maxY);
 	}
 
-	public float intersects(float x0, float y0, float z0, float x1, float y1, float z1) {
+	public float clip(float x0, float y0, float z0, float x1, float y1, float z1) {
 		float dirX = x1 - x0, dirY = y1 - y0, dirZ = z1 - z0;
 		float invDirX = 1F / dirX, invDirY = 1F / dirY, invDirZ = 1F / dirZ;
 		float tNear, tFar, tymin, tymax, tzmin, tzmax;
@@ -282,5 +306,60 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 
 	public Vector3f npp() {
 		return new Vector3f(minX, maxY, maxZ);
+	}
+
+	public AAFBB inflate(float xAdd, float yAdd, float zAdd) {
+		return new AAFBB(minX - xAdd, minY - yAdd, minZ - zAdd, maxX + xAdd, maxY + yAdd, maxZ + zAdd);
+	}
+
+	public AAFBB inflate(float add) {
+		return inflate(add, add, add);
+	}
+
+	public AAFBB intersect(AAFBB other) {
+		return new AAFBB(
+			Math.max(this.minX, other.minX),
+			Math.max(this.minY, other.minY),
+			Math.max(this.minZ, other.minZ),
+			Math.min(this.maxX, other.maxX),
+			Math.min(this.maxY, other.maxY),
+			Math.min(this.maxZ, other.maxZ)
+		);
+	}
+
+	public AAFBB minmax(AAFBB other) {
+		return new AAFBB(
+			Math.min(this.minX, other.minX),
+			Math.min(this.minY, other.minY),
+			Math.min(this.minZ, other.minZ),
+			Math.max(this.maxX, other.maxX),
+			Math.max(this.maxY, other.maxY),
+			Math.max(this.maxZ, other.maxZ)
+		);
+	}
+
+	public AABB move(float x, float y, float z) {
+		return new AABB(
+			minX + x,
+			minY + y,
+			minZ + z,
+			maxX + x,
+			maxY + y,
+			maxZ + z
+		);
+	}
+
+	public float distanceToSqr(float x, float y, float z) {
+		float dx = Math.max(Math.max(minX - x, x - maxX), 0F);
+		float dy = Math.max(Math.max(minY - y, y - maxY), 0F);
+		float dz = Math.max(Math.max(minZ - z, z - maxZ), 0F);
+		return Mth.lengthSquared(dx, dy, dz);
+	}
+
+	public float distanceToSqr(AAFBB other) {
+		float dx = Math.max(Math.max(minX - other.maxX, other.minX - maxX), 0F);
+		float dy = Math.max(Math.max(minY - other.maxY, other.minY - maxY), 0F);
+		float dz = Math.max(Math.max(minZ - other.maxZ, other.minZ - maxZ), 0F);
+		return Mth.lengthSquared(dx, dy, dz);
 	}
 }

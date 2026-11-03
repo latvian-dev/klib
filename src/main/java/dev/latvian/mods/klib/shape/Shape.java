@@ -69,8 +69,8 @@ public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 		return box().contains(x, y, z);
 	}
 
-	default float intersects(float x0, float y0, float z0, float x1, float y1, float z1) {
-		return box().intersects(x0, y0, z0, x1, y1, z1);
+	default float clip(float x0, float y0, float z0, float x1, float y1, float z1) {
+		return box().clip(x0, y0, z0, x1, y1, z1);
 	}
 
 	default boolean isVisible(double x, double y, double z, FrustumCheck frustum) {
