@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -139,6 +140,17 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		}
 	}
 
+	public static AAFBB relative(AABB box, Vec3 pos) {
+		return new AAFBB(
+			(float) (box.minX - pos.x),
+			(float) (box.minY - pos.y),
+			(float) (box.minZ - pos.z),
+			(float) (box.maxX - pos.x),
+			(float) (box.maxY - pos.y),
+			(float) (box.maxZ - pos.z)
+		);
+	}
+
 	public AAFBB(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
 		this.minX = Math.min(minX, maxX);
 		this.minY = Math.min(minY, maxY);
@@ -172,8 +184,15 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		return maxZ - minZ;
 	}
 
-	public AABB aabb() {
-		return new AABB(minX, minY, minZ, maxX + 1D, maxY + 1D, maxZ + 1D);
+	public AABB aabb(Vec3 offset) {
+		return new AABB(
+			offset.x + minX,
+			offset.y + minY,
+			offset.z + minZ,
+			offset.x + maxX,
+			offset.y + maxY,
+			offset.z + maxZ
+		);
 	}
 
 	public float[] toFloatArray() {
@@ -338,8 +357,8 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		);
 	}
 
-	public AABB move(float x, float y, float z) {
-		return new AABB(
+	public AAFBB move(float x, float y, float z) {
+		return x == 0F && y == 0F && z == 0F ? this : new AAFBB(
 			minX + x,
 			minY + y,
 			minZ + z,
@@ -347,6 +366,10 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 			maxY + y,
 			maxZ + z
 		);
+	}
+
+	public AAFBB move(Vector3fc move) {
+		return move == Identity.VEC_3 ? this : move(move.x(), move.y(), move.z());
 	}
 
 	public float distanceToSqr(float x, float y, float z) {

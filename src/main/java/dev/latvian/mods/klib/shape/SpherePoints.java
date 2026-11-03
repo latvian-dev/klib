@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public class SpherePoints {
 	public static final SpherePoints L = new SpherePoints(9, 7);
@@ -90,7 +91,11 @@ public class SpherePoints {
 		 */
 	}
 
-	public void buildQuads(float s, QuadVertexCallback callback) {
+	public void buildQuads(float s, Vector3fc offset, QuadVertexCallback callback) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		for (int r = 0; r < rows.length - 1; r++) {
 			for (int c = 0; c < cols.length - 1; c++) {
 				var cr = rows[r];
@@ -107,15 +112,19 @@ public class SpherePoints {
 				var ny = nr.y() * s;
 				var cy = cr.y() * s;
 
-				callback.quadVertex(cc.x() * nr.m() * s, ny, cc.z() * nr.m() * s, u0l, v1l, nv.x, nv.y, nv.z);
-				callback.quadVertex(cc.x() * cr.m() * s, cy, cc.z() * cr.m() * s, u0l, v0l, nv.x, nv.y, nv.z);
-				callback.quadVertex(nc.x() * cr.m() * s, cy, nc.z() * cr.m() * s, u1l, v0l, nv.x, nv.y, nv.z);
-				callback.quadVertex(nc.x() * nr.m() * s, ny, nc.z() * nr.m() * s, u1l, v1l, nv.x, nv.y, nv.z);
+				callback.quadVertex(ox + cc.x() * nr.m() * s, oy + ny, oz + cc.z() * nr.m() * s, u0l, v1l, nv.x, nv.y, nv.z);
+				callback.quadVertex(ox + cc.x() * cr.m() * s, oy + cy, oz + cc.z() * cr.m() * s, u0l, v0l, nv.x, nv.y, nv.z);
+				callback.quadVertex(ox + nc.x() * cr.m() * s, oy + cy, oz + nc.z() * cr.m() * s, u1l, v0l, nv.x, nv.y, nv.z);
+				callback.quadVertex(ox + nc.x() * nr.m() * s, oy + ny, oz + nc.z() * nr.m() * s, u1l, v1l, nv.x, nv.y, nv.z);
 			}
 		}
 	}
 
-	public void buildLines(float s, LineVertexCallback callback) {
+	public void buildLines(float s, Vector3fc offset, LineVertexCallback callback) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		for (int r = 0; r < rows.length - 1; r++) {
 			for (int c = 0; c < cols.length - 1; c++) {
 				var cr = rows[r];
@@ -127,8 +136,23 @@ public class SpherePoints {
 				var cy = cr.y() * s;
 				var cz = cc.z() * cr.m() * s;
 
-				callback.line(cc.x() * nr.m() * s, nr.y() * s, cc.z() * nr.m() * s, cx, cy, cz);
-				callback.line(cx, cy, cz, nc.x() * cr.m() * s, cy, nc.z() * cr.m() * s);
+				callback.line(
+					ox + cc.x() * nr.m() * s,
+					oy + nr.y() * s,
+					oz + cc.z() * nr.m() * s,
+					ox + cx,
+					oy + cy,
+					oz + cz
+				);
+
+				callback.line(
+					ox + cx,
+					oy + cy,
+					oz + cz,
+					ox + nc.x() * cr.m() * s,
+					oy + cy,
+					oz + nc.z() * cr.m() * s
+				);
 			}
 		}
 	}

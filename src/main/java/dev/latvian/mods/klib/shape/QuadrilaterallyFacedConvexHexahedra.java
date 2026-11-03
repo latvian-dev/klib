@@ -198,12 +198,6 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 		callback.accept(npp);
 	}
 
-	public void forEachFace(QuadVertexCallback callback) {
-		for (var face : faces) {
-			face.forEachVertex(callback);
-		}
-	}
-
 	public void forEachEdge(Consumer<Line3f> callback) {
 		for (var edge : edges) {
 			callback.accept(edge);
@@ -219,21 +213,28 @@ public class QuadrilaterallyFacedConvexHexahedra implements Shape, Consumer<Cons
 	}
 
 	@Override
-	public void buildLines(LineVertexCallback callback) {
+	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
 		for (var edge : edges) {
-			callback.line(edge);
+			callback.line(
+				offset.x() + edge.start().x(),
+				offset.y() + edge.start().y(),
+				offset.z() + edge.start().z(),
+				offset.x() + edge.end().x(),
+				offset.y() + edge.end().y(),
+				offset.z() + edge.end().z()
+			);
 		}
 	}
 
 	@Override
-	public void buildOuterLines(LineVertexCallback callback) {
-		callback.cuboidLines(box);
+	public void buildOuterLines(Vector3fc offset, LineVertexCallback callback) {
+		callback.cuboidLines(box.move(offset));
 	}
 
 	@Override
-	public void buildQuads(QuadVertexCallback callback) {
+	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
 		for (var face : faces) {
-			face.forEachVertex(callback);
+			face.forEachVertex(offset, callback);
 		}
 	}
 

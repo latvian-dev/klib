@@ -34,6 +34,8 @@ import dev.latvian.mods.klib.shape.ShapeTypeRegistryEvent;
 import dev.latvian.mods.klib.util.Side;
 import dev.latvian.mods.klib.visual.Visual;
 import dev.latvian.mods.klib.visual.VisualTypeRegistryEvent;
+import dev.latvian.mods.klib.volume.Volume;
+import dev.latvian.mods.klib.volume.VolumeRegistryEvent;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
@@ -41,6 +43,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoader;
@@ -202,6 +205,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	}
 
 	@Override
+	public AABB infiniteAABB() {
+		return AABB.INFINITE;
+	}
+
+	@Override
 	public void collectCustomRegistries(CustomRegistryCollector registry) {
 		super.collectCustomRegistries(registry);
 		ModLoader.postEvent(new CustomRegistryRegistryEvent(registry));
@@ -295,5 +303,11 @@ public class NeoPlatformHelper extends PlatformHelper {
 	public void collectVisualTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Visual> registry) {
 		super.collectVisualTypes(registry);
 		ModLoader.postEvent(new VisualTypeRegistryEvent(registry));
+	}
+
+	@Override
+	public void collectVolumeTypes(CustomRegistryTypeCollector<ByteBuf, Volume> registry) {
+		super.collectVolumeTypes(registry);
+		ModLoader.postEvent(new VolumeRegistryEvent(registry));
 	}
 }

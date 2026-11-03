@@ -2,10 +2,13 @@ package dev.latvian.mods.klib.shape;
 
 import dev.latvian.mods.klib.math.AAFBB;
 import dev.latvian.mods.klib.math.FrustumCheck;
+import dev.latvian.mods.klib.math.HitBuilder;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3fc;
 
 public enum UniverseShape implements Shape {
 	INSTANCE;
@@ -21,11 +24,11 @@ public enum UniverseShape implements Shape {
 	}
 
 	@Override
-	public void buildLines(LineVertexCallback callback) {
+	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
 	}
 
 	@Override
-	public void buildQuads(QuadVertexCallback callback) {
+	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
 	}
 
 	@Override
@@ -34,8 +37,7 @@ public enum UniverseShape implements Shape {
 	}
 
 	@Override
-	public float clip(float x0, float y0, float z0, float x1, float y1, float z1) {
-		return Float.NaN;
+	public void hit(Vec3 pos, HitBuilder hit) {
 	}
 
 	@Override

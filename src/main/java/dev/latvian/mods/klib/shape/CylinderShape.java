@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.math.AAFBB;
+import dev.latvian.mods.klib.math.HitBuilder;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
@@ -12,6 +13,8 @@ import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3fc;
 
 public record CylinderShape(float width, float height, AAFBB box) implements Shape {
 	public static final UnitType<ByteBuf, Shape> UNIT_CYLINDER = UnitType.create("unit_cylinder", new CylinderShape(1F, 1F));
@@ -53,18 +56,18 @@ public record CylinderShape(float width, float height, AAFBB box) implements Sha
 	}
 
 	@Override
-	public void buildLines(LineVertexCallback callback) {
-		callback.cylinderLines(width, height, 96, 8);
+	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
+		callback.cylinderLines(offset, width, height, 96, 8);
 	}
 
 	@Override
-	public void buildOuterLines(LineVertexCallback callback) {
-		callback.cuboidLines(box);
+	public void buildOuterLines(Vector3fc offset, LineVertexCallback callback) {
+		callback.cuboidLines(box.move(offset));
 	}
 
 	@Override
-	public void buildQuads(QuadVertexCallback callback) {
-		callback.cylinderQuads(width, height, 96);
+	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
+		callback.cylinderQuads(offset, width, height, 96);
 	}
 
 	@Override
@@ -73,7 +76,6 @@ public record CylinderShape(float width, float height, AAFBB box) implements Sha
 	}
 
 	@Override
-	public float clip(float x0, float y0, float z0, float x1, float y1, float z1) {
-		return Float.NaN;
+	public void hit(Vec3 pos, HitBuilder hit) {
 	}
 }

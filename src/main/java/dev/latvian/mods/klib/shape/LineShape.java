@@ -60,17 +60,24 @@ public record LineShape(Vector3fc vector, AAFBB box) implements Shape {
 	}
 
 	@Override
-	public void buildLines(LineVertexCallback callback) {
-		callback.line(0F, 0F, 0F, vector.x(), vector.y(), vector.z());
+	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
+		callback.line(
+			offset.x(),
+			offset.y(),
+			offset.z(),
+			offset.x() + vector.x(),
+			offset.y() + vector.y(),
+			offset.z() + vector.z()
+		);
 	}
 
 	@Override
-	public void buildOuterLines(LineVertexCallback callback) {
-		callback.cuboidLines(box);
+	public void buildOuterLines(Vector3fc offset, LineVertexCallback callback) {
+		callback.cuboidLines(box.move(offset));
 	}
 
 	@Override
-	public void buildQuads(QuadVertexCallback callback) {
+	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
 	}
 
 	@Override

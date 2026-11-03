@@ -12,6 +12,7 @@ import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3fc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,23 +201,56 @@ public record VoxelShapeBox(List<Line3f> edges, List<AAFBB> boxes, boolean singl
 	}
 
 	@Override
-	public void buildLines(LineVertexCallback callback) {
+	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		for (var edge : edges) {
-			callback.line(edge);
+			callback.line(
+				ox + edge.start().x(),
+				oy + edge.start().y(),
+				oz + edge.start().z(),
+				ox + edge.end().x(),
+				oy + edge.end().y(),
+				oz + edge.end().z()
+			);
 		}
 	}
 
 	@Override
-	public void buildOuterLines(LineVertexCallback callback) {
+	public void buildOuterLines(Vector3fc offset, LineVertexCallback callback) {
 		if (boxes.size() > 1) {
-			callback.cuboidLines(box);
+			float ox = offset.x();
+			float oy = offset.y();
+			float oz = offset.z();
+
+			callback.cuboidLines(
+				ox + box.minX(),
+				oy + box.minY(),
+				oz + box.minZ(),
+				ox + box.maxX(),
+				oy + box.maxY(),
+				oz + box.maxZ()
+			);
 		}
 	}
 
 	@Override
-	public void buildQuads(QuadVertexCallback callback) {
+	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		for (var box : boxes) {
-			callback.cuboidQuads(box);
+			callback.cuboidQuads(
+				ox + box.minX(),
+				oy + box.minY(),
+				oz + box.minZ(),
+				ox + box.maxX(),
+				oy + box.maxY(),
+				oz + box.maxZ()
+			);
 		}
 	}
 

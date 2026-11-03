@@ -15,6 +15,8 @@ import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionfc;
 import org.joml.Vector3dc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public record SubmitContext(
 	Minecraft mc,
@@ -78,25 +80,41 @@ public record SubmitContext(
 		}
 	}
 
+	public Vector3f offset(double x, double y, double z) {
+		return new Vector3f(
+			(float) (x - cameraPos.x),
+			(float) (y - cameraPos.y),
+			(float) (z - cameraPos.z)
+		);
+	}
+
+	public Vector3f offset(Position pos) {
+		return offset(pos.x(), pos.y(), pos.z());
+	}
+
+	public Vector3f offset(Vector3dc pos) {
+		return offset(pos.x(), pos.y(), pos.z());
+	}
+
 	public void submit(RenderType renderType, SubmitNodeCollector.CustomGeometryRenderer renderer) {
 		collector.submitCustomGeometry(poseStack, renderType, renderer);
 	}
 
-	public void submitQuads(Shape shape, Color color) {
+	public void submitQuads(Vector3fc offset, Shape shape, Color color) {
 		if (!color.isTransparent()) {
-			submit(RenderTypes.debugFilledBox(), (pose, buffer) -> shape.buildQuads(pose.transform(buffer).withColor(color)));
+			submit(RenderTypes.debugFilledBox(), (pose, buffer) -> shape.buildQuads(offset, pose.transform(buffer).withColor(color)));
 		}
 	}
 
-	public void submitLines(Shape shape, Color color) {
+	public void submitLines(Vector3fc offset, Shape shape, Color color) {
 		if (!color.isTransparent()) {
-			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
 		}
 	}
 
-	public void submitOuterLines(Shape shape, Color color) {
+	public void submitOuterLines(Vector3fc offset, Shape shape, Color color) {
 		if (!color.isTransparent()) {
-			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildOuterLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildOuterLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
 		}
 	}
 }

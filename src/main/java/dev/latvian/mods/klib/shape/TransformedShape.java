@@ -10,6 +10,7 @@ import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public record TransformedShape(Ref<Shape> shape, ComputedTransformation transformation, AAFBB box) implements Shape {
 	public static final DynamicType<ByteBuf, Shape> TYPE = DynamicType.create(
@@ -44,18 +45,18 @@ public record TransformedShape(Ref<Shape> shape, ComputedTransformation transfor
 	}
 
 	@Override
-	public void buildLines(LineVertexCallback callback) {
-		shape.value().buildLines(transformation.transformLines(callback));
+	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
+		shape.value().buildLines(offset, transformation.transformLines(callback));
 	}
 
 	@Override
-	public void buildOuterLines(LineVertexCallback callback) {
-		callback.cuboidLines(box);
+	public void buildOuterLines(Vector3fc offset, LineVertexCallback callback) {
+		callback.cuboidLines(box.move(offset));
 	}
 
 	@Override
-	public void buildQuads(QuadVertexCallback callback) {
-		shape.value().buildQuads(transformation.transformQuads(callback));
+	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
+		shape.value().buildQuads(offset, transformation.transformQuads(callback));
 	}
 
 	@Override

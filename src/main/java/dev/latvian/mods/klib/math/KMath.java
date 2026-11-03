@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.math;
 
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -67,7 +68,7 @@ public interface KMath {
 		}
 	}
 
-	AABB INFINITE = new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+	AABB INFINITE_AABB = PlatformHelper.CURRENT.infiniteAABB();
 	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
 	Vec3 CENTER_VEC3 = new Vec3(0.5D, 0.5D, 0.5D);
 	Vec3 ONE_VEC3 = new Vec3(1D, 1D, 1D);
@@ -452,7 +453,7 @@ public interface KMath {
 	}
 
 	static AABB infiniteAABB() {
-		return INFINITE;
+		return INFINITE_AABB;
 	}
 
 	static boolean isNaN(Vec3 vec) {

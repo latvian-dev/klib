@@ -43,10 +43,9 @@ public class ShapeVisualRenderState implements VisualRenderState {
 
 	@Override
 	public void submit(SubmitContext ctx) {
-		ctx.push(position);
-		ctx.submitQuads(shape, quadColor);
-		ctx.submitLines(shape, lineColor);
-		ctx.submitOuterLines(shape, outerLineColor);
-		ctx.pop();
+		var offset = ctx.offset(position);
+		ctx.submitQuads(offset, shape, quadColor);
+		ctx.submitLines(offset, shape, lineColor);
+		ctx.submitOuterLines(offset, shape, outerLineColor);
 	}
 }

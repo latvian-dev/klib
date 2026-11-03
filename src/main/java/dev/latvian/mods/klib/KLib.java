@@ -18,6 +18,7 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.visual.Visual;
+import dev.latvian.mods.klib.volume.Volume;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,5 +53,6 @@ public class KLib {
 		registry.register(Icon.REGISTRY, platform::collectIconTypes);
 		registry.register(BulkLevelModification.REGISTRY, platform::collectBulkLevelModificationTypes);
 		registry.register(Visual.REGISTRY, platform::collectVisualTypes);
+		registry.register(Volume.REGISTRY, platform::collectVolumeTypes);
 	}
 }

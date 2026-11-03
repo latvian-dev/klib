@@ -116,7 +116,11 @@ public interface LineVertexCallback {
 		cuboidLines(maxX - e, minY - c + o, maxZ - e, maxX + e, maxY + c - o, maxZ + e);
 	}
 
-	default void circleLines(float size, int detail) {
+	default void circleLines(Vector3fc offset, float size, int detail) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		float r = Math.max(size / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
@@ -126,11 +130,15 @@ public interface LineVertexCallback {
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
 			float nz = (float) (Math.sin((i + 1D) * rs) * r);
 
-			line(cx, 0F, cz, nx, 0F, nz);
+			line(ox + cx, oy, oz + cz, nx, 0F, nz);
 		}
 	}
 
-	default void cylinderLines(float width, float height, int detail, int hdetail) {
+	default void cylinderLines(Vector3fc offset, float width, float height, int detail, int hdetail) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		float r = Math.max(width / 2F, 0F);
 		float h = Math.max(height / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
@@ -141,10 +149,10 @@ public interface LineVertexCallback {
 			float nx = (float) (Math.cos((i + 1D) * rs) * r);
 			float nz = (float) (Math.sin((i + 1D) * rs) * r);
 
-			line(cx, h, cz, nx, h, nz);
+			line(ox + cx, oy + h, oz + cz, nx, h, nz);
 
 			if (h > 0F) {
-				line(cx, -h, cz, nx, -h, nz);
+				line(ox + cx, oy - h, oz + cz, nx, -h, nz);
 			}
 		}
 
@@ -154,7 +162,7 @@ public interface LineVertexCallback {
 			for (int i = 0; i < hdetail; i++) {
 				float cx = (float) (Math.cos(i * rsv) * r);
 				float cz = (float) (Math.sin(i * rsv) * r);
-				line(cx, -h, cz, cx, h, cz, 0F, 1F, 0F);
+				line(ox + cx, oy - h, oz + cz, cx, h, cz, 0F, 1F, 0F);
 			}
 		}
 	}

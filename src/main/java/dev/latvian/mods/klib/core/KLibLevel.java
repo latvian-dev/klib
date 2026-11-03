@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.core;
 
 import com.mojang.brigadier.context.CommandContext;
 import dev.latvian.mods.klib.entity.EntityUtils;
+import dev.latvian.mods.klib.math.KMath;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +26,7 @@ public interface KLibLevel {
 	}
 
 	default Iterable<Entity> klib$allEntities() {
-		return klib$self().getEntities((Entity) null, AABB.INFINITE, Entity::isAlive);
+		return klib$self().getEntities((Entity) null, KMath.INFINITE_AABB, Entity::isAlive);
 	}
 
 	default Iterable<LivingEntity> klib$allLivingEntities() {

@@ -24,6 +24,7 @@ import dev.latvian.mods.klib.util.BlockUtils;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Side;
 import dev.latvian.mods.klib.visual.Visual;
+import dev.latvian.mods.klib.volume.Volume;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
@@ -34,6 +35,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -141,6 +143,10 @@ public class PlatformHelper {
 		return Stream.empty();
 	}
 
+	public AABB infiniteAABB() {
+		return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+	}
+
 	public void collectCustomRegistries(CustomRegistryCollector registry) {
 		KLib.builtInRegistries(registry);
 	}
@@ -216,5 +222,9 @@ public class PlatformHelper {
 
 	public void collectVisualTypes(CustomRegistryTypeCollector<RegistryFriendlyByteBuf, Visual> registry) {
 		Visual.builtInTypes(registry);
+	}
+
+	public void collectVolumeTypes(CustomRegistryTypeCollector<ByteBuf, Volume> registry) {
+		Volume.builtInTypes(registry);
 	}
 }

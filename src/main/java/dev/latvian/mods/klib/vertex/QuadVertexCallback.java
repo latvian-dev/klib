@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.vertex;
 
 import dev.latvian.mods.klib.math.AAFBB;
+import org.joml.Vector3fc;
 
 @FunctionalInterface
 public interface QuadVertexCallback {
@@ -115,7 +116,11 @@ public interface QuadVertexCallback {
 		cuboidQuads(maxX - e, minY - c + o, maxZ - e, maxX + e, maxY + c - o, maxZ + e);
 	}
 
-	default void topCircleQuads(float size, int detail) {
+	default void topCircleQuads(Vector3fc offset, float size, int detail) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		float r = Math.max(size / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
@@ -127,14 +132,18 @@ public interface QuadVertexCallback {
 			float nnx = (float) Math.cos((i + 2D) * rs);
 			float nnz = (float) Math.sin((i + 2D) * rs);
 
-			quadVertex(0F, 0F, 0F, 0.5F, 0.5F, 0F, 1F, 0F);
-			quadVertex(nnx * r, 0F, nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
-			quadVertex(nx * r, 0F, nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
-			quadVertex(cx * r, 0F, cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
+			quadVertex(ox, oy, oz, 0.5F, 0.5F, 0F, 1F, 0F);
+			quadVertex(ox + nnx * r, oy, oz + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
+			quadVertex(ox + nx * r, oy, oz + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
+			quadVertex(ox + cx * r, oy, oz + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
 		}
 	}
 
-	default void bottomCircleQuads(float size, int detail) {
+	default void bottomCircleQuads(Vector3fc offset, float size, int detail) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		float r = Math.max(size / 2F, 0F);
 		double rs = Math.PI * 2D / (double) detail;
 
@@ -146,14 +155,18 @@ public interface QuadVertexCallback {
 			float nnx = (float) Math.cos((i + 2D) * rs);
 			float nnz = (float) Math.sin((i + 2D) * rs);
 
-			quadVertex(0F, 0F, 0F, 0.5F, 0.5F, 0F, -1F, 0F);
-			quadVertex(cx * r, 0F, cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, -1F, 0F);
-			quadVertex(nx * r, 0F, nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, -1F, 0F);
-			quadVertex(nnx * r, 0F, nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, -1F, 0F);
+			quadVertex(ox, oy, oz, 0.5F, 0.5F, 0F, -1F, 0F);
+			quadVertex(ox + cx * r, oy, oz + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, -1F, 0F);
+			quadVertex(ox + nx * r, oy, oz + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, -1F, 0F);
+			quadVertex(ox + nnx * r, oy, oz + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, -1F, 0F);
 		}
 	}
 
-	default void cylinderQuads(float width, float height, int detail) {
+	default void cylinderQuads(Vector3fc offset, float width, float height, int detail) {
+		float ox = offset.x();
+		float oy = offset.y();
+		float oz = offset.z();
+
 		float r = Math.max(width, 0F) / 2F;
 		float h = Math.max(height, 0F) / 2F;
 		double rs = Math.PI * 2D / (double) detail;
@@ -166,16 +179,16 @@ public interface QuadVertexCallback {
 			float nnx = (float) Math.cos((i + 2D) * rs);
 			float nnz = (float) Math.sin((i + 2D) * rs);
 
-			quadVertex(0F, h, 0F, 0.5F, 0.5F, 0F, 1F, 0F);
-			quadVertex(nnx * r, h, nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
-			quadVertex(nx * r, h, nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
-			quadVertex(cx * r, h, cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
+			quadVertex(ox, oy + h, oz, 0.5F, 0.5F, 0F, 1F, 0F);
+			quadVertex(ox + nnx * r, oy + h, oz + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, 1F, 0F);
+			quadVertex(ox + nx * r, oy + h, oz + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, 1F, 0F);
+			quadVertex(ox + cx * r, oy + h, oz + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, 1F, 0F);
 
 			if (h > 0F) {
-				quadVertex(0F, -h, 0F, 0.5F, 0.5F, 0F, -1F, 0F);
-				quadVertex(cx * r, -h, cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, -1F, 0F);
-				quadVertex(nx * r, -h, nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, -1F, 0F);
-				quadVertex(nnx * r, -h, nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, -1F, 0F);
+				quadVertex(ox, oy - h, oz, 0.5F, 0.5F, 0F, -1F, 0F);
+				quadVertex(ox + cx * r, oy - h, oz + cz * r, 0.5F + cx / 2F, 0.5F + cz / 2F, 0F, -1F, 0F);
+				quadVertex(ox + nx * r, oy - h, oz + nz * r, 0.5F + nx / 2F, 0.5F + nz / 2F, 0F, -1F, 0F);
+				quadVertex(ox + nnx * r, oy - h, oz + nnz * r, 0.5F + nnx / 2F, 0.5F + nnz / 2F, 0F, -1F, 0F);
 
 				float nrmx = (float) Math.cos((i + 0.5D) * rs);
 				float nrmz = (float) Math.sin((i + 0.5D) * rs);
@@ -185,15 +198,15 @@ public interface QuadVertexCallback {
 				float nu = (i + 1F) * 3F / (float) detail;
 				float nnu = (i + 2F) * 3F / (float) detail;
 
-				quadVertex(nx * r, h, nz * r, nu, 0F, nrmx, 0F, nrmz);
-				quadVertex(nx * r, -h, nz * r, nu, 1F, nrmx, 0F, nrmz);
-				quadVertex(cx * r, -h, cz * r, cu, 1F, nrmx, 0F, nrmz);
-				quadVertex(cx * r, h, cz * r, cu, 0F, nrmx, 0F, nrmz);
+				quadVertex(ox + nx * r, oy + h, oz + nz * r, nu, 0F, nrmx, 0F, nrmz);
+				quadVertex(ox + nx * r, oy - h, oz + nz * r, nu, 1F, nrmx, 0F, nrmz);
+				quadVertex(ox + cx * r, oy - h, oz + cz * r, cu, 1F, nrmx, 0F, nrmz);
+				quadVertex(ox + cx * r, oy + h, oz + cz * r, cu, 0F, nrmx, 0F, nrmz);
 
-				quadVertex(nnx * r, h, nnz * r, nnu, 0F, nnrmx, 0F, nnrmz);
-				quadVertex(nnx * r, -h, nnz * r, nnu, 1F, nnrmx, 0F, nnrmz);
-				quadVertex(nx * r, -h, nz * r, nu, 1F, nnrmx, 0F, nnrmz);
-				quadVertex(nx * r, h, nz * r, nu, 0F, nnrmx, 0F, nnrmz);
+				quadVertex(ox + nnx * r, oy + h, oz + nnz * r, nnu, 0F, nnrmx, 0F, nnrmz);
+				quadVertex(ox + nnx * r, oy - h, oz + nnz * r, nnu, 1F, nnrmx, 0F, nnrmz);
+				quadVertex(ox + nx * r, oy - h, oz + nz * r, nu, 1F, nnrmx, 0F, nnrmz);
+				quadVertex(ox + nx * r, oy + h, oz + nz * r, nu, 0F, nnrmx, 0F, nnrmz);
 			}
 		}
 	}
