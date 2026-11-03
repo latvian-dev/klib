@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.math;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Position;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
@@ -12,6 +13,7 @@ import org.joml.Matrix4fc;
 import org.joml.Vector2d;
 import org.joml.Vector2dc;
 import org.joml.Vector2f;
+import org.joml.Vector3d;
 import org.joml.Vector4d;
 import org.joml.Vector4f;
 
@@ -22,14 +24,23 @@ public record ProjectedCoordinates(
 	float height,
 	Vector2dc defaultScreenPos,
 	Matrix4fc worldMatrix,
-	Matrix4fc inverseWorldMatrix
+	Matrix4fc inverseWorldMatrix,
+	Vec3 worldPos
 ) {
-	public static ProjectedCoordinates of(Minecraft mc, Vec3 cameraPos) {
+	public static ProjectedCoordinates of(Minecraft mc, CameraRenderState camera) {
+		return of(mc, camera.pos, camera.projectionMatrix, camera.viewRotationMatrix);
+	}
+
+	public static ProjectedCoordinates of(Minecraft mc, Vec3 cameraPos, Matrix4fc projectionMatrix, Matrix4fc viewRotationMatrix) {
 		var width = mc.getWindow().getGuiScaledWidth();
 		var height = mc.getWindow().getGuiScaledHeight();
-		var state = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
-		var worldMatrix = new Matrix4f(state.projectionMatrix);
-		worldMatrix.mul(state.viewRotationMatrix);
+		var worldMatrix = new Matrix4f(projectionMatrix);
+		worldMatrix.mul(viewRotationMatrix);
+		var inverseWorldMatrix = new Matrix4f(worldMatrix).invert();
+
+		var worldPos = new Vector4f(1F / width - 1F, -(1F / height - 1F), 1F, 1F);
+		worldPos.mul(inverseWorldMatrix);
+		worldPos.div(worldPos.w);
 
 		return new ProjectedCoordinates(
 			mc,
@@ -44,7 +55,8 @@ public record ProjectedCoordinates(
 				mc.mouseHandler.ypos() * height / (double) mc.getWindow().getHeight()
 			),
 			worldMatrix,
-			new Matrix4f(worldMatrix).invert()
+			inverseWorldMatrix,
+			cameraPos.add(worldPos.x, worldPos.y, worldPos.z)
 		);
 	}
 
@@ -97,8 +109,7 @@ public record ProjectedCoordinates(
 	 * @param allowOutside Allow outside the screen
 	 * @return Screen coordinates, or null if outside the screen
 	 */
-	@Nullable
-	public Vector2f screen(double worldX, double worldY, double worldZ, boolean allowOutside) {
+	public boolean screen(double worldX, double worldY, double worldZ, boolean allowOutside, Vector2f screenPos) {
 		double rx = worldX - cameraPos.x;
 		double ry = worldY - cameraPos.y;
 		double rz = worldZ - cameraPos.z;
@@ -108,44 +119,35 @@ public record ProjectedCoordinates(
 		v.mul(worldMatrix);
 		v.div(v.w);
 
-		if (allowOutside || v.z > 0F && v.z < 1F) {
-			return new Vector2f(
-				(0.5F + v.x * 0.5F) * width,
-				(0.5F - v.y * 0.5F) * height
-			);
-		}
-
-		return null;
+		screenPos.set((0.5F + v.x * 0.5F) * width, (0.5F - v.y * 0.5F) * height);
+		return allowOutside || v.z > 0F && v.z < 1F;
 	}
 
 	/**
 	 * @param worldX X position
 	 * @param worldY Y position
 	 * @param worldZ Z position
-	 * @see ProjectedCoordinates#screen(double, double, double, boolean)
+	 * @see ProjectedCoordinates#screen(double, double, double, boolean, Vector2f)
 	 */
-	@Nullable
-	public Vector2f screen(double worldX, double worldY, double worldZ) {
-		return screen(worldX, worldY, worldZ, false);
+	public boolean screen(double worldX, double worldY, double worldZ, Vector2f screenPos) {
+		return screen(worldX, worldY, worldZ, false, screenPos);
 	}
 
 	/**
 	 * @param worldPos     XYZ position
 	 * @param allowOutside Allow outside the screen
-	 * @see ProjectedCoordinates#screen(double, double, double, boolean)
+	 * @see ProjectedCoordinates#screen(double, double, double, boolean, Vector2f)
 	 */
-	@Nullable
-	public Vector2f screen(Position worldPos, boolean allowOutside) {
-		return screen(worldPos.x(), worldPos.y(), worldPos.z(), allowOutside);
+	public boolean screen(Position worldPos, boolean allowOutside, Vector2f screenPos) {
+		return screen(worldPos.x(), worldPos.y(), worldPos.z(), allowOutside, screenPos);
 	}
 
 	/**
 	 * @param worldPos XYZ position
-	 * @see ProjectedCoordinates#screen(double, double, double, boolean)
+	 * @see ProjectedCoordinates#screen(double, double, double, boolean, Vector2f)
 	 */
-	@Nullable
-	public Vector2f screen(Position worldPos) {
-		return screen(worldPos.x(), worldPos.y(), worldPos.z(), false);
+	public boolean screen(Position worldPos, Vector2f screenPos) {
+		return screen(worldPos.x(), worldPos.y(), worldPos.z(), false, screenPos);
 	}
 
 	/**
@@ -160,5 +162,15 @@ public record ProjectedCoordinates(
 		v.mul(inverseWorldMatrix);
 		v.div(v.w);
 		return new Vec3(v.x + cameraPos.x, v.y + cameraPos.y, v.z + cameraPos.z);
+	}
+
+	/**
+	 * @see ProjectedCoordinates#world(double, double)
+	 */
+	public void world(double x, double y, Vector3d worldPos) {
+		var v = new Vector4d(x * 2D / width - 1D, -(y * 2D / height - 1F), 1D, 1D);
+		v.mul(inverseWorldMatrix);
+		v.div(v.w);
+		worldPos.set(v.x + cameraPos.x, v.y + cameraPos.y, v.z + cameraPos.z);
 	}
 }
