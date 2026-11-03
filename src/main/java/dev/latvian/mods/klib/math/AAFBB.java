@@ -184,15 +184,12 @@ public record AAFBB(float minX, float minY, float minZ, float maxX, float maxY, 
 		return maxZ - minZ;
 	}
 
+	public AABB aabb(double x, double y, double z) {
+		return new AABB(x + minX, y + minY, z + minZ, x + maxX, y + maxY, z + maxZ);
+	}
+
 	public AABB aabb(Vec3 offset) {
-		return new AABB(
-			offset.x + minX,
-			offset.y + minY,
-			offset.z + minZ,
-			offset.x + maxX,
-			offset.y + maxY,
-			offset.z + maxZ
-		);
+		return aabb(offset.x, offset.y, offset.z);
 	}
 
 	public float[] toFloatArray() {
