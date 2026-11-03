@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.visual.renderer;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
+import dev.latvian.mods.klib.visual.EmptyVisual;
 import dev.latvian.mods.klib.visual.Visual;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,14 +20,19 @@ public record VisualRenderer<V extends Visual, S extends VisualRenderState>(Stat
 	}
 
 	@Nullable
-	public static VisualRenderState extract(@Nullable Ref<Visual> visual, VisualExactContext ctx) {
-		if (visual == null) {
+	public static VisualRenderState extract(@Nullable Visual visual, VisualExactContext ctx) {
+		if (visual == null || visual == EmptyVisual.INSTANCE) {
 			return null;
-		} else if (visual.value().type() instanceof DynamicType<?, ?> t && t.getProperty(Visual.PROPERTY_RENDERER) instanceof VisualRenderer<?, ?> renderer) {
-			return renderer.extractState(Cast.to(visual.value()), ctx);
+		} else if (visual.type() instanceof DynamicType<?, ?> t && t.getProperty(Visual.PROPERTY_RENDERER) instanceof VisualRenderer<?, ?> renderer) {
+			return renderer.extractState(Cast.to(visual), ctx);
 		} else {
 			return null;
 		}
+	}
+
+	@Nullable
+	public static VisualRenderState extract(@Nullable Ref<Visual> visual, VisualExactContext ctx) {
+		return visual == null ? null : extract(visual.value(), ctx);
 	}
 
 	@Nullable

@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.icon.renderer;
 
+import dev.latvian.mods.klib.icon.EmptyIcon;
 import dev.latvian.mods.klib.icon.Icon;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
@@ -24,14 +25,19 @@ public record IconRenderer<I extends Icon, S extends IconRenderState>(StateFacto
 	}
 
 	@Nullable
-	public static IconRenderState extract(@Nullable Ref<Icon> icon, IconWorldExactContext ctx) {
-		if (icon == null || icon == Icon.EMPTY || ctx.alpha() <= 0) {
+	public static IconRenderState extract(@Nullable Icon icon, IconWorldExactContext ctx) {
+		if (icon == null || icon == EmptyIcon.INSTANCE || ctx.alpha() <= 0) {
 			return null;
-		} else if (icon.value().type() instanceof DynamicType<?, ?> t && t.getProperty(Icon.PROPERTY_RENDERER) instanceof IconRenderer<?, ?> renderer) {
-			return renderer.extractState(Cast.to(icon.value()), ctx);
+		} else if (icon.type() instanceof DynamicType<?, ?> t && t.getProperty(Icon.PROPERTY_RENDERER) instanceof IconRenderer<?, ?> renderer) {
+			return renderer.extractState(Cast.to(icon), ctx);
 		} else {
 			return null;
 		}
+	}
+
+	@Nullable
+	public static IconRenderState extract(@Nullable Ref<Icon> icon, IconWorldExactContext ctx) {
+		return icon == null ? null : extract(icon.value(), ctx);
 	}
 
 	public static void draw(@Nullable Ref<Icon> icon, IconGuiExtractContext ctx) {
