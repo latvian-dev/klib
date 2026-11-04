@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.data.DataType;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.Direction;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Optional;
@@ -18,15 +19,9 @@ public record CubeTexturePatch(
 	Optional<FaceTexture> west,
 	Optional<FaceTexture> east
 ) {
-	public static final CubeTexturePatch EMPTY = new CubeTexturePatch(
-		Optional.empty(),
-		Optional.empty(),
-		Optional.empty(),
-		Optional.empty(),
-		Optional.empty(),
-		Optional.empty(),
-		Optional.empty()
-	);
+	public static final Optional<FaceTexture> UNSET = Optional.empty();
+
+	public static final CubeTexturePatch EMPTY = new CubeTexturePatch(UNSET, UNSET, UNSET, UNSET, UNSET, UNSET, UNSET);
 
 	public static CubeTexturePatch of(
 		Optional<FaceTexture> all,
@@ -42,6 +37,21 @@ public record CubeTexturePatch(
 		} else {
 			return new CubeTexturePatch(all, down, up, north, south, west, east);
 		}
+	}
+
+	public static CubeTexturePatch of(FaceTexture all) {
+		return new CubeTexturePatch(Optional.of(all), UNSET, UNSET, UNSET, UNSET, UNSET, UNSET);
+	}
+
+	public static CubeTexturePatch of(Direction direction, FaceTexture texture) {
+		return switch (direction) {
+			case DOWN -> new CubeTexturePatch(UNSET, Optional.of(texture), UNSET, UNSET, UNSET, UNSET, UNSET);
+			case UP -> new CubeTexturePatch(UNSET, UNSET, Optional.of(texture), UNSET, UNSET, UNSET, UNSET);
+			case NORTH -> new CubeTexturePatch(UNSET, UNSET, UNSET, Optional.of(texture), UNSET, UNSET, UNSET);
+			case SOUTH -> new CubeTexturePatch(UNSET, UNSET, UNSET, UNSET, Optional.of(texture), UNSET, UNSET);
+			case WEST -> new CubeTexturePatch(UNSET, UNSET, UNSET, UNSET, UNSET, Optional.of(texture), UNSET);
+			case EAST -> new CubeTexturePatch(UNSET, UNSET, UNSET, UNSET, UNSET, UNSET, Optional.of(texture));
+		};
 	}
 
 	public static final Codec<CubeTexturePatch> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -66,10 +76,6 @@ public record CubeTexturePatch(
 	);
 
 	public static final DataType<CubeTexturePatch> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
-
-	public CubeTexturePatch(FaceTexture all) {
-		this(Optional.of(all), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
-	}
 
 	public CubeTextureMap toMap() {
 		return CubeTextureMap.EMPTY.merge(this);
