@@ -13,8 +13,6 @@ import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -51,7 +49,6 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public interface BlockUtils {
 	Reference2FloatMap<BlockState> DENSITY = new Reference2FloatOpenHashMap<>();
@@ -266,12 +263,8 @@ public interface BlockUtils {
 		setBlockFast(level, pos, block.defaultBlockState());
 	}
 
-	static Stream<LevelChunk> getServerLevelChunks(ServerLevel level) {
-		return StreamSupport.stream(level.getChunkSource().chunkMap.visibleChunkMap.values().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
-	}
-
 	static Stream<LevelChunk> getChunks(Level level) {
-		return PlatformHelper.CURRENT.getChunks(level);
+		return PlatformHelper.CURRENT.getLevelChunks(level);
 	}
 
 	static Stream<BlockEntity> getAllBlockEntities(Level level) {

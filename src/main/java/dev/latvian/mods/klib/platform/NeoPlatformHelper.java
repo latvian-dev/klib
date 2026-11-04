@@ -42,7 +42,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -60,7 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class NeoPlatformHelper extends PlatformHelper {
 	public final ModContainer mod;
@@ -192,16 +190,6 @@ public class NeoPlatformHelper extends PlatformHelper {
 	@Override
 	public Level getLevel(CommandSourceStack source) {
 		return source.getUnsidedLevel();
-	}
-
-	@Override
-	public boolean isLocalServer(Level level) {
-		return level.klib$isLocalServer();
-	}
-
-	@Override
-	public Stream<LevelChunk> getChunks(Level level) {
-		return level.klib$getChunks();
 	}
 
 	@Override

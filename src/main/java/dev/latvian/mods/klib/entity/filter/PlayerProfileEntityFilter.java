@@ -26,21 +26,21 @@ public record PlayerProfileEntityFilter(NameAndId profile) implements EntityFilt
 
 	@Override
 	public boolean test(Entity entity) {
-		return entity.getUUID().equals(profile.id()) || (entity instanceof Player && entity.getScoreboardName().equalsIgnoreCase(profile.name()));
+		return entity instanceof Player player && (player.getUUID().equals(profile.id()) || player.getGameProfile().name().equalsIgnoreCase(profile.name()));
 	}
 
 	@Override
 	@Nullable
-	public Entity getFirst(Level level) {
+	public Player getFirst(Level level) {
 		var entity = level.getEntity(profile.id());
 
 		if (entity != null) {
-			return entity;
+			return entity instanceof Player player ? player : null;
 		}
 
-		for (var e : level.klib$allEntities()) {
-			if (e instanceof Player && e.getScoreboardName().equalsIgnoreCase(profile.name())) {
-				return e;
+		for (var player : level.players()) {
+			if (player.getGameProfile().name().equalsIgnoreCase(profile.name())) {
+				return player;
 			}
 		}
 

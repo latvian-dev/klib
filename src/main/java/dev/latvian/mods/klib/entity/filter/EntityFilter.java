@@ -155,7 +155,7 @@ public interface EntityFilter extends Predicate<Entity>, CustomRegistryValue<Reg
 
 	@Nullable
 	default Entity getFirst(Level level) {
-		for (var entity : level.klib$allEntities()) {
+		for (var entity : EntityUtils.getAllEntities(level)) {
 			if (test(entity)) {
 				return entity;
 			}

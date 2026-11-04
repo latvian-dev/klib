@@ -20,7 +20,6 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
-import dev.latvian.mods.klib.util.BlockUtils;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.Side;
 import dev.latvian.mods.klib.visual.Visual;
@@ -30,8 +29,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class PlatformHelper {
 	public static PlatformHelper CURRENT = new PlatformHelper();
@@ -131,20 +133,36 @@ public class PlatformHelper {
 		return source.getLevel();
 	}
 
-	public boolean isLocalServer(Level level) {
-		return level instanceof ServerLevel serverLevel && serverLevel.getServer().isSingleplayer();
-	}
-
-	public Stream<LevelChunk> getChunks(Level level) {
-		if (level instanceof ServerLevel serverLevel) {
-			return BlockUtils.getServerLevelChunks(serverLevel);
-		}
-
-		return Stream.empty();
-	}
-
 	public AABB infiniteAABB() {
 		return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+	}
+
+	public Player getClientPlayer() {
+		throw new IllegalArgumentException("Can't get client player from server side");
+	}
+
+	public Level getClientLevel() {
+		throw new IllegalArgumentException("Can't get client level from server side");
+	}
+
+	public Iterable<Entity> getEntities(Level level) {
+		if (level instanceof ServerLevel serverLevel) {
+			return serverLevel.getEntities().getAll();
+		} else {
+			return List.of();
+		}
+	}
+
+	public boolean isLocalServer(Level level) {
+		return level.getServer().isSingleplayer();
+	}
+
+	public Stream<LevelChunk> getLevelChunks(Level level) {
+		if (level instanceof ServerLevel serverLevel) {
+			return StreamSupport.stream(serverLevel.getChunkSource().chunkMap.visibleChunkMap.values().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
+		} else {
+			return Stream.empty();
+		}
 	}
 
 	public void collectCustomRegistries(CustomRegistryCollector registry) {

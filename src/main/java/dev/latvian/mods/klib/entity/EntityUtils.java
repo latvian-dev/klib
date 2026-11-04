@@ -1,7 +1,11 @@
 package dev.latvian.mods.klib.entity;
 
+import com.mojang.brigadier.context.CommandContext;
 import dev.latvian.mods.klib.entity.filter.EntityTypeFilter;
 import dev.latvian.mods.klib.math.Rotation;
+import dev.latvian.mods.klib.platform.PlatformHelper;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -13,13 +17,68 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface EntityUtils {
+	static Iterable<Entity> getAllEntities(Level level) {
+		return PlatformHelper.CURRENT.getEntities(level);
+	}
+
+	static Iterable<LivingEntity> getAllLivingEntities(Level level) {
+		var list = new ArrayList<LivingEntity>();
+
+		for (var entity : getAllEntities(level)) {
+			if (entity instanceof LivingEntity livingEntity) {
+				list.add(livingEntity);
+			}
+		}
+
+		return list;
+	}
+
+	static List<Entity> getSelectedEntities(Level level, EntitySelector selector) {
+		var list = new ArrayList<Entity>(1);
+
+		for (var entity : getAllEntities(level)) {
+			if (entity.isAlive() && selector.test(entity)) {
+				list.add(entity);
+			}
+		}
+
+		return list;
+	}
+
+	static List<Entity> getSelectedEntities(CommandContext<CommandSourceStack> ctx, String name) {
+		return getSelectedEntities(PlatformHelper.CURRENT.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
+	}
+
+	static List<Player> getSelectedPlayers(Level level, Predicate<Entity> selector) {
+		var list = new ArrayList<Player>(1);
+
+		for (var player : level.players()) {
+			if (selector.test(player)) {
+				list.add(player);
+			}
+		}
+
+		return list;
+	}
+
+	static List<Player> getSelectedPlayers(CommandContext<CommandSourceStack> ctx, String name) {
+		return getSelectedPlayers(PlatformHelper.CURRENT.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
+	}
+
+	static List<LivingEntity> getDamageableEntities(Level level, @Nullable Entity ignoredEntity, AABB box) {
+		return (List) level.getEntities(ignoredEntity, box, EntityUtils::isDamageable);
+	}
+
 	@Nullable
 	static GameType getGameMode(Entity entity) {
 		if (entity instanceof Player player) {
@@ -106,7 +165,7 @@ public interface EntityUtils {
 	}
 
 	static boolean isDamageable(Entity entity) {
-		return entity instanceof LivingEntity && (!(entity instanceof Player) || isSurvivalLike(entity));
+		return entity instanceof LivingEntity && ((!(entity instanceof Player) || isSurvivalLike(entity)));
 	}
 
 	static Rotation rotation(Entity e, float delta) {

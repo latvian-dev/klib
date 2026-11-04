@@ -2,23 +2,46 @@ package dev.latvian.mods.klib.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.SequencedCollection;
 import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 
 public interface CollectionUtils {
-	static <T> SequencedCollection<T> toSequencedCollection(Iterable<T> collection) {
-		if (collection instanceof SequencedCollection) {
-			return (SequencedCollection<T>) collection;
+	static <T> List<T> toList(Iterable<T> iterable) {
+		if (iterable instanceof List<?> list) {
+			return (List<T>) list;
+		} else if (iterable instanceof Collection collection) {
+			var list = new ArrayList<T>(collection.size());
+			list.addAll(collection);
+			return list;
+		} else {
+			var list = new ArrayList<T>();
+
+			for (var element : iterable) {
+				list.add(element);
+			}
+
+			return list;
 		}
+	}
 
-		var list = new ArrayList<T>();
+	static <T> SequencedCollection<T> toSequencedCollection(Iterable<T> iterable) {
+		if (iterable instanceof SequencedCollection<?> sequencedCollection) {
+			return (SequencedCollection<T>) sequencedCollection;
+		} else if (iterable instanceof Collection collection) {
+			var list = new ArrayList<T>(collection.size());
+			list.addAll(collection);
+			return list;
+		} else {
+			var list = new ArrayList<T>();
 
-		for (var element : collection) {
-			list.add(element);
+			for (var element : iterable) {
+				list.add(element);
+			}
+
+			return list;
 		}
-
-		return list;
 	}
 
 	static int size(Iterable<?> iterable) {
