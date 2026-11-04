@@ -83,16 +83,19 @@ public interface Volume extends VolumeLike, CustomRegistryValue<ByteBuf, Volume>
 		);
 	}
 
-	default void hit(HitBuilder hit) {
+	default boolean hit(HitBuilder hit) {
 		if (contains(hit.from)) {
-			return;
+			return false;
 		}
 
 		var result = AABB.clip(List.of(box()), hit.from, hit.to, BlockPos.ZERO);
 
 		if (result != null && result.getType() == HitResult.Type.BLOCK) {
 			hit.offer(result);
+			return true;
 		}
+
+		return false;
 	}
 
 	default Volume move(double x, double y, double z) {

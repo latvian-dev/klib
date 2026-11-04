@@ -54,7 +54,8 @@ public enum UniverseVolume implements Volume {
 	}
 
 	@Override
-	public void hit(HitBuilder hit) {
+	public boolean hit(HitBuilder hit) {
+		return false;
 	}
 
 	@Override

@@ -87,18 +87,21 @@ public interface Shape extends CustomRegistryValue<ByteBuf, Shape> {
 		return box().contains(x, y, z);
 	}
 
-	default void hit(Vec3 pos, HitBuilder hit) {
+	default boolean hit(Vec3 pos, HitBuilder hit) {
 		var aabb = box().aabb(pos);
 
 		if (aabb.contains(hit.from)) {
-			return;
+			return false;
 		}
 
 		var result = AABB.clip(List.of(aabb), hit.from, hit.to, BlockPos.ZERO);
 
 		if (result != null && result.getType() == HitResult.Type.BLOCK) {
 			hit.offer(result);
+			return true;
 		}
+
+		return false;
 	}
 
 	default boolean intersects(AAFBB box) {

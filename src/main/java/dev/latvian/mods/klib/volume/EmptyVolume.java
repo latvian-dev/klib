@@ -54,7 +54,8 @@ public enum EmptyVolume implements Volume {
 	}
 
 	@Override
-	public void hit(HitBuilder hit) {
+	public boolean hit(HitBuilder hit) {
+		return false;
 	}
 
 	@Override

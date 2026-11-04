@@ -71,10 +71,16 @@ public record JoinedVolume(List<Ref<Volume>> zoneShapes, AABB box, AAIBB intBox)
 	}
 
 	@Override
-	public void hit(HitBuilder hit) {
+	public boolean hit(HitBuilder hit) {
+		boolean anyHit = false;
+
 		for (var zone : zoneShapes) {
-			zone.value().hit(hit);
+			if (zone.value().hit(hit)) {
+				anyHit = true;
+			}
 		}
+
+		return anyHit;
 	}
 
 	@Override

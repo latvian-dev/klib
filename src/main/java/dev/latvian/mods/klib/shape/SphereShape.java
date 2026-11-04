@@ -60,7 +60,7 @@ public record SphereShape(float size, float radius, AAFBB box) implements Shape 
 	}
 
 	@Override
-	public void hit(Vec3 pos, HitBuilder hit) {
+	public boolean hit(Vec3 pos, HitBuilder hit) {
 		double Lx = pos.x - hit.from.x;
 		double Ly = pos.y - hit.from.y;
 		double Lz = pos.z - hit.from.z;
@@ -68,7 +68,7 @@ public record SphereShape(float size, float radius, AAFBB box) implements Shape 
 		double d2 = Lx * Lx + Ly * Ly + Lz * Lz - tca * tca;
 
 		if (d2 > radius * radius) {
-			return;
+			return false;
 		}
 
 		double thc = Math.sqrt(radius * radius - d2);
@@ -77,7 +77,10 @@ public record SphereShape(float size, float radius, AAFBB box) implements Shape 
 
 		if (t1 >= 0D && t1 >= t0) {
 			hit.offer(t0, null);
+			return true;
 		}
+
+		return false;
 	}
 
 	@Override

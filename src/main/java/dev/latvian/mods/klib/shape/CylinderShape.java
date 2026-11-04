@@ -76,6 +76,7 @@ public record CylinderShape(float width, float height, AAFBB box) implements Sha
 	}
 
 	@Override
-	public void hit(Vec3 pos, HitBuilder hit) {
+	public boolean hit(Vec3 pos, HitBuilder hit) {
+		return false;
 	}
 }

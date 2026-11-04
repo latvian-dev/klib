@@ -79,9 +79,9 @@ public record RotatedBoxVolume(Vec3 pos, Vector3fc size, Rotation rotation, Matr
 	}
 
 	@Override
-	public void hit(HitBuilder hit) {
+	public boolean hit(HitBuilder hit) {
 		if (contains(hit.from)) {
-			return;
+			return false;
 		}
 
 		var rstart = new Vector3f((float) (hit.from.x - pos.x), (float) (hit.from.y - pos.y), (float) (hit.from.z - pos.z)).mulPosition(matrix);
@@ -94,7 +94,10 @@ public record RotatedBoxVolume(Vec3 pos, Vector3fc size, Rotation rotation, Matr
 			var vec = new Vector3f((float) l.x, (float) l.y, (float) l.z).mulPosition(imatrix);
 			var apos = new Vec3(vec.x + pos.x, vec.y + pos.y, vec.z + pos.z);
 			hit.offer(apos, result.getDirection());
+			return true;
 		}
+
+		return false;
 	}
 
 	@Override

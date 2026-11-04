@@ -45,8 +45,8 @@ public record ShapeVolume(Vec3 pos, Ref<Shape> shape, AABB box) implements Volum
 	}
 
 	@Override
-	public void hit(HitBuilder hit) {
-		shape.value().hit(pos, hit);
+	public boolean hit(HitBuilder hit) {
+		return shape.value().hit(pos, hit);
 	}
 
 	@Override

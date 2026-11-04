@@ -37,7 +37,8 @@ public enum UniverseShape implements Shape {
 	}
 
 	@Override
-	public void hit(Vec3 pos, HitBuilder hit) {
+	public boolean hit(Vec3 pos, HitBuilder hit) {
+		return false;
 	}
 
 	@Override
