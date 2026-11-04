@@ -1,7 +1,7 @@
 package dev.latvian.mods.klib.volume;
 
+import dev.latvian.mods.klib.math.AABBs;
 import dev.latvian.mods.klib.math.HitBuilder;
-import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
@@ -20,16 +20,14 @@ import java.util.stream.Stream;
 public enum UniverseVolume implements Volume {
 	INSTANCE;
 
-	public static final UnitType<ByteBuf, Volume> TYPE = UnitType.create("universe", INSTANCE);
-
 	@Override
 	public UnitType<ByteBuf, Volume> type() {
-		return TYPE;
+		return UNIVERSE;
 	}
 
 	@Override
 	public AABB box() {
-		return KMath.INFINITE_AABB;
+		return AABBs.INFINITE;
 	}
 
 	@Override

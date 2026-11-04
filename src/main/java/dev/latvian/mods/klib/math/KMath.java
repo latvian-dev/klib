@@ -1,6 +1,5 @@
 package dev.latvian.mods.klib.math;
 
-import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.Lazy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,7 +9,6 @@ import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
@@ -23,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.List;
 
 @SuppressWarnings("ManualMinMaxCalculation")
 public interface KMath {
@@ -68,8 +65,6 @@ public interface KMath {
 		}
 	}
 
-	AABB INFINITE_AABB = PlatformHelper.CURRENT.infiniteAABB();
-	List<AABB> CLIP_BOX_LIST = List.of(new AABB(-0.5D, -0.5D, -0.5D, 0.5D, 0.5D, 0.5D));
 	Vec3 CENTER_VEC3 = new Vec3(0.5D, 0.5D, 0.5D);
 	Vec3 ONE_VEC3 = new Vec3(1D, 1D, 1D);
 
@@ -450,10 +445,6 @@ public interface KMath {
 
 	static float linearizedBezierY(float t, float x1, float y1, float x2, float y2) {
 		return linearizedBezierY(t, x1, y1, x2, y2, 8, 16);
-	}
-
-	static AABB infiniteAABB() {
-		return INFINITE_AABB;
 	}
 
 	static boolean isNaN(Vec3 vec) {

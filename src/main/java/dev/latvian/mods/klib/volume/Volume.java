@@ -9,6 +9,7 @@ import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
 import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
@@ -21,6 +22,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public interface Volume extends VolumeLike, CustomRegistryValue<ByteBuf, Volume> {
+	UnitType<ByteBuf, Volume> EMPTY = UnitType.create("empty", EmptyVolume.INSTANCE);
+	UnitType<ByteBuf, Volume> UNIVERSE = UnitType.create("universe", UniverseVolume.INSTANCE);
+
 	CustomRegistry<ByteBuf, Volume> REGISTRY = CustomRegistry.<ByteBuf, Volume>builder("volume")
 		.customCodec(AAIBB.CODEC.flatComapMap(BlockVolume::of, shape -> {
 			if (shape instanceof BlockVolume b) {
@@ -29,6 +33,7 @@ public interface Volume extends VolumeLike, CustomRegistryValue<ByteBuf, Volume>
 				return DataResult.error(() -> "Not an AAIBB");
 			}
 		}))
+		.defaultType(EMPTY)
 		.build();
 
 	Codec<Ref<Volume>> CODEC = REGISTRY.codec();
@@ -36,7 +41,7 @@ public interface Volume extends VolumeLike, CustomRegistryValue<ByteBuf, Volume>
 	DataType<Ref<Volume>> DATA_TYPE = REGISTRY.dataType();
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Volume> registry) {
-		registry.register(UniverseVolume.TYPE);
+		registry.register(UNIVERSE);
 		registry.register(JoinedVolume.TYPE);
 		registry.register(BlockVolume.TYPE);
 		registry.register(BoxVolume.TYPE);
