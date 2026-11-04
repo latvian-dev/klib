@@ -10,6 +10,7 @@ import dev.latvian.mods.klib.texture.CubeTextures;
 import dev.latvian.mods.klib.texture.LightUV;
 import dev.latvian.mods.klib.texture.OverlayUV;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.phys.AABB;
 
 public record TexturedCubeVisual(Ref<KVector> position, Ref<KVector> size, CubeTextures textures, LightUV light, OverlayUV overlay) implements Visual {
 	public static final DynamicType<RegistryFriendlyByteBuf, Visual> TYPE = DynamicType.create(
@@ -30,6 +31,20 @@ public record TexturedCubeVisual(Ref<KVector> position, Ref<KVector> size, CubeT
 			TexturedCubeVisual::new
 		)
 	);
+
+	public TexturedCubeVisual(AABB box, CubeTextures textures, LightUV light, OverlayUV overlay) {
+		this(
+			KVector.of(box.minX, box.minY, box.minZ).ref(),
+			KVector.of(
+				box.maxX - box.minX,
+				box.maxY - box.minY,
+				box.maxZ - box.minZ
+			).ref(),
+			textures,
+			light,
+			overlay
+		);
+	}
 
 	@Override
 	public DynamicType<RegistryFriendlyByteBuf, Visual> type() {
