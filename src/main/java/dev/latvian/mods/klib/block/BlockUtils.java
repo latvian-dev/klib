@@ -1,11 +1,10 @@
-package dev.latvian.mods.klib.util;
+package dev.latvian.mods.klib.block;
 
-import dev.latvian.mods.klib.block.ConnectedBlock;
-import dev.latvian.mods.klib.block.PositionedBlock;
 import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.block.filter.SimpleBlockPredicate;
 import dev.latvian.mods.klib.core.KLibBlockState;
 import dev.latvian.mods.klib.platform.PlatformHelper;
+import dev.latvian.mods.klib.util.Cast;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -264,7 +263,7 @@ public interface BlockUtils {
 	}
 
 	static Stream<LevelChunk> getChunks(Level level) {
-		return PlatformHelper.CURRENT.getLevelChunks(level);
+		return PlatformHelper.INSTANCE.getLevelChunks(level);
 	}
 
 	static Stream<BlockEntity> getAllBlockEntities(Level level) {

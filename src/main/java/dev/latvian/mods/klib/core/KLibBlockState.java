@@ -1,6 +1,6 @@
 package dev.latvian.mods.klib.core;
 
-import dev.latvian.mods.klib.util.BlockUtils;
+import dev.latvian.mods.klib.block.BlockUtils;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface KLibBlockState {

@@ -33,7 +33,7 @@ public interface NetUtils {
 
 	Lazy<HttpRequest.Builder> HTTP_REQUEST_BASE = Lazy.of(() -> HttpRequest.newBuilder()
 		.setHeader("Accept-Language", "en-US,en;q=0.5")
-		.setHeader("User-Agent", "KLib/" + KLib.VERSION + " (" + PlatformHelper.CURRENT.getPlatform().getSerializedName() + ")")
+		.setHeader("User-Agent", "KLib/" + KLib.VERSION + " (" + PlatformHelper.INSTANCE.getPlatform().getSerializedName() + ")")
 		.setHeader("Accept-Encoding", "zstd, gzip, deflate, br")
 	);
 

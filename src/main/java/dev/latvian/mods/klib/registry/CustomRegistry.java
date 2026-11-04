@@ -81,7 +81,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	public static void syncAll(Player player, S2CPacketConsumer callback) {
 		var registryAccess = player.registryAccess();
-		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
+		var platformType = PlatformHelper.INSTANCE.getPlatformOf(player);
 		var metaList = new ArrayList<CustomRegistryMetaInfo>();
 
 		for (var registry : CustomRegistry.ALL.values()) {
@@ -457,7 +457,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				if (type.unit() == value) {
 					list.add(new CustomRegistryValueInfo.ValueInfo(index, key, IOUtils.EMPTY_BYTE_ARRAY));
 				} else {
-					var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), registryAccess, platformType);
+					var buf = PlatformHelper.INSTANCE.createBuffer(Unpooled.buffer(), registryAccess, platformType);
 					type.streamCodec.encode(Cast.to(buf), value);
 					var bytes = IOUtils.toByteArray(buf, true);
 					list.add(new CustomRegistryValueInfo.ValueInfo(index, key, bytes));
@@ -524,7 +524,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 					rxValueMap.put(index, unit);
 					txValueMap.put(unit.key, index);
 				} else {
-					var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.wrappedBuffer(entry.value()), registryAccess, platformType);
+					var buf = PlatformHelper.INSTANCE.createBuffer(Unpooled.wrappedBuffer(entry.value()), registryAccess, platformType);
 
 					try {
 						if (!(ref(key) instanceof RefOfKey<V> ref)) {
@@ -786,7 +786,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 
 	public void syncValues(ServerPlayer player) {
 		var registryAccess = player.registryAccess();
-		var platformType = PlatformHelper.CURRENT.getPlatformOf(player);
+		var platformType = PlatformHelper.INSTANCE.getPlatformOf(player);
 		player.connection.send(new ClientboundCustomPayloadPacket(new SyncCustomRegistryValuesPayload(writeValues(registryAccess, platformType))));
 	}
 

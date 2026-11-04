@@ -1,9 +1,9 @@
 package dev.latvian.mods.klib.kvector;
 
+import dev.latvian.mods.klib.block.BlockUtils;
 import dev.latvian.mods.klib.knumber.KNumberContext;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
-import dev.latvian.mods.klib.util.BlockUtils;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;

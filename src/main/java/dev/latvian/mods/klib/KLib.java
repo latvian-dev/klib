@@ -31,13 +31,13 @@ public class KLib {
 	public static boolean writeSafeItemStacks = false;
 
 	public static void setup() {
-		var platform = PlatformHelper.CURRENT;
+		var platform = PlatformHelper.INSTANCE;
 		CustomRegistry.registerAll(platform::collectCustomRegistries);
 		DataTypeCommandInfoRegistry.registerAll(platform::collectDataTypeCommandInfos);
 	}
 
 	public static void builtInRegistries(CustomRegistryCollector registry) {
-		var platform = PlatformHelper.CURRENT;
+		var platform = PlatformHelper.INSTANCE;
 		registry.register(DataType.REGISTRY, platform::collectDataTypes);
 		registry.register(Interpolation.REGISTRY, platform::collectInterpolationTypes);
 		registry.register(Shape.REGISTRY, platform::collectShapeTypes);

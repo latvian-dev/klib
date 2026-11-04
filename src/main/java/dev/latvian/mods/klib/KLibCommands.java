@@ -114,7 +114,7 @@ public class KLibCommands {
 			int bytes = 0;
 
 			try {
-				var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), source.registryAccess());
+				var buf = PlatformHelper.INSTANCE.createBuffer(Unpooled.buffer(), source.registryAccess());
 				registry.streamCodec().encode(Cast.to(buf), ref);
 				bytes = buf.readableBytes();
 				buf.release();
@@ -185,7 +185,7 @@ public class KLibCommands {
 		}, false);
 
 		try {
-			var buf = PlatformHelper.CURRENT.createBuffer(Unpooled.buffer(), source.registryAccess());
+			var buf = PlatformHelper.INSTANCE.createBuffer(Unpooled.buffer(), source.registryAccess());
 			registry.streamCodec().encode(Cast.to(buf), value);
 			var bytes = IOUtils.toByteArray(buf, true);
 

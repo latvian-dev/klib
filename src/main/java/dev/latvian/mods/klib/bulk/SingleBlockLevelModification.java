@@ -1,11 +1,11 @@
 package dev.latvian.mods.klib.bulk;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.block.BlockUtils;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.registry.DynamicType;
-import dev.latvian.mods.klib.util.BlockUtils;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;

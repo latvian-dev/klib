@@ -93,7 +93,7 @@ public class KNumberContext {
 	}
 
 	public void updateCommandData(CommandSourceStack source) {
-		updateLevelData(PlatformHelper.CURRENT.getLevel(source));
+		updateLevelData(PlatformHelper.INSTANCE.getLevel(source));
 		entity = source.getEntity();
 		originPos = source.getPosition();
 	}

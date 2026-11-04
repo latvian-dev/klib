@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @EventBusSubscriber(modid = KLib.ID)
 public class KLibMod {
 	public KLibMod(ModContainer mod, IEventBus bus) {
-		PlatformHelper.CURRENT = new NeoPlatformHelper(mod);
+		PlatformHelper.INSTANCE = new NeoPlatformHelper(mod);
 		KLib.VERSION = mod.getModInfo().getVersion().toString();
 		KLibCommandArgumentTypes.REGISTRY.register(bus);
 	}
@@ -76,7 +76,7 @@ public class KLibMod {
 
 		if (registry != null) {
 			var registryAccess = context.player().registryAccess();
-			var platformType = PlatformHelper.CURRENT.getPlatformOf(context.player());
+			var platformType = PlatformHelper.INSTANCE.getPlatformOf(context.player());
 			registry.readValues(Cast.to(payload.info()), registryAccess, platformType);
 		}
 	}

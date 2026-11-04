@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class PlatformHelper {
-	public static PlatformHelper CURRENT = new PlatformHelper();
+	public static PlatformHelper INSTANCE = new PlatformHelper();
 
 	public PlatformType getPlatform() {
 		return PlatformType.OTHER;
@@ -64,7 +64,7 @@ public class PlatformHelper {
 	}
 
 	public Path getGameDirectory() {
-		return Path.of(".");
+		return Path.of("");
 	}
 
 	public Path getConfigDirectory() {

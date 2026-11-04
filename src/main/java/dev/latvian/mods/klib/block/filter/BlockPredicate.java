@@ -1,6 +1,6 @@
 package dev.latvian.mods.klib.block.filter;
 
-import dev.latvian.mods.klib.core.KLibBlockInWorld;
+import dev.latvian.mods.klib.block.KLibBlockInWorld;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;

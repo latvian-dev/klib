@@ -49,7 +49,7 @@ public record PackSyncMeta(String id, String code, String version, String sessio
 				);
 			} else {
 				try {
-					var configPath = PlatformHelper.CURRENT.getModsDirectory().resolve("pack-sync.json");
+					var configPath = PlatformHelper.INSTANCE.getModsDirectory().resolve("pack-sync.json");
 					String code = "";
 
 					if (Files.exists(configPath)) {

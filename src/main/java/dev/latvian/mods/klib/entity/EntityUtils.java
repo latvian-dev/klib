@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 
 public interface EntityUtils {
 	static Iterable<Entity> getAllEntities(Level level) {
-		return PlatformHelper.CURRENT.getEntities(level);
+		return PlatformHelper.INSTANCE.getEntities(level);
 	}
 
 	static Iterable<LivingEntity> getAllLivingEntities(Level level) {
@@ -56,7 +56,7 @@ public interface EntityUtils {
 	}
 
 	static List<Entity> getSelectedEntities(CommandContext<CommandSourceStack> ctx, String name) {
-		return getSelectedEntities(PlatformHelper.CURRENT.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
+		return getSelectedEntities(PlatformHelper.INSTANCE.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
 	}
 
 	static List<Player> getSelectedPlayers(Level level, Predicate<Entity> selector) {
@@ -72,7 +72,7 @@ public interface EntityUtils {
 	}
 
 	static List<Player> getSelectedPlayers(CommandContext<CommandSourceStack> ctx, String name) {
-		return getSelectedPlayers(PlatformHelper.CURRENT.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
+		return getSelectedPlayers(PlatformHelper.INSTANCE.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
 	}
 
 	static List<LivingEntity> getDamageableEntities(Level level, @Nullable Entity ignoredEntity, AABB box) {

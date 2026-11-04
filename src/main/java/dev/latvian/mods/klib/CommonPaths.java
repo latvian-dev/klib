@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public interface CommonPaths {
-	Lazy<Path> LOCAL = Lazy.of(() -> PlatformHelper.CURRENT.getLocalDirectory());
+	Lazy<Path> LOCAL = Lazy.of(() -> PlatformHelper.INSTANCE.getLocalDirectory());
 
 	Lazy<Path> USER = Lazy.of(() -> {
 		var override = System.getenv("LATVIAN_DEV_DATA_DIRECTORY");

@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.block.filter;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.block.BlockUtils;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.registry.CustomRegistry;
@@ -9,7 +10,6 @@ import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryValue;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.registry.UnitType;
-import dev.latvian.mods.klib.util.BlockUtils;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;

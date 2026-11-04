@@ -11,6 +11,6 @@ import net.neoforged.fml.common.Mod;
 @Mod(value = KLib.ID, dist = Dist.CLIENT)
 public class KLibClientMod {
 	public KLibClientMod(ModContainer mod, IEventBus bus) {
-		PlatformHelper.CURRENT = new NeoClientPlatformHelper(mod);
+		PlatformHelper.INSTANCE = new NeoClientPlatformHelper(mod);
 	}
 }
