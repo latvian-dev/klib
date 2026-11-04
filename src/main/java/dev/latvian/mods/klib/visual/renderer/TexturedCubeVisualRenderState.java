@@ -28,7 +28,7 @@ public class TexturedCubeVisualRenderState implements VisualRenderState {
 		}
 
 		var mc = ctx.mc();
-		var textures = visual.textures().toMap();
+		var textures = visual.textures();
 		state.down = FaceTextureRenderState.extract(mc, textures.down(), state::drawDown);
 		state.up = FaceTextureRenderState.extract(mc, textures.up(), state::drawUp);
 		state.north = FaceTextureRenderState.extract(mc, textures.north(), state::drawNorth);
