@@ -28,12 +28,13 @@ public class TexturedCubeVisualRenderState implements VisualRenderState {
 		}
 
 		var mc = ctx.mc();
-		state.down = FaceTextureRenderState.extract(mc, visual.textures().down().orElse(null), state::drawDown);
-		state.up = FaceTextureRenderState.extract(mc, visual.textures().up().orElse(null), state::drawUp);
-		state.north = FaceTextureRenderState.extract(mc, visual.textures().north().orElse(null), state::drawNorth);
-		state.south = FaceTextureRenderState.extract(mc, visual.textures().south().orElse(null), state::drawSouth);
-		state.west = FaceTextureRenderState.extract(mc, visual.textures().west().orElse(null), state::drawWest);
-		state.east = FaceTextureRenderState.extract(mc, visual.textures().east().orElse(null), state::drawEast);
+		var textures = visual.textures().toMap();
+		state.down = FaceTextureRenderState.extract(mc, textures.down(), state::drawDown);
+		state.up = FaceTextureRenderState.extract(mc, textures.up(), state::drawUp);
+		state.north = FaceTextureRenderState.extract(mc, textures.north(), state::drawNorth);
+		state.south = FaceTextureRenderState.extract(mc, textures.south(), state::drawSouth);
+		state.west = FaceTextureRenderState.extract(mc, textures.west(), state::drawWest);
+		state.east = FaceTextureRenderState.extract(mc, textures.east(), state::drawEast);
 
 		if (!(state.down == null || state.up == null || state.north == null || state.south == null || state.west == null || state.east == null)) {
 			return null;

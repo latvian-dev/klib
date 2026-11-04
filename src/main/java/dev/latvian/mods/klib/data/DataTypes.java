@@ -35,7 +35,8 @@ import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
-import dev.latvian.mods.klib.texture.CubeTextures;
+import dev.latvian.mods.klib.texture.CubeTextureMap;
+import dev.latvian.mods.klib.texture.CubeTexturePatch;
 import dev.latvian.mods.klib.texture.FaceTexture;
 import dev.latvian.mods.klib.texture.SpriteKey;
 import dev.latvian.mods.klib.util.ColorBlendMode;
@@ -275,7 +276,8 @@ public interface DataTypes {
 		registry.register("geometry_render_layer", GeometryRenderLayer.DATA_TYPE);
 		registry.register("sprite_key", SpriteKey.DATA_TYPE);
 		registry.register("face_texture", FaceTexture.DATA_TYPE);
-		registry.register("cube_textures", CubeTextures.DATA_TYPE);
+		registry.register("cube_texture_map", CubeTextureMap.DATA_TYPE);
+		registry.register("cube_texture_patch", CubeTexturePatch.DATA_TYPE);
 		registry.register("transparency_level", TransparencyLevel.DATA_TYPE);
 	}
 
