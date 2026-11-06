@@ -58,16 +58,6 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 	}
 
 	@Override
-	public String toString() {
-		return key;
-	}
-
-	@Override
-	public int hashCode() {
-		return key.hashCode();
-	}
-
-	@Override
 	@SuppressWarnings("StringEquality")
 	public boolean equals(Object obj) {
 		if (obj instanceof CustomRegistryType<?, ?> ut) {

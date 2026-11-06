@@ -37,14 +37,7 @@ public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 
 			try {
 				var id = KLibCodecs.readInternPath(reader);
-
-				var ref = registry.get(id);
-
-				if (ref != null) {
-					return ref;
-				}
-
-				throw INVALID_ENUM.createWithContext(reader, id, registry.registryId());
+				return registry.ref(id);
 			} catch (Exception ignore) {
 			}
 

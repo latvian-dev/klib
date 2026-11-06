@@ -80,7 +80,7 @@ public class KLibCommands {
 				var keys1 = type.mapCodec().keys(ops).map(JsonElement::getAsString).distinct().toList();
 
 				var component1 = Component.empty();
-				component1.append(typesFormat.formatted(registry.syncValues() ? registry.getTypeIndex(Cast.to(type)) : "-"));
+				component1.append(typesFormat.formatted(registry.getTypeIndex(Cast.to(type))));
 				component1.append(Component.literal(type.key()).withStyle(ChatFormatting.GOLD));
 				component1.append("(");
 
@@ -101,7 +101,7 @@ public class KLibCommands {
 		text.add(Component.literal("Values:").withStyle(ChatFormatting.GRAY));
 
 		var valuesComponent = Component.empty();
-		var valuesFormat = registry.syncValues() ? ("%0" + String.valueOf(registry.values().size() + 2).length() + "d ") : "%s ";
+		var valuesFormat = "%0" + String.valueOf(registry.values().size() + 2).length() + "d ";
 
 		valuesComponent.append(valuesFormat.formatted(0)).append(Component.literal("null").withStyle(ChatFormatting.GRAY));
 		valuesComponent.append(Component.literal("\n"));
@@ -123,7 +123,7 @@ public class KLibCommands {
 			}
 
 			valuesComponent.append(Component.empty()
-				.append(valuesFormat.formatted(registry.syncValues() ? registry.getValueIndex(ref.key()) : "-"))
+				.append(valuesFormat.formatted(registry.getValueIndex(ref.key())))
 				.append(Component.literal(ref.key()).withStyle(ChatFormatting.YELLOW))
 				.append(": ")
 				.append(Component.literal(String.valueOf(ref.value())).withStyle(color))

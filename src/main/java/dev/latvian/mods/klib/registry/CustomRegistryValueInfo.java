@@ -9,9 +9,10 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.List;
 
 public record CustomRegistryValueInfo(String registryId, List<ValueInfo> valueInfos) {
-	public record ValueInfo(int index, String key, byte[] value) {
+	public record ValueInfo(int networkId, int typeId, String key, byte[] value) {
 		public static final StreamCodec<ByteBuf, ValueInfo> STREAM_CODEC = CompositeStreamCodec.of(
-			ByteBufCodecs.VAR_INT, ValueInfo::index,
+			ByteBufCodecs.VAR_INT, ValueInfo::networkId,
+			ByteBufCodecs.VAR_INT, ValueInfo::typeId,
 			ByteBufCodecs.STRING_UTF8, ValueInfo::key,
 			ByteBufCodecs.BYTE_ARRAY, ValueInfo::value,
 			ValueInfo::new

@@ -31,8 +31,6 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 	StreamCodec<ByteBuf, Ref<Gradient>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Gradient>> DATA_TYPE = REGISTRY.dataType();
 
-	CustomRegistry<ByteBuf, Gradient> CLIENT_REGISTRY = CustomRegistry.createNoValueSync("client_gradient", EMPTY);
-
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
 		registry.register(WHITE);
 		registry.register(BLACK);
@@ -45,7 +43,6 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 		registry.register(FlatColorGradient.TYPE);
 		registry.register(LinearGradient.TYPE);
 		registry.register(CompoundGradient.TYPE);
-		registry.register(ClientGradient.TYPE);
 	}
 
 	@Override

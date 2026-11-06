@@ -78,17 +78,22 @@ public final class CompoundGradient implements Gradient {
 		return left.interpolate(KMath.map(delta, left.position(), right.position(), 0F, 1F), right);
 	}
 
+	public Gradient optimize() {
+		if (sorted.length == 0) {
+			return FlatColorGradient.EMPTY;
+		} else if (sorted.length == 2 && sorted[0].ease() == EasingType.LINEAR) {
+			return new LinearGradient(sorted[0].color(), sorted[sorted.length - 1].color()).optimize();
+		} else if (sorted.length == 1) {
+			return sorted[0].color().toGradient();
+		} else {
+			return this;
+		}
+	}
+
 	@Override
 	public Ref<Gradient> optimize(Ref<Gradient> self) {
-		if (sorted.length == 0) {
-			return Gradient.EMPTY;
-		} else if (sorted.length == 2 && sorted[0].ease() == EasingType.LINEAR) {
-			return new LinearGradient(sorted[0].color(), sorted[sorted.length - 1].color()).optimizedRef();
-		} else if (sorted.length == 1) {
-			return sorted[0].color().toGradient().ref();
-		} else {
-			return self;
-		}
+		var o = optimize();
+		return o == this ? self : o.ref();
 	}
 
 	@Override

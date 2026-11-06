@@ -1,9 +1,10 @@
 package dev.latvian.mods.klib.interpolation;
 
 import com.mojang.serialization.Codec;
+import dev.latvian.mods.klib.codec.KLibCodecs;
+import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.registry.UnitType;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.EasingType;
 import net.minecraft.util.StringRepresentable;
@@ -24,8 +25,8 @@ public enum EaseOut implements Interpolation, StringRepresentable {
 	BOUNCE("bounce", EasingType.OUT_BOUNCE);
 
 	public static final EaseOut[] VALUES = values();
-	public static final Codec<EaseOut> CODEC = StringRepresentable.fromEnum(() -> VALUES);
-	public static final StreamCodec<ByteBuf, EaseOut> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(i -> VALUES[i], EaseOut::ordinal);
+	public static final Codec<EaseOut> CODEC = KLibCodecs.anyEnum(VALUES);
+	public static final StreamCodec<ByteBuf, EaseOut> STREAM_CODEC = KLibStreamCodecs.anyEnum(VALUES);
 
 	public final String name;
 	public final EasingType function;

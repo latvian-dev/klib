@@ -34,9 +34,14 @@ public record LinearGradient(Color start, Color end) implements Gradient {
 		return start.lerp(delta, end);
 	}
 
+	public Gradient optimize() {
+		return start.equals(end) ? start.toGradient() : this;
+	}
+
 	@Override
 	public Ref<Gradient> optimize(Ref<Gradient> self) {
-		return start.equals(end) ? start.toGradient().ref() : self;
+		var o = optimize();
+		return o == this ? self : o.ref();
 	}
 
 	@Override

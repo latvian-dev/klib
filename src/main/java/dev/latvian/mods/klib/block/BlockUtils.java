@@ -10,8 +10,11 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
 import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -19,6 +22,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.CarpetBlock;
 import net.minecraft.world.level.block.CrossCollisionBlock;
@@ -144,6 +148,22 @@ public interface BlockUtils {
 		}
 
 		return sb.toString();
+	}
+
+	static BlockState parse(HolderLookup<Block> registry, String string) {
+		if (string.isEmpty()) {
+			return Blocks.AIR.defaultBlockState();
+		}
+
+		try {
+			return BlockStateParser.parseForBlock(registry, string, false).blockState();
+		} catch (Exception ex) {
+			return Blocks.AIR.defaultBlockState();
+		}
+	}
+
+	static BlockState parse(String string) {
+		return parse(BuiltInRegistries.BLOCK, string);
 	}
 
 	static void walkBlocks(LevelReader level, ConnectedBlock.WalkType walkType, BlockPos start, @Nullable SimpleBlockPredicate filter, boolean onlyExposed, int maxDistance, Predicate<ConnectedBlock> callback) {

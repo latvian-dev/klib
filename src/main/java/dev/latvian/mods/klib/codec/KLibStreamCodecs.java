@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
 import dev.latvian.mods.klib.util.Cast;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,7 +20,6 @@ import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -234,30 +234,49 @@ public interface KLibStreamCodecs {
 		return keyCodec.map(map::get, keyGetter);
 	}
 
-	static <E> StreamCodec<ByteBuf, E> anyEnum(E[] values, ToIntFunction<E> ordinalFunction) {
-		return ByteBufCodecs.idMapper(i -> values[i], ordinalFunction);
+	private static <E extends Enum<E>> StreamCodec<ByteBuf, E> enumClass(E[] constants) {
+		if (constants.length == 0) {
+			throw new IllegalArgumentException("No enumerable values");
+		}
+
+		return ByteBufCodecs.idMapper(i -> constants[i], Enum::ordinal);
 	}
 
-	static <E extends Enum<E>> StreamCodec<ByteBuf, E> enumClass(Class<E> enumClass) {
-		return anyEnum(enumClass.getEnumConstants(), Enum::ordinal);
+	static <E> StreamCodec<ByteBuf, E> anyEnum(E[] values, ToIntFunction<E> toId) {
+		if (values.length == 0) {
+			throw new IllegalArgumentException("No enumerable values");
+		}
+
+		var toIdMap = new Reference2IntArrayMap<E>(values.length);
+		var fromIdMap = new Int2ObjectArrayMap<E>(values.length);
+
+		for (var value : values) {
+			int id = toId.applyAsInt(value);
+			toIdMap.put(value, id);
+			fromIdMap.put(id, value);
+		}
+
+		return ByteBufCodecs.idMapper(fromIdMap, toIdMap);
 	}
 
 	static <E> StreamCodec<ByteBuf, E> anyEnum(E[] values) {
 		if (values.length == 0) {
-			throw new IllegalArgumentException("Values is empty");
+			throw new IllegalArgumentException("No enumerable values");
+		} else if (values[0] instanceof Enum<?>) {
+			var constants = values[0].getClass().getEnumConstants();
+
+			if (constants.length == values.length) {
+				return Cast.to(enumClass(Cast.to(constants)));
+			}
 		}
 
-		if (values.getClass().getComponentType().isEnum() && Arrays.equals(values, values.getClass().getComponentType().getEnumConstants())) {
-			return Cast.to(enumClass(Cast.to(values.getClass().getComponentType())));
-		}
-
-		var map = new Reference2IntArrayMap<E>(values.length);
+		var toId = new Reference2IntArrayMap<E>(values.length);
 
 		for (int i = 0; i < values.length; i++) {
-			map.put(values[i], i);
+			toId.put(values[i], i);
 		}
 
-		return anyEnum(values, map);
+		return ByteBufCodecs.idMapper(i -> values[i], toId);
 	}
 
 	static <T> StreamCodec<ByteBuf, T> registry(Registry<T> registry) {

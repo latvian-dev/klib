@@ -27,10 +27,12 @@ import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.knumber.KNumberTypeRegistryEvent;
 import dev.latvian.mods.klib.kvector.KVector;
 import dev.latvian.mods.klib.kvector.KVectorTypeRegistryEvent;
+import dev.latvian.mods.klib.net.NeoKLibByteBuf;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.shape.ShapeTypeRegistryEvent;
+import dev.latvian.mods.klib.util.MiscUtils;
 import dev.latvian.mods.klib.util.Side;
 import dev.latvian.mods.klib.visual.Visual;
 import dev.latvian.mods.klib.visual.VisualTypeRegistryEvent;
@@ -103,8 +105,8 @@ public class NeoPlatformHelper extends PlatformHelper {
 	}
 
 	@Override
-	public PlatformType getPlatformOf(RegistryFriendlyByteBuf buf) {
-		return buf.getConnectionType() == ConnectionType.NEOFORGE ? PlatformType.NEOFORGE : PlatformType.OTHER;
+	public PlatformType getPlatformOf(ByteBuf buf) {
+		return buf instanceof RegistryFriendlyByteBuf r && r.getConnectionType() == ConnectionType.NEOFORGE ? PlatformType.NEOFORGE : PlatformType.OTHER;
 	}
 
 	@Override
@@ -113,13 +115,22 @@ public class NeoPlatformHelper extends PlatformHelper {
 	}
 
 	@Override
-	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryFriendlyByteBuf parent) {
-		return new RegistryFriendlyByteBuf(source, parent.registryAccess(), parent.getConnectionType());
+	public Function<ByteBuf, RegistryFriendlyByteBuf> createDecorator(RegistryAccess access) {
+		return RegistryFriendlyByteBuf.decorator(access, ConnectionType.NEOFORGE);
 	}
 
 	@Override
-	public Function<ByteBuf, RegistryFriendlyByteBuf> createDecorator(RegistryAccess access) {
-		return RegistryFriendlyByteBuf.decorator(access, ConnectionType.NEOFORGE);
+	public RegistryFriendlyByteBuf createKLibBuffer(ByteBuf source, RegistryAccess access, PlatformType platformType) {
+		return new NeoKLibByteBuf(source, access, platformType == PlatformType.NEOFORGE ? ConnectionType.NEOFORGE : ConnectionType.OTHER);
+	}
+
+	@Override
+	public RegistryFriendlyByteBuf createKLibBuffer(ByteBuf parent) {
+		if (parent instanceof RegistryFriendlyByteBuf r) {
+			return new NeoKLibByteBuf(parent, r.registryAccess(), r.getConnectionType());
+		} else {
+			return new NeoKLibByteBuf(parent, MiscUtils.STATIC_REGISTRY_ACCESS, ConnectionType.NEOFORGE);
+		}
 	}
 
 	@Override

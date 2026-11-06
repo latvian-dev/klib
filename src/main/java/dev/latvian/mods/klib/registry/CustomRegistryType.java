@@ -56,4 +56,9 @@ public abstract sealed class CustomRegistryType<B extends ByteBuf, V> implements
 	public String toString() {
 		return key;
 	}
+
+	@Override
+	public int hashCode() {
+		return key.hashCode();
+	}
 }

@@ -16,11 +16,13 @@ import dev.latvian.mods.klib.icon.Icon;
 import dev.latvian.mods.klib.interpolation.Interpolation;
 import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.kvector.KVector;
+import dev.latvian.mods.klib.net.VanillaKLibByteBuf;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryCollector;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.shape.Shape;
 import dev.latvian.mods.klib.util.Cast;
+import dev.latvian.mods.klib.util.MiscUtils;
 import dev.latvian.mods.klib.util.Side;
 import dev.latvian.mods.klib.visual.Visual;
 import dev.latvian.mods.klib.volume.Volume;
@@ -83,7 +85,7 @@ public class PlatformHelper {
 		return PlatformType.OTHER; // FIXME
 	}
 
-	public PlatformType getPlatformOf(RegistryFriendlyByteBuf buf) {
+	public PlatformType getPlatformOf(ByteBuf buf) {
 		return PlatformType.OTHER;
 	}
 
@@ -95,12 +97,29 @@ public class PlatformHelper {
 		return createBuffer(source, access, getPlatform());
 	}
 
-	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, RegistryFriendlyByteBuf parent) {
-		return createBuffer(source, parent.registryAccess());
+	public RegistryFriendlyByteBuf createBuffer(ByteBuf source, ByteBuf parent) {
+		if (parent instanceof RegistryFriendlyByteBuf r) {
+			return createBuffer(source, r.registryAccess(), getPlatformOf(parent));
+		} else {
+			return createBuffer(source, MiscUtils.STATIC_REGISTRY_ACCESS, getPlatformOf(parent));
+
+		}
 	}
 
 	public Function<ByteBuf, RegistryFriendlyByteBuf> createDecorator(RegistryAccess access) {
 		return RegistryFriendlyByteBuf.decorator(access);
+	}
+
+	public RegistryFriendlyByteBuf createKLibBuffer(ByteBuf source, RegistryAccess access, PlatformType platformType) {
+		return new VanillaKLibByteBuf(source, access);
+	}
+
+	public RegistryFriendlyByteBuf createKLibBuffer(ByteBuf source) {
+		if (source instanceof RegistryFriendlyByteBuf r) {
+			return new VanillaKLibByteBuf(source, r.registryAccess());
+		} else {
+			return new VanillaKLibByteBuf(source, MiscUtils.STATIC_REGISTRY_ACCESS);
+		}
 	}
 
 	public void load(Class<? extends Annotation> annotation, Set<ElementType> elementTypes, ScannedAnnotationCallback callback) {
