@@ -10,10 +10,11 @@ import net.neoforged.neoforge.common.conditions.ConditionalOps;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class JsonRegistryReloadListener<T> extends JsonCodecReloadListener<T> {
-	private final CustomRegistry<?, T> registry;
-	private final RefType refType;
+	public final CustomRegistry<?, T> registry;
+	public final RefType refType;
 
 	public JsonRegistryReloadListener(String rootPath, CustomRegistry<?, T> registry, RefType refType) {
 		super(rootPath, registry.directCodec());
@@ -34,6 +35,10 @@ public class JsonRegistryReloadListener<T> extends JsonCodecReloadListener<T> {
 			entries.add(Map.entry(entry.getKey().getPath(), entry.getValue()));
 		}
 
+		generate((key, value) -> entries.add(Map.entry(key, value)));
 		registry.updateValues(entries, refType);
+	}
+
+	public void generate(BiConsumer<String, T> callback) {
 	}
 }
