@@ -119,7 +119,8 @@ public interface MCStreamCodecs {
 	StreamCodec<ByteBuf, BlockState> BLOCK_STATE = ByteBufCodecs.VAR_INT.map(Block::stateById, Block::getId);
 	StreamCodec<ByteBuf, FluidState> FLUID_STATE = ByteBufCodecs.VAR_INT.map(Fluid.FLUID_STATE_REGISTRY::byId, Fluid.FLUID_STATE_REGISTRY::getId);
 
-	StreamCodec<ByteBuf, ResourceKey<Level>> DIMENSION = KLibStreamCodecs.resourceKey(Registries.DIMENSION);
+	StreamCodec<ByteBuf, ResourceKey<Level>> EXPLICIT_DIMENSION = KLibStreamCodecs.resourceKey(Registries.DIMENSION);
+	StreamCodec<ByteBuf, ResourceKey<Level>> DIMENSION = KLibStreamCodecs.optional(EXPLICIT_DIMENSION, Level.OVERWORLD);
 
 	StreamCodec<ByteBuf, NameAndId> NAME_AND_ID = CompositeStreamCodec.of(
 		KLibStreamCodecs.UUID, NameAndId::id,
