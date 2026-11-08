@@ -34,6 +34,7 @@ import dev.latvian.mods.klib.math.InterpolatedFloat;
 import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.MovementType;
 import dev.latvian.mods.klib.math.Range;
+import dev.latvian.mods.klib.platform.PlatformType;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
 import dev.latvian.mods.klib.texture.CubeTextureMap;
 import dev.latvian.mods.klib.texture.CubeTexturePatch;
@@ -279,6 +280,7 @@ public interface DataTypes {
 		registry.register("cube_texture_map", CubeTextureMap.DATA_TYPE);
 		registry.register("cube_texture_patch", CubeTexturePatch.DATA_TYPE);
 		registry.register("transparency_level", TransparencyLevel.DATA_TYPE);
+		registry.register("platform_type", PlatformType.DATA_TYPE);
 	}
 
 	static void registerCommandInfos(DataTypeCommandInfoRegistry registry) {
