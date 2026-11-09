@@ -14,9 +14,11 @@
 		"ItemEntityMixin",
 		"LevelMixin",
 		"LivingEntityMixin",
+		"MinecraftServerMixin",
 		"PlayerMixin",
 		"RandomSourceMixin",
 		"ServerLevelMixin",
+		"ServerPlayerMixin",
 		"StyleMixin"
 	],
 	"client": [
