@@ -13,6 +13,7 @@ public class KNumberContext {
 	public final KNumberContext parent;
 	public final KNumberVariables variables;
 
+	public float delta;
 	public Double progress;
 	public Double tick;
 	public Double maxTick;
@@ -29,6 +30,7 @@ public class KNumberContext {
 		this.parent = null;
 		this.variables = KNumberVariables.EMPTY;
 
+		this.delta = 1F;
 		this.progress = null;
 		this.tick = null;
 		this.maxTick = null;
@@ -46,6 +48,7 @@ public class KNumberContext {
 		this.parent = null;
 		this.variables = rootVariables;
 
+		this.delta = 1F;
 		this.progress = null;
 		this.tick = null;
 		this.maxTick = null;
@@ -58,6 +61,7 @@ public class KNumberContext {
 		this.parent = parent;
 		this.variables = variables == null ? KNumberVariables.EMPTY : variables;
 
+		this.delta = parent.delta;
 		this.progress = parent.progress;
 		this.tick = parent.tick;
 		this.maxTick = parent.maxTick;
@@ -82,10 +86,12 @@ public class KNumberContext {
 			this.gameTime = (double) level.getGameTime();
 			this.gameDay = (double) (level.getGameTime() % 24000L) / 24000D;
 			this.clock = (double) level.getDefaultClockTime();
+			this.delta = 1F;
 		} else {
 			this.gameTime = null;
 			this.gameDay = null;
 			this.clock = null;
+			this.delta = 1F;
 		}
 	}
 

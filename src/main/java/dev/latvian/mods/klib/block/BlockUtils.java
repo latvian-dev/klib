@@ -2,7 +2,7 @@ package dev.latvian.mods.klib.block;
 
 import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.block.filter.SimpleBlockPredicate;
-import dev.latvian.mods.klib.core.KLibBlockState;
+import dev.latvian.mods.klib.core.api.common.KLibBlockState;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.Cast;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;

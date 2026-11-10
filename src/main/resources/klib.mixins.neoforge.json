@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "dev.latvian.mods.klib.core.mixin.neoforge",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"ConditionalOpsMixin",
+		"EnumArgumentMixin"
+	],
+	"client": [
+	],
+	"injectors": {
+		"defaultRequire": 1,
+		"maxShiftBy": 2
+	}
+}

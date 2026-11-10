@@ -19,4 +19,10 @@ ordering = "NONE"
 side = "BOTH"
 
 [[mixins]]
-config = "klib.mixins.json"
+config = "klib.mixins.common.json"
+
+[[mixins]]
+config = "klib.mixins.client.json"
+
+[[mixins]]
+config = "klib.mixins.neoforge.json"

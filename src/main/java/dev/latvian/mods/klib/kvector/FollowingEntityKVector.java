@@ -35,6 +35,6 @@ public record FollowingEntityKVector(Ref<EntityFilter> entity, PositionType posi
 	@Nullable
 	public Vec3 get(KNumberContext ctx) {
 		var e = entity.value().getFirst(ctx.level);
-		return e == null ? null : EntityUtils.getPosition(e, positionType);
+		return e == null ? null : EntityUtils.getPosition(e, positionType, ctx.delta);
 	}
 }

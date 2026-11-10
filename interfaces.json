@@ -1,50 +1,41 @@
 {
-	"net/minecraft/util/RandomSource": [
-		"dev/latvian/mods/klib/core/KLibRandomSource"
-	],
-	"com/mojang/blaze3d/vertex/VertexConsumer": [
-		"dev/latvian/mods/klib/core/KLibVertexConsumer"
-	],
-	"com/mojang/blaze3d/vertex/PoseStack$Pose": [
-		"dev/latvian/mods/klib/core/KLibPoseStackPose"
-	],
-	"net/minecraft/world/level/block/state/BlockState": [
-		"dev/latvian/mods/klib/core/KLibBlockState"
-	],
-	"net/minecraft/world/level/ClipContext": [
-		"dev/latvian/mods/klib/core/KLibClipContext"
-	],
-	"net/minecraft/world/level/Level": [
-		"dev/latvian/mods/klib/core/KLibLevel"
+	"net/minecraft/client/Camera": [
+		"dev/latvian/mods/klib/core/api/client/KLibCamera"
 	],
 	"net/minecraft/client/multiplayer/ClientLevel": [
-		"dev/latvian/mods/klib/core/KLibClientLevel"
-	],
-	"net/minecraft/server/level/ServerLevel": [
-		"dev/latvian/mods/klib/core/KLibServerLevel"
-	],
-	"net/minecraft/commands/arguments/selector/EntitySelector": [
-		"dev/latvian/mods/klib/core/KLibEntitySelector"
-	],
-	"net/minecraft/world/entity/Entity": [
-		"dev/latvian/mods/klib/core/KLibEntity"
-	],
-	"net/minecraft/world/entity/LivingEntity": [
-		"dev/latvian/mods/klib/core/KLibLivingEntity"
-	],
-	"net/minecraft/world/entity/player/Player": [
-		"dev/latvian/mods/klib/core/KLibPlayer"
-	],
-	"net/minecraft/client/player/LocalPlayer": [
-		"dev/latvian/mods/klib/core/KLibLocalPlayer"
-	],
-	"net/minecraft/client/Camera": [
-		"dev/latvian/mods/klib/core/KLibCamera"
-	],
-	"net/minecraft/network/chat/Style": [
-		"dev/latvian/mods/klib/core/KLibStyle"
+		"dev/latvian/mods/klib/core/api/client/KLibClientLevel"
 	],
 	"net/minecraft/client/renderer/culling/Frustum": [
-		"dev/latvian/mods/klib/core/KLibFrustum"
+		"dev/latvian/mods/klib/core/api/client/KLibFrustum"
+	],
+	"net/minecraft/client/player/LocalPlayer": [
+		"dev/latvian/mods/klib/core/api/client/KLibLocalPlayer"
+	],
+	"com/mojang/blaze3d/vertex/PoseStack$Pose": [
+		"dev/latvian/mods/klib/core/api/client/KLibPoseStackPose"
+	],
+	"com/mojang/blaze3d/vertex/VertexConsumer": [
+		"dev/latvian/mods/klib/core/api/client/KLibVertexConsumer"
+	],
+	"net/minecraft/world/level/block/state/BlockState": [
+		"dev/latvian/mods/klib/core/api/common/KLibBlockState"
+	],
+	"net/minecraft/world/entity/Entity": [
+		"dev/latvian/mods/klib/core/api/common/KLibEntity"
+	],
+	"net/minecraft/commands/arguments/selector/EntitySelector": [
+		"dev/latvian/mods/klib/core/api/common/KLibEntitySelector"
+	],
+	"net/minecraft/world/level/Level": [
+		"dev/latvian/mods/klib/core/api/common/KLibLevel"
+	],
+	"net/minecraft/world/entity/LivingEntity": [
+		"dev/latvian/mods/klib/core/api/common/KLibLivingEntity"
+	],
+	"net/minecraft/world/entity/player/Player": [
+		"dev/latvian/mods/klib/core/api/common/KLibPlayer"
+	],
+	"net/minecraft/network/chat/Style": [
+		"dev/latvian/mods/klib/core/api/common/KLibStyle"
 	]
 }

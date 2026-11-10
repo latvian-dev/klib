@@ -7,6 +7,7 @@ import dev.latvian.mods.klib.platform.PlatformHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -15,10 +16,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -176,31 +179,62 @@ public interface EntityUtils {
 		return Rotation.deg(e.getViewYRot(delta), e.getViewXRot(delta));
 	}
 
-	static Vec3 getLookTarget(Entity e, float delta) {
-		if (delta == 1F) {
-			return e.position().add(e.getViewVector(1F));
+	static Vec3 getPosition(Entity entity, Vec3 offset, float delta) {
+		if (delta == 1F && offset.x == 0D && offset.y == 0D && offset.z == 0D) {
+			return entity.position();
 		} else {
-			return e.getPosition(delta).add(e.getViewVector(delta));
+			double x = Mth.lerp(delta, entity.xo, entity.getX()) + offset.x;
+			double y = Mth.lerp(delta, entity.yo, entity.getY()) + offset.y;
+			double z = Mth.lerp(delta, entity.zo, entity.getZ()) + offset.z;
+			return new Vec3(x, y, z);
 		}
 	}
 
-	static Vec3 getPosition(Entity e, PositionType type) {
+	static Vec3 getPosition(Entity entity, double yOffset, float delta) {
+		if (delta == 1F && yOffset == 0D) {
+			return entity.position();
+		} else {
+			double x = Mth.lerp(delta, entity.xo, entity.getX());
+			double y = Mth.lerp(delta, entity.yo, entity.getY()) + yOffset;
+			double z = Mth.lerp(delta, entity.zo, entity.getZ());
+			return new Vec3(x, y, z);
+		}
+	}
+
+	static Vec3 getLookTarget(Entity e, float delta) {
+		return getPosition(e, e.getViewVector(delta), delta);
+	}
+
+	static Vec3 getPosition(Entity entity, PositionType type, float delta) {
 		return switch (type) {
-			case CENTER -> new Vec3(e.getX(), e.getY() + e.getBbHeight() / 2D, e.getZ());
-			case TOP -> new Vec3(e.getX(), e.getY() + e.getBbHeight(), e.getZ());
-			case EYES -> e.getEyePosition();
-			case LEASH -> e.position().add(getLeashOffset(e, 1F));
-			case SOUND_SOURCE -> CustomSoundSourcePosition.of(e);
-			case LOOK_TARGET -> getLookTarget(e, 1F);
-			default -> e.position();
+			case CENTER -> getPosition(entity, entity.getBbHeight() / 2D, delta);
+			case TOP -> getPosition(entity, delta, entity.getBbHeight());
+			case EYES -> getPosition(entity, delta, entity.getEyeHeight());
+			case LEASH -> getLeashPosition(entity, delta);
+			case SOUND_SOURCE -> CustomSoundSourcePosition.of(entity, delta);
+			case LOOK_TARGET -> getLookTarget(entity, delta);
+			default -> getPosition(entity, Vec3.ZERO, delta);
 		};
 	}
 
 	static Vec3 getLeashOffset(Entity entity, float delta) {
-		return entity instanceof Leashable leashable ? leashable.getLeashOffset(delta) : new Vec3(0D, entity.getEyeHeight(), entity.getBbWidth() * 0.4F);
+		Vec3 leashOffset;
+
+		if (entity instanceof Leashable leashable) {
+			leashOffset = leashable.getLeashOffset(delta);
+		} else {
+			leashOffset = new Vec3(0D, entity.getEyeHeight(), entity.getBbWidth() * 0.4D);
+		}
+
+		float entityYRot = entity.getPreciseBodyRotation(delta) * (float) (Math.PI / 180D);
+		return leashOffset.yRot(-entityYRot);
 	}
 
-	default <T extends Entity> T summon(Level level, EntityType<T> type, EntityType.EntityFactory<T> factory, Consumer<T> callback) {
+	static Vec3 getLeashPosition(Entity entity, float delta) {
+		return getPosition(entity, getLeashOffset(entity, delta), delta);
+	}
+
+	static <T extends Entity> T summon(Level level, EntityType<T> type, EntityType.EntityFactory<T> factory, Consumer<T> callback) {
 		var entity = factory.create(type, level);
 
 		if (entity != null && !level.isClientSide()) {
@@ -211,7 +245,7 @@ public interface EntityUtils {
 		return entity;
 	}
 
-	default <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
+	static <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
 		return summon(level, type, type.factory, callback);
 	}
 
@@ -247,5 +281,10 @@ public interface EntityUtils {
 
 	static int killAll(ServerLevel level, EntityType<?> type) {
 		return killAll(level, new EntityTypeFilter(type));
+	}
+
+	@Nullable
+	static Entity getEntity(ClipContext clipContext) {
+		return clipContext.collisionContext instanceof EntityCollisionContext ctx ? ctx.getEntity() : null;
 	}
 }

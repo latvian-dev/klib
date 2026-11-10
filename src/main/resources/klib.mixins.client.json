@@ -1,0 +1,20 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "dev.latvian.mods.klib.core.mixin.client",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+	],
+	"client": [
+		"CameraMixin",
+		"ClientLevelMixin",
+		"FrustumMixin",
+		"LocalPlayerMixin",
+		"PoseStackPoseMixin",
+		"VertexConsumerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1,
+		"maxShiftBy": 2
+	}
+}

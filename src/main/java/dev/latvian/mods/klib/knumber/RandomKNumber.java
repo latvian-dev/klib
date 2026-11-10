@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.knumber;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
+import dev.latvian.mods.klib.math.RandomUtils;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -37,6 +38,6 @@ public record RandomKNumber(Ref<KNumber> min, Ref<KNumber> max) implements KNumb
 			return null;
 		}
 
-		return ctx.level.getRandom().nextRange(min, max);
+		return RandomUtils.nextRange(ctx.level.getRandom(), min, max);
 	}
 }

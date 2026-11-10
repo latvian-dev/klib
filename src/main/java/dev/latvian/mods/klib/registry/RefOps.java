@@ -1,6 +1,6 @@
 package dev.latvian.mods.klib.registry;
 
-import dev.latvian.mods.klib.core.KLibConditionalOps;
+import dev.latvian.mods.klib.core.api.neoforge.KLibConditionalOps;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 
 public class RefOps<O, V> extends ConditionalOps<O> {
