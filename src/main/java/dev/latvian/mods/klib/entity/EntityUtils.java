@@ -6,6 +6,7 @@ import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
@@ -171,11 +173,11 @@ public interface EntityUtils {
 		return entity instanceof LivingEntity && ((!(entity instanceof Player) || isSurvivalLike(entity)));
 	}
 
-	static Rotation rotation(Entity e, float delta) {
+	static Rotation getRotation(Entity e, float delta) {
 		return Rotation.deg(e.getYRot(delta), e.getXRot(delta));
 	}
 
-	static Rotation viewRotation(Entity e, float delta) {
+	static Rotation getViewRotation(Entity e, float delta) {
 		return Rotation.deg(e.getViewYRot(delta), e.getViewXRot(delta));
 	}
 
@@ -286,5 +288,28 @@ public interface EntityUtils {
 	@Nullable
 	static Entity getEntity(ClipContext clipContext) {
 		return clipContext.collisionContext instanceof EntityCollisionContext ctx ? ctx.getEntity() : null;
+	}
+
+	static void teleport(Entity entity, ServerLevel to, Vec3 pos) {
+		entity.teleport(new TeleportTransition(
+			to,
+			pos,
+			entity.getDeltaMovement(),
+			entity.getYRot(),
+			entity.getXRot(),
+			TeleportTransition.DO_NOTHING
+		));
+	}
+
+	static void teleport(Entity entity, Vec3 pos) {
+		teleport(entity, (ServerLevel) entity.level(), pos);
+	}
+
+	static void teleport(Entity entity, ServerLevel to, BlockPos pos) {
+		teleport(entity, to, new Vec3(pos.getX() + 0.5D, pos.getY() + 0.015625D, pos.getZ() + 0.5D));
+	}
+
+	static void teleport(Entity entity, BlockPos pos) {
+		teleport(entity, new Vec3(pos.getX() + 0.5D, pos.getY() + 0.015625D, pos.getZ() + 0.5D));
 	}
 }

@@ -2,7 +2,9 @@ package dev.latvian.mods.klib.entity;
 
 import dev.latvian.mods.klib.net.C2SPacketConsumer;
 import dev.latvian.mods.klib.net.S2CPacketConsumer;
+import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.MessageConsumer;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -15,34 +17,137 @@ import net.minecraft.world.level.Level;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-@FunctionalInterface
 public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, MessageConsumer {
 	@FunctionalInterface
 	interface Container {
 		PlayerTarget klib$getPlayerTarget();
 	}
 
-	PlayerTarget NONE = _ -> {
-	};
+	record Filtered(PlayerTarget parent, Predicate<Player> filter) implements PlayerTarget {
+		@Override
+		public Level getCommonLevel() {
+			return parent.getCommonLevel();
+		}
+
+		@Override
+		public void forEachPlayer(Consumer<Player> callback) {
+			parent.forEachPlayer(player -> {
+				if (filter.test(player)) {
+					callback.accept(player);
+				}
+			});
+		}
+	}
 
 	record OfServer(MinecraftServer server) implements PlayerTarget {
 		@Override
+		public Level getCommonLevel() {
+			return server.overworld();
+		}
+
+		@Override
 		public void forEachPlayer(Consumer<Player> callback) {
 			server.getPlayerList().getPlayers().forEach(callback);
+		}
+
+		@Override
+		public void tell(Component message) {
+			for (var player : server.getPlayerList().getPlayers()) {
+				player.sendSystemMessage(message);
+			}
+		}
+
+		@Override
+		public void status(Component message) {
+			for (var player : server.getPlayerList().getPlayers()) {
+				player.sendOverlayMessage(message);
+			}
 		}
 	}
 
 	record OfLevel(Level level) implements PlayerTarget {
 		@Override
+		public Level getCommonLevel() {
+			return level;
+		}
+
+		@Override
 		public void forEachPlayer(Consumer<Player> callback) {
 			level.players().forEach(callback);
+		}
+
+		@Override
+		public void tell(Component message) {
+			for (var player : level.players()) {
+				player.sendSystemMessage(message);
+			}
+		}
+
+		@Override
+		public void status(Component message) {
+			for (var player : level.players()) {
+				player.sendOverlayMessage(message);
+			}
 		}
 	}
 
 	record OfPlayer(Player player) implements PlayerTarget {
 		@Override
+		public Level getCommonLevel() {
+			return player.level();
+		}
+
+		@Override
 		public void forEachPlayer(Consumer<Player> callback) {
 			callback.accept(player);
+		}
+
+		@Override
+		public void tell(Component message) {
+			player.sendSystemMessage(message);
+		}
+
+		@Override
+		public void status(Component message) {
+			player.sendOverlayMessage(message);
+		}
+	}
+
+	record OfCommandSourceStack(CommandSourceStack commandSourceStack) implements PlayerTarget {
+		@Override
+		public Level getCommonLevel() {
+			return PlatformHelper.INSTANCE.getLevel(commandSourceStack);
+		}
+
+		@Override
+		public void forEachPlayer(Consumer<Player> callback) {
+			if (commandSourceStack.getEntity() instanceof Player player) {
+				callback.accept(player);
+			}
+		}
+
+		@Override
+		public void tell(Component message) {
+			commandSourceStack.sendSuccess(() -> message, false);
+		}
+
+		@Override
+		public void status(Component message) {
+			if (commandSourceStack.getEntity() instanceof Player player) {
+				player.sendOverlayMessage(message);
+			} else {
+				tell(message);
+			}
+		}
+
+		@Override
+		public void error(Component message) {
+			commandSourceStack.sendFailure(message);
+		}
+
+		@Override
+		public void broadcast(Component message) {
+			commandSourceStack.sendSuccess(() -> message, true);
 		}
 	}
 
@@ -69,6 +174,16 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 			return new OfPlayer(player);
 		}
 	}
+
+	static PlayerTarget of(CommandSourceStack commandSourceStack) {
+		if (commandSourceStack instanceof Container c) {
+			return c.klib$getPlayerTarget();
+		} else {
+			return new OfCommandSourceStack(commandSourceStack);
+		}
+	}
+
+	Level getCommonLevel();
 
 	void forEachPlayer(Consumer<Player> callback);
 
@@ -105,10 +220,6 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	default PlayerTarget filter(Predicate<Player> filter) {
-		return callback -> forEachPlayer(player -> {
-			if (filter.test(player)) {
-				callback.accept(player);
-			}
-		});
+		return new Filtered(this, filter);
 	}
 }

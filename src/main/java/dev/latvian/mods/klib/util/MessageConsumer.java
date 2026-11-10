@@ -68,4 +68,12 @@ public interface MessageConsumer {
 	default void error(String message) {
 		error(Component.literal(message));
 	}
+
+	default void broadcast(Component message) {
+		tell(message);
+	}
+
+	default void broadcast(String message) {
+		broadcast(Component.literal(message));
+	}
 }
