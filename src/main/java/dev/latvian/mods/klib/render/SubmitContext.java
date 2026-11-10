@@ -102,19 +102,19 @@ public record SubmitContext(
 
 	public void submitQuads(Vector3fc offset, Shape shape, Color color) {
 		if (!color.isTransparent()) {
-			submit(RenderTypes.debugFilledBox(), (pose, buffer) -> shape.buildQuads(offset, pose.transform(buffer).withColor(color)));
+			submit(RenderTypes.debugQuads(), (pose, buffer) -> shape.buildQuads(offset, pose.transform(buffer).withColor(color)));
 		}
 	}
 
 	public void submitLines(Vector3fc offset, Shape shape, Color color) {
 		if (!color.isTransparent()) {
-			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+			submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> shape.buildLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
 		}
 	}
 
 	public void submitOuterLines(Vector3fc offset, Shape shape, Color color) {
 		if (!color.isTransparent()) {
-			submit(RenderTypes.lines(), (pose, buffer) -> shape.buildOuterLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+			submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> shape.buildOuterLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
 		}
 	}
 }

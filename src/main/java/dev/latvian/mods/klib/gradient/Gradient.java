@@ -1,6 +1,9 @@
 package dev.latvian.mods.klib.gradient;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
+import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.color.PositionedColor;
 import dev.latvian.mods.klib.data.DataType;
@@ -26,7 +29,20 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 	UnitType<ByteBuf, Gradient> MAGENTA = UnitType.create("magenta", FlatColorGradient.MAGENTA);
 	UnitType<ByteBuf, Gradient> CYAN = UnitType.create("cyan", FlatColorGradient.CYAN);
 
-	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.create("gradient", EMPTY);
+	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder("gradient")
+		.defaultType(EMPTY)
+		.customCodec(directCodec -> KLibCodecs.or(List.of(
+			Color.CODEC.<Gradient>flatComapMap(FlatColorGradient::of, gradient -> {
+				if (gradient instanceof FlatColorGradient f) {
+					return DataResult.success(f.color());
+				} else {
+					return KLibCodecErrors.NOT_A_COLOR;
+				}
+			}),
+			directCodec
+		)))
+		.build();
+
 	Codec<Ref<Gradient>> CODEC = REGISTRY.codec();
 	StreamCodec<ByteBuf, Ref<Gradient>> STREAM_CODEC = REGISTRY.streamCodec();
 	DataType<Ref<Gradient>> DATA_TYPE = REGISTRY.dataType();

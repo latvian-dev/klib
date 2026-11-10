@@ -20,12 +20,36 @@ public record FlatColorGradient(Color color) implements Gradient {
 	public static final FlatColorGradient MAGENTA = new FlatColorGradient(Color.MAGENTA);
 	public static final FlatColorGradient CYAN = new FlatColorGradient(Color.CYAN);
 
+	public static FlatColorGradient of(Color color) {
+		if (color == Color.TRANSPARENT) {
+			return EMPTY;
+		} else if (color == Color.WHITE) {
+			return WHITE;
+		} else if (color == Color.BLACK) {
+			return BLACK;
+		} else if (color == Color.RED) {
+			return RED;
+		} else if (color == Color.GREEN) {
+			return GREEN;
+		} else if (color == Color.BLUE) {
+			return BLUE;
+		} else if (color == Color.YELLOW) {
+			return YELLOW;
+		} else if (color == Color.MAGENTA) {
+			return MAGENTA;
+		} else if (color == Color.CYAN) {
+			return CYAN;
+		} else {
+			return new FlatColorGradient(color);
+		}
+	}
+
 	public static final DynamicType<ByteBuf, Gradient> TYPE = DynamicType.create(
 		"color",
 		"color",
 		Color.CODEC,
 		Color.STREAM_CODEC,
-		FlatColorGradient::new,
+		FlatColorGradient::of,
 		FlatColorGradient::color
 	);
 

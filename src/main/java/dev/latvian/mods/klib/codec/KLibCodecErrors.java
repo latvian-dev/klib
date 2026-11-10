@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.codec;
 
 import com.mojang.serialization.DataResult;
+import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.knumber.KNumber;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.util.Cast;
@@ -29,6 +30,7 @@ public interface KLibCodecErrors {
 	DataResult<Vec3> NOT_A_VEC3 = KLibCodecErrors.error("Not a vector");
 	DataResult<BlockPos> NOT_A_BLOCK_POS = KLibCodecErrors.error("Not a block position");
 	DataResult<Ref<KNumber>> NOT_A_KNUMBER = KLibCodecErrors.error("Not a number");
+	DataResult<Color> NOT_A_COLOR = KLibCodecErrors.error("Not a color");
 
 	static <T> DataResult<T> valueIsNull() {
 		return Cast.to(VALUE_IS_NULL);

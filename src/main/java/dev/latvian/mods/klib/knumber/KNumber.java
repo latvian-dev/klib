@@ -101,6 +101,8 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 		registry.register(MaxKNumber.TYPE);
 		registry.register(ClampedKNumber.TYPE);
 		registry.register(AbsKNumber.TYPE);
+		registry.register(FadeInKNumber.TYPE);
+		registry.register(FadeOutKNumber.TYPE);
 
 		PREFIX_LIST.addSimple("#", VariableKNumber::new);
 	}

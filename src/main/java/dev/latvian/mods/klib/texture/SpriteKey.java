@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public final class SpriteKey {
-	public static final Identifier MISSING_ATLAS = ID.vidlib("missing");
-	public static final Identifier SPECIAL_ATLAS = ID.vidlib("special");
+	public static final Identifier MISSING_ATLAS = ID.klib("missing");
+	public static final Identifier SPECIAL_ATLAS = ID.klib("special");
 	public static final Identifier MISSING_SPRITE = ID.mc("missingno");
 	public static final SpriteKey EMPTY = new SpriteKey(1, MISSING_ATLAS, MISSING_SPRITE);
 

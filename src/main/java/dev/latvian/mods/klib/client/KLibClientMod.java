@@ -11,6 +11,7 @@ import dev.latvian.mods.klib.icon.renderer.IconRenderingRegistryEvent;
 import dev.latvian.mods.klib.icon.renderer.ItemIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.SimpleColorIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.TextureIconRenderState;
+import dev.latvian.mods.klib.particle.KLibParticles;
 import dev.latvian.mods.klib.platform.NeoClientPlatformHelper;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.RefType;
@@ -44,6 +45,7 @@ public class KLibClientMod {
 	public static void setup(FMLClientSetupEvent event) {
 		ModLoader.postEvent(new IconRenderingRegistryEvent());
 		ModLoader.postEvent(new VisualRenderingRegistryEvent());
+		KLibParticles.init();
 	}
 
 	@SubscribeEvent

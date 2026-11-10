@@ -4,6 +4,7 @@ import dev.latvian.mods.klib.command.KLibCommandArgumentTypes;
 import dev.latvian.mods.klib.gradient.GradientImageLoader;
 import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
+import dev.latvian.mods.klib.particle.KLibParticles;
 import dev.latvian.mods.klib.platform.NeoPlatformHelper;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
@@ -11,6 +12,7 @@ import dev.latvian.mods.klib.registry.CustomRegistryMetaInfo;
 import dev.latvian.mods.klib.registry.RefType;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -24,6 +26,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -60,6 +63,15 @@ public class KLibMod {
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void syncDataPacks(OnDatapackSyncEvent event) {
 		event.getRelevantPlayers().forEach(CustomRegistry::syncAll);
+	}
+
+	@SubscribeEvent
+	public static void register(RegisterEvent event) {
+		if (event.getRegistryKey() == Registries.PARTICLE_TYPE) {
+			for (var particle : KLibParticles.PARTICLES) {
+				event.register(Registries.PARTICLE_TYPE, particle.first(), particle.second());
+			}
+		}
 	}
 
 	@SubscribeEvent
