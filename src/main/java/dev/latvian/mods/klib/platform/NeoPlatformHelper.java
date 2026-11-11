@@ -42,6 +42,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -206,6 +207,12 @@ public class NeoPlatformHelper extends PlatformHelper {
 	@Override
 	public AABB infiniteAABB() {
 		return AABB.INFINITE;
+	}
+
+	@Override
+	@Nullable
+	public String getServerBrand(ReentrantBlockableEventLoop<?> environment) {
+		return "neoforge";
 	}
 
 	@Override

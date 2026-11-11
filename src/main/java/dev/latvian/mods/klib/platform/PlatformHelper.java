@@ -35,6 +35,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -182,6 +183,11 @@ public class PlatformHelper {
 		} else {
 			return Stream.empty();
 		}
+	}
+
+	@Nullable
+	public String getServerBrand(ReentrantBlockableEventLoop<?> environment) {
+		return null;
 	}
 
 	public void collectCustomRegistries(CustomRegistryCollector registry) {
