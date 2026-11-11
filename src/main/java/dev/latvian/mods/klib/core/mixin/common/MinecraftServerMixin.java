@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Map;
 
 @Mixin(MinecraftServer.class)
-public class MinecraftServerMixin implements PlayerTarget.Container {
+public abstract class MinecraftServerMixin implements PlayerTarget.Container {
 	@Shadow
 	@Final
 	private Map<ResourceKey<Level>, ServerLevel> levels;

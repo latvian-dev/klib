@@ -5,15 +5,20 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"BlockStateMixin",
+		"ChunkMapMixin",
+		"ClipContextMixin",
 		"CommandSourceStackMixin",
 		"EasingTypeMixin",
 		"EntityMixin",
 		"EntitySelectorMixin",
+		"EntityTypeMixin",
+		"FoodDataMixin",
 		"LevelMixin",
 		"LivingEntityMixin",
 		"MinecraftServerMixin",
 		"PlayerMixin",
-		"StyleMixin"
+		"StyleMixin",
+		"UseOnContextMixin"
 	],
 	"client": [
 	],

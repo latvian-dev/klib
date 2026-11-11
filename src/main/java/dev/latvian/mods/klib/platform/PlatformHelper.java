@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.block.BlockStatePalette;
 import dev.latvian.mods.klib.block.collection.BlockCollection;
 import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.bulk.BulkLevelModification;
+import dev.latvian.mods.klib.core.api.common.KLibChunkMap;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.data.DataTypeCommandInfoRegistry;
 import dev.latvian.mods.klib.data.DataTypes;
@@ -48,7 +49,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class PlatformHelper {
 	public static PlatformHelper INSTANCE = new PlatformHelper();
@@ -177,8 +177,8 @@ public class PlatformHelper {
 	}
 
 	public Stream<LevelChunk> getLevelChunks(Level level) {
-		if (level instanceof ServerLevel serverLevel) {
-			return StreamSupport.stream(serverLevel.getChunkSource().chunkMap.visibleChunkMap.values().spliterator(), false).map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
+		if (level instanceof ServerLevel serverLevel && serverLevel.getChunkSource().chunkMap instanceof KLibChunkMap chunkMap) {
+			return chunkMap.klib$getVisibleChunkMap().values().stream().map(ChunkHolder::getTickingChunk).filter(c -> c != null && !c.isEmpty());
 		} else {
 			return Stream.empty();
 		}

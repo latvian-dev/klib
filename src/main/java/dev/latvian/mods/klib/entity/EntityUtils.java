@@ -1,6 +1,8 @@
 package dev.latvian.mods.klib.entity;
 
 import com.mojang.brigadier.context.CommandContext;
+import dev.latvian.mods.klib.core.api.common.KLibClipContext;
+import dev.latvian.mods.klib.core.api.common.KLibEntityType;
 import dev.latvian.mods.klib.entity.filter.EntityTypeFilter;
 import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.platform.PlatformHelper;
@@ -248,7 +250,7 @@ public interface EntityUtils {
 	}
 
 	static <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
-		return summon(level, type, type.factory, callback);
+		return type instanceof KLibEntityType<?> t ? summon(level, type, (EntityType.EntityFactory<T>) t.klib$getFactory(), callback) : null;
 	}
 
 	static int discardAll(ServerLevel level, Predicate<Entity> filter) {
@@ -287,7 +289,7 @@ public interface EntityUtils {
 
 	@Nullable
 	static Entity getEntity(ClipContext clipContext) {
-		return clipContext.collisionContext instanceof EntityCollisionContext ctx ? ctx.getEntity() : null;
+		return clipContext instanceof KLibClipContext ctx && ctx.klib$getCollisionContext() instanceof EntityCollisionContext ectx ? ectx.getEntity() : null;
 	}
 
 	static void teleport(Entity entity, ServerLevel to, Vec3 pos) {
