@@ -10,7 +10,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.DynamicOps;
-import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.Ref;
@@ -22,6 +21,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -32,20 +32,32 @@ public record CustomRegistryArgument<T>(DynamicOps<Tag> ops, TagParser<Tag> pars
 
 	@Override
 	public Ref<T> parse(StringReader reader) throws CommandSyntaxException {
-		if (!registry.values().isEmpty()) {
-			int cursor = reader.getCursor();
+		int cursor = reader.getCursor();
 
+		exit:
+		if (!registry.values().isEmpty()) {
 			try {
-				var id = KLibCodecs.readInternPath(reader);
-				return registry.ref(id);
+				while (reader.canRead()) {
+					if (Identifier.isAllowedInIdentifier(reader.peek())) {
+						reader.skip();
+					} else {
+						break exit;
+					}
+				}
+
+				var id = reader.getString().substring(cursor, reader.getCursor());
+
+				if (!id.isEmpty() && registry.keys().contains(id)) {
+					return registry.ref(id);
+				}
 			} catch (Exception ignore) {
 			}
-
-			reader.setCursor(cursor);
 		}
 
+		reader.setCursor(cursor);
 		var tag = parser.parseAsArgument(reader);
-		return registry.codec().parse(ops, tag).getOrThrow(INVALID_DATA::create);
+		var result = registry.codec().parse(ops, tag);
+		return result.getOrThrow(INVALID_DATA::create);
 	}
 
 	@Override

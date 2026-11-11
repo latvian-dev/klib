@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.KLib;
+import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
 import dev.latvian.mods.klib.command.CustomRegistryArgument;
@@ -53,6 +54,8 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
+	private static final DataResult<Ref<?>> EMPTY_REF_ERROR = KLibCodecErrors.error("Empty ref");
+	private static final DataResult<Ref<?>> UNBOUND_VALUE_ERROR = KLibCodecErrors.error("Unbound value");
 	private static final Map<String, CustomRegistry<?, ?>> ALL0 = new Reference2ObjectLinkedOpenHashMap<>();
 	public static final Map<String, CustomRegistry<?, ?>> ALL = Collections.unmodifiableMap(ALL0);
 	private static final Map<DataType<?>, CustomRegistry<?, ?>> DATA_TYPE_TO_REGISTRY0 = new Reference2ObjectLinkedOpenHashMap<>();
@@ -225,7 +228,34 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		var unitCodec = KLibCodecs.INTERN_PATH.flatXmap(this::resolveUnitRef, Ref::unitKeyResult);
 		var typeField = this.defaultType instanceof DynamicType<?, ?> ? typeCodec.optionalFieldOf("type", this.defaultType) : typeCodec.fieldOf("type");
 		this.directCodec = directCodecFactory.apply(typeField.dispatch(this::getType, CustomRegistryType::mapCodec));
-		this.codec = KLibCodecs.or(unitCodec, this.directCodec.xmap(this::resolveValueRef, Ref::value));
+
+		var optionalDirectCodec = directCodec.flatComapMap(this::resolveValueRef, ref -> {
+			var value = ref.optionalValue();
+
+			if (value != null) {
+				return DataResult.success(value);
+			} else {
+				return Cast.to(UNBOUND_VALUE_ERROR);
+			}
+		});
+
+		var unresolvedValueCodec = KLibCodecs.INTERN_PATH.flatXmap(string -> {
+			if (string.isEmpty()) {
+				return Cast.to(EMPTY_REF_ERROR);
+			} else {
+				return DataResult.success(ref(string));
+			}
+		}, ref -> {
+			var key = ref.optionalKey();
+
+			if (key.isEmpty()) {
+				return KLibCodecErrors.EMPTY_STRING;
+			} else {
+				return DataResult.success(key);
+			}
+		});
+
+		this.codec = KLibCodecs.or(List.of(unitCodec, optionalDirectCodec, unresolvedValueCodec));
 		this.streamCodec = new ValueStreamCodec<>(this);
 		this.dataType = DataType.of(codec, Cast.to(streamCodec));
 
@@ -547,12 +577,14 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			return (CustomRegistryType<B, V>) provider.type();
 		}
 
-		return getOptionalType(ref.value());
+		return getOptionalType(ref.optionalValue());
 	}
 
 	@Nullable
-	public CustomRegistryType<B, V> getOptionalType(V value) {
-		if (value instanceof CustomRegistryOwnTypeProvider<?, ?> provider) {
+	public CustomRegistryType<B, V> getOptionalType(@Nullable V value) {
+		if (value == null) {
+			return null;
+		} else if (value instanceof CustomRegistryOwnTypeProvider<?, ?> provider) {
 			var type = provider.type();
 
 			if (type != null) {

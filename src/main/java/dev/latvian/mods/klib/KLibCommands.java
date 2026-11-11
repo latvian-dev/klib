@@ -9,6 +9,7 @@ import dev.latvian.mods.klib.io.IOUtils;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.Ref;
+import dev.latvian.mods.klib.registry.RefOfKey;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.CommandEvaluable;
@@ -161,16 +162,18 @@ public class KLibCommands {
 		return 1;
 	}
 
-	private static <T> int parse(CommandSourceStack source, CustomRegistry<?, T> registry, Ref<T> value) {
+	private static <T> int parse(CommandSourceStack source, CustomRegistry<?, T> registry, Ref<T> ref) {
 		source.sendSuccess(() -> Component.literal("==="), false);
 
 		source.sendSuccess(() -> {
 			var component = Component.literal("Value: ");
 
-			if (registry.getType(value) instanceof UnitType<?, T> unit) {
+			if (registry.getOptionalType(ref) instanceof UnitType<?, T> unit) {
 				component.append(Component.literal(unit.key()).withStyle(ChatFormatting.GOLD));
+			} else if (ref instanceof RefOfKey<?>) {
+				component.append(Component.literal("Unbound").withStyle(ChatFormatting.GREEN));
 			} else {
-				component.append(Component.literal(String.valueOf(value)).withStyle(ChatFormatting.GREEN));
+				component.append(Component.literal(String.valueOf(ref)).withStyle(ChatFormatting.GREEN));
 			}
 
 			return component;
@@ -179,14 +182,14 @@ public class KLibCommands {
 		source.sendSuccess(() -> {
 			var jsonComponent = Component.literal("SNBT: ");
 			var ops = source.registryAccess().createSerializationContext(NbtOps.INSTANCE);
-			var tag = registry.codec().encodeStart(ops, value).getOrThrow();
+			var tag = registry.codec().encodeStart(ops, ref).getOrThrow();
 			jsonComponent.append(NbtUtils.toPrettyComponent(tag));
 			return jsonComponent;
 		}, false);
 
 		try {
 			var buf = PlatformHelper.INSTANCE.createBuffer(Unpooled.buffer(), source.registryAccess());
-			registry.streamCodec().encode(Cast.to(buf), value);
+			registry.streamCodec().encode(Cast.to(buf), ref);
 			var bytes = IOUtils.toByteArray(buf, true);
 
 			source.sendSuccess(() -> {
@@ -207,11 +210,11 @@ public class KLibCommands {
 				return netComponent;
 			}, false);
 		} catch (Exception ex) {
-			KLib.LOGGER.error("Error writing bytes of " + value, ex);
+			KLib.LOGGER.error("Error writing bytes of " + ref, ex);
 			source.sendSuccess(() -> Component.literal("Network: Error " + ex), false);
 		}
 
-		if (value.value() instanceof CommandEvaluable val) {
+		if (ref.optionalValue() instanceof CommandEvaluable val) {
 			var component = val.evaluate(source);
 
 			if (component != null) {

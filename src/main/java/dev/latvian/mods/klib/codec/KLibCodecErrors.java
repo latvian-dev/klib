@@ -23,14 +23,15 @@ public interface KLibCodecErrors {
 	DataResult<?> LIST_IS_EMPTY = error("List is empty");
 	DataResult<?> MAP_IS_NULL = error("Map is null");
 	DataResult<?> MAP_IS_EMPTY = error("Map is empty");
-	DataResult<Boolean> NOT_A_BOOLEAN = KLibCodecErrors.error("Not a boolean");
-	DataResult<String> NOT_A_STRING = KLibCodecErrors.error("Not a string");
-	DataResult<Double> NOT_A_DOUBLE = KLibCodecErrors.error("Not a number");
-	DataResult<Float> NOT_A_FLOAT = KLibCodecErrors.error("Not a number");
-	DataResult<Vec3> NOT_A_VEC3 = KLibCodecErrors.error("Not a vector");
-	DataResult<BlockPos> NOT_A_BLOCK_POS = KLibCodecErrors.error("Not a block position");
-	DataResult<Ref<KNumber>> NOT_A_KNUMBER = KLibCodecErrors.error("Not a number");
-	DataResult<Color> NOT_A_COLOR = KLibCodecErrors.error("Not a color");
+	DataResult<Boolean> NOT_A_BOOLEAN = error("Not a boolean");
+	DataResult<String> NOT_A_STRING = error("Not a string");
+	DataResult<Double> NOT_A_DOUBLE = error("Not a number");
+	DataResult<Float> NOT_A_FLOAT = error("Not a number");
+	DataResult<Vec3> NOT_A_VEC3 = error("Not a vector");
+	DataResult<BlockPos> NOT_A_BLOCK_POS = error("Not a block position");
+	DataResult<Ref<KNumber>> NOT_A_KNUMBER = error("Not a number");
+	DataResult<Color> NOT_A_COLOR = error("Not a color");
+	DataResult<String> EMPTY_STRING = error("Empty string");
 
 	static <T> DataResult<T> valueIsNull() {
 		return Cast.to(VALUE_IS_NULL);
