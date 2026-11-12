@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
@@ -513,20 +514,22 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			newKeyList.add(ref.key());
 		}
 
+		var valueMap = new Reference2ObjectOpenHashMap<String, V>();
+
+		for (var ref : newValueList) {
+			var value = ref.optionalValue();
+
+			if (value != null) {
+				valueMap.put(ref.key(), value);
+			}
+		}
+
 		synchronized (this) {
 			keyList = List.copyOf(newKeyList);
 			valueList = List.copyOf(newValueList);
 
 			for (var ref : keyRefMap.values()) {
-				ref.value = null;
-			}
-
-			for (var ref : newValueList) {
-				var ref0 = keyRefMap.get(ref.key());
-
-				if (ref0 != null && ref0 != ref) {
-					ref0.value = ref.value();
-				}
+				ref.value = valueMap.get(ref.key());
 			}
 		}
 	}
