@@ -12,6 +12,7 @@ public class LineVisualRenderState implements VisualRenderState {
 	public Vec3 endPos;
 	public Color startColor;
 	public Color endColor;
+	public double squaredLength;
 
 	@Nullable
 	public static VisualRenderState extract(LineVisual visual, LineVisualRenderState state, VisualExactContext ctx) {
@@ -24,6 +25,12 @@ public class LineVisualRenderState implements VisualRenderState {
 		state.endPos = visual.end().position().value().get(ctx.numberContext());
 
 		if (state.endPos == null) {
+			return null;
+		}
+
+		state.squaredLength = state.startPos.distanceToSqr(state.endPos);
+
+		if (state.squaredLength <= 0D) {
 			return null;
 		}
 
@@ -56,9 +63,14 @@ public class LineVisualRenderState implements VisualRenderState {
 			float sizeX = (float) (endPos.x - startPos.x);
 			float sizeY = (float) (endPos.y - startPos.y);
 			float sizeZ = (float) (endPos.z - startPos.z);
+
 			var callback = pose.transform(buffer);
-			callback.acceptPos(0F, 0F, 0F).acceptCol(startColor).acceptLineWidth(ctx.lineWidth());
-			callback.acceptPos(sizeX, sizeY, sizeZ).acceptCol(endColor).acceptLineWidth(ctx.lineWidth());
+			float len = (float) Math.sqrt(squaredLength);
+			float nx = sizeX / len;
+			float ny = sizeY / len;
+			float nz = sizeZ / len;
+			callback.acceptPos(0F, 0F, 0F).acceptCol(startColor).acceptNormal(nx, ny, nz).acceptLineWidth(ctx.lineWidth());
+			callback.acceptPos(sizeX, sizeY, sizeZ).acceptCol(endColor).acceptNormal(nx, ny, nz).acceptLineWidth(ctx.lineWidth());
 		});
 
 		ctx.pop();
