@@ -21,6 +21,7 @@ import java.util.List;
 public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 	UnitType<ByteBuf, Gradient> EMPTY = UnitType.create("empty", FlatColorGradient.EMPTY);
 	UnitType<ByteBuf, Gradient> WHITE = UnitType.create("white", FlatColorGradient.WHITE);
+	UnitType<ByteBuf, Gradient> EMPTY_WHITE = UnitType.create("empty_white", FlatColorGradient.EMPTY_WHITE);
 	UnitType<ByteBuf, Gradient> BLACK = UnitType.create("black", FlatColorGradient.BLACK);
 	UnitType<ByteBuf, Gradient> RED = UnitType.create("red", FlatColorGradient.RED);
 	UnitType<ByteBuf, Gradient> GREEN = UnitType.create("green", FlatColorGradient.GREEN);
@@ -29,10 +30,10 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 	UnitType<ByteBuf, Gradient> MAGENTA = UnitType.create("magenta", FlatColorGradient.MAGENTA);
 	UnitType<ByteBuf, Gradient> CYAN = UnitType.create("cyan", FlatColorGradient.CYAN);
 
-	UnitType<ByteBuf, Gradient> FADE_OUT_WHITE = UnitType.create("fade_out_white", new LinearGradient(Color.WHITE, Color.WHITE.withAlpha(0)));
-	UnitType<ByteBuf, Gradient> FADE_OUT_BLACK = UnitType.create("fade_out_black", new LinearGradient(Color.BLACK, Color.BLACK.withAlpha(0)));
-	UnitType<ByteBuf, Gradient> FADE_IN_WHITE = UnitType.create("fade_in_white", new LinearGradient(Color.WHITE.withAlpha(0), Color.WHITE));
-	UnitType<ByteBuf, Gradient> FADE_IN_BLACK = UnitType.create("fade_in_black", new LinearGradient(Color.BLACK.withAlpha(0), Color.BLACK));
+	UnitType<ByteBuf, Gradient> FADE_OUT_WHITE = UnitType.create("fade_out_white", new LinearGradient(Color.WHITE, Color.TRANSPARENT_WHITE));
+	UnitType<ByteBuf, Gradient> FADE_OUT_BLACK = UnitType.create("fade_out_black", new LinearGradient(Color.BLACK, Color.TRANSPARENT));
+	UnitType<ByteBuf, Gradient> FADE_IN_WHITE = UnitType.create("fade_in_white", new LinearGradient(Color.TRANSPARENT_WHITE, Color.WHITE));
+	UnitType<ByteBuf, Gradient> FADE_IN_BLACK = UnitType.create("fade_in_black", new LinearGradient(Color.TRANSPARENT, Color.BLACK));
 
 	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder("gradient")
 		.defaultType(EMPTY)
@@ -54,6 +55,7 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 
 	static void builtInTypes(CustomRegistryTypeCollector<ByteBuf, Gradient> registry) {
 		registry.register(WHITE);
+		registry.register(EMPTY_WHITE);
 		registry.register(BLACK);
 		registry.register(RED);
 		registry.register(GREEN);
@@ -64,6 +66,8 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 
 		registry.register(FADE_OUT_WHITE);
 		registry.register(FADE_OUT_BLACK);
+		registry.register(FADE_IN_WHITE);
+		registry.register(FADE_IN_BLACK);
 
 		registry.register(FlatColorGradient.TYPE);
 		registry.register(LinearGradient.TYPE);

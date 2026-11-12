@@ -12,6 +12,7 @@ import java.util.List;
 public record FlatColorGradient(Color color) implements Gradient {
 	public static final FlatColorGradient EMPTY = new FlatColorGradient(Color.TRANSPARENT);
 	public static final FlatColorGradient WHITE = new FlatColorGradient(Color.WHITE);
+	public static final FlatColorGradient EMPTY_WHITE = new FlatColorGradient(Color.TRANSPARENT_WHITE);
 	public static final FlatColorGradient BLACK = new FlatColorGradient(Color.BLACK);
 	public static final FlatColorGradient RED = new FlatColorGradient(Color.RED);
 	public static final FlatColorGradient GREEN = new FlatColorGradient(Color.GREEN);
@@ -25,6 +26,8 @@ public record FlatColorGradient(Color color) implements Gradient {
 			return EMPTY;
 		} else if (color == Color.WHITE) {
 			return WHITE;
+		} else if (color == Color.TRANSPARENT_WHITE) {
+			return EMPTY_WHITE;
 		} else if (color == Color.BLACK) {
 			return BLACK;
 		} else if (color == Color.RED) {
