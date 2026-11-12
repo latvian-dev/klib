@@ -28,7 +28,7 @@ public record ShapeParticleOptions(
 	Ref<KVector> scale,
 	Ref<KNumber> alpha
 ) implements ParticleOptions {
-	private static final Ref<KNumber> DEFAULT_ALPHA = new FadeOutKNumber(KNumber.PROGRESS, KNumber.HALF, EasingType.LINEAR).ref();
+	public static final Ref<KNumber> DEFAULT_ALPHA = new FadeOutKNumber(KNumber.PROGRESS, KNumber.HALF, EasingType.LINEAR).ref();
 
 	public static final MapCodec<ShapeParticleOptions> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		KLibCodecs.TICKS.optionalFieldOf("lifespan", 40).forGetter(ShapeParticleOptions::lifespan),
@@ -51,8 +51,12 @@ public record ShapeParticleOptions(
 		ShapeParticleOptions::new
 	);
 
+	public ShapeParticleOptions(int lifespan, Ref<Shape> shape, Ref<Gradient> quadColor, Ref<Gradient> lineColor) {
+		this(lifespan, shape, quadColor, lineColor, Gradient.EMPTY, KVector.ONE, DEFAULT_ALPHA);
+	}
+
 	public ShapeParticleOptions(int lifespan, Ref<Gradient> quadColor, Ref<Gradient> lineColor) {
-		this(lifespan, CubeShape.UNIT_CUBE, quadColor, lineColor, Gradient.EMPTY, KVector.ONE, DEFAULT_ALPHA);
+		this(lifespan, CubeShape.UNIT_CUBE, quadColor, lineColor);
 	}
 
 	@Override
