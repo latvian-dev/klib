@@ -52,7 +52,7 @@ public class LineVisualRenderState implements VisualRenderState {
 	public void submit(SubmitContext ctx) {
 		ctx.push(startPos);
 
-		ctx.submit(RenderTypes.lines(), (pose, buffer) -> {
+		ctx.submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> {
 			float sizeX = (float) (endPos.x - startPos.x);
 			float sizeY = (float) (endPos.y - startPos.y);
 			float sizeZ = (float) (endPos.z - startPos.z);
