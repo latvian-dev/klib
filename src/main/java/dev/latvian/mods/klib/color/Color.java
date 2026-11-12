@@ -22,6 +22,7 @@ public record Color(int argb) {
 	public static final Color[] EMPTY_ARRAY = new Color[0];
 
 	public static final Color TRANSPARENT = new Color(0x00000000);
+	public static final Color TRANSPARENT_WHITE = new Color(0x00FFFFFF);
 	public static final Color WHITE = new Color(0xFFFFFFFF);
 	public static final Color BLACK = new Color(0xFF000000);
 	public static final Color RED = new Color(0xFFFF0000);
@@ -34,6 +35,7 @@ public record Color(int argb) {
 	public static Color of(int argb) {
 		return switch (argb) {
 			case 0x00000000 -> TRANSPARENT;
+			case 0x00FFFFFF -> TRANSPARENT_WHITE;
 			case 0xFFFFFFFF -> WHITE;
 			case 0xFF000000 -> BLACK;
 			case 0xFFFF0000 -> RED;
@@ -64,6 +66,7 @@ public record Color(int argb) {
 
 	private static final Map<String, Color> NAMED_COLORS = Map.of(
 		"transparent", TRANSPARENT,
+		"transparent_white", TRANSPARENT_WHITE,
 		"white", WHITE,
 		"black", BLACK,
 		"red", RED,

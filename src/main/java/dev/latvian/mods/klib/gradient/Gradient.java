@@ -29,6 +29,11 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 	UnitType<ByteBuf, Gradient> MAGENTA = UnitType.create("magenta", FlatColorGradient.MAGENTA);
 	UnitType<ByteBuf, Gradient> CYAN = UnitType.create("cyan", FlatColorGradient.CYAN);
 
+	UnitType<ByteBuf, Gradient> FADE_OUT_WHITE = UnitType.create("fade_out_white", new LinearGradient(Color.WHITE, Color.WHITE.withAlpha(0)));
+	UnitType<ByteBuf, Gradient> FADE_OUT_BLACK = UnitType.create("fade_out_black", new LinearGradient(Color.BLACK, Color.BLACK.withAlpha(0)));
+	UnitType<ByteBuf, Gradient> FADE_IN_WHITE = UnitType.create("fade_in_white", new LinearGradient(Color.WHITE.withAlpha(0), Color.WHITE));
+	UnitType<ByteBuf, Gradient> FADE_IN_BLACK = UnitType.create("fade_in_black", new LinearGradient(Color.BLACK.withAlpha(0), Color.BLACK));
+
 	CustomRegistry<ByteBuf, Gradient> REGISTRY = CustomRegistry.<ByteBuf, Gradient>builder("gradient")
 		.defaultType(EMPTY)
 		.customCodec(directCodec -> KLibCodecs.or(List.of(
@@ -56,9 +61,14 @@ public interface Gradient extends CustomRegistryValue<ByteBuf, Gradient> {
 		registry.register(YELLOW);
 		registry.register(MAGENTA);
 		registry.register(CYAN);
+
+		registry.register(FADE_OUT_WHITE);
+		registry.register(FADE_OUT_BLACK);
+
 		registry.register(FlatColorGradient.TYPE);
 		registry.register(LinearGradient.TYPE);
 		registry.register(CompoundGradient.TYPE);
+		registry.register(FlippedGradient.TYPE);
 	}
 
 	@Override

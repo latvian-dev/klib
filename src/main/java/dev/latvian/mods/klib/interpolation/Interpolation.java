@@ -65,6 +65,10 @@ public interface Interpolation extends CustomRegistryValue<ByteBuf, Interpolatio
 		}
 	}
 
+	static EasingType reverse(EasingType type) {
+		return type;
+	}
+
 	@Override
 	default CustomRegistry<ByteBuf, Interpolation> getRegistry() {
 		return REGISTRY;
