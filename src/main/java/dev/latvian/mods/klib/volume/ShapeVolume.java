@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.MCCodecs;
 import dev.latvian.mods.klib.codec.MCStreamCodecs;
 import dev.latvian.mods.klib.math.AAFBB;
+import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.HitBuilder;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
@@ -80,6 +81,11 @@ public record ShapeVolume(Vec3 pos, Ref<Shape> shape, AABB box) implements Volum
 	@Override
 	public Volume scale(double x, double y, double z) {
 		return new ShapeVolume(pos, shape.value().scale(x, y, z).ref());
+	}
+
+	@Override
+	public boolean isVisible(FrustumCheck frustum) {
+		return shape.value().isVisible(pos.x, pos.y, pos.z, frustum);
 	}
 
 	@Override

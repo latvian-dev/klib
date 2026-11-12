@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.math.AAIBB;
+import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.HitBuilder;
 import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.CustomRegistryTypeCollector;
@@ -52,6 +53,10 @@ public interface Volume extends VolumeLike, CustomRegistryValue<ByteBuf, Volume>
 	@Override
 	default CustomRegistry<ByteBuf, Volume> getRegistry() {
 		return REGISTRY;
+	}
+
+	default boolean isVisible(FrustumCheck frustum) {
+		return frustum.isVisible(box());
 	}
 
 	default void buildLines(LineVertexCallback callback, Vec3 cameraPos) {

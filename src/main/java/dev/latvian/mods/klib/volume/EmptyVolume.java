@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.volume;
 
 import dev.latvian.mods.klib.math.AABBs;
+import dev.latvian.mods.klib.math.FrustumCheck;
 import dev.latvian.mods.klib.math.HitBuilder;
 import dev.latvian.mods.klib.registry.UnitType;
 import dev.latvian.mods.klib.vertex.LineVertexCallback;
@@ -43,6 +44,11 @@ public enum EmptyVolume implements Volume {
 	@Override
 	public Volume scale(double x, double y, double z) {
 		return this;
+	}
+
+	@Override
+	public boolean isVisible(FrustumCheck frustum) {
+		return false;
 	}
 
 	@Override
