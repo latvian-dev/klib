@@ -17,6 +17,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -126,6 +127,25 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 
 	default double getOrNaN(KNumberContext ctx) {
 		return getOr(ctx, Double.NaN);
+	}
+
+	default float getFloatOr(KNumberContext ctx, float def) {
+		Double value = get(ctx);
+		return value == null ? def : value.floatValue();
+	}
+
+	default float getFloatOrNaN(KNumberContext ctx) {
+		return getFloatOr(ctx, Float.NaN);
+	}
+
+	default int getIntOr(KNumberContext ctx, int def) {
+		Double value = get(ctx);
+		return value == null ? def : value.intValue();
+	}
+
+	default int getIntFloorOr(KNumberContext ctx, int def) {
+		Double value = get(ctx);
+		return value == null ? def : Mth.floor(value);
 	}
 
 	default KNumber offset(KNumber other) {

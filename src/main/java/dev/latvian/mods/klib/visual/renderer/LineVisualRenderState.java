@@ -27,9 +27,19 @@ public class LineVisualRenderState implements VisualRenderState {
 			return null;
 		}
 
-		float progress = (float) visual.progress().value().getOr(ctx.numberContext(), 1D);
-		state.startColor = visual.start().color().value().get(progress);
-		state.endColor = visual.end().color().value().get(progress);
+		float progress = visual.progress().value().getFloatOrNaN(ctx.numberContext());
+
+		if (Float.isNaN(progress)) {
+			return null;
+		}
+
+		var startColor0 = visual.start().color().value().get(0F);
+		var startColor1 = visual.start().color().value().get(1F);
+		state.startColor = startColor0.lerp(progress, startColor1);
+
+		var endColor0 = visual.end().color().value().get(0F);
+		var endColor1 = visual.end().color().value().get(1F);
+		state.endColor = endColor0.lerp(progress, endColor1);
 
 		if (state.startColor.isTransparent() && state.endColor.isTransparent()) {
 			return null;

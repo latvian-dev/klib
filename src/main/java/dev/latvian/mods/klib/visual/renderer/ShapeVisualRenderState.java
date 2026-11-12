@@ -29,7 +29,12 @@ public class ShapeVisualRenderState implements VisualRenderState {
 			return null;
 		}
 
-		float progress = (float) visual.progress().value().getOr(ctx.numberContext(), 1D);
+		float progress = visual.progress().value().getFloatOrNaN(ctx.numberContext());
+
+		if (Float.isNaN(progress)) {
+			return null;
+		}
+
 		state.quadColor = visual.shape().shape().quads().value().get(progress);
 		state.lineColor = visual.shape().shape().lines().value().get(progress);
 		state.outerLineColor = visual.outerLines().value().get(progress);
