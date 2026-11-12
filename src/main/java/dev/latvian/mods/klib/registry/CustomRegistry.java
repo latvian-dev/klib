@@ -188,6 +188,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final String registryId;
 	private final CustomRegistryTypeProvider<B, V> typeProvider;
 	private final CustomRegistryType<B, V> defaultType;
+	private final List<CustomRegistryUpdateCallback<V>> onUpdate;
 
 	private final SequencedMap<String, RefOfKey<V>> keyRefMap;
 	private final SequencedMap<String, CustomRegistryType<B, V>> typeMap;
@@ -218,6 +219,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.registryId = registryId;
 		this.typeProvider = typeProvider;
 		this.defaultType = defaultType;
+		this.onUpdate = new ArrayList<>(0);
 
 		this.keyRefMap = new Reference2ObjectLinkedOpenHashMap<>();
 		this.typeMap = new Reference2ObjectLinkedOpenHashMap<>();
@@ -423,7 +425,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public synchronized void updateValues(Collection<? extends Map.Entry<String, ? extends V>> entries, RefType refType) {
+	public void updateValues(Collection<? extends Map.Entry<String, ? extends V>> entries, RefType refType) {
+		updateValues(entries, refType, false);
+	}
+
+	private synchronized void updateValues(Collection<? extends Map.Entry<String, ? extends V>> entries, RefType refType, boolean remote) {
 		Map<String, Ref<V>> valueMap;
 
 		if (refType == RefType.SERVER) {
@@ -461,6 +467,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				txValueMap.put(ref.key(), networkId);
 				networkId++;
 			}
+		}
+
+		for (var callback : onUpdate) {
+			callback.onUpdate(valueList, remote ? CustomRegistryUpdateCallback.Type.REMOTE : refType == RefType.SERVER ? CustomRegistryUpdateCallback.Type.SERVER : CustomRegistryUpdateCallback.Type.CLIENT);
 		}
 	}
 
@@ -570,7 +580,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			}
 		}
 
-		updateValues(entries, RefType.SERVER);
+		updateValues(entries, RefType.SERVER, true);
 	}
 
 	@Nullable
@@ -857,5 +867,9 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				t.setProperty(key, value);
 			}
 		}
+	}
+
+	public void addUpdateListener(CustomRegistryUpdateCallback<V> onUpdate) {
+		this.onUpdate.add(onUpdate);
 	}
 }
