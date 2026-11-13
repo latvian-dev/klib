@@ -3,20 +3,26 @@ package dev.latvian.mods.klib.particle;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.gradient.Gradient;
 import dev.latvian.mods.klib.knumber.KNumberContext;
+import dev.latvian.mods.klib.math.HitBuilder;
 import dev.latvian.mods.klib.math.Identity;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.registry.Ref;
 import dev.latvian.mods.klib.render.SubmitContext;
 import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.shape.SphereShape;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class ShapeParticle extends CustomParticle {
 	public static class State implements CustomParticleState {
+		private static final Shape HIT_SPHERE = new SphereShape(1F / 8F);
+
 		public double x;
 		public double y;
 		public double z;
@@ -27,15 +33,22 @@ public class ShapeParticle extends CustomParticle {
 		public Color quadColor;
 		public Color lineColor;
 		public Color outerLineColor;
+		public Vec3 hit;
 
 		@Override
 		public void submit(SubmitContext ctx) {
 			ctx.push(x, y, z);
 			ctx.poseStack().scale(scaleX, scaleY, scaleZ);
-			ctx.submitQuads(Identity.VEC_3, shape, quadColor);
-			ctx.submitLines(Identity.VEC_3, shape, lineColor);
-			ctx.submitOuterLines(Identity.VEC_3, shape, outerLineColor);
+			ctx.submitQuads(shape, Identity.VEC_3, quadColor);
+			ctx.submitLines(shape, Identity.VEC_3, lineColor);
+			ctx.submitOuterLines(shape, Identity.VEC_3, outerLineColor);
 			ctx.pop();
+
+			if (hit != null) {
+				ctx.push(hit);
+				ctx.submitLines(HIT_SPHERE, Identity.VEC_3, Color.BLACK);
+				ctx.pop();
+			}
 		}
 	}
 
@@ -99,9 +112,22 @@ public class ShapeParticle extends CustomParticle {
 		state.scaleY = (float) scale.y;
 		state.scaleZ = (float) scale.z;
 		state.shape = options.shape().value();
-		state.quadColor = quadColor.value().get(time / (float) lifetime).withAlpha(alpha * 0.2F);
-		state.lineColor = lineColor.value().get(time / (float) lifetime).withAlpha(alpha);
-		state.outerLineColor = outerLineColor.value().get(time / (float) lifetime).withAlpha(alpha);
+		state.quadColor = quadColor.value().get(time / (float) lifetime).mixAlpha(alpha * 0.2F);
+		state.lineColor = lineColor.value().get(time / (float) lifetime).mixAlpha(alpha);
+		state.outerLineColor = outerLineColor.value().get(time / (float) lifetime).mixAlpha(alpha);
+		state.hit = null;
+
+		var mc = Minecraft.getInstance();
+
+		if (mc.player != null && mc.getDebugOverlay().showDebugScreen()) {
+			var vecf = camera.forwardVector().mul((float) mc.player.blockInteractionRange(), new Vector3f());
+			var hit = new HitBuilder(camera.position(), camera.position().add(vecf.x, vecf.y, vecf.z));
+
+			if (state.shape.hit(new Vec3(state.x, state.y, state.z), hit)) {
+				state.hit = hit.hit;
+			}
+		}
+
 		return state;
 	}
 }

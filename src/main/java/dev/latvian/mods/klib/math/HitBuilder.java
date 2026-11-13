@@ -5,15 +5,19 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2d;
 
 public class HitBuilder {
 	public final Vec3 from;
 	public final Vec3 to;
+	public final Vec3 delta;
+	public final Vec3 normalizedDelta;
 	public final double totalDistance;
 	public Vec3 hit;
 	public double distanceSq;
 	public double relativeHitDistance;
 	public Direction direction;
+	public final Vector2d temp2d;
 
 	public HitBuilder(Vec3 from, Vec3 to) {
 		this.from = from;
@@ -22,7 +26,10 @@ public class HitBuilder {
 		this.hit = null;
 		this.relativeHitDistance = 1D;
 		this.distanceSq = totalDistance * totalDistance;
-		this.direction = null;
+		this.delta = to.subtract(from);
+		this.normalizedDelta = delta.normalize();
+		this.direction = Direction.getApproximateNearest(delta.x, delta.y, delta.z).getOpposite();
+		this.temp2d = new Vector2d();
 	}
 
 	public void offer(BlockHitResult result) {
@@ -54,6 +61,10 @@ public class HitBuilder {
 		}
 	}
 
+	public void offer(Vec3 newPos) {
+		offer(newPos, direction);
+	}
+
 	public void offer(double newRelativeHitDistance, @Nullable Direction newDirection) {
 		if (newRelativeHitDistance < relativeHitDistance) {
 			hit = from.lerp(to, newRelativeHitDistance);
@@ -61,5 +72,9 @@ public class HitBuilder {
 			relativeHitDistance = newRelativeHitDistance;
 			direction = newDirection;
 		}
+	}
+
+	public void offer(double newRelativeHitDistance) {
+		offer(newRelativeHitDistance, direction);
 	}
 }

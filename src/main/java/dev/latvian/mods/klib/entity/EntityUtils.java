@@ -206,7 +206,8 @@ public interface EntityUtils {
 	}
 
 	static Vec3 getLookTarget(Entity e, float delta) {
-		return getPosition(e, e.getViewVector(delta), delta);
+		var range = e instanceof Player player ? player.blockInteractionRange() : 4.5D;
+		return getPosition(e, e.getViewVector(delta).scale(range), delta);
 	}
 
 	static Vec3 getPosition(Entity entity, PositionType type, float delta) {

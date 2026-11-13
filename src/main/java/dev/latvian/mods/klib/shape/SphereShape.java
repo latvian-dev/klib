@@ -11,6 +11,7 @@ import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Intersectiond;
 import org.joml.Vector3fc;
 
 public record SphereShape(float size, float radius, AAFBB box) implements Shape {
@@ -41,7 +42,7 @@ public record SphereShape(float size, float radius, AAFBB box) implements Shape 
 
 	@Override
 	public void buildLines(Vector3fc offset, LineVertexCallback callback) {
-		SpherePoints.M.buildLines(size, offset, callback);
+		SpherePoints.get(radius).buildLines(size, offset, callback);
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public record SphereShape(float size, float radius, AAFBB box) implements Shape 
 
 	@Override
 	public void buildQuads(Vector3fc offset, QuadVertexCallback callback) {
-		SpherePoints.M.buildQuads(size, offset, callback);
+		SpherePoints.get(radius).buildQuads(size, offset, callback);
 	}
 
 	@Override
@@ -61,23 +62,25 @@ public record SphereShape(float size, float radius, AAFBB box) implements Shape 
 
 	@Override
 	public boolean hit(Vec3 pos, HitBuilder hit) {
-		double Lx = pos.x - hit.from.x;
-		double Ly = pos.y - hit.from.y;
-		double Lz = pos.z - hit.from.z;
-		double tca = Lx * (hit.to.x - hit.from.x) + Ly * (hit.to.y - hit.from.y) + Lz * (hit.to.z - hit.from.z);
-		double d2 = Lx * Lx + Ly * Ly + Lz * Lz - tca * tca;
-
-		if (d2 > radius * radius) {
+		if (pos.distanceToSqr(hit.from) <= radius * radius) {
 			return false;
-		}
-
-		double thc = Math.sqrt(radius * radius - d2);
-		double t0 = tca - thc;
-		double t1 = tca + thc;
-
-		if (t1 >= 0D && t1 >= t0) {
-			hit.offer(t0, null);
-			return true;
+		} else if (Intersectiond.intersectRaySphere(
+			hit.from.x,
+			hit.from.y,
+			hit.from.z,
+			hit.normalizedDelta.x,
+			hit.normalizedDelta.y,
+			hit.normalizedDelta.z,
+			pos.x,
+			pos.y,
+			pos.z,
+			radius * radius,
+			hit.temp2d
+		)) {
+			if (hit.temp2d.x <= hit.totalDistance) {
+				hit.offer(hit.from.add(hit.normalizedDelta.scale(hit.temp2d.x)));
+				return true;
+			}
 		}
 
 		return false;

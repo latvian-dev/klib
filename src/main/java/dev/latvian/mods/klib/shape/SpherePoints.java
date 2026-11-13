@@ -28,6 +28,18 @@ public class SpherePoints {
 		}
 	}
 
+	public static SpherePoints get(float radius) {
+		if (radius < 1F) {
+			return SpherePoints.L;
+		} else if (radius >= 12F) {
+			return SpherePoints.X;
+		} else if (radius >= 3F) {
+			return SpherePoints.H;
+		} else {
+			return SpherePoints.M;
+		}
+	}
+
 	public record Col(int index, float u, float x, float z) {
 	}
 

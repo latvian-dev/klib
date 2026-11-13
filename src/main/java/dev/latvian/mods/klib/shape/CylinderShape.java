@@ -77,6 +77,91 @@ public record CylinderShape(float width, float height, AAFBB box) implements Sha
 
 	@Override
 	public boolean hit(Vec3 pos, HitBuilder hit) {
-		return false;
+		if (width <= 0F || height <= 0F) {
+			return false;
+		}
+
+		var radius = width / 2D;
+		var radiusSq = radius * radius;
+
+		var minY = pos.y - height / 2D;
+		var maxY = pos.y + height / 2D;
+
+		var ox = hit.from.x - pos.x;
+		var oz = hit.from.z - pos.z;
+
+		var dx = hit.delta.x;
+		var dy = hit.delta.y;
+		var dz = hit.delta.z;
+
+		var distSq = ox * ox + oz * oz;
+
+		if (distSq <= radiusSq && hit.from.y >= minY && hit.from.y <= maxY) {
+			return false;
+		}
+
+		var nearest = Double.POSITIVE_INFINITY;
+
+		var a = dx * dx + dz * dz;
+		var b = 2D * (ox * dx + oz * dz);
+		var c = distSq - radiusSq;
+
+		if (a > 0D) {
+			var discriminant = b * b - 4D * a * c;
+
+			if (discriminant >= 0D) {
+				var sqrt = Math.sqrt(discriminant);
+
+				var t1 = (-b - sqrt) / (2D * a);
+				var t2 = (-b + sqrt) / (2D * a);
+
+				if (t1 >= 0D && t1 <= 1D) {
+					var y = hit.from.y + dy * t1;
+
+					if (y >= minY && y <= maxY) {
+						nearest = t1;
+					}
+				}
+
+				if (t2 >= 0D && t2 <= 1D && t2 < nearest) {
+					var y = hit.from.y + dy * t2;
+
+					if (y >= minY && y <= maxY) {
+						nearest = t2;
+					}
+				}
+			}
+		}
+
+		if (dy != 0D) {
+			var tBottom = (minY - hit.from.y) / dy;
+
+			if (tBottom >= 0D && tBottom <= 1D && tBottom < nearest) {
+				var x = ox + dx * tBottom;
+				var z = oz + dz * tBottom;
+
+				if (x * x + z * z <= radiusSq) {
+					nearest = tBottom;
+				}
+			}
+
+			var tTop = (maxY - hit.from.y) / dy;
+
+			if (tTop >= 0D && tTop <= 1D && tTop < nearest) {
+				var x = ox + dx * tTop;
+				var z = oz + dz * tTop;
+
+				if (x * x + z * z <= radiusSq) {
+					nearest = tTop;
+				}
+			}
+		}
+
+		if (nearest > 1D) {
+			return false;
+		}
+
+		hit.offer(hit.from.lerp(hit.to, nearest));
+		return true;
 	}
 }

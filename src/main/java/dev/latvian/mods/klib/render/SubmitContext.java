@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.math.Identity;
 import dev.latvian.mods.klib.shape.Shape;
+import dev.latvian.mods.klib.volume.Volume;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -100,21 +101,39 @@ public record SubmitContext(
 		collector.submitCustomGeometry(poseStack, renderType, renderer);
 	}
 
-	public void submitQuads(Vector3fc offset, Shape shape, Color color) {
+	public void submitQuads(Shape shape, Vector3fc offset, Color color) {
 		if (!color.isTransparent()) {
 			submit(RenderTypes.debugQuads(), (pose, buffer) -> shape.buildQuads(offset, pose.transform(buffer).withColor(color)));
 		}
 	}
 
-	public void submitLines(Vector3fc offset, Shape shape, Color color) {
+	public void submitLines(Shape shape, Vector3fc offset, Color color) {
 		if (!color.isTransparent()) {
 			submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> shape.buildLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
 		}
 	}
 
-	public void submitOuterLines(Vector3fc offset, Shape shape, Color color) {
+	public void submitOuterLines(Shape shape, Vector3fc offset, Color color) {
 		if (!color.isTransparent()) {
 			submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> shape.buildOuterLines(offset, pose.transform(buffer).withColor(color).withLineWidth(lineWidth)));
+		}
+	}
+
+	public void submitQuads(Volume volume, Color color) {
+		if (!color.isTransparent()) {
+			submit(RenderTypes.debugQuads(), (pose, buffer) -> volume.buildQuads(pose.transform(buffer).withColor(color), cameraPos));
+		}
+	}
+
+	public void submitLines(Volume volume, Color color) {
+		if (!color.isTransparent()) {
+			submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> volume.buildLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth), cameraPos));
+		}
+	}
+
+	public void submitOuterLines(Volume volume, Color color) {
+		if (!color.isTransparent()) {
+			submit(RenderTypes.linesTranslucentNoDepthWrite(), (pose, buffer) -> volume.buildOuterLines(pose.transform(buffer).withColor(color).withLineWidth(lineWidth), cameraPos));
 		}
 	}
 }
