@@ -1,7 +1,9 @@
 package dev.latvian.mods.klib.util.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.Transparency;
 import dev.latvian.mods.klib.color.Color;
+import dev.latvian.mods.klib.color.TransparencyLevel;
 import dev.latvian.mods.klib.texture.SpriteKey;
 import dev.latvian.mods.klib.texture.UV;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -107,6 +109,16 @@ public interface ImageUtils {
 			}
 
 			return dst;
+		}
+	}
+
+	static TransparencyLevel from(Transparency transparency) {
+		if (transparency.hasTranslucent()) {
+			return TransparencyLevel.TRANSLUCENT;
+		} else if (transparency.hasTransparent()) {
+			return TransparencyLevel.TRANSPARENT;
+		} else {
+			return TransparencyLevel.SOLID;
 		}
 	}
 }

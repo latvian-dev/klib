@@ -49,8 +49,8 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 	UnitType<RegistryFriendlyByteBuf, KNumber> HALF = UnitType.create("half", new FixedKNumber(0.5));
 	UnitType<RegistryFriendlyByteBuf, KNumber> TWO = UnitType.create("two", new FixedKNumber(2D));
 	UnitType<RegistryFriendlyByteBuf, KNumber> PROGRESS = simple("progress", ctx -> ctx.progress);
-	UnitType<RegistryFriendlyByteBuf, KNumber> TICK = simple("tick", ctx -> ctx.tick);
-	UnitType<RegistryFriendlyByteBuf, KNumber> MAX_TICK = simple("max_tick", ctx -> ctx.maxTick);
+	UnitType<RegistryFriendlyByteBuf, KNumber> TIME = simple("time", ctx -> ctx.time);
+	UnitType<RegistryFriendlyByteBuf, KNumber> LIFESPAN = simple("lifespan", ctx -> ctx.lifespan);
 	UnitType<RegistryFriendlyByteBuf, KNumber> GAME_TIME = simple("game_time", ctx -> ctx.gameTime);
 	UnitType<RegistryFriendlyByteBuf, KNumber> GAME_DAY = simple("game_day", ctx -> ctx.gameDay);
 	UnitType<RegistryFriendlyByteBuf, KNumber> CLOCK = simple("clock", ctx -> ctx.clock);
@@ -79,8 +79,8 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 		registry.register(HALF);
 		registry.register(TWO);
 		registry.register(PROGRESS);
-		registry.register(TICK);
-		registry.register(MAX_TICK);
+		registry.register(TIME);
+		registry.register(LIFESPAN);
 		registry.register(GAME_TIME);
 		registry.register(GAME_DAY);
 		registry.register(CLOCK);

@@ -15,8 +15,8 @@ public class KNumberContext {
 
 	public float delta;
 	public Double progress;
-	public Double tick;
-	public Double maxTick;
+	public Double time;
+	public Double lifespan;
 	public Level level;
 	public Entity entity;
 	public Double gameTime;
@@ -32,8 +32,8 @@ public class KNumberContext {
 
 		this.delta = 1F;
 		this.progress = null;
-		this.tick = null;
-		this.maxTick = null;
+		this.time = null;
+		this.lifespan = null;
 		this.level = null;
 		this.entity = null;
 		this.gameTime = null;
@@ -50,8 +50,8 @@ public class KNumberContext {
 
 		this.delta = 1F;
 		this.progress = null;
-		this.tick = null;
-		this.maxTick = null;
+		this.time = null;
+		this.lifespan = null;
 		this.originPos = null;
 		this.sourcePos = null;
 		this.targetPos = null;
@@ -63,8 +63,8 @@ public class KNumberContext {
 
 		this.delta = parent.delta;
 		this.progress = parent.progress;
-		this.tick = parent.tick;
-		this.maxTick = parent.maxTick;
+		this.time = parent.time;
+		this.lifespan = parent.lifespan;
 		this.level = parent.level;
 		this.entity = parent.entity;
 		this.gameTime = parent.gameTime;

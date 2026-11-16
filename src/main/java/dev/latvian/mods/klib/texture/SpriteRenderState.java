@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.texture;
 
 import dev.latvian.mods.klib.color.TransparencyLevel;
 import dev.latvian.mods.klib.util.client.EntityRenderTypes;
+import dev.latvian.mods.klib.util.client.ImageUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.sprite.SpriteId;
@@ -17,7 +18,7 @@ public class SpriteRenderState {
 		var s = mc.getAtlasManager().get(spriteId);
 		texture = s.atlasLocation();
 		uv = new UV(s.getU0(), s.getV0(), s.getU1(), s.getV1());
-		transparency = TransparencyLevel.from(s.contents().transparency());
+		transparency = ImageUtils.from(s.contents().transparency());
 	}
 
 	public void extract(Minecraft mc, AtlasSprite sprite) {

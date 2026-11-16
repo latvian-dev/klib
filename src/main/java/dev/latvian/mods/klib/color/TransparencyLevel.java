@@ -1,6 +1,5 @@
 package dev.latvian.mods.klib.color;
 
-import com.mojang.blaze3d.platform.Transparency;
 import com.mojang.serialization.Codec;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
@@ -17,16 +16,6 @@ public enum TransparencyLevel {
 	public static final Codec<TransparencyLevel> CODEC = KLibCodecs.anyEnum(VALUES);
 	public static final StreamCodec<ByteBuf, TransparencyLevel> STREAM_CODEC = KLibStreamCodecs.anyEnum(VALUES);
 	public static final DataType<TransparencyLevel> DATA_TYPE = DataType.of(CODEC, STREAM_CODEC);
-
-	public static TransparencyLevel from(Transparency transparency) {
-		if (transparency.hasTranslucent()) {
-			return TRANSLUCENT;
-		} else if (transparency.hasTransparent()) {
-			return TRANSPARENT;
-		} else {
-			return SOLID;
-		}
-	}
 
 	public TransparencyLevel min(TransparencyLevel other) {
 		return VALUES[Math.min(ordinal(), other.ordinal())];
