@@ -1,7 +1,5 @@
 package dev.latvian.mods.klib.vertex;
 
-import dev.latvian.mods.klib.color.Color;
-
 public interface DelegatingVertexCallback extends VertexCallback {
 	VertexCallback delegate();
 
@@ -13,16 +11,6 @@ public interface DelegatingVertexCallback extends VertexCallback {
 	@Override
 	default VertexCallback acceptTex(float u, float v) {
 		return delegate().acceptTex(u, v);
-	}
-
-	@Override
-	default VertexCallback acceptCol(float r, float g, float b, float a) {
-		return delegate().acceptCol(r, g, b, a);
-	}
-
-	@Override
-	default VertexCallback acceptCol(Color color) {
-		return delegate().acceptCol(color);
 	}
 
 	@Override

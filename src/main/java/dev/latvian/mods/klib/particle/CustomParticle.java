@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.particle;
 
+import dev.latvian.mods.klib.render.Submittable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -25,5 +26,5 @@ public abstract class CustomParticle extends Particle {
 	}
 
 	@Nullable
-	public abstract CustomParticleState extract(Frustum frustum, Camera camera, Vec3 cameraPos, float delta);
+	public abstract Submittable extract(Frustum frustum, Camera camera, Vec3 cameraPos, float delta);
 }

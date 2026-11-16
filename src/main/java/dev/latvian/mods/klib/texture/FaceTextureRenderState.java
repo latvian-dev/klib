@@ -1,16 +1,16 @@
 package dev.latvian.mods.klib.texture;
 
-import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.render.SubmitContext;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
 public class FaceTextureRenderState {
 	public SpriteRenderState sprite;
-	public Color tint;
+	public int tint;
 	public boolean cull;
 	public LightUV light = LightUV.FULL_BRIGHT;
 	public OverlayUV overlay = OverlayUV.NORMAL;
@@ -26,13 +26,13 @@ public class FaceTextureRenderState {
 		var state = new FaceTextureRenderState();
 		state.sprite = new SpriteRenderState();
 		state.sprite.extract(mc, face.sprite());
-		state.tint = face.tint();
+		state.tint = face.tint().argb();
 		state.cull = face.cull();
 		state.builderFunction = builderFunction;
 		return state;
 	}
 
 	public void submit(SubmitContext ctx) {
-		ctx.submit(sprite.getEntityRenderType(cull, tint.alpha()), (pose, buffer) -> builderFunction.accept(pose.transform(buffer).withColor(tint).withTex(sprite.uv).withLight(light).withOverlay(overlay)));
+		ctx.submit(sprite.getEntityRenderType(cull, ARGB.alpha(tint)), (pose, buffer) -> builderFunction.accept(pose.transform(buffer).withColor(tint).withTex(sprite.uv).withLight(light).withOverlay(overlay)));
 	}
 }

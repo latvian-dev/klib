@@ -2,8 +2,11 @@ package dev.latvian.mods.klib.icon.renderer;
 
 import dev.latvian.mods.klib.icon.ItemIcon;
 import dev.latvian.mods.klib.render.SubmitContext;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemIconRenderState extends IconRenderState {
@@ -14,9 +17,8 @@ public class ItemIconRenderState extends IconRenderState {
 	public ItemStackRenderState stackRenderState;
 	public int outlineColor;
 
-	@Nullable
-	public static IconRenderState extract(ItemIcon icon, ItemIconRenderState state, IconWorldExactContext ctx) {
-		if (icon.stack().isEmpty()) {
+	public static IconRenderState extract(Minecraft mc, ItemStack stack, ItemIconRenderState state, @Nullable ItemOwner itemOwner) {
+		if (stack.isEmpty()) {
 			return null;
 		}
 
@@ -24,7 +26,7 @@ public class ItemIconRenderState extends IconRenderState {
 			state.stackRenderState = new ItemStackRenderState();
 		}
 
-		ctx.mc().getItemModelResolver().updateForTopItem(state.stackRenderState, icon.stack(), ItemDisplayContext.GROUND, ctx.mc().level, ctx.itemOwner(), 0);
+		mc.getItemModelResolver().updateForTopItem(state.stackRenderState, stack, ItemDisplayContext.GROUND, mc.level, itemOwner, 0);
 
 		if (state.stackRenderState.isEmpty()) {
 			return null;
@@ -32,6 +34,11 @@ public class ItemIconRenderState extends IconRenderState {
 
 		state.outlineColor = 0;
 		return state;
+	}
+
+	@Nullable
+	public static IconRenderState extract(ItemIcon icon, ItemIconRenderState state, IconWorldExactContext ctx) {
+		return extract(ctx.mc(), icon.stack(), state, ctx.itemOwner());
 	}
 
 	@Override

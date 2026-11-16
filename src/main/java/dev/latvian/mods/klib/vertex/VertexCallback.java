@@ -1,6 +1,5 @@
 package dev.latvian.mods.klib.vertex;
 
-import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.math.KMath;
 import dev.latvian.mods.klib.texture.PackedUV;
 import dev.latvian.mods.klib.texture.UV;
@@ -16,16 +15,8 @@ public interface VertexCallback extends QuadVertexCallback, LineVertexCallback {
 		return this;
 	}
 
-	default VertexCallback acceptCol(float r, float g, float b, float a) {
-		return this;
-	}
-
-	default VertexCallback acceptCol(Color color) {
-		return acceptCol(color.redf(), color.greenf(), color.bluef(), color.alphaf());
-	}
-
 	default VertexCallback acceptCol(int argb) {
-		return acceptCol(Color.of(argb));
+		return this;
 	}
 
 	default VertexCallback acceptNormal(float nx, float ny, float nz) {
@@ -44,8 +35,8 @@ public interface VertexCallback extends QuadVertexCallback, LineVertexCallback {
 		return this;
 	}
 
-	default VertexCallback withColor(Color color) {
-		return new VertexCallbackWithColor(this, color.redf(), color.greenf(), color.bluef(), color.alphaf());
+	default VertexCallback withColor(int argb) {
+		return new VertexCallbackWithColor(this, argb);
 	}
 
 	default VertexCallback withTex(UV tex) {

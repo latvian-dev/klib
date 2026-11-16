@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib;
 
 import dev.latvian.mods.klib.command.KLibCommandArgumentTypes;
+import dev.latvian.mods.klib.environment.KLibEnvironmentAttributes;
 import dev.latvian.mods.klib.gradient.GradientImageLoader;
 import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
@@ -38,6 +39,8 @@ public class KLibMod {
 		PlatformHelper.INSTANCE = new NeoPlatformHelper(mod);
 		KLib.VERSION = mod.getModInfo().getVersion().toString();
 		KLibCommandArgumentTypes.REGISTRY.register(bus);
+		KLibParticles.init();
+		KLibEnvironmentAttributes.init();
 	}
 
 	@SubscribeEvent
@@ -68,7 +71,7 @@ public class KLibMod {
 	@SubscribeEvent
 	public static void register(RegisterEvent event) {
 		if (event.getRegistryKey() == Registries.PARTICLE_TYPE) {
-			for (var particle : KLibParticles.PARTICLES) {
+			for (var particle : KLibParticles.REGISTRY) {
 				event.register(Registries.PARTICLE_TYPE, particle.first(), particle.second());
 			}
 		}

@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib.particle;
 
 import dev.latvian.mods.klib.render.SubmitContext;
+import dev.latvian.mods.klib.render.Submittable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
@@ -37,7 +38,7 @@ public class CustomParticleGroup extends ParticleGroup<CustomParticle> {
 	}
 
 	public static class CustomParticleRenderState implements ParticleGroupRenderState {
-		private final List<CustomParticleState> particles = new LinkedList<>();
+		private final List<Submittable> particles = new LinkedList<>();
 
 		@Override
 		public void clear() {

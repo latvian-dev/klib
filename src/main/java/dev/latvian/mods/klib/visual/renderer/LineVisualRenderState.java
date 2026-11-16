@@ -1,17 +1,17 @@
 package dev.latvian.mods.klib.visual.renderer;
 
-import dev.latvian.mods.klib.color.Color;
 import dev.latvian.mods.klib.render.SubmitContext;
 import dev.latvian.mods.klib.visual.LineVisual;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class LineVisualRenderState implements VisualRenderState {
 	public Vec3 startPos;
 	public Vec3 endPos;
-	public Color startColor;
-	public Color endColor;
+	public int startColor;
+	public int endColor;
 	public double squaredLength;
 
 	@Nullable
@@ -42,13 +42,13 @@ public class LineVisualRenderState implements VisualRenderState {
 
 		var startColor0 = visual.start().color().value().get(0F);
 		var startColor1 = visual.start().color().value().get(1F);
-		state.startColor = startColor0.lerp(progress, startColor1);
+		state.startColor = startColor0.lerp(progress, startColor1).argb();
 
 		var endColor0 = visual.end().color().value().get(0F);
 		var endColor1 = visual.end().color().value().get(1F);
-		state.endColor = endColor0.lerp(progress, endColor1);
+		state.endColor = endColor0.lerp(progress, endColor1).argb();
 
-		if (state.startColor.isTransparent() && state.endColor.isTransparent()) {
+		if (ARGB.alpha(state.startColor) == 0 && ARGB.alpha(state.endColor) == 0) {
 			return null;
 		}
 

@@ -33,9 +33,9 @@ public interface KLibClientParticles {
 	@SubscribeEvent
 	static void registerParticleProviders(RegisterParticleProvidersEvent event) {
 		event.registerSpecial(KLibParticles.SHAPE.get(), ShapeParticle::new);
-		// event.registerSpecial(KLibParticles.LINE.get(), LineParticle::new);
-		// event.registerSpecial(KLibParticles.TEXT.get(), TextParticle::new);
-		// event.registerSpecial(KLibParticles.ITEM.get(), ItemParticle::new);
+		event.registerSpecial(KLibParticles.LINE.get(), LineParticle::new);
+		event.registerSpecial(KLibParticles.TEXT.get(), TextParticle::new);
+		event.registerSpecial(KLibParticles.ITEM.get(), ItemParticle::new);
 	}
 
 	@SubscribeEvent
