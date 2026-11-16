@@ -8,15 +8,12 @@ import net.minecraft.world.attribute.EnvironmentAttribute;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 public interface KLibEnvironmentAttributes {
 	List<Pair<Identifier, Supplier<EnvironmentAttribute<?>>>> REGISTRY = new LinkedList<>();
 
-	static <T> Supplier<EnvironmentAttribute<T>> register(Identifier name, UnaryOperator<EnvironmentAttribute.Builder<T>> builder) {
-		Supplier<EnvironmentAttribute<T>> supplier = Lazy.of(() -> {
-			return null;
-		});
+	static <T> Supplier<EnvironmentAttribute<T>> register(Identifier name, Supplier<EnvironmentAttribute.Builder<T>> builder) {
+		Supplier<EnvironmentAttribute<T>> supplier = Lazy.of(() -> builder.get().build());
 		REGISTRY.add(Pair.of(name, (Supplier) supplier));
 		return supplier;
 	}

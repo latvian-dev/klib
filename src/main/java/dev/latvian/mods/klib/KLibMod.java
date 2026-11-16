@@ -13,7 +13,6 @@ import dev.latvian.mods.klib.registry.CustomRegistryMetaInfo;
 import dev.latvian.mods.klib.registry.RefType;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
-import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -70,11 +69,7 @@ public class KLibMod {
 
 	@SubscribeEvent
 	public static void register(RegisterEvent event) {
-		if (event.getRegistryKey() == Registries.PARTICLE_TYPE) {
-			for (var particle : KLibParticles.REGISTRY) {
-				event.register(Registries.PARTICLE_TYPE, particle.first(), particle.second());
-			}
-		}
+		KLibBuiltInRegistries.registerAll(key -> event.getRegistryKey() == key);
 	}
 
 	@SubscribeEvent
