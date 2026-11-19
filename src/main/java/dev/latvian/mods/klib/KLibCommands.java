@@ -81,7 +81,7 @@ public class KLibCommands {
 				var keys1 = type.mapCodec().keys(ops).map(JsonElement::getAsString).distinct().toList();
 
 				var component1 = Component.empty();
-				component1.append(typesFormat.formatted(registry.getTypeIndex(Cast.to(type))));
+				component1.append(typesFormat.formatted(registry.getNetworkTypeMap().getIndex(Cast.to(type))));
 				component1.append(Component.literal(type.key()).withStyle(ChatFormatting.GOLD));
 				component1.append("(");
 
@@ -124,7 +124,7 @@ public class KLibCommands {
 			}
 
 			valuesComponent.append(Component.empty()
-				.append(valuesFormat.formatted(registry.getValueIndex(ref.key())))
+				.append(valuesFormat.formatted(registry.getNetworkValueMap().getValueIndex(ref.key())))
 				.append(Component.literal(ref.key()).withStyle(ChatFormatting.YELLOW))
 				.append(": ")
 				.append(Component.literal(String.valueOf(ref.value())).withStyle(color))

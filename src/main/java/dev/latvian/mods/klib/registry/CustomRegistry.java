@@ -14,7 +14,6 @@ import dev.latvian.mods.klib.io.IOUtils;
 import dev.latvian.mods.klib.net.KLibByteBuf;
 import dev.latvian.mods.klib.net.S2CPacketBundleBuilder;
 import dev.latvian.mods.klib.net.S2CPacketConsumer;
-import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.platform.PlatformType;
@@ -22,10 +21,6 @@ import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.MiscUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.CommandBuildContext;
@@ -78,24 +73,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public static void buildAllMeta() {
-		for (var registry : ALL.values()) {
-			registry.buildMeta();
-		}
-	}
-
 	public static void syncAll(Player player, S2CPacketConsumer callback) {
 		var registryAccess = player.registryAccess();
 		var platformType = PlatformHelper.INSTANCE.getPlatformOf(player);
-		var metaList = new ArrayList<CustomRegistryMetaInfo>();
 
-		for (var registry : CustomRegistry.ALL.values()) {
-			metaList.add(registry.writeMeta());
-		}
-
-		callback.s2c(new SyncCustomRegistryMetaPayload(metaList));
-
-		for (var registry : CustomRegistry.ALL.values()) {
+		for (var registry : ALL.values()) {
 			callback.s2c(new SyncCustomRegistryValuesPayload(registry.writeValues(registryAccess, platformType)));
 		}
 	}
@@ -104,6 +86,13 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		var packets = new S2CPacketBundleBuilder();
 		syncAll(player, packets);
 		packets.send(player.connection::send);
+	}
+
+	public static void release() {
+		for (var registry : ALL.values()) {
+			registry.networkTypeMapOverride = null;
+			registry.networkValueMapOverride = null;
+		}
 	}
 
 	private record CustomRegistryTypeCollectorImpl<B extends ByteBuf, V>(CustomRegistry<B, V> registry, List<CustomRegistryType<B, V>> list) implements CustomRegistryTypeCollector<B, V> {
@@ -193,8 +182,6 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final SequencedMap<String, RefOfKey<V>> keyRefMap;
 	private final SequencedMap<String, CustomRegistryType<B, V>> typeMap;
 	private List<CustomRegistryType<B, V>> typeList;
-	private final Int2ObjectMap<CustomRegistryType<B, V>> rxTypeMap;
-	private final Reference2IntMap<CustomRegistryType<B, V>> txTypeMap;
 
 	public final Codec<CustomRegistryType<B, V>> typeCodec;
 	private final Codec<V> directCodec;
@@ -206,8 +193,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	private final Map<String, Ref<V>> clientValueMap;
 	private List<String> keyList;
 	private List<Ref<V>> valueList;
-	private final Int2ObjectMap<Ref<V>> rxValueMap;
-	private final Reference2IntMap<String> txValueMap;
+
+	private CustomRegistryTypeNetworkMap<B, V> networkTypeMap;
+	private CustomRegistryTypeNetworkMap<B, V> networkTypeMapOverride;
+	private CustomRegistryValueNetworkMap<V> networkValueMap;
+	private CustomRegistryValueNetworkMap<V> networkValueMapOverride;
 
 	private CustomRegistry(
 		String registryId,
@@ -224,8 +214,6 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.keyRefMap = new Reference2ObjectLinkedOpenHashMap<>();
 		this.typeMap = new Reference2ObjectLinkedOpenHashMap<>();
 		this.typeList = List.of();
-		this.rxTypeMap = new Int2ObjectOpenHashMap<>();
-		this.txTypeMap = new Reference2IntOpenHashMap<>();
 
 		this.typeCodec = KLibCodecs.map(typeMap, KLibCodecs.INTERN_PATH, CustomRegistryType::key);
 		var unitCodec = KLibCodecs.INTERN_PATH.flatXmap(this::resolveUnitRef, Ref::unitKeyResult);
@@ -266,8 +254,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		this.clientValueMap = new Reference2ObjectLinkedOpenHashMap<>(0);
 		this.keyList = List.of();
 		this.valueList = List.of();
-		this.rxValueMap = new Int2ObjectOpenHashMap<>();
-		this.txValueMap = new Reference2IntOpenHashMap<>();
+
+		this.networkTypeMap = CustomRegistryTypeNetworkMap.create(0);
+		this.networkTypeMapOverride = null;
+		this.networkValueMap = CustomRegistryValueNetworkMap.create(0);
+		this.networkValueMapOverride = null;
 	}
 
 	public String registryId() {
@@ -359,8 +350,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		typeMap.clear();
-		rxTypeMap.clear();
-		txTypeMap.clear();
+		networkTypeMap = CustomRegistryTypeNetworkMap.create(0);
 		typeList = new ArrayList<>();
 
 		if (defaultType != null) {
@@ -380,27 +370,25 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 
 		typeList = List.copyOf(typeMap.values());
-		updateValues(List.of(), RefType.SERVER);
-		isBound = true;
-	}
 
-	private void buildMeta() {
-		rxTypeMap.clear();
-		txTypeMap.clear();
+		networkTypeMap = CustomRegistryTypeNetworkMap.create(typeList.size());
 
-		int index = 2;
+		int index = 1;
 
 		for (var type : typeList) {
-			rxTypeMap.put(index, type);
-			txTypeMap.put(type, index);
+			networkTypeMap.rx.put(index, type);
+			networkTypeMap.tx.put(type, index);
 			index++;
 		}
+
+		updateValues(List.of(), RefType.SERVER);
+		isBound = true;
 	}
 
 	public CustomRegistryMetaInfo writeMeta() {
 		var list = new ArrayList<CustomRegistryMetaInfo.TypeInfo>();
 
-		for (var entry : txTypeMap.reference2IntEntrySet()) {
+		for (var entry : networkTypeMap.tx.reference2IntEntrySet()) {
 			list.add(new CustomRegistryMetaInfo.TypeInfo(entry.getIntValue(), entry.getKey().key(), entry.getKey().version()));
 		}
 
@@ -408,21 +396,24 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	}
 
 	public void readMeta(@Nullable CustomRegistryMetaInfo info) {
-		rxTypeMap.clear();
-		txTypeMap.clear();
+		CustomRegistryTypeNetworkMap<B, V> override = null;
 
 		if (info != null) {
+			override = CustomRegistryTypeNetworkMap.create(info.typeInfos().size());
+
 			for (var entry : info.typeInfos()) {
 				var type = getType(entry.key());
 
 				if (type != null) {
-					rxTypeMap.put(entry.index(), type);
-					txTypeMap.put(type, entry.index());
+					override.rx.put(entry.index(), type);
+					override.tx.put(type, entry.index());
 				} else {
 					throw new NullPointerException("Missing type " + entry.key() + " on client side");
 				}
 			}
 		}
+
+		networkTypeMapOverride = override;
 	}
 
 	public void updateValues(Collection<? extends Map.Entry<String, ? extends V>> entries, RefType refType) {
@@ -454,23 +445,25 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		updateValuesAndRefs();
 
 		if (refType == RefType.SERVER) {
-			rxValueMap.clear();
-			txValueMap.clear();
-
 			var netList = new ArrayList<>(valueMap.values());
 			netList.sort(WithKey.COMPARATOR);
+			networkValueMap = CustomRegistryValueNetworkMap.create(netList.size());
 
 			int networkId = 1;
 
 			for (var ref : netList) {
-				rxValueMap.put(networkId, ref);
-				txValueMap.put(ref.key(), networkId);
+				networkValueMap.rx.put(networkId, ref);
+				networkValueMap.tx.put(ref.key(), networkId);
 				networkId++;
 			}
 		}
 
 		for (var callback : onUpdate) {
 			callback.onUpdate(valueList, remote ? CustomRegistryUpdateCallback.Type.REMOTE : refType == RefType.SERVER ? CustomRegistryUpdateCallback.Type.SERVER : CustomRegistryUpdateCallback.Type.CLIENT);
+		}
+
+		if (refType == RefType.SERVER) {
+			// send update packet?
 		}
 	}
 
@@ -480,11 +473,11 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		for (var ref : serverValueMap.values()) {
 			var key = ref.key();
 			var value = ref.value();
-			var index = getValueIndex(key);
+			var index = getNetworkValueMap().getValueIndex(key);
 
 			try {
 				var type = getType(ref);
-				var typeId = txTypeMap.getInt(type);
+				var typeId = getNetworkTypeMap().tx.getInt(type);
 				var buf = PlatformHelper.INSTANCE.createBuffer(Unpooled.buffer(), registryAccess, platformType);
 				type.streamCodec.encode(Cast.to(buf), value);
 				var bytes = IOUtils.toByteArray(buf, true);
@@ -547,13 +540,12 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 	public synchronized void readValues(CustomRegistryValueInfo info, RegistryAccess registryAccess, PlatformType platformType) {
 		var entries = new ArrayList<Map.Entry<String, V>>();
 
-		rxValueMap.clear();
-		txValueMap.clear();
+		CustomRegistryValueNetworkMap<V> override = CustomRegistryValueNetworkMap.create(info.valueInfos().size());
 
 		for (var entry : info.valueInfos()) {
 			int networkId = entry.networkId();
 			var key = entry.key().intern();
-			var type = rxTypeMap.get(entry.typeId());
+			var type = getNetworkTypeMap().rx.get(entry.typeId());
 
 			if (type != null) {
 				ByteBuf buf = null;
@@ -566,8 +558,8 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 					buf = KLibByteBuf.with(Unpooled.wrappedBuffer(entry.value()), registryAccess, platformType, ref);
 					ref.value = type.streamCodec.decode(Cast.to(buf));
 					entries.add(Map.entry(key, ref.value));
-					rxValueMap.put(networkId, ref);
-					txValueMap.put(ref.key(), networkId);
+					override.rx.put(networkId, ref);
+					override.tx.put(ref.key(), networkId);
 				} catch (Exception ex) {
 					KLib.LOGGER.error("Failed to decode custom registry entry " + registryId + ":" + key, ex);
 				} finally {
@@ -579,6 +571,8 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 				KLib.LOGGER.error("Missing custom registry type " + registryId + ":" + key);
 			}
 		}
+
+		networkValueMapOverride = override;
 
 		updateValues(entries, RefType.SERVER, true);
 	}
@@ -697,7 +691,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			VarInt.write(buf, 6);
 			KLibStreamCodecs.INTERN_STRING.encode(buf, v.key());
 		} else {
-			int index = getValueIndex(ref.optionalKey());
+			int index = getNetworkValueMap().getValueIndex(ref.optionalKey());
 
 			if (index != 0) {
 				VarInt.write(buf, 3);
@@ -756,7 +750,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			}
 		} else if (index == 3) {
 			var networkId = VarInt.read(buf);
-			var ref = rxValueMap.get(networkId);
+			var ref = getNetworkValueMap().rx.get(networkId);
 
 			if (ref == null) {
 				throw new NullPointerException("Value " + registryId + ":" + networkId + " not found");
@@ -801,19 +795,21 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		}
 	}
 
-	public int getTypeIndex(@Nullable CustomRegistryType<B, V> value) {
-		return value != null ? txTypeMap.getInt(value) : 0;
+	public CustomRegistryTypeNetworkMap<B, V> getNetworkTypeMap() {
+		var o = networkTypeMapOverride;
+		return o == null ? networkTypeMap : o;
 	}
 
-	public int getValueIndex(String key) {
-		return txValueMap.getInt(key.intern());
+	public CustomRegistryValueNetworkMap<V> getNetworkValueMap() {
+		var o = networkValueMapOverride;
+		return o == null ? networkValueMap : o;
 	}
 
 	public void encodeType(ByteBuf buf, @Nullable CustomRegistryType<B, V> value) {
 		if (value == null) {
 			VarInt.write(buf, 0);
 		} else {
-			int index = txTypeMap.getInt(value);
+			int index = getNetworkTypeMap().tx.getInt(value);
 
 			if (index == 0) {
 				throw new NullPointerException("Index of " + registryId + ":" + value.key() + " not found");
@@ -831,7 +827,7 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 			return null;
 		}
 
-		var type = rxTypeMap.get(index);
+		var type = getNetworkTypeMap().rx.get(index);
 
 		if (type == null) {
 			throw new NullPointerException("Type " + registryId + ":" + index + " not found");

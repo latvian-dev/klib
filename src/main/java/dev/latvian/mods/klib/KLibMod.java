@@ -3,6 +3,8 @@ package dev.latvian.mods.klib;
 import dev.latvian.mods.klib.command.KLibCommandArgumentTypes;
 import dev.latvian.mods.klib.environment.KLibEnvironmentAttributes;
 import dev.latvian.mods.klib.gradient.GradientImageLoader;
+import dev.latvian.mods.klib.net.SyncCustomRegistriesTask;
+import dev.latvian.mods.klib.net.SyncCustomRegistriesTaskResponsePayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryMetaPayload;
 import dev.latvian.mods.klib.net.SyncCustomRegistryValuesPayload;
 import dev.latvian.mods.klib.particle.KLibParticles;
@@ -13,6 +15,7 @@ import dev.latvian.mods.klib.registry.CustomRegistryMetaInfo;
 import dev.latvian.mods.klib.registry.RefType;
 import dev.latvian.mods.klib.util.Cast;
 import dev.latvian.mods.klib.util.ID;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -23,7 +26,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -58,11 +61,6 @@ public class KLibMod {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void serverStarting(ServerStartingEvent event) {
-		CustomRegistry.buildAllMeta();
-	}
-
-	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void syncDataPacks(OnDatapackSyncEvent event) {
 		event.getRelevantPlayers().forEach(CustomRegistry::syncAll);
 	}
@@ -75,7 +73,8 @@ public class KLibMod {
 	@SubscribeEvent
 	public static void registerPackets(RegisterPayloadHandlersEvent event) {
 		var registrar = event.registrar("1");
-		registrar.playToClient(SyncCustomRegistryMetaPayload.TYPE, SyncCustomRegistryMetaPayload.STREAM_CODEC, KLibMod::handleServerRegistryMeta);
+		registrar.configurationToClient(SyncCustomRegistryMetaPayload.TYPE, SyncCustomRegistryMetaPayload.STREAM_CODEC, KLibMod::handleServerRegistryMeta);
+		registrar.configurationToServer(SyncCustomRegistriesTaskResponsePayload.TYPE, SyncCustomRegistriesTaskResponsePayload.STREAM_CODEC, KLibMod::handleClientSyncCustomRegistriesTaskResponse);
 		registrar.playToClient(SyncCustomRegistryValuesPayload.TYPE, SyncCustomRegistryValuesPayload.STREAM_CODEC, KLibMod::handleServerRegistryValues);
 	}
 
@@ -86,6 +85,8 @@ public class KLibMod {
 			var info = map.get(registry.registryId());
 			registry.readMeta(Cast.to(info));
 		}
+
+		context.reply(SyncCustomRegistriesTaskResponsePayload.INSTANCE);
 	}
 
 	private static void handleServerRegistryValues(SyncCustomRegistryValuesPayload payload, IPayloadContext context) {
@@ -96,5 +97,15 @@ public class KLibMod {
 			var platformType = PlatformHelper.INSTANCE.getPlatformOf(context.player());
 			registry.readValues(Cast.to(payload.info()), registryAccess, platformType);
 		}
+	}
+
+	private static void handleClientSyncCustomRegistriesTaskResponse(SyncCustomRegistriesTaskResponsePayload payload, IPayloadContext context) {
+		KLib.LOGGER.info("Registries synced to " + ((ServerConfigurationPacketListenerImpl) context.listener()).getOwner().name());
+		context.finishCurrentTask(SyncCustomRegistriesTask.TYPE);
+	}
+
+	@SubscribeEvent
+	public static void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
+		event.register(new SyncCustomRegistriesTask());
 	}
 }

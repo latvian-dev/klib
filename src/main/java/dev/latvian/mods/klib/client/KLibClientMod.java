@@ -13,6 +13,7 @@ import dev.latvian.mods.klib.icon.renderer.SimpleColorIconRenderState;
 import dev.latvian.mods.klib.icon.renderer.TextureIconRenderState;
 import dev.latvian.mods.klib.platform.NeoClientPlatformHelper;
 import dev.latvian.mods.klib.platform.PlatformHelper;
+import dev.latvian.mods.klib.registry.CustomRegistry;
 import dev.latvian.mods.klib.registry.RefType;
 import dev.latvian.mods.klib.util.ID;
 import dev.latvian.mods.klib.visual.LineVisual;
@@ -31,6 +32,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 @Mod(value = KLib.ID, dist = Dist.CLIENT)
@@ -69,5 +71,10 @@ public class KLibClientMod {
 		event.register(ShapeVisual.TYPE, ShapeVisualRenderState::new, ShapeVisualRenderState::extract);
 		event.register(TexturedCubeVisual.TYPE, TexturedCubeVisualRenderState::new, TexturedCubeVisualRenderState::extract);
 		event.register(LineVisual.TYPE, LineVisualRenderState::new, LineVisualRenderState::extract);
+	}
+
+	@SubscribeEvent
+	public static void disconnectedEvent(ClientPlayerNetworkEvent.LoggingOut event) {
+		CustomRegistry.release();
 	}
 }
