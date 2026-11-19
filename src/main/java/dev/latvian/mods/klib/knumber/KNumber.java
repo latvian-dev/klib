@@ -36,7 +36,8 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 				}
 			}),
 			PREFIX_LIST.codec(),
-			directCodec
+			directCodec,
+			Codec.BOOL.flatXmap(b -> DataResult.success(b ? FixedKNumber.ONE : FixedKNumber.ZERO), _ -> KLibCodecErrors.NOT_A_BOOLEAN)
 		)))
 		.build();
 
@@ -44,10 +45,10 @@ public interface KNumber extends CustomRegistryValue<RegistryFriendlyByteBuf, KN
 		return UnitType.create(id, type -> new SimpleKNumber(type, factory));
 	}
 
-	UnitType<RegistryFriendlyByteBuf, KNumber> ZERO = UnitType.create("zero", new FixedKNumber(0D));
-	UnitType<RegistryFriendlyByteBuf, KNumber> ONE = UnitType.create("one", new FixedKNumber(1D));
-	UnitType<RegistryFriendlyByteBuf, KNumber> HALF = UnitType.create("half", new FixedKNumber(0.5));
-	UnitType<RegistryFriendlyByteBuf, KNumber> TWO = UnitType.create("two", new FixedKNumber(2D));
+	UnitType<RegistryFriendlyByteBuf, KNumber> ZERO = UnitType.create("zero", FixedKNumber.ZERO);
+	UnitType<RegistryFriendlyByteBuf, KNumber> ONE = UnitType.create("one", FixedKNumber.ONE);
+	UnitType<RegistryFriendlyByteBuf, KNumber> HALF = UnitType.create("half", FixedKNumber.HALF);
+	UnitType<RegistryFriendlyByteBuf, KNumber> TWO = UnitType.create("two", FixedKNumber.TWO);
 	UnitType<RegistryFriendlyByteBuf, KNumber> PROGRESS = simple("progress", ctx -> ctx.progress);
 	UnitType<RegistryFriendlyByteBuf, KNumber> TIME = simple("time", ctx -> ctx.time);
 	UnitType<RegistryFriendlyByteBuf, KNumber> LIFESPAN = simple("lifespan", ctx -> ctx.lifespan);

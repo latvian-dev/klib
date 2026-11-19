@@ -8,6 +8,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import org.jetbrains.annotations.NotNull;
 
 public record FixedKNumber(Double number) implements KNumber, PrefersDirectCodec {
+	public static final FixedKNumber ZERO = new FixedKNumber(0D);
+	public static final FixedKNumber ONE = new FixedKNumber(1D);
+	public static final FixedKNumber HALF = new FixedKNumber(0.5);
+	public static final FixedKNumber TWO = new FixedKNumber(2D);
+
 	public static final DynamicType<RegistryFriendlyByteBuf, KNumber> TYPE = DynamicType.create(
 		"fixed",
 		"number",
