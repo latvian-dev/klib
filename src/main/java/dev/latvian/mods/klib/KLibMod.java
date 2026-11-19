@@ -106,6 +106,8 @@ public class KLibMod {
 
 	@SubscribeEvent
 	public static void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
-		event.register(new SyncCustomRegistriesTask());
+		for (var task : KLibBuiltInRegistries.CONFIGURATION_TASKS) {
+			event.register(task.get());
+		}
 	}
 }

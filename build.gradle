@@ -79,7 +79,7 @@ repositories {
 }
 
 dependencies {
-	implementation('com.github.luben:zstd-jni:1.5.7-7')
+	implementation("com.github.luben:zstd-jni:$zstd_version")
 }
 
 compileJava {
@@ -118,6 +118,7 @@ processResources {
 	println("[Process Resources] Replacing properties in resources: " + toReplace)
 
 	inputs.properties toReplace
+
 	filesMatching("META-INF/neoforge.mods.toml") {
 		expand toReplace
 	}

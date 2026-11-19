@@ -28,8 +28,6 @@ public class KLib {
 	public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 	public static String VERSION = "dev";
 
-	public static boolean writeSafeItemStacks = false;
-
 	public static void setup() {
 		var platform = PlatformHelper.INSTANCE;
 		CustomRegistry.registerAll(platform::collectCustomRegistries);

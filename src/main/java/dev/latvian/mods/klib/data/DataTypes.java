@@ -9,7 +9,6 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
-import dev.latvian.mods.klib.KLib;
 import dev.latvian.mods.klib.block.PositionedBlock;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
@@ -68,17 +67,13 @@ import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.players.NameAndId;
@@ -91,7 +86,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -134,31 +128,7 @@ public interface DataTypes {
 	DataType<SoundSource> SOUND_SOURCE = DataType.of(SoundSource.values());
 	DataType<Pose> POSE = DataType.of(Pose.values());
 
-	DataType<ItemStack> ITEM_STACK = DataType.of(ItemStack.OPTIONAL_CODEC, new StreamCodec<>() {
-		@Override
-		public ItemStack decode(RegistryFriendlyByteBuf buf) {
-			if (KLib.writeSafeItemStacks) {
-				var id = buf.readUtf();
-				var item = id.isEmpty() ? null : BuiltInRegistries.ITEM.get(Identifier.parse(id)).orElse(null);
-				return item == null || item.value() == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, 1, DataComponentPatch.EMPTY);
-			} else {
-				return ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
-			}
-		}
-
-		@Override
-		public void encode(RegistryFriendlyByteBuf buf, ItemStack value) {
-			if (KLib.writeSafeItemStacks) {
-				if (value.isEmpty()) {
-					buf.writeUtf("");
-				} else {
-					buf.writeUtf(value.typeHolder().unwrapKey().map(ResourceKey::identifier).map(Identifier::toString).orElse(""));
-				}
-			} else {
-				ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, value);
-			}
-		}
-	});
+	DataType<ItemStack> ITEM_STACK = DataType.of(ItemStack.OPTIONAL_CODEC, ItemStack.OPTIONAL_STREAM_CODEC);
 
 	DataType<List<ItemStack>> ITEM_STACK_LIST = ITEM_STACK.listOf();
 
