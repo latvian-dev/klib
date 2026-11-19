@@ -13,9 +13,10 @@ public record InDimensionEntityFilter(ResourceKey<Level> dimension) implements E
 		"in_dimension",
 		"dimension",
 		MCCodecs.DIMENSION,
-		MCStreamCodecs.DIMENSION,
+		MCStreamCodecs.EXPLICIT_DIMENSION,
 		InDimensionEntityFilter::new,
-		InDimensionEntityFilter::dimension
+		InDimensionEntityFilter::dimension,
+		Level.OVERWORLD
 	);
 
 	@Override

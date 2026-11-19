@@ -19,7 +19,7 @@ public final class UnitType<B extends ByteBuf, V> extends CustomRegistryType<B, 
 	private final V instance;
 	private final DataResult<String> unitKeyResult;
 
-	UnitType(String key, Function<UnitType<B, V>, V> factory) {
+	private UnitType(String key, Function<UnitType<B, V>, V> factory) {
 		super(key);
 		this.instance = factory.apply(this);
 		this.mapCodec = MapCodec.unit(instance);

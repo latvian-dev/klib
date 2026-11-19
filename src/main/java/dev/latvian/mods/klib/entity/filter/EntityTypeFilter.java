@@ -7,6 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public record EntityTypeFilter(EntityType<?> entityType) implements EntityFilter {
 	public static DynamicType<RegistryFriendlyByteBuf, EntityFilter> TYPE = DynamicType.create(
@@ -15,7 +16,8 @@ public record EntityTypeFilter(EntityType<?> entityType) implements EntityFilter
 		BuiltInRegistries.ENTITY_TYPE.byNameCodec(),
 		ByteBufCodecs.registry(Registries.ENTITY_TYPE),
 		EntityTypeFilter::new,
-		EntityTypeFilter::entityType
+		EntityTypeFilter::entityType,
+		EntityTypes.PLAYER
 	);
 
 	@Override

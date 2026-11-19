@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.registry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.latvian.mods.klib.codec.OptionalDefaultStreamCodec;
 import dev.latvian.mods.klib.util.Cast;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -19,7 +20,15 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 	}
 
 	public static <B extends ByteBuf, V, D extends V, T> DynamicType<B, V> create(String id, String fieldName, Codec<T> codec, StreamCodec<? super B, T> streamCodec, Function<T, D> factory, Function<D, T> getter) {
-		return create(id, RecordCodecBuilder.mapCodec(instance -> instance.group(codec.fieldOf(fieldName).forGetter(getter)).apply(instance, factory)), streamCodec.map(factory, getter));
+		MapCodec<D> dCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(codec.fieldOf(fieldName).forGetter(getter)).apply(instance, factory));
+		StreamCodec<? super B, D> dStreamCodec = streamCodec.map(factory, getter);
+		return create(id, dCodec, dStreamCodec);
+	}
+
+	public static <B extends ByteBuf, V, D extends V, T> DynamicType<B, V> create(String id, String fieldName, Codec<T> codec, StreamCodec<? super B, T> streamCodec, Function<T, D> factory, Function<D, T> getter, T defaultValue) {
+		MapCodec<D> dCodec = RecordCodecBuilder.mapCodec(instance -> instance.group(codec.optionalFieldOf(fieldName, defaultValue).forGetter(getter)).apply(instance, factory));
+		StreamCodec<? super B, D> dStreamCodec = new OptionalDefaultStreamCodec<>(streamCodec, defaultValue).map(factory, getter);
+		return create(id, dCodec, dStreamCodec);
 	}
 
 	private static final AtomicInteger PROPERTY_ID_FACTORY = new AtomicInteger(0);
@@ -30,7 +39,7 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 
 	private Int2ObjectMap<Object> properties;
 
-	DynamicType(String key, MapCodec<V> mapCodec, StreamCodec<? super B, V> streamCodec) {
+	private DynamicType(String key, MapCodec<V> mapCodec, StreamCodec<? super B, V> streamCodec) {
 		super(key);
 		this.mapCodec = mapCodec;
 		this.streamCodec = streamCodec;

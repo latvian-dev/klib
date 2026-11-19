@@ -44,6 +44,7 @@ public interface EntityNumber extends ToDoubleFunction<Entity>, CustomRegistryVa
 		return UnitType.create(name, type -> new SimpleEntityNumber(type, function));
 	}
 
+	UnitType<RegistryFriendlyByteBuf, EntityNumber> NETWORK_ID = simple("network_id", Entity::getId);
 	UnitType<RegistryFriendlyByteBuf, EntityNumber> X = simple("x", Entity::getX);
 	UnitType<RegistryFriendlyByteBuf, EntityNumber> Y = simple("y", Entity::getY);
 	UnitType<RegistryFriendlyByteBuf, EntityNumber> Z = simple("z", Entity::getZ);

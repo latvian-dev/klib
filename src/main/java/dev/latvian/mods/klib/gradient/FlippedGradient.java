@@ -42,4 +42,13 @@ public record FlippedGradient(Ref<Gradient> gradient) implements Gradient {
 
 		return list;
 	}
+
+	@Override
+	public Ref<Gradient> optimize(Ref<Gradient> self) {
+		if (gradient.optionalValue() instanceof FlippedGradient g) {
+			return g.gradient;
+		} else {
+			return self;
+		}
+	}
 }
