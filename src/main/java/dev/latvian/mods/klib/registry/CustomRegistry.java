@@ -857,10 +857,10 @@ public class CustomRegistry<B extends ByteBuf, V> implements Iterable<Ref<V>> {
 		return "CustomRegistry[" + registryId + "]";
 	}
 
-	public void setAllProperties(int key, @Nullable Object value) {
+	public void setAllDynamicTypeProperties(int key, @Nullable Object value) {
 		for (var type : typeList) {
 			if (type instanceof DynamicType<?, ?> t) {
-				t.setProperty(key, value);
+				t.setDynamicTypeProperty(key, value);
 			}
 		}
 	}

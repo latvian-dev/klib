@@ -37,6 +37,17 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 		return PROPERTY_ID_FACTORY.incrementAndGet();
 	}
 
+	@Nullable
+	public static <P> P getDynamicTypeProperty(@Nullable Object value, int property, Class<P> type) {
+		if (value instanceof DynamicTypePropertyProvider provider) {
+			return provider.getDynamicTypeProperty(property, type);
+		} else if (value instanceof Ref<?> ref && ref.value() instanceof DynamicTypePropertyProvider provider) {
+			return provider.getDynamicTypeProperty(property, type);
+		} else {
+			return null;
+		}
+	}
+
 	private Int2ObjectMap<Object> properties;
 
 	private DynamicType(String key, MapCodec<V> mapCodec, StreamCodec<? super B, V> streamCodec) {
@@ -59,7 +70,7 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 		return this;
 	}
 
-	public void setProperty(int key, @Nullable Object value) {
+	public void setDynamicTypeProperty(int key, @Nullable Object value) {
 		if (value == null) {
 			if (properties != null) {
 				properties.remove(key);
@@ -77,8 +88,15 @@ public final class DynamicType<B extends ByteBuf, V> extends CustomRegistryType<
 		}
 	}
 
+	@Override
 	@Nullable
-	public Object getProperty(int key) {
-		return properties == null ? null : properties.get(key);
+	public <P> P getDynamicTypeProperty(int property, Class<P> type) {
+		var value = properties == null ? null : properties.get(property);
+
+		if (type.isInstance(value)) {
+			return (P) value;
+		}
+
+		return null;
 	}
 }

@@ -8,6 +8,6 @@ import net.neoforged.fml.event.IModBusEvent;
 
 public class VisualRenderingRegistryEvent extends Event implements IModBusEvent {
 	public <V extends Visual, S extends VisualRenderState> void register(DynamicType<RegistryFriendlyByteBuf, Visual> type, VisualRenderer.StateFactory<S> stateFactory, VisualRenderer.StateExtractor<V, S> stateExtractor) {
-		type.setProperty(Visual.PROPERTY_RENDERER, new VisualRenderer<>(stateFactory, stateExtractor));
+		type.setDynamicTypeProperty(Visual.PROPERTY_RENDERER, new VisualRenderer<>(stateFactory, stateExtractor));
 	}
 }

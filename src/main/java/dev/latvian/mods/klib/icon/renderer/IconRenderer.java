@@ -28,7 +28,7 @@ public record IconRenderer<I extends Icon, S extends IconRenderState>(StateFacto
 	public static IconRenderState extract(@Nullable Icon icon, IconWorldExactContext ctx) {
 		if (icon == null || icon == EmptyIcon.INSTANCE || ctx.alpha() <= 0) {
 			return null;
-		} else if (icon.type() instanceof DynamicType<?, ?> t && t.getProperty(Icon.PROPERTY_RENDERER) instanceof IconRenderer<?, ?> renderer) {
+		} else if (icon.type() instanceof DynamicType<?, ?> t && t.getDynamicTypeProperty(Icon.PROPERTY_RENDERER, IconRenderer.class) instanceof IconRenderer<?, ?> renderer) {
 			return renderer.extractState(Cast.to(icon), ctx);
 		} else {
 			return null;
@@ -45,7 +45,7 @@ public record IconRenderer<I extends Icon, S extends IconRenderState>(StateFacto
 			return;
 		}
 
-		if (icon.value().type() instanceof DynamicType<?, ?> t && t.getProperty(Icon.PROPERTY_RENDERER) instanceof IconRenderer<?, ?> renderer) {
+		if (icon.value().type() instanceof DynamicType<?, ?> t && t.getDynamicTypeProperty(Icon.PROPERTY_RENDERER, IconRenderer.class) instanceof IconRenderer<?, ?> renderer) {
 			renderer.guiExtractor.draw(Cast.to(icon.value()), ctx);
 		}
 	}

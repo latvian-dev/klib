@@ -23,7 +23,7 @@ public record VisualRenderer<V extends Visual, S extends VisualRenderState>(Stat
 	public static VisualRenderState extract(@Nullable Visual visual, VisualExactContext ctx) {
 		if (visual == null || visual == EmptyVisual.INSTANCE) {
 			return null;
-		} else if (visual.type() instanceof DynamicType<?, ?> t && t.getProperty(Visual.PROPERTY_RENDERER) instanceof VisualRenderer<?, ?> renderer) {
+		} else if (visual.type() instanceof DynamicType<?, ?> t && t.getDynamicTypeProperty(Visual.PROPERTY_RENDERER, VisualRenderer.class) instanceof VisualRenderer<?, ?> renderer) {
 			return renderer.extractState(Cast.to(visual), ctx);
 		} else {
 			return null;
