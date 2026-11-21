@@ -2,12 +2,18 @@ package dev.latvian.mods.klib.platform;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.client.ClientCommandSourceStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -76,6 +82,21 @@ public class NeoClientPlatformHelper extends NeoPlatformHelper {
 			return p == null ? null : p.connection.serverBrand();
 		} else {
 			return super.getServerBrand(environment);
+		}
+	}
+
+	@Override
+	public CommandSourceStack createGenericCommandSourceStack(Level level) {
+		if (level.isClientSide()) {
+			return new ClientCommandSourceStack(
+				CommandSource.NULL,
+				Vec3.atLowerCornerOf(level.getRespawnData().pos()),
+				Vec2.ZERO,
+				LevelBasedPermissionSet.OWNER,
+				null
+			);
+		} else {
+			return super.createGenericCommandSourceStack(level);
 		}
 	}
 }

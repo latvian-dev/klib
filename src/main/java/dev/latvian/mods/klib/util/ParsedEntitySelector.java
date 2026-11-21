@@ -8,17 +8,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.latvian.mods.klib.codec.KLibCodecErrors;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
+import dev.latvian.mods.klib.entity.EntityUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.Utf8String;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
-public final class ParsedEntitySelector {
+public final class ParsedEntitySelector implements Predicate<Entity> {
 	private static final DataResult<EntitySelector> ERROR_ONLY_ONE_PLAYER = KLibCodecErrors.error("Only one player is allowed, but the provided selector allows more than one");
 	private static final DataResult<EntitySelector> ERROR_ONLY_ONE_ENTITY = KLibCodecErrors.error("Only one entity is allowed, but the provided selector allows more than one");
 	private static final DataResult<EntitySelector> ERROR_ONlY_PLAYERS = KLibCodecErrors.error("Only players are allowed, but the provided selector includes entities");
@@ -134,5 +137,10 @@ public final class ParsedEntitySelector {
 	@Override
 	public int hashCode() {
 		return Objects.hash(input, single, playersOnly);
+	}
+
+	@Override
+	public boolean test(Entity entity) {
+		return EntityUtils.isSelected(getSelector(), entity);
 	}
 }

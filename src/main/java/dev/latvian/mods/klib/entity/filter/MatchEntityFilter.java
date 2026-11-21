@@ -23,8 +23,7 @@ public record MatchEntityFilter(ParsedEntitySelector selector) implements Entity
 
 	@Override
 	public boolean test(Entity entity) {
-		var s = selector.getSelector();
-		return s != null && s.test(entity);
+		return selector.test(entity);
 	}
 
 	@Override

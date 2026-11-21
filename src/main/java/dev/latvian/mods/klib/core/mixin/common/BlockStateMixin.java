@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.core.mixin.common;
 
+import dev.latvian.mods.klib.block.KLibBlockStateProperties;
 import dev.latvian.mods.klib.core.api.common.KLibBlockState;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,38 +9,14 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(BlockState.class)
 public abstract class BlockStateMixin implements KLibBlockState {
 	@Unique
-	private Boolean klib$visible = null;
-
-	@Unique
-	private Boolean klib$partial = null;
-
-	@Unique
-	private Float klib$density = null;
+	private KLibBlockStateProperties klib$getBlockStateProperties = null;
 
 	@Override
-	public boolean klib$isVisible() {
-		if (klib$visible == null) {
-			klib$visible = KLibBlockState.super.klib$isVisible();
+	public KLibBlockStateProperties klib$getBlockStateProperties() {
+		if (klib$getBlockStateProperties == null) {
+			klib$getBlockStateProperties = KLibBlockStateProperties.MAP.computeIfAbsent((BlockState) (Object) this, KLibBlockStateProperties::compute);
 		}
 
-		return klib$visible;
-	}
-
-	@Override
-	public boolean klib$isPartial() {
-		if (klib$partial == null) {
-			klib$partial = KLibBlockState.super.klib$isPartial();
-		}
-
-		return klib$partial;
-	}
-
-	@Override
-	public float klib$getDensity() {
-		if (klib$density == null) {
-			klib$density = KLibBlockState.super.klib$getDensity();
-		}
-
-		return klib$density;
+		return klib$getBlockStateProperties;
 	}
 }

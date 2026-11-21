@@ -28,19 +28,24 @@ import dev.latvian.mods.klib.util.Side;
 import dev.latvian.mods.klib.visual.Visual;
 import dev.latvian.mods.klib.volume.Volume;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -188,6 +193,18 @@ public class PlatformHelper {
 	@Nullable
 	public String getServerBrand(ReentrantBlockableEventLoop<?> environment) {
 		return null;
+	}
+
+	public CommandSourceStack createGenericCommandSourceStack(Level level) {
+		return new CommandSourceStack(
+			CommandSource.NULL,
+			Vec3.atLowerCornerOf(level.getRespawnData().pos()),
+			Vec2.ZERO,
+			(ServerLevel) level,
+			LevelBasedPermissionSet.OWNER,
+			Component.literal("Rcon"),
+			level.getServer()
+		);
 	}
 
 	public void collectCustomRegistries(CustomRegistryCollector registry) {

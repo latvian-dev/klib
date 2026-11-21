@@ -2,10 +2,12 @@ package dev.latvian.mods.klib.entity;
 
 import com.mojang.brigadier.context.CommandContext;
 import dev.latvian.mods.klib.core.api.common.KLibClipContext;
+import dev.latvian.mods.klib.core.api.common.KLibEntitySelector;
 import dev.latvian.mods.klib.core.api.common.KLibEntityType;
 import dev.latvian.mods.klib.entity.filter.EntityTypeFilter;
 import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.platform.PlatformHelper;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.BlockPos;
@@ -50,19 +52,63 @@ public interface EntityUtils {
 		return list;
 	}
 
-	static List<Entity> getSelectedEntities(Level level, EntitySelector selector) {
-		var list = new ArrayList<Entity>(1);
+	static List<? extends Entity> getSelectedEntities(Level level, EntitySelector selector) {
+		if (selector instanceof KLibEntitySelector k) {
+			var list = new ArrayList<Entity>(1);
 
-		for (var entity : getAllEntities(level)) {
-			if (entity.isAlive() && selector.test(entity)) {
-				list.add(entity);
+			for (var entity : getAllEntities(level)) {
+				if (k.test(entity)) {
+					list.add(entity);
+				}
+			}
+
+			return list;
+		} else {
+			try {
+				return selector.findEntities(PlatformHelper.INSTANCE.createGenericCommandSourceStack(level));
+			} catch (Exception ex) {
+				return List.of();
 			}
 		}
-
-		return list;
 	}
 
-	static List<Entity> getSelectedEntities(CommandContext<CommandSourceStack> ctx, String name) {
+	static Predicate<Entity> createPredicate(Level level, EntitySelector selector) {
+		if (selector instanceof KLibEntitySelector k) {
+			return k;
+		} else {
+			try {
+				var entities = selector.findEntities(PlatformHelper.INSTANCE.createGenericCommandSourceStack(level));
+				var set = new ReferenceOpenHashSet<>(entities);
+				return set::contains;
+			} catch (Exception ex) {
+				return _ -> false;
+			}
+		}
+	}
+
+	static boolean isSelected(@Nullable EntitySelector selector, Entity entity) {
+		if (selector instanceof KLibEntitySelector k) {
+			return k.test(entity);
+		} else if (selector != null) {
+			try {
+				var entities = selector.findEntities(PlatformHelper.INSTANCE.createGenericCommandSourceStack(entity.level()));
+
+				for (var e : entities) {
+					if (e == entity) {
+						return true;
+					}
+				}
+
+				return false;
+			} catch (Exception ex) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	static List<? extends Entity> getSelectedEntities(CommandContext<CommandSourceStack> ctx, String name) {
 		return getSelectedEntities(PlatformHelper.INSTANCE.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
 	}
 
@@ -78,8 +124,8 @@ public interface EntityUtils {
 		return list;
 	}
 
-	static List<Player> getSelectedPlayers(CommandContext<CommandSourceStack> ctx, String name) {
-		return getSelectedPlayers(PlatformHelper.INSTANCE.getLevel(ctx.getSource()), ctx.getArgument(name, EntitySelector.class));
+	static List<Player> getSelectedPlayers(Level level, EntitySelector selector) {
+		return getSelectedPlayers(level, createPredicate(level, selector));
 	}
 
 	static List<LivingEntity> getDamageableEntities(Level level, @Nullable Entity ignoredEntity, AABB box) {

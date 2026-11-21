@@ -14,10 +14,8 @@
 		"EntityTypeMixin",
 		"FoodDataMixin",
 		"LevelMixin",
-		"LivingEntityMixin",
 		"MinecraftServerMixin",
 		"PlayerMixin",
-		"StyleMixin",
 		"UseOnContextMixin"
 	],
 	"client": [

@@ -2,14 +2,11 @@ package dev.latvian.mods.klib.block;
 
 import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.block.filter.SimpleBlockPredicate;
-import dev.latvian.mods.klib.core.api.common.KLibBlockState;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.Cast;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2FloatMap;
-import it.unimi.dsi.fastutil.objects.Reference2FloatOpenHashMap;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,33 +16,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.CarpetBlock;
-import net.minecraft.world.level.block.CrossCollisionBlock;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.EnchantingTableBlock;
-import net.minecraft.world.level.block.FenceGateBlock;
-import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.FlowerPotBlock;
-import net.minecraft.world.level.block.HalfTransparentBlock;
-import net.minecraft.world.level.block.HopperBlock;
-import net.minecraft.world.level.block.LadderBlock;
-import net.minecraft.world.level.block.LightBlock;
-import net.minecraft.world.level.block.PressurePlateBlock;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.SnowLayerBlock;
-import net.minecraft.world.level.block.VegetationBlock;
-import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -54,73 +29,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public interface BlockUtils {
-	Reference2FloatMap<BlockState> DENSITY = new Reference2FloatOpenHashMap<>();
-
-	static float getDensity(BlockState state) {
-		if (state instanceof KLibBlockState klib) {
-			return klib.klib$getDensity();
-		}
-
-		return DENSITY.computeIfAbsent(state, BlockUtils::computeDensity);
-	}
-
-	@ApiStatus.Internal
-	static float computeDensity(BlockState state) {
-		var b = state.getBlock();
-
-		if (state.isAir() || b instanceof LightBlock || b instanceof BarrierBlock || b instanceof FireBlock) {
-			return 0F;
-		} else if (b instanceof CarpetBlock || b instanceof ButtonBlock || b instanceof PressurePlateBlock || b instanceof VineBlock || b instanceof LadderBlock) {
-			return 0.06125F;
-		} else if (b instanceof DoorBlock || b instanceof SnowLayerBlock || b instanceof FlowerPotBlock) {
-			return 0.125F;
-		} else if (b instanceof SlabBlock || b instanceof CrossCollisionBlock || b instanceof FenceGateBlock || b instanceof EnchantingTableBlock) {
-			return 0.5F;
-		} else if (b instanceof VegetationBlock) {
-			return 0.25F;
-		} else if (b instanceof SimpleWaterloggedBlock || b instanceof HopperBlock) {
-			return 0.75F;
-		} else {
-			return 1F;
-		}
-	}
-
-	static boolean isVisible(BlockState state) {
-		if (state instanceof KLibBlockState klib) {
-			return klib.klib$isVisible();
-		}
-
-		return computeIsVisible(state);
-	}
-
-	@ApiStatus.Internal
-	static boolean computeIsVisible(BlockState state) {
-		return state.getRenderShape() != RenderShape.INVISIBLE || !state.getFluidState().isEmpty();
-	}
-
-	static boolean isPartial(BlockState state) {
-		if (state instanceof KLibBlockState klib) {
-			return klib.klib$isPartial();
-		}
-
-		return computeIsPartial(state);
-	}
-
-	@ApiStatus.Internal
-	static boolean computeIsPartial(BlockState state) {
-		var b = state.getBlock();
-
-		if (b instanceof AirBlock || b instanceof HalfTransparentBlock || b instanceof SimpleWaterloggedBlock || !state.getFluidState().isEmpty()) {
-			return true;
-		}
-
-		return !isVisible(state) || getDensity(state) < 1F;
-	}
-
-	static boolean isFluid(BlockState state) {
-		return !state.isAir() && state.liquid();
-	}
-
 	static String toString(BlockState state) {
 		var sb = new StringBuilder();
 		sb.append(state.getBlock().builtInRegistryHolder().key().identifier());
@@ -224,7 +132,7 @@ public interface BlockUtils {
 		int exposed = cache.get(key);
 
 		if (exposed == -1) {
-			exposed = isPartial(level.getBlockState(pos)) ? 1 : 0;
+			exposed = KLibBlockStateProperties.of(level.getBlockState(pos)).partial() ? 1 : 0;
 			cache.put(key, exposed);
 		}
 
@@ -241,12 +149,12 @@ public interface BlockUtils {
 	}
 
 	static boolean isBlockExposed(LevelReader level, int x, int y, int z, BlockPos.MutableBlockPos mutablePos) {
-		return isPartial(level.getBlockState(mutablePos.set(x, y + 1, z)))
-			|| isPartial(level.getBlockState(mutablePos.set(x, y - 1, z)))
-			|| isPartial(level.getBlockState(mutablePos.set(x - 1, y, z)))
-			|| isPartial(level.getBlockState(mutablePos.set(x + 1, y, z)))
-			|| isPartial(level.getBlockState(mutablePos.set(x, y, z - 1)))
-			|| isPartial(level.getBlockState(mutablePos.set(x, y, z + 1)));
+		return KLibBlockStateProperties.of(level.getBlockState(mutablePos.set(x, y + 1, z))).partial()
+			|| KLibBlockStateProperties.of(level.getBlockState(mutablePos.set(x, y - 1, z))).partial()
+			|| KLibBlockStateProperties.of(level.getBlockState(mutablePos.set(x - 1, y, z))).partial()
+			|| KLibBlockStateProperties.of(level.getBlockState(mutablePos.set(x + 1, y, z))).partial()
+			|| KLibBlockStateProperties.of(level.getBlockState(mutablePos.set(x, y, z - 1))).partial()
+			|| KLibBlockStateProperties.of(level.getBlockState(mutablePos.set(x, y, z + 1))).partial();
 	}
 
 	static boolean isBlockExposed(LevelReader level, BlockPos pos, BlockState state) {

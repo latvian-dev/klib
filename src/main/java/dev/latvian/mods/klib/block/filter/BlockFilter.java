@@ -3,6 +3,7 @@ package dev.latvian.mods.klib.block.filter;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.latvian.mods.klib.block.BlockUtils;
+import dev.latvian.mods.klib.block.KLibBlockStateProperties;
 import dev.latvian.mods.klib.codec.KLibCodecs;
 import dev.latvian.mods.klib.data.DataType;
 import dev.latvian.mods.klib.registry.CustomRegistry;
@@ -25,10 +26,10 @@ public interface BlockFilter extends BlockPredicate, CustomRegistryValue<Registr
 	UnitType<RegistryFriendlyByteBuf, BlockFilter> NONE = UnitType.create("none", NoneBlockFilter.INSTANCE);
 	UnitType<RegistryFriendlyByteBuf, BlockFilter> ANY = UnitType.create("any", AnyBlockFilter.INSTANCE);
 
-	UnitType<RegistryFriendlyByteBuf, BlockFilter> VISIBLE = simple("visible", (_, _, state) -> BlockUtils.isVisible(state));
-	UnitType<RegistryFriendlyByteBuf, BlockFilter> PARTIAL = simple("partial", (_, _, state) -> BlockUtils.isPartial(state));
+	UnitType<RegistryFriendlyByteBuf, BlockFilter> VISIBLE = simple("visible", (_, _, state) -> KLibBlockStateProperties.of(state).visible());
+	UnitType<RegistryFriendlyByteBuf, BlockFilter> PARTIAL = simple("partial", (_, _, state) -> KLibBlockStateProperties.of(state).partial());
 	UnitType<RegistryFriendlyByteBuf, BlockFilter> EXPOSED = simple("exposed", BlockUtils::isBlockExposed);
-	UnitType<RegistryFriendlyByteBuf, BlockFilter> FLUID = simple("fluid", (_, _, state) -> BlockUtils.isFluid(state));
+	UnitType<RegistryFriendlyByteBuf, BlockFilter> FLUID = simple("fluid", (_, _, state) -> KLibBlockStateProperties.of(state).fluid());
 
 	static BlockFilter of(boolean value) {
 		return value ? AnyBlockFilter.INSTANCE : NoneBlockFilter.INSTANCE;
