@@ -1,7 +1,6 @@
 package dev.latvian.mods.klib.block;
 
-import dev.latvian.mods.klib.core.api.common.KLibBlockState;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import dev.latvian.mods.klib.core.KLibExtensions;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.ButtonBlock;
@@ -25,8 +24,6 @@ import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Map;
-
 public record KLibBlockStateProperties(
 	BlockState state,
 	boolean visible,
@@ -34,8 +31,6 @@ public record KLibBlockStateProperties(
 	float density,
 	boolean fluid
 ) {
-	public static final Map<BlockState, KLibBlockStateProperties> MAP = new Reference2ObjectOpenHashMap<>();
-
 	public static KLibBlockStateProperties compute(BlockState state) {
 		var b = state.getBlock();
 
@@ -71,10 +66,13 @@ public record KLibBlockStateProperties(
 	}
 
 	public static KLibBlockStateProperties of(BlockState state) {
-		if (state instanceof KLibBlockState k) {
-			return k.klib$getBlockStateProperties();
-		} else {
-			return MAP.computeIfAbsent(state, KLibBlockStateProperties::compute);
+		KLibBlockStateProperties properties = KLibExtensions.get(state, 0);
+
+		if (properties == null) {
+			properties = KLibBlockStateProperties.compute(state);
+			KLibExtensions.set(state, 0, properties);
 		}
+
+		return properties;
 	}
 }

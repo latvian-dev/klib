@@ -6,6 +6,7 @@ import dev.latvian.mods.klib.registry.Ref;
 import net.minecraft.util.EasingType;
 
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public record WrappedEasingType(Ref<Interpolation> ref) implements EasingType {
 	public static Codec<EasingType> wrap(Codec<EasingType> original) {
@@ -16,6 +17,10 @@ public record WrappedEasingType(Ref<Interpolation> ref) implements EasingType {
 				return Either.left(easingType);
 			}
 		});
+	}
+
+	public static UnaryOperator<Codec<EasingType>> wrap() {
+		return WrappedEasingType::wrap;
 	}
 
 	@Override

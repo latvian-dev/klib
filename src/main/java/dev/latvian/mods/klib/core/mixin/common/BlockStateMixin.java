@@ -1,22 +1,24 @@
 package dev.latvian.mods.klib.core.mixin.common;
 
-import dev.latvian.mods.klib.block.KLibBlockStateProperties;
-import dev.latvian.mods.klib.core.api.common.KLibBlockState;
+import dev.latvian.mods.klib.core.api.KLibObject;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(BlockState.class)
-public abstract class BlockStateMixin implements KLibBlockState {
+public abstract class BlockStateMixin implements KLibObject {
 	@Unique
-	private KLibBlockStateProperties klib$getBlockStateProperties = null;
+	private Object klib$properties;
 
 	@Override
-	public KLibBlockStateProperties klib$getBlockStateProperties() {
-		if (klib$getBlockStateProperties == null) {
-			klib$getBlockStateProperties = KLibBlockStateProperties.MAP.computeIfAbsent((BlockState) (Object) this, KLibBlockStateProperties::compute);
-		}
+	public Object klib$get(int id) {
+		return id == 0 ? klib$properties : null;
+	}
 
-		return klib$getBlockStateProperties;
+	@Override
+	public void klib$set(int id, Object value) {
+		if (id == 0) {
+			klib$properties = value;
+		}
 	}
 }

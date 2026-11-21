@@ -1,5 +1,6 @@
 package dev.latvian.mods.klib.entity;
 
+import dev.latvian.mods.klib.core.KLibExtensions;
 import dev.latvian.mods.klib.net.C2SPacketConsumer;
 import dev.latvian.mods.klib.net.S2CPacketConsumer;
 import dev.latvian.mods.klib.platform.PlatformHelper;
@@ -15,14 +16,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, MessageConsumer {
-	@FunctionalInterface
-	interface Container {
-		PlayerTarget klib$getPlayerTarget();
-	}
-
 	record Filtered(PlayerTarget parent, Predicate<Player> filter) implements PlayerTarget {
 		@Override
 		public Level getCommonLevel() {
@@ -40,6 +37,8 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	record OfServer(MinecraftServer server) implements PlayerTarget {
+		public static final Function<MinecraftServer, OfServer> FACTORY = OfServer::new;
+
 		@Override
 		public Level getCommonLevel() {
 			return server.overworld();
@@ -66,6 +65,8 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	record OfLevel(Level level) implements PlayerTarget {
+		public static final Function<Level, OfLevel> FACTORY = OfLevel::new;
+
 		@Override
 		public Level getCommonLevel() {
 			return level;
@@ -92,6 +93,8 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	record OfPlayer(Player player) implements PlayerTarget {
+		public static final Function<Player, OfPlayer> FACTORY = OfPlayer::new;
+
 		@Override
 		public Level getCommonLevel() {
 			return player.level();
@@ -114,6 +117,8 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	record OfCommandSourceStack(CommandSourceStack commandSourceStack) implements PlayerTarget {
+		public static final Function<CommandSourceStack, OfCommandSourceStack> FACTORY = OfCommandSourceStack::new;
+
 		@Override
 		public Level getCommonLevel() {
 			return PlatformHelper.INSTANCE.getLevel(commandSourceStack);
@@ -151,36 +156,20 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 		}
 	}
 
-	static PlayerTarget of(MinecraftServer server) {
-		if (server instanceof Container c) {
-			return c.klib$getPlayerTarget();
-		} else {
-			return new OfServer(server);
-		}
+	static OfServer of(MinecraftServer server) {
+		return KLibExtensions.compute(server, 492, OfServer.FACTORY);
 	}
 
-	static PlayerTarget of(Level level) {
-		if (level instanceof Container c) {
-			return c.klib$getPlayerTarget();
-		} else {
-			return new OfLevel(level);
-		}
+	static OfLevel of(Level level) {
+		return KLibExtensions.compute(level, 492, OfLevel.FACTORY);
 	}
 
-	static PlayerTarget of(Player player) {
-		if (player instanceof Container c) {
-			return c.klib$getPlayerTarget();
-		} else {
-			return new OfPlayer(player);
-		}
+	static OfPlayer of(Player player) {
+		return KLibExtensions.compute(player, 492, OfPlayer.FACTORY);
 	}
 
-	static PlayerTarget of(CommandSourceStack commandSourceStack) {
-		if (commandSourceStack instanceof Container c) {
-			return c.klib$getPlayerTarget();
-		} else {
-			return new OfCommandSourceStack(commandSourceStack);
-		}
+	static OfCommandSourceStack of(CommandSourceStack commandSourceStack) {
+		return KLibExtensions.compute(commandSourceStack, 492, OfCommandSourceStack.FACTORY);
 	}
 
 	Level getCommonLevel();

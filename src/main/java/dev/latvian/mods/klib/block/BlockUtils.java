@@ -2,9 +2,11 @@ package dev.latvian.mods.klib.block;
 
 import dev.latvian.mods.klib.block.filter.BlockFilter;
 import dev.latvian.mods.klib.block.filter.SimpleBlockPredicate;
+import dev.latvian.mods.klib.core.KLibExtensions;
 import dev.latvian.mods.klib.platform.PlatformHelper;
 import dev.latvian.mods.klib.util.Cast;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
@@ -12,6 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -196,5 +200,9 @@ public interface BlockUtils {
 
 	static Stream<BlockEntity> getAllBlockEntities(Level level) {
 		return getChunks(level).flatMap(c -> c.getBlockEntities().values().stream());
+	}
+
+	static Long2ObjectLinkedOpenHashMap<ChunkHolder> getVisibleChunkMap(ChunkMap chunkMap) {
+		return KLibExtensions.get(chunkMap, 0);
 	}
 }

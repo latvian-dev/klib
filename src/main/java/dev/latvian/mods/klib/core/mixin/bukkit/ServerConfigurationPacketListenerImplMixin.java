@@ -1,6 +1,6 @@
 package dev.latvian.mods.klib.core.mixin.bukkit;
 
-import dev.latvian.mods.klib.core.api.bukkit.BukkitBridge;
+import dev.latvian.mods.klib.core.api.KLibBridge;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
@@ -20,7 +20,7 @@ public class ServerConfigurationPacketListenerImplMixin {
 
 	@Inject(method = "addOptionalTasks", at = @At("RETURN"))
 	private void vl$addOptionalTasks(CallbackInfo ci) {
-		for (var task : BukkitBridge.CONFIGURATION_TASKS) {
+		for (var task : KLibBridge.CONFIGURATION_TASKS) {
 			configurationTasks.add(task.get());
 		}
 	}

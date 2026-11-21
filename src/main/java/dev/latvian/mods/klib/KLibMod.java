@@ -1,6 +1,7 @@
 package dev.latvian.mods.klib;
 
 import dev.latvian.mods.klib.command.KLibCommandArgumentTypes;
+import dev.latvian.mods.klib.core.KLibExtensions;
 import dev.latvian.mods.klib.environment.KLibEnvironmentAttributes;
 import dev.latvian.mods.klib.gradient.GradientImageLoader;
 import dev.latvian.mods.klib.net.SyncCustomRegistriesTask;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 @EventBusSubscriber(modid = KLib.ID)
 public class KLibMod {
 	public KLibMod(ModContainer mod, IEventBus bus) {
+		KLibExtensions.init();
 		PlatformHelper.INSTANCE = new NeoPlatformHelper(mod);
 		KLib.VERSION = mod.getModInfo().getVersion().toString();
 		KLibCommandArgumentTypes.REGISTRY.register(bus);

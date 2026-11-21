@@ -1,13 +1,11 @@
 package dev.latvian.mods.klib.entity;
 
 import com.mojang.brigadier.context.CommandContext;
-import dev.latvian.mods.klib.core.api.common.KLibClipContext;
-import dev.latvian.mods.klib.core.api.common.KLibEntitySelector;
-import dev.latvian.mods.klib.core.api.common.KLibEntityType;
+import dev.latvian.mods.klib.core.KLibExtensions;
 import dev.latvian.mods.klib.entity.filter.EntityTypeFilter;
+import dev.latvian.mods.klib.math.Line;
 import dev.latvian.mods.klib.math.Rotation;
 import dev.latvian.mods.klib.platform.PlatformHelper;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.BlockPos;
@@ -20,6 +18,7 @@ import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameType;
@@ -27,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +36,10 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface EntityUtils {
+	static List<Predicate<Entity>> getPredicates(EntitySelector selector) {
+		return KLibExtensions.get(selector, 0);
+	}
+
 	static Iterable<Entity> getAllEntities(Level level) {
 		return PlatformHelper.INSTANCE.getEntities(level);
 	}
@@ -53,59 +57,43 @@ public interface EntityUtils {
 	}
 
 	static List<? extends Entity> getSelectedEntities(Level level, EntitySelector selector) {
-		if (selector instanceof KLibEntitySelector k) {
-			var list = new ArrayList<Entity>(1);
+		var predicate = getPredicate(selector);
 
-			for (var entity : getAllEntities(level)) {
-				if (k.test(entity)) {
-					list.add(entity);
-				}
+		var list = new ArrayList<Entity>(1);
+
+		for (var entity : getAllEntities(level)) {
+			if (predicate.test(entity)) {
+				list.add(entity);
 			}
+		}
 
-			return list;
+		return list;
+	}
+
+	static Predicate<Entity> getPredicate(@Nullable EntitySelector selector) {
+		if (selector instanceof Predicate) {
+			return (Predicate) selector;
+		} else if (selector == null) {
+			return _ -> false;
 		} else {
-			try {
-				return selector.findEntities(PlatformHelper.INSTANCE.createGenericCommandSourceStack(level));
-			} catch (Exception ex) {
-				return List.of();
-			}
+			return entity -> isSelected(selector, entity);
 		}
 	}
 
-	static Predicate<Entity> createPredicate(Level level, EntitySelector selector) {
-		if (selector instanceof KLibEntitySelector k) {
-			return k;
-		} else {
-			try {
-				var entities = selector.findEntities(PlatformHelper.INSTANCE.createGenericCommandSourceStack(level));
-				var set = new ReferenceOpenHashSet<>(entities);
-				return set::contains;
-			} catch (Exception ex) {
-				return _ -> false;
-			}
-		}
-	}
-
-	static boolean isSelected(@Nullable EntitySelector selector, Entity entity) {
-		if (selector instanceof KLibEntitySelector k) {
-			return k.test(entity);
-		} else if (selector != null) {
-			try {
-				var entities = selector.findEntities(PlatformHelper.INSTANCE.createGenericCommandSourceStack(entity.level()));
-
-				for (var e : entities) {
-					if (e == entity) {
-						return true;
-					}
-				}
-
-				return false;
-			} catch (Exception ex) {
-				return false;
-			}
-		} else {
+	static boolean isSelected(@Nullable EntitySelector selector, @Nullable Entity entity) {
+		if (selector instanceof Predicate p) {
+			return p.test(entity);
+		} else if (selector == null || entity == null || !entity.isAlive()) {
 			return false;
 		}
+
+		for (var predicate : getPredicates(selector)) {
+			if (!predicate.test(entity)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	static List<? extends Entity> getSelectedEntities(CommandContext<CommandSourceStack> ctx, String name) {
@@ -125,7 +113,7 @@ public interface EntityUtils {
 	}
 
 	static List<Player> getSelectedPlayers(Level level, EntitySelector selector) {
-		return getSelectedPlayers(level, createPredicate(level, selector));
+		return getSelectedPlayers(level, getPredicate(selector));
 	}
 
 	static List<LivingEntity> getDamageableEntities(Level level, @Nullable Entity ignoredEntity, AABB box) {
@@ -251,9 +239,23 @@ public interface EntityUtils {
 		}
 	}
 
+	static double getReachDistance(Entity entity) {
+		return entity instanceof Player player ? player.blockInteractionRange() : 4.5D;
+	}
+
 	static Vec3 getLookTarget(Entity e, float delta) {
-		var range = e instanceof Player player ? player.blockInteractionRange() : 4.5D;
+		var range = getReachDistance(e);
 		return getPosition(e, e.getViewVector(delta).scale(range), delta);
+	}
+
+	static Line ray(Entity entity, double distance, float delta) {
+		var start = entity.getEyePosition(delta);
+		var end = start.add(entity.getViewVector(delta).scale(distance));
+		return new Line(start, end);
+	}
+
+	static Line ray(Entity entity, float delta) {
+		return ray(entity, getReachDistance(entity), delta);
 	}
 
 	static Vec3 getPosition(Entity entity, PositionType type, float delta) {
@@ -297,7 +299,7 @@ public interface EntityUtils {
 	}
 
 	static <T extends Entity> T summon(Level level, EntityType<T> type, Consumer<T> callback) {
-		return type instanceof KLibEntityType<?> t ? summon(level, type, (EntityType.EntityFactory<T>) t.klib$getFactory(), callback) : null;
+		return summon(level, type, getEntityFactory(type), callback);
 	}
 
 	static int discardAll(ServerLevel level, Predicate<Entity> filter) {
@@ -334,11 +336,6 @@ public interface EntityUtils {
 		return killAll(level, new EntityTypeFilter(type));
 	}
 
-	@Nullable
-	static Entity getEntity(ClipContext clipContext) {
-		return clipContext instanceof KLibClipContext ctx && ctx.klib$getCollisionContext() instanceof EntityCollisionContext ectx ? ectx.getEntity() : null;
-	}
-
 	static void teleport(Entity entity, ServerLevel to, Vec3 pos) {
 		entity.teleport(new TeleportTransition(
 			to,
@@ -360,5 +357,50 @@ public interface EntityUtils {
 
 	static void teleport(Entity entity, BlockPos pos) {
 		teleport(entity, new Vec3(pos.getX() + 0.5D, pos.getY() + 0.015625D, pos.getZ() + 0.5D));
+	}
+
+	static ClipContext.Block getBlock(ClipContext ctx) {
+		return KLibExtensions.get(ctx, 0);
+	}
+
+	static ClipContext.Fluid getFluid(ClipContext ctx) {
+		return KLibExtensions.get(ctx, 1);
+	}
+
+	static CollisionContext getCollisionContext(ClipContext ctx) {
+		return KLibExtensions.get(ctx, 2);
+	}
+
+	@Nullable
+	static Entity getEntity(ClipContext clipContext) {
+		return getCollisionContext(clipContext) instanceof EntityCollisionContext ectx ? ectx.getEntity() : null;
+	}
+
+	static float getExhaustionLevel(FoodData foodData) {
+		return KLibExtensions.get(foodData, 0);
+	}
+
+	static void setExhaustionLevel(FoodData foodData, float value) {
+		KLibExtensions.set(foodData, 0, value);
+	}
+
+	static int getTickTimer(FoodData foodData) {
+		return KLibExtensions.get(foodData, 1);
+	}
+
+	static void setTickTimer(FoodData foodData, int value) {
+		KLibExtensions.set(foodData, 1, value);
+	}
+
+	static void setLevel(Entity entity, Level level) {
+		KLibExtensions.set(entity, 0, level);
+	}
+
+	static boolean isSaving(Entity entity) {
+		return KLibExtensions.get(entity, 0);
+	}
+
+	static <T extends Entity> EntityType.EntityFactory<T> getEntityFactory(EntityType<T> type) {
+		return KLibExtensions.get(type, 0);
 	}
 }
