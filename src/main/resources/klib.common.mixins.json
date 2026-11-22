@@ -16,6 +16,7 @@
 		"LevelMixin",
 		"MinecraftServerMixin",
 		"PlayerMixin",
+		"ServerCommonPacketListenerImplMixin",
 		"UseOnContextMixin"
 	],
 	"client": [
