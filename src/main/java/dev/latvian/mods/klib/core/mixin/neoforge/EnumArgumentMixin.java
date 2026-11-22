@@ -1,17 +1,19 @@
 package dev.latvian.mods.klib.core.mixin.neoforge;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.latvian.mods.klib.command.EnumCommandName;
 import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.server.command.EnumArgument;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.EnumMap;
 import java.util.Locale;
@@ -29,8 +31,8 @@ public abstract class EnumArgumentMixin<T extends Enum<T>> {
 	@Unique
 	private Map<T, String> klib$enumValues;
 
-	@Redirect(method = "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/StringReader;readUnquotedString()Ljava/lang/String;"))
-	private String klib$readString(StringReader instance) throws CommandSyntaxException {
+	@WrapOperation(method = "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/StringReader;readUnquotedString()Ljava/lang/String;"))
+	private String klib$readString(StringReader instance, Operation<String> original) throws CommandSyntaxException {
 		return instance.readString();
 	}
 
@@ -47,8 +49,8 @@ public abstract class EnumArgumentMixin<T extends Enum<T>> {
 		return klib$enumValues;
 	}
 
-	@Redirect(method = "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;", at = @At(value = "INVOKE", target = "Ljava/lang/Enum;valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;"))
-	private T klib$betterName(Class<T> enumClass, String name) {
+	@WrapOperation(method = "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;", at = @At(value = "INVOKE", target = "Ljava/lang/Enum;valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;"))
+	private T klib$betterName(@NotNull Class<T> enumClass, @NotNull String name, Operation<T> original) {
 		var map = klib$enumValues();
 
 		for (var entry : map.entrySet()) {
@@ -60,8 +62,8 @@ public abstract class EnumArgumentMixin<T extends Enum<T>> {
 		throw new IllegalArgumentException();
 	}
 
-	@Redirect(method = {"getExamples", "listSuggestions", "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;"}, at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;map(Ljava/util/function/Function;)Ljava/util/stream/Stream;"))
-	private Stream<String> klib$betterName(Stream<T> instance, Function<? super T, ? extends String> function) {
+	@WrapOperation(method = {"getExamples", "listSuggestions", "parse(Lcom/mojang/brigadier/StringReader;)Ljava/lang/Enum;"}, at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;map(Ljava/util/function/Function;)Ljava/util/stream/Stream;"))
+	private Stream<String> klib$betterName(Stream<T> instance, Function<? super T, String> function, Operation<Stream<String>> original) {
 		var map = klib$enumValues();
 		return instance.map(t -> StringArgumentType.escapeIfRequired(Objects.requireNonNull(map.get(t))));
 	}
