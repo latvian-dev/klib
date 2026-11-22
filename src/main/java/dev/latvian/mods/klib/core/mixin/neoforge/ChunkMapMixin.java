@@ -1,4 +1,4 @@
-package dev.latvian.mods.klib.core.mixin.common;
+package dev.latvian.mods.klib.core.mixin.neoforge;
 
 import dev.latvian.mods.klib.core.api.KLibObject;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;

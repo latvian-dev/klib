@@ -4,6 +4,7 @@
 	"package": "dev.latvian.mods.klib.core.mixin.neoforge",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"ChunkMapMixin",
 		"ConditionalOpsMixin",
 		"EnumArgumentMixin",
 		"MinecraftServerMixin"
