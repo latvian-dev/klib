@@ -8,6 +8,7 @@
 	"client": [
 		"CameraMixin",
 		"FrustumMixin",
+		"LocalPlayerMixin",
 		"PoseStackPoseMixin",
 		"VertexConsumerMixin"
 	],
