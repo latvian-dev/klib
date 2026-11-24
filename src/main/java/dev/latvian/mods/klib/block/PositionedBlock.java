@@ -45,6 +45,11 @@ public record PositionedBlock(BlockPos pos, BlockState state) implements BlockCo
 	);
 
 	@Override
+	public DynamicType<ByteBuf, BlockCollection> type() {
+		return TYPE;
+	}
+
+	@Override
 	public String toString() {
 		return "PositionedBlock[%d,%d,%d,%s]".formatted(pos.getX(), pos.getY(), pos.getZ(), BlockUtils.toString(state));
 	}
