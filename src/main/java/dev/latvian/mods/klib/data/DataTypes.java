@@ -83,6 +83,7 @@ import net.minecraft.util.EasingType;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
@@ -150,7 +151,7 @@ public interface DataTypes {
 	DataType<AtlasSprite> ATLAS_SPRITE = DataType.of(MCCodecs.ATLAS_SPRITE, MCStreamCodecs.ATLAS_SPRITE);
 	DataType<Transformation> TRANSFORMATION = DataType.of(Transformation.CODEC, MCStreamCodecs.TRANSFORMATION);
 	DataType<PlayerSkin> SECURE_PLAYER_SKIN = DataType.of(MCCodecs.SECURE_PLAYER_SKIN, MCStreamCodecs.SECURE_PLAYER_SKIN);
-
+	DataType<EnvironmentAttributeMap> ENVIRONMENT_ATTRIBUTE_MAP = DataType.of(EnvironmentAttributeMap.CODEC, ByteBufCodecs.fromCodecTrusted(EnvironmentAttributeMap.NETWORK_CODEC));
 
 	static void register(CustomRegistryTypeCollector<ByteBuf, DataType<?>> registry) {
 		registry.register("data_type", DataType.DATA_TYPE);
@@ -202,6 +203,7 @@ public interface DataTypes {
 		registry.register("atlas_sprite", ATLAS_SPRITE);
 		registry.register("transformation", TRANSFORMATION);
 		registry.register("secure_player_skin", SECURE_PLAYER_SKIN);
+		registry.register("environment_attribute_map", ENVIRONMENT_ATTRIBUTE_MAP);
 
 		registry.register("color", Color.DATA_TYPE);
 		registry.register("solid_color", Color.SOLID_DATA_TYPE);
