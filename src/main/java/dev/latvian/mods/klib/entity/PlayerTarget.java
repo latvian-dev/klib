@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -157,19 +158,19 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	static OfServer of(MinecraftServer server) {
-		return KLibExtensions.compute(server, 492, OfServer.FACTORY);
+		return Objects.requireNonNull(KLibExtensions.compute(server, 492, OfServer.FACTORY), "MinecraftServer is null");
 	}
 
 	static OfLevel of(Level level) {
-		return KLibExtensions.compute(level, 492, OfLevel.FACTORY);
+		return Objects.requireNonNull(KLibExtensions.compute(level, 492, OfLevel.FACTORY), "Level is null");
 	}
 
 	static OfPlayer of(Player player) {
-		return KLibExtensions.compute(player, 492, OfPlayer.FACTORY);
+		return Objects.requireNonNull(KLibExtensions.compute(player, 492, OfPlayer.FACTORY), "Player is null");
 	}
 
 	static OfCommandSourceStack of(CommandSourceStack commandSourceStack) {
-		return KLibExtensions.compute(commandSourceStack, 492, OfCommandSourceStack.FACTORY);
+		return Objects.requireNonNull(KLibExtensions.compute(commandSourceStack, 492, OfCommandSourceStack.FACTORY), "CommandSourceStack is null");
 	}
 
 	Level getCommonLevel();
