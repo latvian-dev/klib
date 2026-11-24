@@ -52,6 +52,8 @@ public class KLibExtensions {
 	public static Object getRaw(Object object, int id) {
 		if (object instanceof KLibObject ext) {
 			return ext.klib$get(id);
+		} else if (object == null) {
+			throw new NullPointerException("Can't get property " + id + ", object is null");
 		}
 
 		try {
@@ -69,6 +71,8 @@ public class KLibExtensions {
 		if (object instanceof KLibObject ext) {
 			ext.klib$set(id, value);
 			return;
+		} else if (object == null) {
+			throw new NullPointerException("Can't set property " + id + ", object is null");
 		}
 
 		try {

@@ -158,19 +158,19 @@ public interface PlayerTarget extends S2CPacketConsumer, C2SPacketConsumer, Mess
 	}
 
 	static OfServer of(MinecraftServer server) {
-		return Objects.requireNonNull(KLibExtensions.compute(server, 492, OfServer.FACTORY), "MinecraftServer is null");
+		return KLibExtensions.compute(Objects.requireNonNull(server, "MinecraftServer is null"), 492, OfServer.FACTORY);
 	}
 
 	static OfLevel of(Level level) {
-		return Objects.requireNonNull(KLibExtensions.compute(level, 492, OfLevel.FACTORY), "Level is null");
+		return KLibExtensions.compute(Objects.requireNonNull(level, "Level is null"), 492, OfLevel.FACTORY);
 	}
 
 	static OfPlayer of(Player player) {
-		return Objects.requireNonNull(KLibExtensions.compute(player, 492, OfPlayer.FACTORY), "Player is null");
+		return KLibExtensions.compute(Objects.requireNonNull(player, "Player is null"), 492, OfPlayer.FACTORY);
 	}
 
 	static OfCommandSourceStack of(CommandSourceStack commandSourceStack) {
-		return Objects.requireNonNull(KLibExtensions.compute(commandSourceStack, 492, OfCommandSourceStack.FACTORY), "CommandSourceStack is null");
+		return KLibExtensions.compute(Objects.requireNonNull(commandSourceStack, "CommandSourceStack is null"), 492, OfCommandSourceStack.FACTORY);
 	}
 
 	Level getCommonLevel();
