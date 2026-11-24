@@ -28,6 +28,12 @@ public class KLibBuiltInRegistries {
 			}
 		}
 
+		if (registryPredicate.test(Registries.ATTRIBUTE_TYPE)) {
+			for (var entry : KLibEnvironmentAttributes.TYPE_REGISTRY) {
+				Registry.register(BuiltInRegistries.ATTRIBUTE_TYPE, entry.first(), entry.second().get());
+			}
+		}
+
 		if (registryPredicate.test(Registries.ENVIRONMENT_ATTRIBUTE)) {
 			for (var entry : KLibEnvironmentAttributes.REGISTRY) {
 				Registry.register(BuiltInRegistries.ENVIRONMENT_ATTRIBUTE, entry.first(), entry.second().get());
