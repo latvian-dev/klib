@@ -14,14 +14,14 @@ public interface KLibEnvironmentAttributes {
 	List<Pair<Identifier, Supplier<AttributeType<?>>>> TYPE_REGISTRY = new LinkedList<>();
 	List<Pair<Identifier, Supplier<EnvironmentAttribute<?>>>> REGISTRY = new LinkedList<>();
 
-	static <Value> Supplier<AttributeType<Value>> registerType(Identifier name, Supplier<AttributeType<Value>> builder) {
-		Supplier<AttributeType<Value>> supplier = Lazy.of(builder);
+	static <Value> Supplier<AttributeType<Value>> registerType(Identifier name, Supplier<AttributeType<Value>> value) {
+		Supplier<AttributeType<Value>> supplier = Lazy.of(value);
 		TYPE_REGISTRY.add(Pair.of(name, (Supplier) supplier));
 		return supplier;
 	}
 
-	static <Value> Supplier<EnvironmentAttribute<Value>> register(Identifier name, Supplier<EnvironmentAttribute.Builder<Value>> builder) {
-		Supplier<EnvironmentAttribute<Value>> supplier = Lazy.of(() -> builder.get().build());
+	static <Value> Supplier<EnvironmentAttribute<Value>> register(Identifier name, Supplier<EnvironmentAttribute<Value>> value) {
+		Supplier<EnvironmentAttribute<Value>> supplier = Lazy.of(value);
 		REGISTRY.add(Pair.of(name, (Supplier) supplier));
 		return supplier;
 	}
