@@ -5,6 +5,7 @@ import dev.latvian.mods.klib.block.BlockStatePalette;
 import dev.latvian.mods.klib.block.PositionedBlock;
 import dev.latvian.mods.klib.codec.CompositeStreamCodec;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import dev.latvian.mods.klib.registry.Ref;
 import io.netty.buffer.ByteBuf;
@@ -27,6 +28,11 @@ public record PositionedBlockStatePalette(List<BlockPos> positions, Ref<BlockSta
 			PositionedBlockStatePalette::new
 		)
 	);
+
+	@Override
+	public CustomRegistryType<ByteBuf, BlockCollection> type() {
+		return TYPE;
+	}
 
 	@Override
 	public List<PositionedBlock> collectBlocks(RandomSource random) {

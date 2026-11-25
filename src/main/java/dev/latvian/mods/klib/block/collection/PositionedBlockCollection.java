@@ -2,6 +2,7 @@ package dev.latvian.mods.klib.block.collection;
 
 import dev.latvian.mods.klib.block.PositionedBlock;
 import dev.latvian.mods.klib.codec.KLibStreamCodecs;
+import dev.latvian.mods.klib.registry.CustomRegistryType;
 import dev.latvian.mods.klib.registry.DynamicType;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.RandomSource;
@@ -21,6 +22,11 @@ public record PositionedBlockCollection(List<PositionedBlock> blocks) implements
 	@Override
 	public List<PositionedBlock> collectBlocks(RandomSource random) {
 		return blocks;
+	}
+
+	@Override
+	public CustomRegistryType<ByteBuf, BlockCollection> type() {
+		return TYPE;
 	}
 
 	@Override
