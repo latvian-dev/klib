@@ -9,6 +9,7 @@ import dev.latvian.mods.klib.vertex.QuadVertexCallback;
 import dev.latvian.mods.klib.vertex.VertexCallback;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.joml.Matrix3f;
 import org.joml.Matrix3fc;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
@@ -38,7 +39,7 @@ public record ComputedTransformation(
 			identity,
 			transformation.getMatrix(),
 			transformation.getMatrixCopy().invert(),
-			transformation.getNormalMatrix(),
+			new Matrix3f(transformation.getMatrix()).invert().transpose(),
 			new Vector3f(0F, 0F, 0F).mulPosition(transformation.getMatrix()),
 			new Vector3f(1F, 1F, 1F).mulPosition(transformation.getMatrix())
 		);
