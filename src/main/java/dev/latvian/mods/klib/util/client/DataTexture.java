@@ -25,12 +25,15 @@ public class DataTexture extends AbstractTexture implements Dumpable {
 	private int currentRow;
 	private int columnCount;
 
-	public DataTexture(String name, int width, int height) {
+	public DataTexture(String name, int expectedWidth, int expectedHeight) {
 		this.name = name;
-		this.expectedWidth = width;
+		this.expectedWidth = expectedWidth;
+		int width = Mth.ceil((expectedWidth + 1) / 4D) * 4;
+		int height = Mth.ceil((expectedHeight + 1) / 4D) * 4;
 		this.texture = RenderSystem.getDevice().createTexture(name, GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST, GpuFormat.RGBA8_UNORM, width, height, 1, 1);
-		this.sampler = RenderSystem.getSamplerCache().getSampler(com.mojang.renderpearl.api.textures.AddressMode.CLAMP_TO_EDGE, com.mojang.renderpearl.api.textures.AddressMode.CLAMP_TO_EDGE, FilterMode.NEAREST, FilterMode.NEAREST, false);
-		this.pixels = new ArrayList<>(height);
+		this.textureView = RenderSystem.getDevice().createTextureView(texture);
+		this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
+		this.pixels = new ArrayList<>(expectedHeight);
 	}
 
 	@Override
@@ -77,14 +80,13 @@ public class DataTexture extends AbstractTexture implements Dumpable {
 			return 0;
 		}
 
-		if (image == null || columnCount > image.getWidth() || currentRow > image.getHeight()) {
-			int width = Mth.ceil((columnCount + 1) / 4D) * 4;
-			int height = Mth.ceil((currentRow + 1) / 4D) * 4;
+		int width = Mth.ceil((columnCount + 1) / 4D) * 4;
+		int height = Mth.ceil((currentRow + 1) / 4D) * 4;
 
+		if (image == null || width > image.getWidth() || height > image.getHeight()) {
 			if (image != null) {
 				width = Math.max(width, image.getWidth());
 				height = Math.max(height, image.getHeight());
-
 				image.close();
 				image = null;
 			}
@@ -95,8 +97,12 @@ public class DataTexture extends AbstractTexture implements Dumpable {
 				texture.close();
 			}
 
+			if (textureView != null) {
+				textureView.close();
+			}
+
 			texture = RenderSystem.getDevice().createTexture(name, GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST, GpuFormat.RGBA8_UNORM, width, height, 1, 1);
-			this.sampler = RenderSystem.getSamplerCache().getSampler(com.mojang.renderpearl.api.textures.AddressMode.CLAMP_TO_EDGE, com.mojang.renderpearl.api.textures.AddressMode.CLAMP_TO_EDGE, FilterMode.NEAREST, FilterMode.NEAREST, false);
+			textureView = RenderSystem.getDevice().createTextureView(texture);
 		}
 
 		for (int y = 0; y < currentRow; y++) {
